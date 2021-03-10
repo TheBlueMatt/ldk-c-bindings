@@ -595,6 +595,14 @@ pub extern "C" fn ChannelManager_new(mut fee_est: crate::chain::chaininterface::
 	ChannelManager { inner: Box::into_raw(Box::new(ret)), is_owned: true }
 }
 
+/// Gets the current configuration applied to all new channels,  as
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelManager_get_current_default_configuration(this_arg: &ChannelManager) -> crate::util::config::UserConfig {
+	let mut ret = unsafe { &*this_arg.inner }.get_current_default_configuration();
+	crate::util::config::UserConfig { inner: unsafe { ( (&(*ret) as *const _) as *mut _) }, is_owned: false }
+}
+
 /// Creates a new outbound channel to the given remote node and with the given value.
 ///
 /// user_id will be provided back as user_channel_id in FundingGenerationReady and
@@ -722,13 +730,19 @@ pub extern "C" fn ChannelManager_send_payment(this_arg: &ChannelManager, route: 
 /// Note that ALL inputs in the transaction pointed to by funding_txo MUST spend SegWit outputs
 /// or your counterparty can steal your funds!
 ///
+/// Returns an [`APIError::APIMisuseError`] if the funding_transaction spent non-SegWit outputs
+/// or the output didn't match the parameters in [`Event::FundingGenerationReady`].
+///
 /// Panics if a funding transaction has already been provided for this channel.
 ///
 /// May panic if the funding_txo is duplicative with some other channel (note that this should
 /// be trivially prevented by using unique funding transaction keys per-channel).
+#[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelManager_funding_transaction_generated(this_arg: &ChannelManager, temporary_channel_id: *const [u8; 32], mut funding_txo: crate::chain::transaction::OutPoint) {
-	unsafe { &*this_arg.inner }.funding_transaction_generated(unsafe { &*temporary_channel_id}, *unsafe { Box::from_raw(funding_txo.take_inner()) })
+pub extern "C" fn ChannelManager_funding_transaction_generated(this_arg: &ChannelManager, temporary_channel_id: *const [u8; 32], mut funding_transaction: crate::c_types::Transaction, mut output_index: u16) -> crate::c_types::derived::CResult_NoneAPIErrorZ {
+	let mut ret = unsafe { &*this_arg.inner }.funding_transaction_generated(unsafe { &*temporary_channel_id}, funding_transaction.into_bitcoin(), output_index);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { 0u8 /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::util::errors::APIError::native_into(e) }).into() };
+	local_ret
 }
 
 /// Generates a signed node_announcement from the given arguments and creates a
@@ -921,24 +935,61 @@ pub extern "C" fn ChannelManager_as_Listen(this_arg: &ChannelManager) -> crate::
 extern "C" fn ChannelManager_Listen_block_connected(this_arg: *const c_void, mut block: crate::c_types::u8slice, mut height: u32) {
 	<nativeChannelManager as lightning::chain::Listen<>>::block_connected(unsafe { &mut *(this_arg as *mut nativeChannelManager) }, &::bitcoin::consensus::encode::deserialize(block.to_slice()).unwrap(), height)
 }
-extern "C" fn ChannelManager_Listen_block_disconnected(this_arg: *const c_void, header: *const [u8; 80], mut _height: u32) {
-	<nativeChannelManager as lightning::chain::Listen<>>::block_disconnected(unsafe { &mut *(this_arg as *mut nativeChannelManager) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), _height)
+extern "C" fn ChannelManager_Listen_block_disconnected(this_arg: *const c_void, header: *const [u8; 80], mut height: u32) {
+	<nativeChannelManager as lightning::chain::Listen<>>::block_disconnected(unsafe { &mut *(this_arg as *mut nativeChannelManager) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height)
 }
 
-/// Updates channel state based on transactions seen in a connected block.
-#[no_mangle]
-pub extern "C" fn ChannelManager_block_connected(this_arg: &ChannelManager, header: *const [u8; 80], mut txdata: crate::c_types::derived::CVec_C2Tuple_usizeTransactionZZ, mut height: u32) {
-	let mut local_txdata = Vec::new(); for mut item in txdata.into_rust().drain(..) { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item.to_rust(); let mut local_txdata_0 = (orig_txdata_0_0, orig_txdata_0_1.into_bitcoin()); local_txdata_0 }); };
-	unsafe { &*this_arg.inner }.block_connected(&::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), &local_txdata.iter().map(|(a, b)| (*a, b)).collect::<Vec<_>>()[..], height)
-}
-
-/// Updates channel state based on a disconnected block.
+/// Updates channel state to take note of transactions which were confirmed in the given block
+/// at the given height.
 ///
-/// If necessary, the channel may be force-closed without letting the counterparty participate
-/// in the shutdown.
+/// Note that you must still call update_best_block with the block information which is
+/// included here.
+///
+/// This method may be called before or after update_best_block for a given block's transaction
+/// data and may be called multiple times with additional transaction data for a given block.
+///
+/// This method may be called for a previous block after an update_best_block() call has been
+/// made for a later block, however it must *not* be called with transaction data from a block
+/// which is no longer in the best chain (ie where update_best_block() has already been
+/// informed about a blockchain reorganization which no longer includes the block which
+/// corresponds to `header`).
 #[no_mangle]
-pub extern "C" fn ChannelManager_block_disconnected(this_arg: &ChannelManager, header: *const [u8; 80]) {
-	unsafe { &*this_arg.inner }.block_disconnected(&::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap())
+pub extern "C" fn ChannelManager_transactions_confirmed(this_arg: &ChannelManager, header: *const [u8; 80], mut height: u32, mut txdata: crate::c_types::derived::CVec_C2Tuple_usizeTransactionZZ) {
+	let mut local_txdata = Vec::new(); for mut item in txdata.into_rust().drain(..) { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item.to_rust(); let mut local_txdata_0 = (orig_txdata_0_0, orig_txdata_0_1.into_bitcoin()); local_txdata_0 }); };
+	unsafe { &*this_arg.inner }.transactions_confirmed(&::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height, &local_txdata.iter().map(|(a, b)| (*a, b)).collect::<Vec<_>>()[..])
+}
+
+/// Updates channel state with the current best blockchain tip. You should attempt to call this
+/// quickly after a new block becomes available, however if multiple new blocks become
+/// available at the same time, only a single `update_best_block()` call needs to be made.
+///
+/// This method should also be called immediately after any block disconnections, once at the
+/// reorganization fork point, and once with the new chain tip. Calling this method at the
+/// blockchain reorganization fork point ensures we learn when a funding transaction which was
+/// previously confirmed is reorganized out of the blockchain, ensuring we do not continue to
+/// accept payments which cannot be enforced on-chain.
+///
+/// In both the block-connection and block-disconnection case, this method may be called either
+/// once per block connected or disconnected, or simply at the fork point and new tip(s),
+/// skipping any intermediary blocks.
+#[no_mangle]
+pub extern "C" fn ChannelManager_update_best_block(this_arg: &ChannelManager, header: *const [u8; 80], mut height: u32) {
+	unsafe { &*this_arg.inner }.update_best_block(&::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height)
+}
+
+/// Gets the set of txids which should be monitored for their confirmation state. XXX: Docs
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelManager_get_relevant_txids(this_arg: &ChannelManager) -> crate::c_types::derived::CVec_TxidZ {
+	let mut ret = unsafe { &*this_arg.inner }.get_relevant_txids();
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::c_types::ThirtyTwoBytes { data: item.into_inner() } }); };
+	local_ret.into()
+}
+
+/// Marks a transaction as having been reorganized out of the blockchain XXX: Docs
+#[no_mangle]
+pub extern "C" fn ChannelManager_transaction_unconfirmed(this_arg: &ChannelManager, txid: *const [u8; 32]) {
+	unsafe { &*this_arg.inner }.transaction_unconfirmed(&::bitcoin::hash_types::Txid::from_slice(&unsafe { &*txid }[..]).unwrap())
 }
 
 /// Blocks until ChannelManager needs to be persisted or a timeout is reached. It returns a bool

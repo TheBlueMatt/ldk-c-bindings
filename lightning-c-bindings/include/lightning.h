@@ -3202,12 +3202,6 @@ typedef enum LDKEvent_Tag {
     */
    LDKEvent_FundingGenerationReady,
    /**
-    * Used to indicate that the client may now broadcast the funding transaction it created for a
-    * channel. Broadcasting such a transaction prior to this event may lead to our counterparty
-    * trivially stealing all funds in the funding transaction!
-    */
-   LDKEvent_FundingBroadcastSafe,
-   /**
     * Indicates we've received money! Just gotta dig out that payment preimage and feed it to
     * ChannelManager::claim_funds to get it....
     * Note that if the preimage is not known or the amount paid is incorrect, you should call
@@ -3271,18 +3265,6 @@ typedef struct LDKEvent_LDKFundingGenerationReady_Body {
     */
    uint64_t user_channel_id;
 } LDKEvent_LDKFundingGenerationReady_Body;
-
-typedef struct LDKEvent_LDKFundingBroadcastSafe_Body {
-   /**
-    * The output, which was passed to ChannelManager::funding_transaction_generated, which is
-    * now safe to broadcast.
-    */
-   struct LDKOutPoint funding_txo;
-   /**
-    * The value passed in to ChannelManager::create_channel
-    */
-   uint64_t user_channel_id;
-} LDKEvent_LDKFundingBroadcastSafe_Body;
 
 typedef struct LDKEvent_LDKPaymentReceived_Body {
    /**
@@ -3352,7 +3334,6 @@ typedef struct MUST_USE_STRUCT LDKEvent {
    LDKEvent_Tag tag;
    union {
       LDKEvent_LDKFundingGenerationReady_Body funding_generation_ready;
-      LDKEvent_LDKFundingBroadcastSafe_Body funding_broadcast_safe;
       LDKEvent_LDKPaymentReceived_Body payment_received;
       LDKEvent_LDKPaymentSent_Body payment_sent;
       LDKEvent_LDKPaymentFailed_Body payment_failed;
@@ -4401,6 +4382,22 @@ typedef struct LDKCResult_NonePaymentSendFailureZ {
     */
    bool result_ok;
 } LDKCResult_NonePaymentSendFailureZ;
+
+/**
+ * A dynamically-allocated array of crate::c_types::ThirtyTwoBytess of arbitrary size.
+ * This corresponds to std::vector in C++
+ */
+typedef struct LDKCVec_TxidZ {
+   /**
+    * The elements in the array.
+    * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+    */
+   struct LDKThirtyTwoBytes *data;
+   /**
+    * The number of elements pointed to by `data`.
+    */
+   uintptr_t datalen;
+} LDKCVec_TxidZ;
 
 /**
  * A dynamically-allocated array of crate::chain::channelmonitor::ChannelMonitors of arbitrary size.
@@ -8462,6 +8459,11 @@ struct LDKCResult_NonePaymentSendFailureZ CResult_NonePaymentSendFailureZ_clone(
 /**
  * Frees the buffer pointed to by `data` if `datalen` is non-0.
  */
+void CVec_TxidZ_free(struct LDKCVec_TxidZ _res);
+
+/**
+ * Frees the buffer pointed to by `data` if `datalen` is non-0.
+ */
 void CVec_ChannelMonitorZ_free(struct LDKCVec_ChannelMonitorZ _res);
 
 /**
@@ -10965,6 +10967,11 @@ struct LDKPaymentSendFailure PaymentSendFailure_clone(const struct LDKPaymentSen
 MUST_USE_RES struct LDKChannelManager ChannelManager_new(struct LDKFeeEstimator fee_est, struct LDKWatch chain_monitor, struct LDKBroadcasterInterface tx_broadcaster, struct LDKLogger logger, struct LDKKeysInterface keys_manager, struct LDKUserConfig config, struct LDKChainParameters params);
 
 /**
+ * Gets the current configuration applied to all new channels,  as
+ */
+MUST_USE_RES struct LDKUserConfig ChannelManager_get_current_default_configuration(const struct LDKChannelManager *NONNULL_PTR this_arg);
+
+/**
  * Creates a new outbound channel to the given remote node and with the given value.
  *
  * user_id will be provided back as user_channel_id in FundingGenerationReady and
@@ -11065,12 +11072,15 @@ MUST_USE_RES struct LDKCResult_NonePaymentSendFailureZ ChannelManager_send_payme
  * Note that ALL inputs in the transaction pointed to by funding_txo MUST spend SegWit outputs
  * or your counterparty can steal your funds!
  *
+ * Returns an [`APIError::APIMisuseError`] if the funding_transaction spent non-SegWit outputs
+ * or the output didn't match the parameters in [`Event::FundingGenerationReady`].
+ *
  * Panics if a funding transaction has already been provided for this channel.
  *
  * May panic if the funding_txo is duplicative with some other channel (note that this should
  * be trivially prevented by using unique funding transaction keys per-channel).
  */
-void ChannelManager_funding_transaction_generated(const struct LDKChannelManager *NONNULL_PTR this_arg, const uint8_t (*temporary_channel_id)[32], struct LDKOutPoint funding_txo);
+MUST_USE_RES struct LDKCResult_NoneAPIErrorZ ChannelManager_funding_transaction_generated(const struct LDKChannelManager *NONNULL_PTR this_arg, const uint8_t (*temporary_channel_id)[32], struct LDKTransaction funding_transaction, uint16_t output_index);
 
 /**
  * Generates a signed node_announcement from the given arguments and creates a
@@ -11184,17 +11194,49 @@ struct LDKEventsProvider ChannelManager_as_EventsProvider(const struct LDKChanne
 struct LDKListen ChannelManager_as_Listen(const struct LDKChannelManager *NONNULL_PTR this_arg);
 
 /**
- * Updates channel state based on transactions seen in a connected block.
+ * Updates channel state to take note of transactions which were confirmed in the given block
+ * at the given height.
+ *
+ * Note that you must still call update_best_block with the block information which is
+ * included here.
+ *
+ * This method may be called before or after update_best_block for a given block's transaction
+ * data and may be called multiple times with additional transaction data for a given block.
+ *
+ * This method may be called for a previous block after an update_best_block() call has been
+ * made for a later block, however it must *not* be called with transaction data from a block
+ * which is no longer in the best chain (ie where update_best_block() has already been
+ * informed about a blockchain reorganization which no longer includes the block which
+ * corresponds to `header`).
  */
-void ChannelManager_block_connected(const struct LDKChannelManager *NONNULL_PTR this_arg, const uint8_t (*header)[80], struct LDKCVec_C2Tuple_usizeTransactionZZ txdata, uint32_t height);
+void ChannelManager_transactions_confirmed(const struct LDKChannelManager *NONNULL_PTR this_arg, const uint8_t (*header)[80], uint32_t height, struct LDKCVec_C2Tuple_usizeTransactionZZ txdata);
 
 /**
- * Updates channel state based on a disconnected block.
+ * Updates channel state with the current best blockchain tip. You should attempt to call this
+ * quickly after a new block becomes available, however if multiple new blocks become
+ * available at the same time, only a single `update_best_block()` call needs to be made.
  *
- * If necessary, the channel may be force-closed without letting the counterparty participate
- * in the shutdown.
+ * This method should also be called immediately after any block disconnections, once at the
+ * reorganization fork point, and once with the new chain tip. Calling this method at the
+ * blockchain reorganization fork point ensures we learn when a funding transaction which was
+ * previously confirmed is reorganized out of the blockchain, ensuring we do not continue to
+ * accept payments which cannot be enforced on-chain.
+ *
+ * In both the block-connection and block-disconnection case, this method may be called either
+ * once per block connected or disconnected, or simply at the fork point and new tip(s),
+ * skipping any intermediary blocks.
  */
-void ChannelManager_block_disconnected(const struct LDKChannelManager *NONNULL_PTR this_arg, const uint8_t (*header)[80]);
+void ChannelManager_update_best_block(const struct LDKChannelManager *NONNULL_PTR this_arg, const uint8_t (*header)[80], uint32_t height);
+
+/**
+ * Gets the set of txids which should be monitored for their confirmation state. XXX: Docs
+ */
+MUST_USE_RES struct LDKCVec_TxidZ ChannelManager_get_relevant_txids(const struct LDKChannelManager *NONNULL_PTR this_arg);
+
+/**
+ * Marks a transaction as having been reorganized out of the blockchain XXX: Docs
+ */
+void ChannelManager_transaction_unconfirmed(const struct LDKChannelManager *NONNULL_PTR this_arg, const uint8_t (*txid)[32]);
 
 /**
  * Blocks until ChannelManager needs to be persisted or a timeout is reached. It returns a bool

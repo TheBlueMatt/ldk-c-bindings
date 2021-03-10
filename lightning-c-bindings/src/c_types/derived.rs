@@ -4541,6 +4541,44 @@ impl Clone for CResult_NonePaymentSendFailureZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_NonePaymentSendFailureZ_clone(orig: &CResult_NonePaymentSendFailureZ) -> CResult_NonePaymentSendFailureZ { orig.clone() }
 #[repr(C)]
+/// A dynamically-allocated array of crate::c_types::ThirtyTwoBytess of arbitrary size.
+/// This corresponds to std::vector in C++
+pub struct CVec_TxidZ {
+	/// The elements in the array.
+	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+	pub data: *mut crate::c_types::ThirtyTwoBytes,
+	/// The number of elements pointed to by `data`.
+	pub datalen: usize
+}
+impl CVec_TxidZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::ThirtyTwoBytes> {
+		if self.datalen == 0 { return Vec::new(); }
+		let ret = unsafe { Box::from_raw(std::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
+		self.data = std::ptr::null_mut();
+		self.datalen = 0;
+		ret
+	}
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::ThirtyTwoBytes] {
+		unsafe { std::slice::from_raw_parts_mut(self.data, self.datalen) }
+	}
+}
+impl From<Vec<crate::c_types::ThirtyTwoBytes>> for CVec_TxidZ {
+	fn from(v: Vec<crate::c_types::ThirtyTwoBytes>) -> Self {
+		let datalen = v.len();
+		let data = Box::into_raw(v.into_boxed_slice());
+		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
+	}
+}
+#[no_mangle]
+/// Frees the buffer pointed to by `data` if `datalen` is non-0.
+pub extern "C" fn CVec_TxidZ_free(_res: CVec_TxidZ) { }
+impl Drop for CVec_TxidZ {
+	fn drop(&mut self) {
+		if self.datalen == 0 { return; }
+		unsafe { Box::from_raw(std::slice::from_raw_parts_mut(self.data, self.datalen)) };
+	}
+}
+#[repr(C)]
 /// A dynamically-allocated array of crate::chain::channelmonitor::ChannelMonitors of arbitrary size.
 /// This corresponds to std::vector in C++
 pub struct CVec_ChannelMonitorZ {
