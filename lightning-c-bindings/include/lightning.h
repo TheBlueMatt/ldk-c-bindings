@@ -10223,6 +10223,11 @@ struct LDKCResult_HTLCUpdateDecodeErrorZ HTLCUpdate_read(struct LDKu8slice ser);
 void ChannelMonitor_free(struct LDKChannelMonitor this_obj);
 
 /**
+ * Creates a copy of the ChannelMonitor
+ */
+struct LDKChannelMonitor ChannelMonitor_clone(const struct LDKChannelMonitor *NONNULL_PTR orig);
+
+/**
  * Serialize the ChannelMonitor object into a byte array which can be read by ChannelMonitor_read
  */
 struct LDKCVec_u8Z ChannelMonitor_write(const struct LDKChannelMonitor *NONNULL_PTR obj);
