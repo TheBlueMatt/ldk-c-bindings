@@ -250,6 +250,18 @@ impl Route {
 /// given path is variable, keeping the length of any path to less than 20 should currently
 /// ensure it is viable.
 #[no_mangle]
+pub extern "C" fn Route_get_paths(this_ptr: &Route) -> crate::c_types::derived::CVec_CVec_RouteHopZZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().paths;
+	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { let mut local_inner_val_0 = Vec::new(); for item in item.iter() { local_inner_val_0.push( { crate::lightning::routing::router::RouteHop { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const _) as *mut _) }, is_owned: false } }); }; local_inner_val_0.into() }); };
+	local_inner_val.into()
+}
+/// The list of routes taken for a single (potentially-)multi-part payment. The pubkey of the
+/// last RouteHop in each path must be the same.
+/// Each entry represents a list of hops, NOT INCLUDING our own, where the last hop is the
+/// destination. Thus, this must always be at least length one. While the maximum length of any
+/// given path is variable, keeping the length of any path to less than 20 should currently
+/// ensure it is viable.
+#[no_mangle]
 pub extern "C" fn Route_set_paths(this_ptr: &mut Route, mut val: crate::c_types::derived::CVec_CVec_RouteHopZZ) {
 	let mut local_val = Vec::new(); for mut item in val.into_rust().drain(..) { local_val.push( { let mut local_val_0 = Vec::new(); for mut item in item.into_rust().drain(..) { local_val_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_val_0 }); };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.paths = local_val;

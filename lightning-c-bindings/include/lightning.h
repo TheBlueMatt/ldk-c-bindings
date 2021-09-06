@@ -16741,7 +16741,17 @@ void CommitmentUpdate_free(struct LDKCommitmentUpdate this_obj);
 /**
  * update_add_htlc messages which should be sent
  */
+struct LDKCVec_UpdateAddHTLCZ CommitmentUpdate_get_update_add_htlcs(const struct LDKCommitmentUpdate *NONNULL_PTR this_ptr);
+
+/**
+ * update_add_htlc messages which should be sent
+ */
 void CommitmentUpdate_set_update_add_htlcs(struct LDKCommitmentUpdate *NONNULL_PTR this_ptr, struct LDKCVec_UpdateAddHTLCZ val);
+
+/**
+ * update_fulfill_htlc messages which should be sent
+ */
+struct LDKCVec_UpdateFulfillHTLCZ CommitmentUpdate_get_update_fulfill_htlcs(const struct LDKCommitmentUpdate *NONNULL_PTR this_ptr);
 
 /**
  * update_fulfill_htlc messages which should be sent
@@ -16751,7 +16761,17 @@ void CommitmentUpdate_set_update_fulfill_htlcs(struct LDKCommitmentUpdate *NONNU
 /**
  * update_fail_htlc messages which should be sent
  */
+struct LDKCVec_UpdateFailHTLCZ CommitmentUpdate_get_update_fail_htlcs(const struct LDKCommitmentUpdate *NONNULL_PTR this_ptr);
+
+/**
+ * update_fail_htlc messages which should be sent
+ */
 void CommitmentUpdate_set_update_fail_htlcs(struct LDKCommitmentUpdate *NONNULL_PTR this_ptr, struct LDKCVec_UpdateFailHTLCZ val);
+
+/**
+ * update_fail_malformed_htlc messages which should be sent
+ */
+struct LDKCVec_UpdateFailMalformedHTLCZ CommitmentUpdate_get_update_fail_malformed_htlcs(const struct LDKCommitmentUpdate *NONNULL_PTR this_ptr);
 
 /**
  * update_fail_malformed_htlc messages which should be sent
@@ -18379,10 +18399,7 @@ MUST_USE_RES struct LDKShutdownScript ShutdownScript_new_p2wpkh(const uint8_t (*
 MUST_USE_RES struct LDKShutdownScript ShutdownScript_new_p2wsh(const uint8_t (*script_hash)[32]);
 
 /**
- * Generates a witness script pubkey from the given segwit version and program.
- *
- * Note for version-zero witness scripts you must use [`ShutdownScript::new_p2wpkh`] or
- * [`ShutdownScript::new_p2wsh`] instead.
+ * Generates a P2WSH script pubkey from the given segwit version and program.
  *
  * # Errors
  *
@@ -18508,6 +18525,16 @@ struct LDKCResult_RouteHopDecodeErrorZ RouteHop_read(struct LDKu8slice ser);
  * Frees any resources used by the Route, if is_owned is set and inner is non-NULL.
  */
 void Route_free(struct LDKRoute this_obj);
+
+/**
+ * The list of routes taken for a single (potentially-)multi-part payment. The pubkey of the
+ * last RouteHop in each path must be the same.
+ * Each entry represents a list of hops, NOT INCLUDING our own, where the last hop is the
+ * destination. Thus, this must always be at least length one. While the maximum length of any
+ * given path is variable, keeping the length of any path to less than 20 should currently
+ * ensure it is viable.
+ */
+struct LDKCVec_CVec_RouteHopZZ Route_get_paths(const struct LDKRoute *NONNULL_PTR this_ptr);
 
 /**
  * The list of routes taken for a single (potentially-)multi-part payment. The pubkey of the

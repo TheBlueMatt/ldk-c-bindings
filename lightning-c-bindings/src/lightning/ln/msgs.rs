@@ -4668,9 +4668,23 @@ impl CommitmentUpdate {
 }
 /// update_add_htlc messages which should be sent
 #[no_mangle]
+pub extern "C" fn CommitmentUpdate_get_update_add_htlcs(this_ptr: &CommitmentUpdate) -> crate::c_types::derived::CVec_UpdateAddHTLCZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().update_add_htlcs;
+	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::ln::msgs::UpdateAddHTLC { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const _) as *mut _) }, is_owned: false } }); };
+	local_inner_val.into()
+}
+/// update_add_htlc messages which should be sent
+#[no_mangle]
 pub extern "C" fn CommitmentUpdate_set_update_add_htlcs(this_ptr: &mut CommitmentUpdate, mut val: crate::c_types::derived::CVec_UpdateAddHTLCZ) {
 	let mut local_val = Vec::new(); for mut item in val.into_rust().drain(..) { local_val.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.update_add_htlcs = local_val;
+}
+/// update_fulfill_htlc messages which should be sent
+#[no_mangle]
+pub extern "C" fn CommitmentUpdate_get_update_fulfill_htlcs(this_ptr: &CommitmentUpdate) -> crate::c_types::derived::CVec_UpdateFulfillHTLCZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().update_fulfill_htlcs;
+	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::ln::msgs::UpdateFulfillHTLC { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const _) as *mut _) }, is_owned: false } }); };
+	local_inner_val.into()
 }
 /// update_fulfill_htlc messages which should be sent
 #[no_mangle]
@@ -4680,9 +4694,23 @@ pub extern "C" fn CommitmentUpdate_set_update_fulfill_htlcs(this_ptr: &mut Commi
 }
 /// update_fail_htlc messages which should be sent
 #[no_mangle]
+pub extern "C" fn CommitmentUpdate_get_update_fail_htlcs(this_ptr: &CommitmentUpdate) -> crate::c_types::derived::CVec_UpdateFailHTLCZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().update_fail_htlcs;
+	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::ln::msgs::UpdateFailHTLC { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const _) as *mut _) }, is_owned: false } }); };
+	local_inner_val.into()
+}
+/// update_fail_htlc messages which should be sent
+#[no_mangle]
 pub extern "C" fn CommitmentUpdate_set_update_fail_htlcs(this_ptr: &mut CommitmentUpdate, mut val: crate::c_types::derived::CVec_UpdateFailHTLCZ) {
 	let mut local_val = Vec::new(); for mut item in val.into_rust().drain(..) { local_val.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.update_fail_htlcs = local_val;
+}
+/// update_fail_malformed_htlc messages which should be sent
+#[no_mangle]
+pub extern "C" fn CommitmentUpdate_get_update_fail_malformed_htlcs(this_ptr: &CommitmentUpdate) -> crate::c_types::derived::CVec_UpdateFailMalformedHTLCZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().update_fail_malformed_htlcs;
+	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::ln::msgs::UpdateFailMalformedHTLC { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const _) as *mut _) }, is_owned: false } }); };
+	local_inner_val.into()
 }
 /// update_fail_malformed_htlc messages which should be sent
 #[no_mangle]
