@@ -230,6 +230,27 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 	writeln_docs(w, &t.attrs, "");
 
 	let mut gen_types = GenericTypes::new(None);
+
+	// Add functions which may be required for supertrait implementations.
+	// Due to borrow checker limitations, we only support one in-crate supertrait here.
+	let supertrait_name;
+	let supertrait_resolver;
+	walk_supertraits!(t, Some(&types), (
+		(s, _i) => {
+			if let Some(supertrait) = types.crate_types.traits.get(s) {
+				supertrait_name = s.to_string();
+				let mut module_iter = supertrait_name.rsplitn(2, "::");
+				module_iter.next().unwrap();
+				let supertrait_module = module_iter.next().unwrap();
+				let imports = ImportResolver::new(supertrait_module.splitn(2, "::").next().unwrap(), &types.crate_types.lib_ast.dependencies,
+						supertrait_module, &types.crate_types.lib_ast.modules.get(supertrait_module).unwrap().items);
+				supertrait_resolver = TypeResolver::new(&supertrait_module, imports, types.crate_types);
+				gen_types.learn_associated_types(&supertrait, &supertrait_resolver);
+				break;
+			}
+		}
+	) );
+
 	assert!(gen_types.learn_generics(&t.generics, types));
 	gen_types.learn_associated_types(&t, types);
 
@@ -751,11 +772,36 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, i: &syn::ItemImpl, types: &mut Typ
 					if types.understood_c_path(&trait_path.1) {
 						let full_trait_path = types.resolve_path(&trait_path.1, None);
 						let trait_obj = *types.crate_types.traits.get(&full_trait_path).unwrap();
+
+						let supertrait_name;
+						let supertrait_resolver;
+						walk_supertraits!(trait_obj, Some(&types), (
+							(s, _i) => {
+								if let Some(supertrait) = types.crate_types.traits.get(s) {
+									supertrait_name = s.to_string();
+									let mut module_iter = supertrait_name.rsplitn(2, "::");
+									module_iter.next().unwrap();
+									let supertrait_module = module_iter.next().unwrap();
+									let imports = ImportResolver::new(supertrait_module.splitn(2, "::").next().unwrap(), &types.crate_types.lib_ast.dependencies,
+											supertrait_module, &types.crate_types.lib_ast.modules.get(supertrait_module).unwrap().items);
+									supertrait_resolver = TypeResolver::new(&supertrait_module, imports, types.crate_types);
+									gen_types.learn_associated_types(&supertrait, &supertrait_resolver);
+									break;
+								}
+							}
+						) );
 						// We learn the associated types maping from the original trait object.
 						// That's great, except that they are unresolved idents, so if we learn
 						// mappings from a trai defined in a different file, we may mis-resolve or
-						// fail to resolve the mapped types.
-						gen_types.learn_associated_types(trait_obj, types);
+						// fail to resolve the mapped types. Thus, we have to construct a new
+						// resolver for the module that the trait was defined in here first.
+						let mut module_iter = full_trait_path.rsplitn(2, "::");
+						module_iter.next().unwrap();
+						let trait_module = module_iter.next().unwrap();
+						let imports = ImportResolver::new(trait_module.splitn(2, "::").next().unwrap(), &types.crate_types.lib_ast.dependencies,
+							trait_module, &types.crate_types.lib_ast.modules.get(trait_module).unwrap().items);
+						let trait_resolver = TypeResolver::new(&trait_module, imports, types.crate_types);
+						gen_types.learn_associated_types(trait_obj, &trait_resolver);
 						let mut impl_associated_types = HashMap::new();
 						for item in i.items.iter() {
 							match item {
