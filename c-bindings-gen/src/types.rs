@@ -581,11 +581,66 @@ impl<'mod_lifetime, 'crate_lft: 'mod_lifetime> ImportResolver<'mod_lifetime, 'cr
 		} else { None }
 	}
 
+
+	pub fn dummy_maybe_resolve_path(&self, p_arg: &syn::Path, generics: Option<&GenericTypes>) -> Option<String> {
+		let p = if let Some(gen_types) = generics {
+			if let Some((resp, synpath)) = gen_types.maybe_resolve_path(p_arg) {
+				synpath
+			} else {
+//eprintln!("FAILURE Resolving {:?}", p_arg);
+ p_arg }
+		} else { p_arg };
+
+		if p.leading_colon.is_some() {
+			let mut res: String = p.segments.iter().enumerate().map(|(idx, seg)| {
+				format!("{}{}", if idx == 0 { "" } else { "::" }, seg.ident)
+			}).collect();
+			let firstseg = p.segments.iter().next().unwrap();
+			if !self.dependencies.contains(&firstseg.ident) {
+				res = self.crate_name.to_owned() + "::" + &res;
+			}
+			Some(res)
+		} else if let Some(id) = p.get_ident() {
+			self.maybe_resolve_ident(id)
+		} else {
+			if p.segments.len() == 1 {
+				let seg = p.segments.iter().next().unwrap();
+				return self.maybe_resolve_ident(&seg.ident);
+			}
+			let mut seg_iter = p.segments.iter();
+			let first_seg = seg_iter.next().unwrap();
+			let remaining: String = seg_iter.map(|seg| {
+				format!("::{}", seg.ident)
+			}).collect();
+			let first_seg_str = format!("{}", first_seg.ident);
+			if let Some((imp, _)) = self.imports.get(&first_seg.ident) {
+				if remaining != "" {
+					Some(imp.clone() + &remaining)
+				} else {
+					Some(imp.clone())
+				}
+			} else if let Some(_) = self.priv_modules.get(&first_seg.ident) {
+				Some(format!("{}::{}{}", self.module_path, first_seg.ident, remaining))
+			} else if first_seg_str == "std" || first_seg_str == "core" || self.dependencies.contains(&first_seg.ident) {
+				Some(first_seg_str + &remaining)
+			} else { None }
+		}
+	}
+
+
+
+
 	pub fn maybe_resolve_path(&self, p_arg: &syn::Path, generics: Option<&GenericTypes>) -> Option<String> {
 		let p = if let Some(gen_types) = generics {
-			if let Some((_, synpath)) = gen_types.maybe_resolve_path(p_arg) {
+			if let Some((resp, synpath)) = gen_types.maybe_resolve_path(p_arg) {
+let other = self.dummy_maybe_resolve_path(p_arg, generics);
+if other != Some("crate::".to_string() + resp) { eprintln!("GAH WTF {:?} != {:?}", other, resp); }
+if other.is_some() { return other; }
+return Some(resp.replace("crate::", ""));
 				synpath
-			} else { p_arg }
+			} else {
+//eprintln!("FAILURE Resolving {:?}", p_arg);
+ p_arg }
 		} else { p_arg };
 
 		if p.leading_colon.is_some() {
