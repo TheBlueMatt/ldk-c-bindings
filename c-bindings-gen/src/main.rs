@@ -527,7 +527,7 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 		},
 		("std::fmt::Debug", _)|("core::fmt::Debug", _) => {
 			writeln!(w, "impl core::fmt::Debug for {} {{", trait_name).unwrap();
-			writeln!(w, "\tfn fmt<F: core::fmt::Formatter>(&self, f: &mut F) -> Result<(), core::fmt::Error> {{").unwrap();
+			writeln!(w, "\tfn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {{").unwrap();
 			writeln!(w, "\t\tf.write_str((self.debug_str)(self.this_arg).into_str())").unwrap();
 			writeln!(w, "\t}}").unwrap();
 			writeln!(w, "}}").unwrap();
