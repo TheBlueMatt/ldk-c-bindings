@@ -1274,7 +1274,8 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 				syn::Type::Reference(_) => true,
 				syn::Type::Path(p) => {
 					if let Some(resolved) = self.maybe_resolve_path(&p.path, None) {
-						if self.is_primitive(&resolved) { false } else { true }
+						if self.c_type_has_inner_from_path(&resolved) { return true; }
+						if self.c_type_from_path(&resolved, false, false).is_some() { true } else { false }
 					} else { true }
 				},
 				syn::Type::Tuple(_) => false,
@@ -1330,12 +1331,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 					} else { None }
 				} else { None };
 				if let Some(inner_path) = contained_struct {
-					if self.is_primitive(&inner_path) {
-						return Some(("if ", vec![
-							(format!(".is_none() {{ {}::COption_{}Z::None }} else {{ ", Self::generated_container_path(), inner_path),
-							 format!("{}::COption_{}Z::Some({}.unwrap())", Self::generated_container_path(), inner_path, var_access))
-							], " }", ContainerPrefixLocation::NoPrefix));
-					} else if self.c_type_has_inner_from_path(&inner_path) {
+					if self.c_type_has_inner_from_path(&inner_path) {
 						let is_inner_ref = if let Some(syn::Type::Reference(_)) = single_contained { true } else { false };
 						if is_ref {
 							return Some(("if ", vec![
@@ -1347,6 +1343,14 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 								(".is_none() { std::ptr::null_mut() } else { ".to_owned(), format!("({}.unwrap())", var_access))
 								], " }", ContainerPrefixLocation::OutsideConv));
 						}
+					} else if self.c_type_from_path(&inner_path, false, false).is_none() {
+						return Some(("if ", vec![
+							(format!(".is_none() {{ {}::COption_{}Z::None }} else {{ ", Self::generated_container_path(), inner_path),
+							 format!("{}::COption_{}Z::Some({}.unwrap())", Self::generated_container_path(), inner_path, var_access))
+							], " }", ContainerPrefixLocation::NoPrefix));
+					} else {
+						// If c_type_from_path is some (ie there's a manual mapping for the inner
+						// type), lean on write_empty_rust_val, below.
 					}
 				}
 				if let Some(t) = single_contained {
