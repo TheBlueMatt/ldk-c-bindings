@@ -51,6 +51,8 @@ fn maybe_convert_trait_impl<W: std::io::Write>(w: &mut W, trait_path: &syn::Path
 				full_obj_path = for_obj.clone();
 				has_inner = types.c_type_has_inner_from_path(&types.resolve_path(&p.path, Some(generics)));
 			} else { return; }
+		} else if let syn::Type::Tuple(_) = for_ty {
+			return;
 		} else {
 			// We assume that anything that isn't a Path is somehow a generic that ends up in our
 			// derived-types module.
