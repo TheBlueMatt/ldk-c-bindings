@@ -507,6 +507,7 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 			writeln!(w, "\tfn fmt<F: core::fmt::Formatter>(&self, f: &mut F) -> Result<(), core::fmt::Error> {{").unwrap();
 			writeln!(w, "\t\tf.write_str((self.debug_str)(self.this_arg).into_str())").unwrap();
 			writeln!(w, "\t}}").unwrap();
+			writeln!(w, "}}").unwrap();
 		},
 		(s, i) => {
 			if let Some(supertrait) = types.crate_types.traits.get(s) {
