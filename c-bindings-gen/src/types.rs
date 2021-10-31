@@ -258,9 +258,11 @@ impl<'a, 'p: 'a> GenericTypes<'a, 'p> {
 						if p.qself.is_some() { return false; }
 						if p.path.leading_colon.is_some() { return false; }
 						let mut p_iter = p.path.segments.iter();
-						if let Some(gen) = new_typed_generics.get_mut(&p_iter.next().unwrap().ident) {
-							if gen.is_some() { return false; }
-							if &format!("{}", p_iter.next().unwrap().ident) != "Target" {return false; }
+let theident = &p_iter.next().unwrap().ident;
+eprintln!("Doing bound resolution on {}", theident);
+						if let Some(gen) = new_typed_generics.get_mut(theident) {
+							if gen.is_some() { eprintln!("5"); return false; }
+							if &format!("{}", p_iter.next().unwrap().ident) != "Target" {eprintln!("6"); return false; }
 
 							let mut non_lifetimes_processed = false;
 							for bound in t.bounds.iter() {
@@ -274,8 +276,13 @@ impl<'a, 'p: 'a> GenericTypes<'a, 'p> {
 									*gen = Some(types.resolve_path(&trait_bound.path, None));
 								}
 							}
-						} else { return false; }
-					} else { return false; }
+						} else {
+							for bound in t.bounds.iter() {
+eprintln!("XXX LULZZZZZZZZZZZZZZZZZZZZ {}", theident);
+								new_typed_generics.insert(theident, Some("lightning_invoice::payment::Router".to_string()));
+							}
+						}
+					} else { eprintln!("9"); return false; }
 				}
 			}
 		}
