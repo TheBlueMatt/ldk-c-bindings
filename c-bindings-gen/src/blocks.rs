@@ -593,14 +593,19 @@ pub fn write_method_params<W: std::io::Write>(w: &mut W, sig: &syn::Signature, t
 	write!(w, ")").unwrap();
 	match &sig.output {
 		syn::ReturnType::Type(_, rtype) => {
-			write!(w, " -> ").unwrap();
-			if let Some(mut remaining_path) = first_seg_self(&*rtype) {
-				if remaining_path.next().is_none() {
-					write!(w, "{}", this_param).unwrap();
-					return;
+			let mut ret_ty = Vec::new();
+			types.write_c_type(&mut ret_ty, &*rtype, generics, true);
+
+			if !ret_ty.is_empty() {
+				write!(w, " -> ").unwrap();
+				if let Some(mut remaining_path) = first_seg_self(&*rtype) {
+					if remaining_path.next().is_none() {
+						write!(w, "{}", this_param).unwrap();
+						return;
+					}
 				}
+				w.write_all(&ret_ty).unwrap();
 			}
-			types.write_c_type(w, &*rtype, generics, true);
 		},
 		_ => {},
 	}
