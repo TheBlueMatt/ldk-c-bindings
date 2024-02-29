@@ -1185,8 +1185,19 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 									write_method_var_decl_body(w, &$trait_meth.sig, "", &mut trait_resolver, Some(&meth_gen_types), false);
 									let mut takes_self = false;
 									for inp in $m.sig.inputs.iter() {
-										if let syn::FnArg::Receiver(_) = inp {
-											takes_self = true;
+										match inp {
+											syn::FnArg::Receiver(_) => {
+												takes_self = true;
+												break;
+											},
+											syn::FnArg::Typed(ty) => {
+												if let syn::Pat::Ident(id) = &*ty.pat {
+													if format!("{}", id.ident) == "self" {
+														takes_self = true;
+														break;
+													}
+												}
+											}
 										}
 									}
 
@@ -1456,10 +1467,23 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 									let mut takes_mut_self = false;
 									let mut takes_owned_self = false;
 									for inp in m.sig.inputs.iter() {
-										if let syn::FnArg::Receiver(r) = inp {
-											takes_self = true;
-											if r.mutability.is_some() { takes_mut_self = true; }
-											if r.reference.is_none() { takes_owned_self = true; }
+										match inp {
+											syn::FnArg::Receiver(r) => {
+												takes_self = true;
+												if r.mutability.is_some() { takes_mut_self = true; }
+												if r.reference.is_none() { takes_owned_self = true; }
+												break;
+											},
+											syn::FnArg::Typed(ty) => {
+												if let syn::Pat::Ident(id) = &*ty.pat {
+													if format!("{}", id.ident) == "self" {
+														takes_self = true;
+														if id.mutability.is_some() { takes_mut_self = true; }
+														if id.by_ref.is_none() { takes_owned_self = true; }
+														break;
+													}
+												}
+											}
 										}
 									}
 									if !takes_mut_self && !takes_self {

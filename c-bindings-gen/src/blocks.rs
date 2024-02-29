@@ -540,22 +540,32 @@ pub fn write_method_params<W: std::io::Write>(w: &mut W, sig: &syn::Signature, t
 	let mut first_arg = true;
 	let mut num_unused = 0;
 	for inp in sig.inputs.iter() {
+		let mut handle_self = |is_ref: bool, is_mut: bool| {
+			write!(w, "{}this_arg: {}{}", if !is_ref { "mut " } else { "" },
+				if is_ref {
+					match (self_ptr, is_mut) {
+						(true, true) => "*mut ",
+						(true, false) => "*const ",
+						(false, true) => "&mut ",
+						(false, false) => "&",
+					}
+				} else { "" }, this_param).unwrap();
+			assert!(first_arg);
+			first_arg = false;
+		};
 		match inp {
 			syn::FnArg::Receiver(recv) => {
 				if !recv.attrs.is_empty() { unimplemented!(); }
-				write!(w, "{}this_arg: {}{}", if recv.reference.is_none() { "mut " } else { "" },
-					if recv.reference.is_some() {
-						match (self_ptr, recv.mutability.is_some()) {
-							(true, true) => "*mut ",
-							(true, false) => "*const ",
-							(false, true) => "&mut ",
-							(false, false) => "&",
-						}
-					} else { "" }, this_param).unwrap();
-				assert!(first_arg);
-				first_arg = false;
+				handle_self(recv.reference.is_some(), recv.mutability.is_some());
 			},
 			syn::FnArg::Typed(arg) => {
+				if let syn::Pat::Ident(id) = &*arg.pat {
+					if format!("{}", id.ident) == "self" {
+						handle_self(id.by_ref.is_some(), id.mutability.is_some());
+						continue;
+					}
+				}
+
 				if types.skip_arg(&*arg.ty, generics) { continue; }
 				if !arg.attrs.is_empty() { unimplemented!(); }
 				// First get the c type so that we can check if it ends up being a reference:
@@ -606,6 +616,12 @@ pub fn write_method_var_decl_body<W: std::io::Write>(w: &mut W, sig: &syn::Signa
 		match inp {
 			syn::FnArg::Receiver(_) => {},
 			syn::FnArg::Typed(arg) => {
+				if let syn::Pat::Ident(id) = &*arg.pat {
+					if format!("{}", id.ident) == "self" {
+						continue;
+					}
+				}
+
 				if types.skip_arg(&*arg.ty, generics) { continue; }
 				if !arg.attrs.is_empty() { unimplemented!(); }
 				macro_rules! write_new_var {
@@ -666,6 +682,17 @@ pub fn write_method_call_params<W: std::io::Write>(w: &mut W, sig: &syn::Signatu
 				}
 			},
 			syn::FnArg::Typed(arg) => {
+				if let syn::Pat::Ident(id) = &*arg.pat {
+					if format!("{}", id.ident) == "self" {
+						if to_c {
+							if id.by_ref.is_none() && !matches!(&*arg.ty, syn::Type::Reference(_)) { unimplemented!(); }
+							write!(w, "self.this_arg").unwrap();
+							first_arg = false;
+						}
+						continue;
+					}
+				}
+
 				if types.skip_arg(&*arg.ty, generics) {
 					if !to_c {
 						if !first_arg {
