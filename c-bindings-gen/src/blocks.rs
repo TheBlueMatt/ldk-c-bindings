@@ -816,25 +816,28 @@ fn maybe_write_generics_intern<W: std::io::Write>(w: &mut W, generics: &syn::Gen
 	for (idx, generic) in generics.params.iter().enumerate() {
 		match generic {
 			syn::GenericParam::Type(type_param) => {
-				write!(w, "{}", if idx != 0 { ", " } else { "" }).unwrap();
+				let mut out = Vec::new();
 				let type_ident = &type_param.ident;
 				if types.understood_c_type(&syn::parse_quote!(#type_ident), Some(&gen_types)) {
-					types.write_c_type_in_generic_param(w, &syn::parse_quote!(#type_ident), Some(&gen_types), false);
+					types.write_c_type_in_generic_param(&mut out, &syn::parse_quote!(#type_ident), Some(&gen_types), false);
 				} else {
 					if let syn::PathArguments::AngleBracketed(args) = generics_impld {
 						if let syn::GenericArgument::Type(ty) = &args.args[idx] {
-							types.write_c_type_in_generic_param(w, &ty, Some(&gen_types), false);
+							types.write_c_type_in_generic_param(&mut out, &ty, Some(&gen_types), false);
 						}
 					}
+				}
+				if !out.is_empty() {
+					write!(w, "{}, ", String::from_utf8(out).unwrap()).unwrap();
 				}
 			},
 			syn::GenericParam::Lifetime(lt) => {
 				if dummy_lifetimes {
-					write!(w, "'_").unwrap();
+					write!(w, "'_, ").unwrap();
 				} else if concrete_lifetimes {
-					write!(w, "'static").unwrap();
+					write!(w, "'static, ").unwrap();
 				} else {
-					write!(w, "{}'{}", if idx != 0 { ", " } else { "" }, lt.lifetime.ident).unwrap();
+					write!(w, "'{}, ", lt.lifetime.ident).unwrap();
 				}
 			},
 			_ => unimplemented!(),
