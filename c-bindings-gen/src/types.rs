@@ -869,6 +869,7 @@ fn initial_clonable_types() -> HashSet<String> {
 	res.insert("crate::c_types::EightU16s".to_owned());
 	res.insert("crate::c_types::SecretKey".to_owned());
 	res.insert("crate::c_types::PublicKey".to_owned());
+	res.insert("crate::c_types::TweakedPublicKey".to_owned());
 	res.insert("crate::c_types::Transaction".to_owned());
 	res.insert("crate::c_types::Witness".to_owned());
 	res.insert("crate::c_types::WitnessVersion".to_owned());
@@ -1071,6 +1072,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"core::num::NonZeroU8" => Some("u8"),
 
 			"secp256k1::PublicKey"|"bitcoin::secp256k1::PublicKey" => Some("crate::c_types::PublicKey"),
+			"bitcoin::key::TweakedPublicKey" => Some("crate::c_types::TweakedPublicKey"),
 			"bitcoin::secp256k1::ecdsa::Signature" => Some("crate::c_types::ECDSASignature"),
 			"bitcoin::secp256k1::schnorr::Signature" => Some("crate::c_types::SchnorrSignature"),
 			"bitcoin::secp256k1::ecdsa::RecoverableSignature" => Some("crate::c_types::RecoverableSignature"),
@@ -1182,6 +1184,8 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 
 			"bitcoin::secp256k1::PublicKey"|"secp256k1::PublicKey" if is_ref => Some("&"),
 			"bitcoin::secp256k1::PublicKey"|"secp256k1::PublicKey" => Some(""),
+			"bitcoin::key::TweakedPublicKey" if is_ref => Some("&"),
+			"bitcoin::key::TweakedPublicKey" => Some(""),
 			"bitcoin::secp256k1::ecdsa::Signature"|"bitcoin::secp256k1::schnorr::Signature" if is_ref => Some("&"),
 			"bitcoin::secp256k1::ecdsa::Signature"|"bitcoin::secp256k1::schnorr::Signature" => Some(""),
 			"bitcoin::secp256k1::ecdsa::RecoverableSignature" => Some(""),
@@ -1296,6 +1300,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"core::num::NonZeroU8" => Some(").expect(\"Value must be non-zero\")"),
 
 			"bitcoin::secp256k1::PublicKey"|"secp256k1::PublicKey" => Some(".into_rust()"),
+			"bitcoin::key::TweakedPublicKey" => Some(".into_rust()"),
 			"bitcoin::secp256k1::ecdsa::Signature"|"bitcoin::secp256k1::schnorr::Signature" => Some(".into_rust()"),
 			"bitcoin::secp256k1::ecdsa::RecoverableSignature" => Some(".into_rust()"),
 			"bitcoin::secp256k1::SecretKey" if !is_ref => Some(".into_rust()"),
@@ -1414,6 +1419,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"u128" => Some(""),
 
 			"bitcoin::secp256k1::PublicKey"|"secp256k1::PublicKey" => Some("crate::c_types::PublicKey::from_rust(&"),
+			"bitcoin::key::TweakedPublicKey" => Some("crate::c_types::TweakedPublicKey::from_rust(&"),
 			"bitcoin::secp256k1::ecdsa::Signature" => Some("crate::c_types::ECDSASignature::from_rust(&"),
 			"bitcoin::secp256k1::schnorr::Signature" => Some("crate::c_types::SchnorrSignature::from_rust(&"),
 			"bitcoin::secp256k1::ecdsa::RecoverableSignature" => Some("crate::c_types::RecoverableSignature::from_rust(&"),
@@ -1519,6 +1525,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"u128" => Some(".into()"),
 
 			"bitcoin::secp256k1::PublicKey"|"secp256k1::PublicKey" => Some(")"),
+			"bitcoin::key::TweakedPublicKey" => Some(")"),
 			"bitcoin::secp256k1::ecdsa::Signature"|"bitcoin::secp256k1::schnorr::Signature" => Some(")"),
 			"bitcoin::secp256k1::ecdsa::RecoverableSignature" => Some(")"),
 			"bitcoin::secp256k1::SecretKey" if !is_ref => Some(")"),
