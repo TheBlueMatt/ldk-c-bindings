@@ -780,14 +780,18 @@ pub fn write_method_call_params<W: std::io::Write>(w: &mut W, sig: &syn::Signatu
 /// Prints concrete generic parameters for a struct/trait/function, including the less-than and
 /// greater-than symbols, if any generic parameters are defined.
 pub fn maybe_write_generics<W: std::io::Write>(w: &mut W, generics: &syn::Generics, generics_impld: &syn::PathArguments, types: &TypeResolver, concrete_lifetimes: bool) {
-	maybe_write_generics_intern(w, generics, generics_impld, types, concrete_lifetimes, false);
+	maybe_write_generics_intern(w, generics, Some(generics_impld), types, concrete_lifetimes, false);
 }
 
 pub fn maybe_write_non_lifetime_generics<W: std::io::Write>(w: &mut W, generics: &syn::Generics, generics_impld: &syn::PathArguments, types: &TypeResolver) {
-	maybe_write_generics_intern(w, generics, generics_impld, types, false, true);
+	maybe_write_generics_intern(w, generics, Some(generics_impld), types, false, true);
 }
 
-fn maybe_write_generics_intern<W: std::io::Write>(w: &mut W, generics: &syn::Generics, generics_impld: &syn::PathArguments, types: &TypeResolver, concrete_lifetimes: bool, dummy_lifetimes: bool) {
+pub fn maybe_write_type_non_lifetime_generics<W: std::io::Write>(w: &mut W, generics: &syn::Generics, types: &TypeResolver) {
+	maybe_write_generics_intern(w, generics, None, types, false, true);
+}
+
+fn maybe_write_generics_intern<W: std::io::Write>(w: &mut W, generics: &syn::Generics, generics_impld: Option<&syn::PathArguments>, types: &TypeResolver, concrete_lifetimes: bool, dummy_lifetimes: bool) {
 	let mut gen_types = GenericTypes::new(None);
 	assert!(gen_types.learn_generics(generics, types));
 	if generics.params.is_empty() { return; }
@@ -821,7 +825,7 @@ fn maybe_write_generics_intern<W: std::io::Write>(w: &mut W, generics: &syn::Gen
 				if types.understood_c_type(&syn::parse_quote!(#type_ident), Some(&gen_types)) {
 					types.write_c_type_in_generic_param(&mut out, &syn::parse_quote!(#type_ident), Some(&gen_types), false);
 				} else {
-					if let syn::PathArguments::AngleBracketed(args) = generics_impld {
+					if let Some(syn::PathArguments::AngleBracketed(args)) = generics_impld {
 						if let syn::GenericArgument::Type(ty) = &args.args[idx] {
 							types.write_c_type_in_generic_param(&mut out, &ty, Some(&gen_types), false);
 						}

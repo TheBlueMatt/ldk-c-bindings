@@ -1201,23 +1201,13 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 										}
 									}
 
-									let mut t_gen_args = String::new();
-									for (idx, _) in $trait.generics.params.iter().enumerate() {
-										if idx != 0 { t_gen_args += ", " };
-										t_gen_args += "_"
-									}
-									// rustc doesn't like <_> if the _ is actually a lifetime, so
-									// if all the parameters are lifetimes just skip it.
-									let mut nonlifetime_param = false;
-									for param in $trait.generics.params.iter() {
-										if let syn::GenericParam::Lifetime(_) = param {}
-										else { nonlifetime_param = true; }
-									}
-									if !nonlifetime_param { t_gen_args = String::new(); }
+									let mut t_gen_args_vec = Vec::new();
+									maybe_write_type_non_lifetime_generics(&mut t_gen_args_vec, &$trait.generics, &trait_resolver);
+									let t_gen_args = String::from_utf8(t_gen_args_vec).unwrap();
 									if takes_self {
-										write!(w, "<native{} as {}<{}>>::{}(unsafe {{ &mut *(this_arg as *mut native{}) }}, ", ident, $trait_path, t_gen_args, $m.sig.ident, ident).unwrap();
+										write!(w, "<native{} as {}{}>::{}(unsafe {{ &mut *(this_arg as *mut native{}) }}, ", ident, $trait_path, t_gen_args, $m.sig.ident, ident).unwrap();
 									} else {
-										write!(w, "<native{} as {}<{}>>::{}(", ident, $trait_path, t_gen_args, $m.sig.ident).unwrap();
+										write!(w, "<native{} as {}{}>::{}(", ident, $trait_path, t_gen_args, $m.sig.ident).unwrap();
 									}
 
 									let mut real_type = "".to_string();
