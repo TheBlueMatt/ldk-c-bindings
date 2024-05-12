@@ -861,6 +861,7 @@ fn initial_clonable_types() -> HashSet<String> {
 	let mut res = HashSet::new();
 	res.insert("crate::c_types::U5".to_owned());
 	res.insert("crate::c_types::U128".to_owned());
+	res.insert("crate::c_types::ThreeBytes".to_owned());
 	res.insert("crate::c_types::FourBytes".to_owned());
 	res.insert("crate::c_types::TwelveBytes".to_owned());
 	res.insert("crate::c_types::SixteenBytes".to_owned());

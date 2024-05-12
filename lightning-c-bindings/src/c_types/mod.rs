@@ -774,6 +774,7 @@ pub struct ThirtyTwoBytes {
 	pub data: [u8; 32],
 }
 
+#[derive(Clone)]
 #[repr(C)]
 /// A 3-byte byte array.
 pub struct ThreeBytes { /** The three bytes */ pub data: [u8; 3], }
