@@ -196,7 +196,7 @@ pub extern "C" fn GraphSyncError_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning_rapid_gossip_sync::GraphSyncError }).into()}
 
 use lightning_rapid_gossip_sync::RapidGossipSync as nativeRapidGossipSyncImport;
-pub(crate) type nativeRapidGossipSync = nativeRapidGossipSyncImport<&'static lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>, crate::lightning::util::logger::Logger>;
+pub(crate) type nativeRapidGossipSync = nativeRapidGossipSyncImport<&'static lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>, crate::lightning::util::logger::Logger, >;
 
 /// The main Rapid Gossip Sync object.
 ///

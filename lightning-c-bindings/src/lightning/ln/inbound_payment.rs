@@ -100,7 +100,7 @@ pub extern "C" fn ExpandedKey_new(key_material: *const [u8; 32]) -> crate::light
 pub extern "C" fn create(keys: &crate::lightning::ln::inbound_payment::ExpandedKey, mut min_value_msat: crate::c_types::derived::COption_u64Z, mut invoice_expiry_delta_secs: u32, entropy_source: &crate::lightning::sign::EntropySource, mut current_time: u64, mut min_final_cltv_expiry_delta: crate::c_types::derived::COption_u16Z) -> crate::c_types::derived::CResult_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZNoneZ {
 	let mut local_min_value_msat = if min_value_msat.is_some() { Some( { min_value_msat.take() }) } else { None };
 	let mut local_min_final_cltv_expiry_delta = if min_final_cltv_expiry_delta.is_some() { Some( { min_final_cltv_expiry_delta.take() }) } else { None };
-	let mut ret = lightning::ln::inbound_payment::create::<crate::lightning::sign::EntropySource>(keys.get_native_ref(), local_min_value_msat, invoice_expiry_delta_secs, entropy_source, current_time, local_min_final_cltv_expiry_delta);
+	let mut ret = lightning::ln::inbound_payment::create::<crate::lightning::sign::EntropySource, >(keys.get_native_ref(), local_min_value_msat, invoice_expiry_delta_secs, entropy_source, current_time, local_min_final_cltv_expiry_delta);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let (mut orig_ret_0_0, mut orig_ret_0_1) = o; let mut local_ret_0 = (crate::c_types::ThirtyTwoBytes { data: orig_ret_0_0.0 }, crate::c_types::ThirtyTwoBytes { data: orig_ret_0_1.0 }).into(); local_ret_0 }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
@@ -119,7 +119,7 @@ pub extern "C" fn create(keys: &crate::lightning::ln::inbound_payment::ExpandedK
 pub extern "C" fn create_from_hash(keys: &crate::lightning::ln::inbound_payment::ExpandedKey, mut min_value_msat: crate::c_types::derived::COption_u64Z, mut payment_hash: crate::c_types::ThirtyTwoBytes, mut invoice_expiry_delta_secs: u32, mut current_time: u64, mut min_final_cltv_expiry_delta: crate::c_types::derived::COption_u16Z) -> crate::c_types::derived::CResult_ThirtyTwoBytesNoneZ {
 	let mut local_min_value_msat = if min_value_msat.is_some() { Some( { min_value_msat.take() }) } else { None };
 	let mut local_min_final_cltv_expiry_delta = if min_final_cltv_expiry_delta.is_some() { Some( { min_final_cltv_expiry_delta.take() }) } else { None };
-	let mut ret = lightning::ln::inbound_payment::create_from_hash(keys.get_native_ref(), local_min_value_msat, ::lightning::ln::PaymentHash(payment_hash.data), invoice_expiry_delta_secs, current_time, local_min_final_cltv_expiry_delta);
+	let mut ret = lightning::ln::inbound_payment::create_from_hash(keys.get_native_ref(), local_min_value_msat, ::lightning::ln::types::PaymentHash(payment_hash.data), invoice_expiry_delta_secs, current_time, local_min_final_cltv_expiry_delta);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::ThirtyTwoBytes { data: o.0 } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }

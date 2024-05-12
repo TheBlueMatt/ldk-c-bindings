@@ -26,20 +26,9 @@ pub mod peer_handler;
 pub mod chan_utils;
 pub mod features;
 pub mod script;
+pub mod types;
 pub mod outbound_payment;
 pub mod wire;
-mod channel_id {
-
-use alloc::str::FromStr;
-use alloc::string::String;
-use core::ffi::c_void;
-use core::convert::Infallible;
-use bitcoin::hashes::Hash;
-use crate::c_types::*;
-#[cfg(feature="no-std")]
-use alloc::{vec::Vec, boxed::Box};
-
-}
 mod peer_channel_encryptor {
 
 use alloc::str::FromStr;
@@ -77,6 +66,18 @@ use alloc::{vec::Vec, boxed::Box};
 }
 }
 mod onion_utils {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}
+mod interactivetxs {
 
 use alloc::str::FromStr;
 use alloc::string::String;

@@ -9,6 +9,244 @@ use crate::c_types::*;
 use alloc::{vec::Vec, boxed::Box};
 
 #[repr(C)]
+/// A dynamically-allocated array of u8s of arbitrary size.
+/// This corresponds to std::vector in C++
+pub struct CVec_u8Z {
+	/// The elements in the array.
+	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+	pub data: *mut u8,
+	/// The number of elements pointed to by `data`.
+	pub datalen: usize
+}
+impl CVec_u8Z {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<u8> {
+		if self.datalen == 0 { return Vec::new(); }
+		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
+		self.data = core::ptr::null_mut();
+		self.datalen = 0;
+		ret
+	}
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[u8] {
+		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
+	}
+}
+impl From<Vec<u8>> for CVec_u8Z {
+	fn from(v: Vec<u8>) -> Self {
+		let datalen = v.len();
+		let data = Box::into_raw(v.into_boxed_slice());
+		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
+	}
+}
+#[no_mangle]
+/// Frees the buffer pointed to by `data` if `datalen` is non-0.
+pub extern "C" fn CVec_u8Z_free(_res: CVec_u8Z) { }
+impl Drop for CVec_u8Z {
+	fn drop(&mut self) {
+		if self.datalen == 0 { return; }
+		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
+	}
+}
+impl Clone for CVec_u8Z {
+	fn clone(&self) -> Self {
+		let mut res = Vec::new();
+		if self.datalen == 0 { return Self::from(res); }
+		res.extend_from_slice(unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) });
+		Self::from(res)
+	}
+}
+#[repr(C)]
+/// The contents of CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ
+pub union CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	/// The contents of this CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZPtr,
+	/// Whether this CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ_ok(o: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder) -> CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+		contents: CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+		contents: CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ_is_ok(o: &CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ.
+pub extern "C" fn CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ_free(_res: CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ) { }
+impl Drop for CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ_clone(orig: &CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ) -> CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_RefundBolt12SemanticErrorZ
+pub union CResult_RefundBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::refund::Refund,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_RefundBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::refund::Refund on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_RefundBolt12SemanticErrorZ {
+	/// The contents of this CResult_RefundBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_RefundBolt12SemanticErrorZPtr,
+	/// Whether this CResult_RefundBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_RefundBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_RefundBolt12SemanticErrorZ_ok(o: crate::lightning::offers::refund::Refund) -> CResult_RefundBolt12SemanticErrorZ {
+	CResult_RefundBolt12SemanticErrorZ {
+		contents: CResult_RefundBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_RefundBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_RefundBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_RefundBolt12SemanticErrorZ {
+	CResult_RefundBolt12SemanticErrorZ {
+		contents: CResult_RefundBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_RefundBolt12SemanticErrorZ_is_ok(o: &CResult_RefundBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_RefundBolt12SemanticErrorZ.
+pub extern "C" fn CResult_RefundBolt12SemanticErrorZ_free(_res: CResult_RefundBolt12SemanticErrorZ) { }
+impl Drop for CResult_RefundBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::refund::Refund, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_RefundBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::refund::Refund, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_RefundBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_RefundBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_RefundBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_RefundBolt12SemanticErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::refund::Refund>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_RefundBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_RefundBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_RefundBolt12SemanticErrorZ_clone(orig: &CResult_RefundBolt12SemanticErrorZ) -> CResult_RefundBolt12SemanticErrorZ { Clone::clone(&orig) }
+#[repr(C)]
 #[derive(Clone)]
 /// An enum which can either contain a u64 or not
 pub enum COption_u64Z {
@@ -505,52 +743,6 @@ pub extern "C" fn COption_ThirtyTwoBytesZ_free(_res: COption_ThirtyTwoBytesZ) { 
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn COption_ThirtyTwoBytesZ_clone(orig: &COption_ThirtyTwoBytesZ) -> COption_ThirtyTwoBytesZ { Clone::clone(&orig) }
 #[repr(C)]
-/// A dynamically-allocated array of u8s of arbitrary size.
-/// This corresponds to std::vector in C++
-pub struct CVec_u8Z {
-	/// The elements in the array.
-	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
-	pub data: *mut u8,
-	/// The number of elements pointed to by `data`.
-	pub datalen: usize
-}
-impl CVec_u8Z {
-	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<u8> {
-		if self.datalen == 0 { return Vec::new(); }
-		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
-		self.data = core::ptr::null_mut();
-		self.datalen = 0;
-		ret
-	}
-	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[u8] {
-		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
-	}
-}
-impl From<Vec<u8>> for CVec_u8Z {
-	fn from(v: Vec<u8>) -> Self {
-		let datalen = v.len();
-		let data = Box::into_raw(v.into_boxed_slice());
-		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
-	}
-}
-#[no_mangle]
-/// Frees the buffer pointed to by `data` if `datalen` is non-0.
-pub extern "C" fn CVec_u8Z_free(_res: CVec_u8Z) { }
-impl Drop for CVec_u8Z {
-	fn drop(&mut self) {
-		if self.datalen == 0 { return; }
-		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
-	}
-}
-impl Clone for CVec_u8Z {
-	fn clone(&self) -> Self {
-		let mut res = Vec::new();
-		if self.datalen == 0 { return Self::from(res); }
-		res.extend_from_slice(unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) });
-		Self::from(res)
-	}
-}
-#[repr(C)]
 #[derive(Clone)]
 /// An enum which can either contain a crate::c_types::derived::CVec_u8Z or not
 pub enum COption_CVec_u8ZZ {
@@ -864,6 +1056,290 @@ impl Clone for CResult_RecipientOnionFieldsNoneZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_RecipientOnionFieldsNoneZ_clone(orig: &CResult_RecipientOnionFieldsNoneZ) -> CResult_RecipientOnionFieldsNoneZ { Clone::clone(&orig) }
 #[repr(C)]
+/// The contents of CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ
+pub union CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice::UnsignedBolt12Invoice,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice::UnsignedBolt12Invoice on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
+	/// The contents of this CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZPtr,
+	/// Whether this CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ_ok(o: crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
+	CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
+		contents: CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
+	CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
+		contents: CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ_is_ok(o: &CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ.
+pub extern "C" fn CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ_free(_res: CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ) { }
+impl Drop for CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice::UnsignedBolt12Invoice, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice::UnsignedBolt12Invoice, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::invoice::UnsignedBolt12Invoice>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ_clone(orig: &CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ) -> CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_Bolt12InvoiceBolt12SemanticErrorZ
+pub union CResult_Bolt12InvoiceBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice::Bolt12Invoice,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_Bolt12InvoiceBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice::Bolt12Invoice on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_Bolt12InvoiceBolt12SemanticErrorZ {
+	/// The contents of this CResult_Bolt12InvoiceBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_Bolt12InvoiceBolt12SemanticErrorZPtr,
+	/// Whether this CResult_Bolt12InvoiceBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12InvoiceBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_Bolt12InvoiceBolt12SemanticErrorZ_ok(o: crate::lightning::offers::invoice::Bolt12Invoice) -> CResult_Bolt12InvoiceBolt12SemanticErrorZ {
+	CResult_Bolt12InvoiceBolt12SemanticErrorZ {
+		contents: CResult_Bolt12InvoiceBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12InvoiceBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_Bolt12InvoiceBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_Bolt12InvoiceBolt12SemanticErrorZ {
+	CResult_Bolt12InvoiceBolt12SemanticErrorZ {
+		contents: CResult_Bolt12InvoiceBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_Bolt12InvoiceBolt12SemanticErrorZ_is_ok(o: &CResult_Bolt12InvoiceBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_Bolt12InvoiceBolt12SemanticErrorZ.
+pub extern "C" fn CResult_Bolt12InvoiceBolt12SemanticErrorZ_free(_res: CResult_Bolt12InvoiceBolt12SemanticErrorZ) { }
+impl Drop for CResult_Bolt12InvoiceBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice::Bolt12Invoice, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_Bolt12InvoiceBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice::Bolt12Invoice, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_Bolt12InvoiceBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_Bolt12InvoiceBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_Bolt12InvoiceBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_Bolt12InvoiceBolt12SemanticErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::invoice::Bolt12Invoice>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_Bolt12InvoiceBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12InvoiceBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_Bolt12InvoiceBolt12SemanticErrorZ_clone(orig: &CResult_Bolt12InvoiceBolt12SemanticErrorZ) -> CResult_Bolt12InvoiceBolt12SemanticErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_SchnorrSignatureNoneZ
+pub union CResult_SchnorrSignatureNoneZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::c_types::SchnorrSignature,
+	/// Note that this value is always NULL, as there are no contents in the Err variant
+	pub err: *mut core::ffi::c_void,
+}
+#[repr(C)]
+/// A CResult_SchnorrSignatureNoneZ represents the result of a fallible operation,
+/// containing a crate::c_types::SchnorrSignature on success and a () on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_SchnorrSignatureNoneZ {
+	/// The contents of this CResult_SchnorrSignatureNoneZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_SchnorrSignatureNoneZPtr,
+	/// Whether this CResult_SchnorrSignatureNoneZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_SchnorrSignatureNoneZ in the success state.
+pub extern "C" fn CResult_SchnorrSignatureNoneZ_ok(o: crate::c_types::SchnorrSignature) -> CResult_SchnorrSignatureNoneZ {
+	CResult_SchnorrSignatureNoneZ {
+		contents: CResult_SchnorrSignatureNoneZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_SchnorrSignatureNoneZ in the error state.
+pub extern "C" fn CResult_SchnorrSignatureNoneZ_err() -> CResult_SchnorrSignatureNoneZ {
+	CResult_SchnorrSignatureNoneZ {
+		contents: CResult_SchnorrSignatureNoneZPtr {
+			err: core::ptr::null_mut(),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_SchnorrSignatureNoneZ_is_ok(o: &CResult_SchnorrSignatureNoneZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_SchnorrSignatureNoneZ.
+pub extern "C" fn CResult_SchnorrSignatureNoneZ_free(_res: CResult_SchnorrSignatureNoneZ) { }
+impl Drop for CResult_SchnorrSignatureNoneZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::c_types::SchnorrSignature, ()>> for CResult_SchnorrSignatureNoneZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::SchnorrSignature, ()>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_SchnorrSignatureNoneZPtr { result }
+		} else {
+			let _ = unsafe { Box::from_raw(o.contents.err) };
+			o.contents.err = core::ptr::null_mut();
+			CResult_SchnorrSignatureNoneZPtr { err: core::ptr::null_mut() }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_SchnorrSignatureNoneZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_SchnorrSignatureNoneZPtr {
+				result: Box::into_raw(Box::new(<crate::c_types::SchnorrSignature>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_SchnorrSignatureNoneZPtr {
+				err: core::ptr::null_mut()
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_SchnorrSignatureNoneZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_SchnorrSignatureNoneZ_clone(orig: &CResult_SchnorrSignatureNoneZ) -> CResult_SchnorrSignatureNoneZ { Clone::clone(&orig) }
+#[repr(C)]
 /// A dynamically-allocated array of crate::c_types::ThirtyTwoBytess of arbitrary size.
 /// This corresponds to std::vector in C++
 pub struct CVec_ThirtyTwoBytesZ {
@@ -946,6 +1422,80 @@ pub extern "C" fn COption_CVec_ThirtyTwoBytesZZ_free(_res: COption_CVec_ThirtyTw
 /// Creates a new COption_CVec_ThirtyTwoBytesZZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn COption_CVec_ThirtyTwoBytesZZ_clone(orig: &COption_CVec_ThirtyTwoBytesZZ) -> COption_CVec_ThirtyTwoBytesZZ { Clone::clone(&orig) }
+#[repr(C)]
+#[derive(Clone)]
+/// An enum which can either contain a crate::lightning::offers::offer::Amount or not
+pub enum COption_AmountZ {
+	/// When we're in this state, this COption_AmountZ contains a crate::lightning::offers::offer::Amount
+	Some(crate::lightning::offers::offer::Amount),
+	/// When we're in this state, this COption_AmountZ contains nothing
+	None
+}
+impl COption_AmountZ {
+	#[allow(unused)] pub(crate) fn is_some(&self) -> bool {
+		if let Self::None = self { false } else { true }
+	}
+	#[allow(unused)] pub(crate) fn is_none(&self) -> bool {
+		!self.is_some()
+	}
+	#[allow(unused)] pub(crate) fn take(mut self) -> crate::lightning::offers::offer::Amount {
+		if let Self::Some(v) = self { v } else { unreachable!() }
+	}
+}
+#[no_mangle]
+/// Constructs a new COption_AmountZ containing a crate::lightning::offers::offer::Amount
+pub extern "C" fn COption_AmountZ_some(o: crate::lightning::offers::offer::Amount) -> COption_AmountZ {
+	COption_AmountZ::Some(o)
+}
+#[no_mangle]
+/// Constructs a new COption_AmountZ containing nothing
+pub extern "C" fn COption_AmountZ_none() -> COption_AmountZ {
+	COption_AmountZ::None
+}
+#[no_mangle]
+/// Frees any resources associated with the crate::lightning::offers::offer::Amount, if we are in the Some state
+pub extern "C" fn COption_AmountZ_free(_res: COption_AmountZ) { }
+#[no_mangle]
+/// Creates a new COption_AmountZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn COption_AmountZ_clone(orig: &COption_AmountZ) -> COption_AmountZ { Clone::clone(&orig) }
+#[repr(C)]
+#[derive(Clone)]
+/// An enum which can either contain a crate::lightning::offers::offer::Quantity or not
+pub enum COption_QuantityZ {
+	/// When we're in this state, this COption_QuantityZ contains a crate::lightning::offers::offer::Quantity
+	Some(crate::lightning::offers::offer::Quantity),
+	/// When we're in this state, this COption_QuantityZ contains nothing
+	None
+}
+impl COption_QuantityZ {
+	#[allow(unused)] pub(crate) fn is_some(&self) -> bool {
+		if let Self::None = self { false } else { true }
+	}
+	#[allow(unused)] pub(crate) fn is_none(&self) -> bool {
+		!self.is_some()
+	}
+	#[allow(unused)] pub(crate) fn take(mut self) -> crate::lightning::offers::offer::Quantity {
+		if let Self::Some(v) = self { v } else { unreachable!() }
+	}
+}
+#[no_mangle]
+/// Constructs a new COption_QuantityZ containing a crate::lightning::offers::offer::Quantity
+pub extern "C" fn COption_QuantityZ_some(o: crate::lightning::offers::offer::Quantity) -> COption_QuantityZ {
+	COption_QuantityZ::Some(o)
+}
+#[no_mangle]
+/// Constructs a new COption_QuantityZ containing nothing
+pub extern "C" fn COption_QuantityZ_none() -> COption_QuantityZ {
+	COption_QuantityZ::None
+}
+#[no_mangle]
+/// Frees any resources associated with the crate::lightning::offers::offer::Quantity, if we are in the Some state
+pub extern "C" fn COption_QuantityZ_free(_res: COption_QuantityZ) { }
+#[no_mangle]
+/// Creates a new COption_QuantityZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn COption_QuantityZ_clone(orig: &COption_QuantityZ) -> COption_QuantityZ { Clone::clone(&orig) }
 #[repr(C)]
 /// The contents of CResult_ThirtyTwoBytesNoneZ
 pub union CResult_ThirtyTwoBytesNoneZPtr {
@@ -2233,98 +2783,6 @@ impl Clone for CResult_RecoverableSignatureNoneZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_RecoverableSignatureNoneZ_clone(orig: &CResult_RecoverableSignatureNoneZ) -> CResult_RecoverableSignatureNoneZ { Clone::clone(&orig) }
 #[repr(C)]
-/// The contents of CResult_SchnorrSignatureNoneZ
-pub union CResult_SchnorrSignatureNoneZPtr {
-	/// A pointer to the contents in the success state.
-	/// Reading from this pointer when `result_ok` is not set is undefined.
-	pub result: *mut crate::c_types::SchnorrSignature,
-	/// Note that this value is always NULL, as there are no contents in the Err variant
-	pub err: *mut core::ffi::c_void,
-}
-#[repr(C)]
-/// A CResult_SchnorrSignatureNoneZ represents the result of a fallible operation,
-/// containing a crate::c_types::SchnorrSignature on success and a () on failure.
-/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
-pub struct CResult_SchnorrSignatureNoneZ {
-	/// The contents of this CResult_SchnorrSignatureNoneZ, accessible via either
-	/// `err` or `result` depending on the state of `result_ok`.
-	pub contents: CResult_SchnorrSignatureNoneZPtr,
-	/// Whether this CResult_SchnorrSignatureNoneZ represents a success state.
-	pub result_ok: bool,
-}
-#[no_mangle]
-/// Creates a new CResult_SchnorrSignatureNoneZ in the success state.
-pub extern "C" fn CResult_SchnorrSignatureNoneZ_ok(o: crate::c_types::SchnorrSignature) -> CResult_SchnorrSignatureNoneZ {
-	CResult_SchnorrSignatureNoneZ {
-		contents: CResult_SchnorrSignatureNoneZPtr {
-			result: Box::into_raw(Box::new(o)),
-		},
-		result_ok: true,
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_SchnorrSignatureNoneZ in the error state.
-pub extern "C" fn CResult_SchnorrSignatureNoneZ_err() -> CResult_SchnorrSignatureNoneZ {
-	CResult_SchnorrSignatureNoneZ {
-		contents: CResult_SchnorrSignatureNoneZPtr {
-			err: core::ptr::null_mut(),
-		},
-		result_ok: false,
-	}
-}
-/// Checks if the given object is currently in the success state
-#[no_mangle]
-pub extern "C" fn CResult_SchnorrSignatureNoneZ_is_ok(o: &CResult_SchnorrSignatureNoneZ) -> bool {
-	o.result_ok
-}
-#[no_mangle]
-/// Frees any resources used by the CResult_SchnorrSignatureNoneZ.
-pub extern "C" fn CResult_SchnorrSignatureNoneZ_free(_res: CResult_SchnorrSignatureNoneZ) { }
-impl Drop for CResult_SchnorrSignatureNoneZ {
-	fn drop(&mut self) {
-		if self.result_ok {
-			if unsafe { !(self.contents.result as *mut ()).is_null() } {
-				let _ = unsafe { Box::from_raw(self.contents.result) };
-			}
-		} else {
-		}
-	}
-}
-impl From<crate::c_types::CResultTempl<crate::c_types::SchnorrSignature, ()>> for CResult_SchnorrSignatureNoneZ {
-	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::SchnorrSignature, ()>) -> Self {
-		let contents = if o.result_ok {
-			let result = unsafe { o.contents.result };
-			unsafe { o.contents.result = core::ptr::null_mut() };
-			CResult_SchnorrSignatureNoneZPtr { result }
-		} else {
-			let _ = unsafe { Box::from_raw(o.contents.err) };
-			o.contents.err = core::ptr::null_mut();
-			CResult_SchnorrSignatureNoneZPtr { err: core::ptr::null_mut() }
-		};
-		Self {
-			contents,
-			result_ok: o.result_ok,
-		}
-	}
-}
-impl Clone for CResult_SchnorrSignatureNoneZ {
-	fn clone(&self) -> Self {
-		if self.result_ok {
-			Self { result_ok: true, contents: CResult_SchnorrSignatureNoneZPtr {
-				result: Box::into_raw(Box::new(<crate::c_types::SchnorrSignature>::clone(unsafe { &*self.contents.result })))
-			} }
-		} else {
-			Self { result_ok: false, contents: CResult_SchnorrSignatureNoneZPtr {
-				err: core::ptr::null_mut()
-			} }
-		}
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_SchnorrSignatureNoneZ which has the same data as `orig`
-/// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn CResult_SchnorrSignatureNoneZ_clone(orig: &CResult_SchnorrSignatureNoneZ) -> CResult_SchnorrSignatureNoneZ { Clone::clone(&orig) }
-#[repr(C)]
 /// The contents of CResult_ECDSASignatureNoneZ
 pub union CResult_ECDSASignatureNoneZPtr {
 	/// A pointer to the contents in the success state.
@@ -2416,6 +2874,98 @@ impl Clone for CResult_ECDSASignatureNoneZ {
 /// Creates a new CResult_ECDSASignatureNoneZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_ECDSASignatureNoneZ_clone(orig: &CResult_ECDSASignatureNoneZ) -> CResult_ECDSASignatureNoneZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_TransactionNoneZ
+pub union CResult_TransactionNoneZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::c_types::Transaction,
+	/// Note that this value is always NULL, as there are no contents in the Err variant
+	pub err: *mut core::ffi::c_void,
+}
+#[repr(C)]
+/// A CResult_TransactionNoneZ represents the result of a fallible operation,
+/// containing a crate::c_types::Transaction on success and a () on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_TransactionNoneZ {
+	/// The contents of this CResult_TransactionNoneZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_TransactionNoneZPtr,
+	/// Whether this CResult_TransactionNoneZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_TransactionNoneZ in the success state.
+pub extern "C" fn CResult_TransactionNoneZ_ok(o: crate::c_types::Transaction) -> CResult_TransactionNoneZ {
+	CResult_TransactionNoneZ {
+		contents: CResult_TransactionNoneZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_TransactionNoneZ in the error state.
+pub extern "C" fn CResult_TransactionNoneZ_err() -> CResult_TransactionNoneZ {
+	CResult_TransactionNoneZ {
+		contents: CResult_TransactionNoneZPtr {
+			err: core::ptr::null_mut(),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_TransactionNoneZ_is_ok(o: &CResult_TransactionNoneZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_TransactionNoneZ.
+pub extern "C" fn CResult_TransactionNoneZ_free(_res: CResult_TransactionNoneZ) { }
+impl Drop for CResult_TransactionNoneZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::c_types::Transaction, ()>> for CResult_TransactionNoneZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::Transaction, ()>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_TransactionNoneZPtr { result }
+		} else {
+			let _ = unsafe { Box::from_raw(o.contents.err) };
+			o.contents.err = core::ptr::null_mut();
+			CResult_TransactionNoneZPtr { err: core::ptr::null_mut() }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_TransactionNoneZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_TransactionNoneZPtr {
+				result: Box::into_raw(Box::new(<crate::c_types::Transaction>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_TransactionNoneZPtr {
+				err: core::ptr::null_mut()
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_TransactionNoneZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_TransactionNoneZ_clone(orig: &CResult_TransactionNoneZ) -> CResult_TransactionNoneZ { Clone::clone(&orig) }
 #[repr(C)]
 /// The contents of CResult_WriteableEcdsaChannelSignerDecodeErrorZ
 pub union CResult_WriteableEcdsaChannelSignerDecodeErrorZPtr {
@@ -3138,98 +3688,6 @@ impl Clone for CResult_InMemorySignerDecodeErrorZ {
 /// Creates a new CResult_InMemorySignerDecodeErrorZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_InMemorySignerDecodeErrorZ_clone(orig: &CResult_InMemorySignerDecodeErrorZ) -> CResult_InMemorySignerDecodeErrorZ { Clone::clone(&orig) }
-#[repr(C)]
-/// The contents of CResult_TransactionNoneZ
-pub union CResult_TransactionNoneZPtr {
-	/// A pointer to the contents in the success state.
-	/// Reading from this pointer when `result_ok` is not set is undefined.
-	pub result: *mut crate::c_types::Transaction,
-	/// Note that this value is always NULL, as there are no contents in the Err variant
-	pub err: *mut core::ffi::c_void,
-}
-#[repr(C)]
-/// A CResult_TransactionNoneZ represents the result of a fallible operation,
-/// containing a crate::c_types::Transaction on success and a () on failure.
-/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
-pub struct CResult_TransactionNoneZ {
-	/// The contents of this CResult_TransactionNoneZ, accessible via either
-	/// `err` or `result` depending on the state of `result_ok`.
-	pub contents: CResult_TransactionNoneZPtr,
-	/// Whether this CResult_TransactionNoneZ represents a success state.
-	pub result_ok: bool,
-}
-#[no_mangle]
-/// Creates a new CResult_TransactionNoneZ in the success state.
-pub extern "C" fn CResult_TransactionNoneZ_ok(o: crate::c_types::Transaction) -> CResult_TransactionNoneZ {
-	CResult_TransactionNoneZ {
-		contents: CResult_TransactionNoneZPtr {
-			result: Box::into_raw(Box::new(o)),
-		},
-		result_ok: true,
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_TransactionNoneZ in the error state.
-pub extern "C" fn CResult_TransactionNoneZ_err() -> CResult_TransactionNoneZ {
-	CResult_TransactionNoneZ {
-		contents: CResult_TransactionNoneZPtr {
-			err: core::ptr::null_mut(),
-		},
-		result_ok: false,
-	}
-}
-/// Checks if the given object is currently in the success state
-#[no_mangle]
-pub extern "C" fn CResult_TransactionNoneZ_is_ok(o: &CResult_TransactionNoneZ) -> bool {
-	o.result_ok
-}
-#[no_mangle]
-/// Frees any resources used by the CResult_TransactionNoneZ.
-pub extern "C" fn CResult_TransactionNoneZ_free(_res: CResult_TransactionNoneZ) { }
-impl Drop for CResult_TransactionNoneZ {
-	fn drop(&mut self) {
-		if self.result_ok {
-			if unsafe { !(self.contents.result as *mut ()).is_null() } {
-				let _ = unsafe { Box::from_raw(self.contents.result) };
-			}
-		} else {
-		}
-	}
-}
-impl From<crate::c_types::CResultTempl<crate::c_types::Transaction, ()>> for CResult_TransactionNoneZ {
-	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::Transaction, ()>) -> Self {
-		let contents = if o.result_ok {
-			let result = unsafe { o.contents.result };
-			unsafe { o.contents.result = core::ptr::null_mut() };
-			CResult_TransactionNoneZPtr { result }
-		} else {
-			let _ = unsafe { Box::from_raw(o.contents.err) };
-			o.contents.err = core::ptr::null_mut();
-			CResult_TransactionNoneZPtr { err: core::ptr::null_mut() }
-		};
-		Self {
-			contents,
-			result_ok: o.result_ok,
-		}
-	}
-}
-impl Clone for CResult_TransactionNoneZ {
-	fn clone(&self) -> Self {
-		if self.result_ok {
-			Self { result_ok: true, contents: CResult_TransactionNoneZPtr {
-				result: Box::into_raw(Box::new(<crate::c_types::Transaction>::clone(unsafe { &*self.contents.result })))
-			} }
-		} else {
-			Self { result_ok: false, contents: CResult_TransactionNoneZPtr {
-				err: core::ptr::null_mut()
-			} }
-		}
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_TransactionNoneZ which has the same data as `orig`
-/// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn CResult_TransactionNoneZ_clone(orig: &CResult_TransactionNoneZ) -> CResult_TransactionNoneZ { Clone::clone(&orig) }
 #[repr(C)]
 /// An enum which can either contain a crate::lightning::routing::scoring::WriteableScore or not
 pub enum COption_WriteableScoreZ {
@@ -5380,6 +5838,102 @@ impl From<crate::c_types::CResultTempl<crate::lightning::routing::scoring::Proba
 	}
 }
 #[repr(C)]
+/// The contents of CResult_BestBlockDecodeErrorZ
+pub union CResult_BestBlockDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::chain::BestBlock,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_BestBlockDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::chain::BestBlock on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_BestBlockDecodeErrorZ {
+	/// The contents of this CResult_BestBlockDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_BestBlockDecodeErrorZPtr,
+	/// Whether this CResult_BestBlockDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_BestBlockDecodeErrorZ in the success state.
+pub extern "C" fn CResult_BestBlockDecodeErrorZ_ok(o: crate::lightning::chain::BestBlock) -> CResult_BestBlockDecodeErrorZ {
+	CResult_BestBlockDecodeErrorZ {
+		contents: CResult_BestBlockDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_BestBlockDecodeErrorZ in the error state.
+pub extern "C" fn CResult_BestBlockDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_BestBlockDecodeErrorZ {
+	CResult_BestBlockDecodeErrorZ {
+		contents: CResult_BestBlockDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_BestBlockDecodeErrorZ_is_ok(o: &CResult_BestBlockDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_BestBlockDecodeErrorZ.
+pub extern "C" fn CResult_BestBlockDecodeErrorZ_free(_res: CResult_BestBlockDecodeErrorZ) { }
+impl Drop for CResult_BestBlockDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::chain::BestBlock, crate::lightning::ln::msgs::DecodeError>> for CResult_BestBlockDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::chain::BestBlock, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_BestBlockDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_BestBlockDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_BestBlockDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_BestBlockDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::chain::BestBlock>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_BestBlockDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_BestBlockDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_BestBlockDecodeErrorZ_clone(orig: &CResult_BestBlockDecodeErrorZ) -> CResult_BestBlockDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
 /// A tuple of 2 elements. See the individual fields for the types contained.
 pub struct C2Tuple_usizeTransactionZ {
 	/// The element at position 0
@@ -5698,75 +6252,79 @@ impl Clone for CVec_MonitorEventZ {
 	}
 }
 #[repr(C)]
-/// A tuple of 3 elements. See the individual fields for the types contained.
-pub struct C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ {
+/// A tuple of 4 elements. See the individual fields for the types contained.
+pub struct C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ {
 	/// The element at position 0
 	pub a: crate::lightning::chain::transaction::OutPoint,
 	/// The element at position 1
-	pub b: crate::c_types::derived::CVec_MonitorEventZ,
+	pub b: crate::lightning::ln::types::ChannelId,
 	/// The element at position 2
-	pub c: crate::c_types::PublicKey,
+	pub c: crate::c_types::derived::CVec_MonitorEventZ,
+	/// The element at position 3
+	pub d: crate::c_types::PublicKey,
 }
-impl From<(crate::lightning::chain::transaction::OutPoint, crate::c_types::derived::CVec_MonitorEventZ, crate::c_types::PublicKey)> for C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ {
-	fn from (tup: (crate::lightning::chain::transaction::OutPoint, crate::c_types::derived::CVec_MonitorEventZ, crate::c_types::PublicKey)) -> Self {
+impl From<(crate::lightning::chain::transaction::OutPoint, crate::lightning::ln::types::ChannelId, crate::c_types::derived::CVec_MonitorEventZ, crate::c_types::PublicKey)> for C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ {
+	fn from (tup: (crate::lightning::chain::transaction::OutPoint, crate::lightning::ln::types::ChannelId, crate::c_types::derived::CVec_MonitorEventZ, crate::c_types::PublicKey)) -> Self {
 		Self {
 			a: tup.0,
 			b: tup.1,
 			c: tup.2,
+			d: tup.3,
 		}
 	}
 }
-impl C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ {
-	#[allow(unused)] pub(crate) fn to_rust(mut self) -> (crate::lightning::chain::transaction::OutPoint, crate::c_types::derived::CVec_MonitorEventZ, crate::c_types::PublicKey) {
-		(self.a, self.b, self.c)
+impl C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ {
+	#[allow(unused)] pub(crate) fn to_rust(mut self) -> (crate::lightning::chain::transaction::OutPoint, crate::lightning::ln::types::ChannelId, crate::c_types::derived::CVec_MonitorEventZ, crate::c_types::PublicKey) {
+		(self.a, self.b, self.c, self.d)
 	}
 }
-impl Clone for C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ {
+impl Clone for C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ {
 	fn clone(&self) -> Self {
 		Self {
 			a: Clone::clone(&self.a),
 			b: Clone::clone(&self.b),
 			c: Clone::clone(&self.c),
+			d: Clone::clone(&self.d),
 		}
 	}
 }
 #[no_mangle]
 /// Creates a new tuple which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ_clone(orig: &C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ) -> C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ { Clone::clone(&orig) }
-/// Creates a new C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ from the contained elements.
+pub extern "C" fn C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ_clone(orig: &C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ) -> C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ { Clone::clone(&orig) }
+/// Creates a new C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ from the contained elements.
 #[no_mangle]
-pub extern "C" fn C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ_new(a: crate::lightning::chain::transaction::OutPoint, b: crate::c_types::derived::CVec_MonitorEventZ, c: crate::c_types::PublicKey) -> C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ {
-	C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ { a, b, c, }
+pub extern "C" fn C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ_new(a: crate::lightning::chain::transaction::OutPoint, b: crate::lightning::ln::types::ChannelId, c: crate::c_types::derived::CVec_MonitorEventZ, d: crate::c_types::PublicKey) -> C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ {
+	C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ { a, b, c, d, }
 }
 
 #[no_mangle]
-/// Frees any resources used by the C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ.
-pub extern "C" fn C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ_free(_res: C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ) { }
+/// Frees any resources used by the C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ.
+pub extern "C" fn C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ_free(_res: C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ) { }
 #[repr(C)]
-/// A dynamically-allocated array of crate::c_types::derived::C3Tuple_OutPointCVec_MonitorEventZPublicKeyZs of arbitrary size.
+/// A dynamically-allocated array of crate::c_types::derived::C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZs of arbitrary size.
 /// This corresponds to std::vector in C++
-pub struct CVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ {
+pub struct CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
 	/// The elements in the array.
 	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
-	pub data: *mut crate::c_types::derived::C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ,
+	pub data: *mut crate::c_types::derived::C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ,
 	/// The number of elements pointed to by `data`.
 	pub datalen: usize
 }
-impl CVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ {
-	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::derived::C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ> {
+impl CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::derived::C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ> {
 		if self.datalen == 0 { return Vec::new(); }
 		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
 		self.data = core::ptr::null_mut();
 		self.datalen = 0;
 		ret
 	}
-	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::derived::C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ] {
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::derived::C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ] {
 		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
 	}
 }
-impl From<Vec<crate::c_types::derived::C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ>> for CVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ {
-	fn from(v: Vec<crate::c_types::derived::C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ>) -> Self {
+impl From<Vec<crate::c_types::derived::C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ>> for CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
+	fn from(v: Vec<crate::c_types::derived::C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ>) -> Self {
 		let datalen = v.len();
 		let data = Box::into_raw(v.into_boxed_slice());
 		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
@@ -5774,14 +6332,14 @@ impl From<Vec<crate::c_types::derived::C3Tuple_OutPointCVec_MonitorEventZPublicK
 }
 #[no_mangle]
 /// Frees the buffer pointed to by `data` if `datalen` is non-0.
-pub extern "C" fn CVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ_free(_res: CVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ) { }
-impl Drop for CVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ {
+pub extern "C" fn CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ_free(_res: CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ) { }
+impl Drop for CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
 	fn drop(&mut self) {
 		if self.datalen == 0 { return; }
 		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
 	}
 }
-impl Clone for CVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ {
+impl Clone for CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
 	fn clone(&self) -> Self {
 		let mut res = Vec::new();
 		if self.datalen == 0 { return Self::from(res); }
@@ -6462,6 +7020,448 @@ impl Clone for CResult_ChannelTypeFeaturesDecodeErrorZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_ChannelTypeFeaturesDecodeErrorZ_clone(orig: &CResult_ChannelTypeFeaturesDecodeErrorZ) -> CResult_ChannelTypeFeaturesDecodeErrorZ { Clone::clone(&orig) }
 #[repr(C)]
+/// The contents of CResult_OfferIdDecodeErrorZ
+pub union CResult_OfferIdDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::offer::OfferId,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_OfferIdDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::offer::OfferId on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_OfferIdDecodeErrorZ {
+	/// The contents of this CResult_OfferIdDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_OfferIdDecodeErrorZPtr,
+	/// Whether this CResult_OfferIdDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_OfferIdDecodeErrorZ in the success state.
+pub extern "C" fn CResult_OfferIdDecodeErrorZ_ok(o: crate::lightning::offers::offer::OfferId) -> CResult_OfferIdDecodeErrorZ {
+	CResult_OfferIdDecodeErrorZ {
+		contents: CResult_OfferIdDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OfferIdDecodeErrorZ in the error state.
+pub extern "C" fn CResult_OfferIdDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_OfferIdDecodeErrorZ {
+	CResult_OfferIdDecodeErrorZ {
+		contents: CResult_OfferIdDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_OfferIdDecodeErrorZ_is_ok(o: &CResult_OfferIdDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_OfferIdDecodeErrorZ.
+pub extern "C" fn CResult_OfferIdDecodeErrorZ_free(_res: CResult_OfferIdDecodeErrorZ) { }
+impl Drop for CResult_OfferIdDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::offer::OfferId, crate::lightning::ln::msgs::DecodeError>> for CResult_OfferIdDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::offer::OfferId, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_OfferIdDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_OfferIdDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_OfferIdDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_OfferIdDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::offer::OfferId>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_OfferIdDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OfferIdDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_OfferIdDecodeErrorZ_clone(orig: &CResult_OfferIdDecodeErrorZ) -> CResult_OfferIdDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_NoneBolt12SemanticErrorZ
+pub union CResult_NoneBolt12SemanticErrorZPtr {
+	/// Note that this value is always NULL, as there are no contents in the OK variant
+	pub result: *mut core::ffi::c_void,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_NoneBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a () on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_NoneBolt12SemanticErrorZ {
+	/// The contents of this CResult_NoneBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_NoneBolt12SemanticErrorZPtr,
+	/// Whether this CResult_NoneBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_NoneBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_ok() -> CResult_NoneBolt12SemanticErrorZ {
+	CResult_NoneBolt12SemanticErrorZ {
+		contents: CResult_NoneBolt12SemanticErrorZPtr {
+			result: core::ptr::null_mut(),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_NoneBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_NoneBolt12SemanticErrorZ {
+	CResult_NoneBolt12SemanticErrorZ {
+		contents: CResult_NoneBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_is_ok(o: &CResult_NoneBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_NoneBolt12SemanticErrorZ.
+pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_free(_res: CResult_NoneBolt12SemanticErrorZ) { }
+impl Drop for CResult_NoneBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<(), crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_NoneBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<(), crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let _ = unsafe { Box::from_raw(o.contents.result) };
+			o.contents.result = core::ptr::null_mut();
+			CResult_NoneBolt12SemanticErrorZPtr { result: core::ptr::null_mut() }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_NoneBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_NoneBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_NoneBolt12SemanticErrorZPtr {
+				result: core::ptr::null_mut()
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_NoneBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_NoneBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_clone(orig: &CResult_NoneBolt12SemanticErrorZ) -> CResult_NoneBolt12SemanticErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_OfferBolt12SemanticErrorZ
+pub union CResult_OfferBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::offer::Offer,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_OfferBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::offer::Offer on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_OfferBolt12SemanticErrorZ {
+	/// The contents of this CResult_OfferBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_OfferBolt12SemanticErrorZPtr,
+	/// Whether this CResult_OfferBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_OfferBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_OfferBolt12SemanticErrorZ_ok(o: crate::lightning::offers::offer::Offer) -> CResult_OfferBolt12SemanticErrorZ {
+	CResult_OfferBolt12SemanticErrorZ {
+		contents: CResult_OfferBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OfferBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_OfferBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_OfferBolt12SemanticErrorZ {
+	CResult_OfferBolt12SemanticErrorZ {
+		contents: CResult_OfferBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_OfferBolt12SemanticErrorZ_is_ok(o: &CResult_OfferBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_OfferBolt12SemanticErrorZ.
+pub extern "C" fn CResult_OfferBolt12SemanticErrorZ_free(_res: CResult_OfferBolt12SemanticErrorZ) { }
+impl Drop for CResult_OfferBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::offer::Offer, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_OfferBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::offer::Offer, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_OfferBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_OfferBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_OfferBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_OfferBolt12SemanticErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::offer::Offer>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_OfferBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OfferBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_OfferBolt12SemanticErrorZ_clone(orig: &CResult_OfferBolt12SemanticErrorZ) -> CResult_OfferBolt12SemanticErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ
+pub union CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerIdBuilder,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerIdBuilder on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
+	/// The contents of this CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZPtr,
+	/// Whether this CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ_ok(o: crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerIdBuilder) -> CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
+	CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
+		contents: CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
+	CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
+		contents: CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ_is_ok(o: &CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ.
+pub extern "C" fn CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ_free(_res: CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ) { }
+impl Drop for CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerIdBuilder, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerIdBuilder, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+#[repr(C)]
+/// The contents of CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ
+pub union CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice_request::InvoiceRequestWithExplicitPayerIdBuilder,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice_request::InvoiceRequestWithExplicitPayerIdBuilder on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
+	/// The contents of this CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZPtr,
+	/// Whether this CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ_ok(o: crate::lightning::offers::invoice_request::InvoiceRequestWithExplicitPayerIdBuilder) -> CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
+	CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
+		contents: CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
+	CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
+		contents: CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ_is_ok(o: &CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ.
+pub extern "C" fn CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ_free(_res: CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ) { }
+impl Drop for CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::InvoiceRequestWithExplicitPayerIdBuilder, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::InvoiceRequestWithExplicitPayerIdBuilder, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+#[repr(C)]
 /// The contents of CResult_OfferBolt12ParseErrorZ
 pub union CResult_OfferBolt12ParseErrorZPtr {
 	/// A pointer to the contents in the success state.
@@ -6558,102 +7558,6 @@ impl Clone for CResult_OfferBolt12ParseErrorZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_OfferBolt12ParseErrorZ_clone(orig: &CResult_OfferBolt12ParseErrorZ) -> CResult_OfferBolt12ParseErrorZ { Clone::clone(&orig) }
 #[repr(C)]
-/// The contents of CResult_PublicKeySecp256k1ErrorZ
-pub union CResult_PublicKeySecp256k1ErrorZPtr {
-	/// A pointer to the contents in the success state.
-	/// Reading from this pointer when `result_ok` is not set is undefined.
-	pub result: *mut crate::c_types::PublicKey,
-	/// A pointer to the contents in the error state.
-	/// Reading from this pointer when `result_ok` is set is undefined.
-	pub err: *mut crate::c_types::Secp256k1Error,
-}
-#[repr(C)]
-/// A CResult_PublicKeySecp256k1ErrorZ represents the result of a fallible operation,
-/// containing a crate::c_types::PublicKey on success and a crate::c_types::Secp256k1Error on failure.
-/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
-pub struct CResult_PublicKeySecp256k1ErrorZ {
-	/// The contents of this CResult_PublicKeySecp256k1ErrorZ, accessible via either
-	/// `err` or `result` depending on the state of `result_ok`.
-	pub contents: CResult_PublicKeySecp256k1ErrorZPtr,
-	/// Whether this CResult_PublicKeySecp256k1ErrorZ represents a success state.
-	pub result_ok: bool,
-}
-#[no_mangle]
-/// Creates a new CResult_PublicKeySecp256k1ErrorZ in the success state.
-pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_ok(o: crate::c_types::PublicKey) -> CResult_PublicKeySecp256k1ErrorZ {
-	CResult_PublicKeySecp256k1ErrorZ {
-		contents: CResult_PublicKeySecp256k1ErrorZPtr {
-			result: Box::into_raw(Box::new(o)),
-		},
-		result_ok: true,
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_PublicKeySecp256k1ErrorZ in the error state.
-pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_err(e: crate::c_types::Secp256k1Error) -> CResult_PublicKeySecp256k1ErrorZ {
-	CResult_PublicKeySecp256k1ErrorZ {
-		contents: CResult_PublicKeySecp256k1ErrorZPtr {
-			err: Box::into_raw(Box::new(e)),
-		},
-		result_ok: false,
-	}
-}
-/// Checks if the given object is currently in the success state
-#[no_mangle]
-pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_is_ok(o: &CResult_PublicKeySecp256k1ErrorZ) -> bool {
-	o.result_ok
-}
-#[no_mangle]
-/// Frees any resources used by the CResult_PublicKeySecp256k1ErrorZ.
-pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_free(_res: CResult_PublicKeySecp256k1ErrorZ) { }
-impl Drop for CResult_PublicKeySecp256k1ErrorZ {
-	fn drop(&mut self) {
-		if self.result_ok {
-			if unsafe { !(self.contents.result as *mut ()).is_null() } {
-				let _ = unsafe { Box::from_raw(self.contents.result) };
-			}
-		} else {
-			if unsafe { !(self.contents.err as *mut ()).is_null() } {
-				let _ = unsafe { Box::from_raw(self.contents.err) };
-			}
-		}
-	}
-}
-impl From<crate::c_types::CResultTempl<crate::c_types::PublicKey, crate::c_types::Secp256k1Error>> for CResult_PublicKeySecp256k1ErrorZ {
-	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::PublicKey, crate::c_types::Secp256k1Error>) -> Self {
-		let contents = if o.result_ok {
-			let result = unsafe { o.contents.result };
-			unsafe { o.contents.result = core::ptr::null_mut() };
-			CResult_PublicKeySecp256k1ErrorZPtr { result }
-		} else {
-			let err = unsafe { o.contents.err };
-			unsafe { o.contents.err = core::ptr::null_mut(); }
-			CResult_PublicKeySecp256k1ErrorZPtr { err }
-		};
-		Self {
-			contents,
-			result_ok: o.result_ok,
-		}
-	}
-}
-impl Clone for CResult_PublicKeySecp256k1ErrorZ {
-	fn clone(&self) -> Self {
-		if self.result_ok {
-			Self { result_ok: true, contents: CResult_PublicKeySecp256k1ErrorZPtr {
-				result: Box::into_raw(Box::new(<crate::c_types::PublicKey>::clone(unsafe { &*self.contents.result })))
-			} }
-		} else {
-			Self { result_ok: false, contents: CResult_PublicKeySecp256k1ErrorZPtr {
-				err: Box::into_raw(Box::new(<crate::c_types::Secp256k1Error>::clone(unsafe { &*self.contents.err })))
-			} }
-		}
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_PublicKeySecp256k1ErrorZ which has the same data as `orig`
-/// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_clone(orig: &CResult_PublicKeySecp256k1ErrorZ) -> CResult_PublicKeySecp256k1ErrorZ { Clone::clone(&orig) }
-#[repr(C)]
 /// The contents of CResult_NodeIdDecodeErrorZ
 pub union CResult_NodeIdDecodeErrorZPtr {
 	/// A pointer to the contents in the success state.
@@ -6749,6 +7653,102 @@ impl Clone for CResult_NodeIdDecodeErrorZ {
 /// Creates a new CResult_NodeIdDecodeErrorZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_NodeIdDecodeErrorZ_clone(orig: &CResult_NodeIdDecodeErrorZ) -> CResult_NodeIdDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_PublicKeySecp256k1ErrorZ
+pub union CResult_PublicKeySecp256k1ErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::c_types::PublicKey,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::c_types::Secp256k1Error,
+}
+#[repr(C)]
+/// A CResult_PublicKeySecp256k1ErrorZ represents the result of a fallible operation,
+/// containing a crate::c_types::PublicKey on success and a crate::c_types::Secp256k1Error on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_PublicKeySecp256k1ErrorZ {
+	/// The contents of this CResult_PublicKeySecp256k1ErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_PublicKeySecp256k1ErrorZPtr,
+	/// Whether this CResult_PublicKeySecp256k1ErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_PublicKeySecp256k1ErrorZ in the success state.
+pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_ok(o: crate::c_types::PublicKey) -> CResult_PublicKeySecp256k1ErrorZ {
+	CResult_PublicKeySecp256k1ErrorZ {
+		contents: CResult_PublicKeySecp256k1ErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_PublicKeySecp256k1ErrorZ in the error state.
+pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_err(e: crate::c_types::Secp256k1Error) -> CResult_PublicKeySecp256k1ErrorZ {
+	CResult_PublicKeySecp256k1ErrorZ {
+		contents: CResult_PublicKeySecp256k1ErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_is_ok(o: &CResult_PublicKeySecp256k1ErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_PublicKeySecp256k1ErrorZ.
+pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_free(_res: CResult_PublicKeySecp256k1ErrorZ) { }
+impl Drop for CResult_PublicKeySecp256k1ErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::c_types::PublicKey, crate::c_types::Secp256k1Error>> for CResult_PublicKeySecp256k1ErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::PublicKey, crate::c_types::Secp256k1Error>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_PublicKeySecp256k1ErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_PublicKeySecp256k1ErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_PublicKeySecp256k1ErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_PublicKeySecp256k1ErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::c_types::PublicKey>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_PublicKeySecp256k1ErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::c_types::Secp256k1Error>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_PublicKeySecp256k1ErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_PublicKeySecp256k1ErrorZ_clone(orig: &CResult_PublicKeySecp256k1ErrorZ) -> CResult_PublicKeySecp256k1ErrorZ { Clone::clone(&orig) }
 #[repr(C)]
 #[derive(Clone)]
 /// An enum which can either contain a crate::lightning::routing::gossip::NetworkUpdate or not
@@ -7970,6 +8970,85 @@ pub extern "C" fn COption_CVec_SocketAddressZZ_free(_res: COption_CVec_SocketAdd
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn COption_CVec_SocketAddressZZ_clone(orig: &COption_CVec_SocketAddressZZ) -> COption_CVec_SocketAddressZZ { Clone::clone(&orig) }
 #[repr(C)]
+/// The contents of CResult_u64ShortChannelIdErrorZ
+pub union CResult_u64ShortChannelIdErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut u64,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::util::scid_utils::ShortChannelIdError,
+}
+#[repr(C)]
+/// A CResult_u64ShortChannelIdErrorZ represents the result of a fallible operation,
+/// containing a u64 on success and a crate::lightning::util::scid_utils::ShortChannelIdError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_u64ShortChannelIdErrorZ {
+	/// The contents of this CResult_u64ShortChannelIdErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_u64ShortChannelIdErrorZPtr,
+	/// Whether this CResult_u64ShortChannelIdErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_u64ShortChannelIdErrorZ in the success state.
+pub extern "C" fn CResult_u64ShortChannelIdErrorZ_ok(o: u64) -> CResult_u64ShortChannelIdErrorZ {
+	CResult_u64ShortChannelIdErrorZ {
+		contents: CResult_u64ShortChannelIdErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_u64ShortChannelIdErrorZ in the error state.
+pub extern "C" fn CResult_u64ShortChannelIdErrorZ_err(e: crate::lightning::util::scid_utils::ShortChannelIdError) -> CResult_u64ShortChannelIdErrorZ {
+	CResult_u64ShortChannelIdErrorZ {
+		contents: CResult_u64ShortChannelIdErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_u64ShortChannelIdErrorZ_is_ok(o: &CResult_u64ShortChannelIdErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_u64ShortChannelIdErrorZ.
+pub extern "C" fn CResult_u64ShortChannelIdErrorZ_free(_res: CResult_u64ShortChannelIdErrorZ) { }
+impl Drop for CResult_u64ShortChannelIdErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<u64, crate::lightning::util::scid_utils::ShortChannelIdError>> for CResult_u64ShortChannelIdErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<u64, crate::lightning::util::scid_utils::ShortChannelIdError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_u64ShortChannelIdErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_u64ShortChannelIdErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+#[repr(C)]
 /// The contents of CResult_PendingHTLCInfoInboundHTLCErrZ
 pub union CResult_PendingHTLCInfoInboundHTLCErrZPtr {
 	/// A pointer to the contents in the success state.
@@ -8048,6 +9127,23 @@ impl From<crate::c_types::CResultTempl<crate::lightning::ln::channelmanager::Pen
 		}
 	}
 }
+impl Clone for CResult_PendingHTLCInfoInboundHTLCErrZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_PendingHTLCInfoInboundHTLCErrZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::ln::channelmanager::PendingHTLCInfo>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_PendingHTLCInfoInboundHTLCErrZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::onion_payment::InboundHTLCErr>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_PendingHTLCInfoInboundHTLCErrZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_PendingHTLCInfoInboundHTLCErrZ_clone(orig: &CResult_PendingHTLCInfoInboundHTLCErrZ) -> CResult_PendingHTLCInfoInboundHTLCErrZ { Clone::clone(&orig) }
 #[repr(C)]
 /// A dynamically-allocated array of crate::lightning::ln::chan_utils::HTLCOutputInCommitments of arbitrary size.
 /// This corresponds to std::vector in C++
@@ -8454,6 +9550,43 @@ impl Clone for CResult_CVec_UtxoZNoneZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_CVec_UtxoZNoneZ_clone(orig: &CResult_CVec_UtxoZNoneZ) -> CResult_CVec_UtxoZNoneZ { Clone::clone(&orig) }
 #[repr(C)]
+#[derive(Clone)]
+/// An enum which can either contain a crate::lightning::blinded_path::payment::PaymentContext or not
+pub enum COption_PaymentContextZ {
+	/// When we're in this state, this COption_PaymentContextZ contains a crate::lightning::blinded_path::payment::PaymentContext
+	Some(crate::lightning::blinded_path::payment::PaymentContext),
+	/// When we're in this state, this COption_PaymentContextZ contains nothing
+	None
+}
+impl COption_PaymentContextZ {
+	#[allow(unused)] pub(crate) fn is_some(&self) -> bool {
+		if let Self::None = self { false } else { true }
+	}
+	#[allow(unused)] pub(crate) fn is_none(&self) -> bool {
+		!self.is_some()
+	}
+	#[allow(unused)] pub(crate) fn take(mut self) -> crate::lightning::blinded_path::payment::PaymentContext {
+		if let Self::Some(v) = self { v } else { unreachable!() }
+	}
+}
+#[no_mangle]
+/// Constructs a new COption_PaymentContextZ containing a crate::lightning::blinded_path::payment::PaymentContext
+pub extern "C" fn COption_PaymentContextZ_some(o: crate::lightning::blinded_path::payment::PaymentContext) -> COption_PaymentContextZ {
+	COption_PaymentContextZ::Some(o)
+}
+#[no_mangle]
+/// Constructs a new COption_PaymentContextZ containing nothing
+pub extern "C" fn COption_PaymentContextZ_none() -> COption_PaymentContextZ {
+	COption_PaymentContextZ::None
+}
+#[no_mangle]
+/// Frees any resources associated with the crate::lightning::blinded_path::payment::PaymentContext, if we are in the Some state
+pub extern "C" fn COption_PaymentContextZ_free(_res: COption_PaymentContextZ) { }
+#[no_mangle]
+/// Creates a new COption_PaymentContextZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn COption_PaymentContextZ_clone(orig: &COption_PaymentContextZ) -> COption_PaymentContextZ { Clone::clone(&orig) }
+#[repr(C)]
 /// A tuple of 2 elements. See the individual fields for the types contained.
 pub struct C2Tuple_u64u16Z {
 	/// The element at position 0
@@ -8570,41 +9703,41 @@ pub extern "C" fn COption_ChannelShutdownStateZ_free(_res: COption_ChannelShutdo
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn COption_ChannelShutdownStateZ_clone(orig: &COption_ChannelShutdownStateZ) -> COption_ChannelShutdownStateZ { Clone::clone(&orig) }
 #[repr(C)]
-/// The contents of CResult_ThirtyTwoBytesAPIErrorZ
-pub union CResult_ThirtyTwoBytesAPIErrorZPtr {
+/// The contents of CResult_ChannelIdAPIErrorZ
+pub union CResult_ChannelIdAPIErrorZPtr {
 	/// A pointer to the contents in the success state.
 	/// Reading from this pointer when `result_ok` is not set is undefined.
-	pub result: *mut crate::c_types::ThirtyTwoBytes,
+	pub result: *mut crate::lightning::ln::types::ChannelId,
 	/// A pointer to the contents in the error state.
 	/// Reading from this pointer when `result_ok` is set is undefined.
 	pub err: *mut crate::lightning::util::errors::APIError,
 }
 #[repr(C)]
-/// A CResult_ThirtyTwoBytesAPIErrorZ represents the result of a fallible operation,
-/// containing a crate::c_types::ThirtyTwoBytes on success and a crate::lightning::util::errors::APIError on failure.
+/// A CResult_ChannelIdAPIErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::ln::types::ChannelId on success and a crate::lightning::util::errors::APIError on failure.
 /// `result_ok` indicates the overall state, and the contents are provided via `contents`.
-pub struct CResult_ThirtyTwoBytesAPIErrorZ {
-	/// The contents of this CResult_ThirtyTwoBytesAPIErrorZ, accessible via either
+pub struct CResult_ChannelIdAPIErrorZ {
+	/// The contents of this CResult_ChannelIdAPIErrorZ, accessible via either
 	/// `err` or `result` depending on the state of `result_ok`.
-	pub contents: CResult_ThirtyTwoBytesAPIErrorZPtr,
-	/// Whether this CResult_ThirtyTwoBytesAPIErrorZ represents a success state.
+	pub contents: CResult_ChannelIdAPIErrorZPtr,
+	/// Whether this CResult_ChannelIdAPIErrorZ represents a success state.
 	pub result_ok: bool,
 }
 #[no_mangle]
-/// Creates a new CResult_ThirtyTwoBytesAPIErrorZ in the success state.
-pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_ok(o: crate::c_types::ThirtyTwoBytes) -> CResult_ThirtyTwoBytesAPIErrorZ {
-	CResult_ThirtyTwoBytesAPIErrorZ {
-		contents: CResult_ThirtyTwoBytesAPIErrorZPtr {
+/// Creates a new CResult_ChannelIdAPIErrorZ in the success state.
+pub extern "C" fn CResult_ChannelIdAPIErrorZ_ok(o: crate::lightning::ln::types::ChannelId) -> CResult_ChannelIdAPIErrorZ {
+	CResult_ChannelIdAPIErrorZ {
+		contents: CResult_ChannelIdAPIErrorZPtr {
 			result: Box::into_raw(Box::new(o)),
 		},
 		result_ok: true,
 	}
 }
 #[no_mangle]
-/// Creates a new CResult_ThirtyTwoBytesAPIErrorZ in the error state.
-pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_err(e: crate::lightning::util::errors::APIError) -> CResult_ThirtyTwoBytesAPIErrorZ {
-	CResult_ThirtyTwoBytesAPIErrorZ {
-		contents: CResult_ThirtyTwoBytesAPIErrorZPtr {
+/// Creates a new CResult_ChannelIdAPIErrorZ in the error state.
+pub extern "C" fn CResult_ChannelIdAPIErrorZ_err(e: crate::lightning::util::errors::APIError) -> CResult_ChannelIdAPIErrorZ {
+	CResult_ChannelIdAPIErrorZ {
+		contents: CResult_ChannelIdAPIErrorZPtr {
 			err: Box::into_raw(Box::new(e)),
 		},
 		result_ok: false,
@@ -8612,13 +9745,13 @@ pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_err(e: crate::lightning::util:
 }
 /// Checks if the given object is currently in the success state
 #[no_mangle]
-pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_is_ok(o: &CResult_ThirtyTwoBytesAPIErrorZ) -> bool {
+pub extern "C" fn CResult_ChannelIdAPIErrorZ_is_ok(o: &CResult_ChannelIdAPIErrorZ) -> bool {
 	o.result_ok
 }
 #[no_mangle]
-/// Frees any resources used by the CResult_ThirtyTwoBytesAPIErrorZ.
-pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_free(_res: CResult_ThirtyTwoBytesAPIErrorZ) { }
-impl Drop for CResult_ThirtyTwoBytesAPIErrorZ {
+/// Frees any resources used by the CResult_ChannelIdAPIErrorZ.
+pub extern "C" fn CResult_ChannelIdAPIErrorZ_free(_res: CResult_ChannelIdAPIErrorZ) { }
+impl Drop for CResult_ChannelIdAPIErrorZ {
 	fn drop(&mut self) {
 		if self.result_ok {
 			if unsafe { !(self.contents.result as *mut ()).is_null() } {
@@ -8631,16 +9764,16 @@ impl Drop for CResult_ThirtyTwoBytesAPIErrorZ {
 		}
 	}
 }
-impl From<crate::c_types::CResultTempl<crate::c_types::ThirtyTwoBytes, crate::lightning::util::errors::APIError>> for CResult_ThirtyTwoBytesAPIErrorZ {
-	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::ThirtyTwoBytes, crate::lightning::util::errors::APIError>) -> Self {
+impl From<crate::c_types::CResultTempl<crate::lightning::ln::types::ChannelId, crate::lightning::util::errors::APIError>> for CResult_ChannelIdAPIErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::ln::types::ChannelId, crate::lightning::util::errors::APIError>) -> Self {
 		let contents = if o.result_ok {
 			let result = unsafe { o.contents.result };
 			unsafe { o.contents.result = core::ptr::null_mut() };
-			CResult_ThirtyTwoBytesAPIErrorZPtr { result }
+			CResult_ChannelIdAPIErrorZPtr { result }
 		} else {
 			let err = unsafe { o.contents.err };
 			unsafe { o.contents.err = core::ptr::null_mut(); }
-			CResult_ThirtyTwoBytesAPIErrorZPtr { err }
+			CResult_ChannelIdAPIErrorZPtr { err }
 		};
 		Self {
 			contents,
@@ -8648,23 +9781,23 @@ impl From<crate::c_types::CResultTempl<crate::c_types::ThirtyTwoBytes, crate::li
 		}
 	}
 }
-impl Clone for CResult_ThirtyTwoBytesAPIErrorZ {
+impl Clone for CResult_ChannelIdAPIErrorZ {
 	fn clone(&self) -> Self {
 		if self.result_ok {
-			Self { result_ok: true, contents: CResult_ThirtyTwoBytesAPIErrorZPtr {
-				result: Box::into_raw(Box::new(<crate::c_types::ThirtyTwoBytes>::clone(unsafe { &*self.contents.result })))
+			Self { result_ok: true, contents: CResult_ChannelIdAPIErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::ln::types::ChannelId>::clone(unsafe { &*self.contents.result })))
 			} }
 		} else {
-			Self { result_ok: false, contents: CResult_ThirtyTwoBytesAPIErrorZPtr {
+			Self { result_ok: false, contents: CResult_ChannelIdAPIErrorZPtr {
 				err: Box::into_raw(Box::new(<crate::lightning::util::errors::APIError>::clone(unsafe { &*self.contents.err })))
 			} }
 		}
 	}
 }
 #[no_mangle]
-/// Creates a new CResult_ThirtyTwoBytesAPIErrorZ which has the same data as `orig`
+/// Creates a new CResult_ChannelIdAPIErrorZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_clone(orig: &CResult_ThirtyTwoBytesAPIErrorZ) -> CResult_ThirtyTwoBytesAPIErrorZ { Clone::clone(&orig) }
+pub extern "C" fn CResult_ChannelIdAPIErrorZ_clone(orig: &CResult_ChannelIdAPIErrorZ) -> CResult_ChannelIdAPIErrorZ { Clone::clone(&orig) }
 #[repr(C)]
 /// A dynamically-allocated array of crate::lightning::ln::channelmanager::RecentPaymentDetailss of arbitrary size.
 /// This corresponds to std::vector in C++
@@ -9361,26 +10494,26 @@ impl Clone for CResult_CVec_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZZProbeSendFailu
 pub extern "C" fn CResult_CVec_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZZProbeSendFailureZ_clone(orig: &CResult_CVec_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZZProbeSendFailureZ) -> CResult_CVec_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZZProbeSendFailureZ { Clone::clone(&orig) }
 #[repr(C)]
 /// A tuple of 2 elements. See the individual fields for the types contained.
-pub struct C2Tuple_ThirtyTwoBytesPublicKeyZ {
+pub struct C2Tuple_ChannelIdPublicKeyZ {
 	/// The element at position 0
-	pub a: crate::c_types::ThirtyTwoBytes,
+	pub a: crate::lightning::ln::types::ChannelId,
 	/// The element at position 1
 	pub b: crate::c_types::PublicKey,
 }
-impl From<(crate::c_types::ThirtyTwoBytes, crate::c_types::PublicKey)> for C2Tuple_ThirtyTwoBytesPublicKeyZ {
-	fn from (tup: (crate::c_types::ThirtyTwoBytes, crate::c_types::PublicKey)) -> Self {
+impl From<(crate::lightning::ln::types::ChannelId, crate::c_types::PublicKey)> for C2Tuple_ChannelIdPublicKeyZ {
+	fn from (tup: (crate::lightning::ln::types::ChannelId, crate::c_types::PublicKey)) -> Self {
 		Self {
 			a: tup.0,
 			b: tup.1,
 		}
 	}
 }
-impl C2Tuple_ThirtyTwoBytesPublicKeyZ {
-	#[allow(unused)] pub(crate) fn to_rust(mut self) -> (crate::c_types::ThirtyTwoBytes, crate::c_types::PublicKey) {
+impl C2Tuple_ChannelIdPublicKeyZ {
+	#[allow(unused)] pub(crate) fn to_rust(mut self) -> (crate::lightning::ln::types::ChannelId, crate::c_types::PublicKey) {
 		(self.a, self.b)
 	}
 }
-impl Clone for C2Tuple_ThirtyTwoBytesPublicKeyZ {
+impl Clone for C2Tuple_ChannelIdPublicKeyZ {
 	fn clone(&self) -> Self {
 		Self {
 			a: Clone::clone(&self.a),
@@ -9391,40 +10524,40 @@ impl Clone for C2Tuple_ThirtyTwoBytesPublicKeyZ {
 #[no_mangle]
 /// Creates a new tuple which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn C2Tuple_ThirtyTwoBytesPublicKeyZ_clone(orig: &C2Tuple_ThirtyTwoBytesPublicKeyZ) -> C2Tuple_ThirtyTwoBytesPublicKeyZ { Clone::clone(&orig) }
-/// Creates a new C2Tuple_ThirtyTwoBytesPublicKeyZ from the contained elements.
+pub extern "C" fn C2Tuple_ChannelIdPublicKeyZ_clone(orig: &C2Tuple_ChannelIdPublicKeyZ) -> C2Tuple_ChannelIdPublicKeyZ { Clone::clone(&orig) }
+/// Creates a new C2Tuple_ChannelIdPublicKeyZ from the contained elements.
 #[no_mangle]
-pub extern "C" fn C2Tuple_ThirtyTwoBytesPublicKeyZ_new(a: crate::c_types::ThirtyTwoBytes, b: crate::c_types::PublicKey) -> C2Tuple_ThirtyTwoBytesPublicKeyZ {
-	C2Tuple_ThirtyTwoBytesPublicKeyZ { a, b, }
+pub extern "C" fn C2Tuple_ChannelIdPublicKeyZ_new(a: crate::lightning::ln::types::ChannelId, b: crate::c_types::PublicKey) -> C2Tuple_ChannelIdPublicKeyZ {
+	C2Tuple_ChannelIdPublicKeyZ { a, b, }
 }
 
 #[no_mangle]
-/// Frees any resources used by the C2Tuple_ThirtyTwoBytesPublicKeyZ.
-pub extern "C" fn C2Tuple_ThirtyTwoBytesPublicKeyZ_free(_res: C2Tuple_ThirtyTwoBytesPublicKeyZ) { }
+/// Frees any resources used by the C2Tuple_ChannelIdPublicKeyZ.
+pub extern "C" fn C2Tuple_ChannelIdPublicKeyZ_free(_res: C2Tuple_ChannelIdPublicKeyZ) { }
 #[repr(C)]
-/// A dynamically-allocated array of crate::c_types::derived::C2Tuple_ThirtyTwoBytesPublicKeyZs of arbitrary size.
+/// A dynamically-allocated array of crate::c_types::derived::C2Tuple_ChannelIdPublicKeyZs of arbitrary size.
 /// This corresponds to std::vector in C++
-pub struct CVec_C2Tuple_ThirtyTwoBytesPublicKeyZZ {
+pub struct CVec_C2Tuple_ChannelIdPublicKeyZZ {
 	/// The elements in the array.
 	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
-	pub data: *mut crate::c_types::derived::C2Tuple_ThirtyTwoBytesPublicKeyZ,
+	pub data: *mut crate::c_types::derived::C2Tuple_ChannelIdPublicKeyZ,
 	/// The number of elements pointed to by `data`.
 	pub datalen: usize
 }
-impl CVec_C2Tuple_ThirtyTwoBytesPublicKeyZZ {
-	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::derived::C2Tuple_ThirtyTwoBytesPublicKeyZ> {
+impl CVec_C2Tuple_ChannelIdPublicKeyZZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::derived::C2Tuple_ChannelIdPublicKeyZ> {
 		if self.datalen == 0 { return Vec::new(); }
 		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
 		self.data = core::ptr::null_mut();
 		self.datalen = 0;
 		ret
 	}
-	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::derived::C2Tuple_ThirtyTwoBytesPublicKeyZ] {
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::derived::C2Tuple_ChannelIdPublicKeyZ] {
 		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
 	}
 }
-impl From<Vec<crate::c_types::derived::C2Tuple_ThirtyTwoBytesPublicKeyZ>> for CVec_C2Tuple_ThirtyTwoBytesPublicKeyZZ {
-	fn from(v: Vec<crate::c_types::derived::C2Tuple_ThirtyTwoBytesPublicKeyZ>) -> Self {
+impl From<Vec<crate::c_types::derived::C2Tuple_ChannelIdPublicKeyZ>> for CVec_C2Tuple_ChannelIdPublicKeyZZ {
+	fn from(v: Vec<crate::c_types::derived::C2Tuple_ChannelIdPublicKeyZ>) -> Self {
 		let datalen = v.len();
 		let data = Box::into_raw(v.into_boxed_slice());
 		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
@@ -9432,14 +10565,14 @@ impl From<Vec<crate::c_types::derived::C2Tuple_ThirtyTwoBytesPublicKeyZ>> for CV
 }
 #[no_mangle]
 /// Frees the buffer pointed to by `data` if `datalen` is non-0.
-pub extern "C" fn CVec_C2Tuple_ThirtyTwoBytesPublicKeyZZ_free(_res: CVec_C2Tuple_ThirtyTwoBytesPublicKeyZZ) { }
-impl Drop for CVec_C2Tuple_ThirtyTwoBytesPublicKeyZZ {
+pub extern "C" fn CVec_C2Tuple_ChannelIdPublicKeyZZ_free(_res: CVec_C2Tuple_ChannelIdPublicKeyZZ) { }
+impl Drop for CVec_C2Tuple_ChannelIdPublicKeyZZ {
 	fn drop(&mut self) {
 		if self.datalen == 0 { return; }
 		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
 	}
 }
-impl Clone for CVec_C2Tuple_ThirtyTwoBytesPublicKeyZZ {
+impl Clone for CVec_C2Tuple_ChannelIdPublicKeyZZ {
 	fn clone(&self) -> Self {
 		let mut res = Vec::new();
 		if self.datalen == 0 { return Self::from(res); }
@@ -9447,6 +10580,148 @@ impl Clone for CVec_C2Tuple_ThirtyTwoBytesPublicKeyZZ {
 		Self::from(res)
 	}
 }
+#[repr(C)]
+/// A dynamically-allocated array of crate::lightning::ln::types::ChannelIds of arbitrary size.
+/// This corresponds to std::vector in C++
+pub struct CVec_ChannelIdZ {
+	/// The elements in the array.
+	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+	pub data: *mut crate::lightning::ln::types::ChannelId,
+	/// The number of elements pointed to by `data`.
+	pub datalen: usize
+}
+impl CVec_ChannelIdZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::lightning::ln::types::ChannelId> {
+		if self.datalen == 0 { return Vec::new(); }
+		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
+		self.data = core::ptr::null_mut();
+		self.datalen = 0;
+		ret
+	}
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::lightning::ln::types::ChannelId] {
+		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
+	}
+}
+impl From<Vec<crate::lightning::ln::types::ChannelId>> for CVec_ChannelIdZ {
+	fn from(v: Vec<crate::lightning::ln::types::ChannelId>) -> Self {
+		let datalen = v.len();
+		let data = Box::into_raw(v.into_boxed_slice());
+		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
+	}
+}
+#[no_mangle]
+/// Frees the buffer pointed to by `data` if `datalen` is non-0.
+pub extern "C" fn CVec_ChannelIdZ_free(_res: CVec_ChannelIdZ) { }
+impl Drop for CVec_ChannelIdZ {
+	fn drop(&mut self) {
+		if self.datalen == 0 { return; }
+		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
+	}
+}
+impl Clone for CVec_ChannelIdZ {
+	fn clone(&self) -> Self {
+		let mut res = Vec::new();
+		if self.datalen == 0 { return Self::from(res); }
+		res.extend_from_slice(unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) });
+		Self::from(res)
+	}
+}
+#[repr(C)]
+/// The contents of CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ
+pub union CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	/// The contents of this CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZPtr,
+	/// Whether this CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ_ok(o: crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder) -> CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+		contents: CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+		contents: CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ_is_ok(o: &CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ.
+pub extern "C" fn CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ_free(_res: CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ) { }
+impl Drop for CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ_clone(orig: &CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ) -> CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ { Clone::clone(&orig) }
 #[repr(C)]
 #[derive(Clone)]
 /// An enum which can either contain a crate::c_types::Str or not
@@ -9484,98 +10759,6 @@ pub extern "C" fn COption_StrZ_free(_res: COption_StrZ) { }
 /// Creates a new COption_StrZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn COption_StrZ_clone(orig: &COption_StrZ) -> COption_StrZ { Clone::clone(&orig) }
-#[repr(C)]
-/// The contents of CResult_NoneBolt12SemanticErrorZ
-pub union CResult_NoneBolt12SemanticErrorZPtr {
-	/// Note that this value is always NULL, as there are no contents in the OK variant
-	pub result: *mut core::ffi::c_void,
-	/// A pointer to the contents in the error state.
-	/// Reading from this pointer when `result_ok` is set is undefined.
-	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
-}
-#[repr(C)]
-/// A CResult_NoneBolt12SemanticErrorZ represents the result of a fallible operation,
-/// containing a () on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
-/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
-pub struct CResult_NoneBolt12SemanticErrorZ {
-	/// The contents of this CResult_NoneBolt12SemanticErrorZ, accessible via either
-	/// `err` or `result` depending on the state of `result_ok`.
-	pub contents: CResult_NoneBolt12SemanticErrorZPtr,
-	/// Whether this CResult_NoneBolt12SemanticErrorZ represents a success state.
-	pub result_ok: bool,
-}
-#[no_mangle]
-/// Creates a new CResult_NoneBolt12SemanticErrorZ in the success state.
-pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_ok() -> CResult_NoneBolt12SemanticErrorZ {
-	CResult_NoneBolt12SemanticErrorZ {
-		contents: CResult_NoneBolt12SemanticErrorZPtr {
-			result: core::ptr::null_mut(),
-		},
-		result_ok: true,
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_NoneBolt12SemanticErrorZ in the error state.
-pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_NoneBolt12SemanticErrorZ {
-	CResult_NoneBolt12SemanticErrorZ {
-		contents: CResult_NoneBolt12SemanticErrorZPtr {
-			err: Box::into_raw(Box::new(e)),
-		},
-		result_ok: false,
-	}
-}
-/// Checks if the given object is currently in the success state
-#[no_mangle]
-pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_is_ok(o: &CResult_NoneBolt12SemanticErrorZ) -> bool {
-	o.result_ok
-}
-#[no_mangle]
-/// Frees any resources used by the CResult_NoneBolt12SemanticErrorZ.
-pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_free(_res: CResult_NoneBolt12SemanticErrorZ) { }
-impl Drop for CResult_NoneBolt12SemanticErrorZ {
-	fn drop(&mut self) {
-		if self.result_ok {
-		} else {
-			if unsafe { !(self.contents.err as *mut ()).is_null() } {
-				let _ = unsafe { Box::from_raw(self.contents.err) };
-			}
-		}
-	}
-}
-impl From<crate::c_types::CResultTempl<(), crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_NoneBolt12SemanticErrorZ {
-	fn from(mut o: crate::c_types::CResultTempl<(), crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
-		let contents = if o.result_ok {
-			let _ = unsafe { Box::from_raw(o.contents.result) };
-			o.contents.result = core::ptr::null_mut();
-			CResult_NoneBolt12SemanticErrorZPtr { result: core::ptr::null_mut() }
-		} else {
-			let err = unsafe { o.contents.err };
-			unsafe { o.contents.err = core::ptr::null_mut(); }
-			CResult_NoneBolt12SemanticErrorZPtr { err }
-		};
-		Self {
-			contents,
-			result_ok: o.result_ok,
-		}
-	}
-}
-impl Clone for CResult_NoneBolt12SemanticErrorZ {
-	fn clone(&self) -> Self {
-		if self.result_ok {
-			Self { result_ok: true, contents: CResult_NoneBolt12SemanticErrorZPtr {
-				result: core::ptr::null_mut()
-			} }
-		} else {
-			Self { result_ok: false, contents: CResult_NoneBolt12SemanticErrorZPtr {
-				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
-			} }
-		}
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_NoneBolt12SemanticErrorZ which has the same data as `orig`
-/// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn CResult_NoneBolt12SemanticErrorZ_clone(orig: &CResult_NoneBolt12SemanticErrorZ) -> CResult_NoneBolt12SemanticErrorZ { Clone::clone(&orig) }
 #[repr(C)]
 /// The contents of CResult_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZNoneZ
 pub union CResult_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZNoneZPtr {
@@ -9668,6 +10851,102 @@ impl Clone for CResult_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZNoneZ {
 /// Creates a new CResult_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZNoneZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZNoneZ_clone(orig: &CResult_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZNoneZ) -> CResult_C2Tuple_ThirtyTwoBytesThirtyTwoBytesZNoneZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_ThirtyTwoBytesAPIErrorZ
+pub union CResult_ThirtyTwoBytesAPIErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::c_types::ThirtyTwoBytes,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::util::errors::APIError,
+}
+#[repr(C)]
+/// A CResult_ThirtyTwoBytesAPIErrorZ represents the result of a fallible operation,
+/// containing a crate::c_types::ThirtyTwoBytes on success and a crate::lightning::util::errors::APIError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_ThirtyTwoBytesAPIErrorZ {
+	/// The contents of this CResult_ThirtyTwoBytesAPIErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_ThirtyTwoBytesAPIErrorZPtr,
+	/// Whether this CResult_ThirtyTwoBytesAPIErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_ThirtyTwoBytesAPIErrorZ in the success state.
+pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_ok(o: crate::c_types::ThirtyTwoBytes) -> CResult_ThirtyTwoBytesAPIErrorZ {
+	CResult_ThirtyTwoBytesAPIErrorZ {
+		contents: CResult_ThirtyTwoBytesAPIErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_ThirtyTwoBytesAPIErrorZ in the error state.
+pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_err(e: crate::lightning::util::errors::APIError) -> CResult_ThirtyTwoBytesAPIErrorZ {
+	CResult_ThirtyTwoBytesAPIErrorZ {
+		contents: CResult_ThirtyTwoBytesAPIErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_is_ok(o: &CResult_ThirtyTwoBytesAPIErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_ThirtyTwoBytesAPIErrorZ.
+pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_free(_res: CResult_ThirtyTwoBytesAPIErrorZ) { }
+impl Drop for CResult_ThirtyTwoBytesAPIErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::c_types::ThirtyTwoBytes, crate::lightning::util::errors::APIError>> for CResult_ThirtyTwoBytesAPIErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::ThirtyTwoBytes, crate::lightning::util::errors::APIError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_ThirtyTwoBytesAPIErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_ThirtyTwoBytesAPIErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_ThirtyTwoBytesAPIErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_ThirtyTwoBytesAPIErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::c_types::ThirtyTwoBytes>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_ThirtyTwoBytesAPIErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::util::errors::APIError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_ThirtyTwoBytesAPIErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_ThirtyTwoBytesAPIErrorZ_clone(orig: &CResult_ThirtyTwoBytesAPIErrorZ) -> CResult_ThirtyTwoBytesAPIErrorZ { Clone::clone(&orig) }
 #[repr(C)]
 #[derive(Clone)]
 /// An enum which can either contain a crate::lightning::onion_message::offers::OffersMessage or not
@@ -11768,52 +13047,6 @@ impl Clone for CVec_CommitmentTransactionZ {
 	}
 }
 #[repr(C)]
-/// A dynamically-allocated array of crate::c_types::Transactions of arbitrary size.
-/// This corresponds to std::vector in C++
-pub struct CVec_TransactionZ {
-	/// The elements in the array.
-	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
-	pub data: *mut crate::c_types::Transaction,
-	/// The number of elements pointed to by `data`.
-	pub datalen: usize
-}
-impl CVec_TransactionZ {
-	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::Transaction> {
-		if self.datalen == 0 { return Vec::new(); }
-		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
-		self.data = core::ptr::null_mut();
-		self.datalen = 0;
-		ret
-	}
-	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::Transaction] {
-		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
-	}
-}
-impl From<Vec<crate::c_types::Transaction>> for CVec_TransactionZ {
-	fn from(v: Vec<crate::c_types::Transaction>) -> Self {
-		let datalen = v.len();
-		let data = Box::into_raw(v.into_boxed_slice());
-		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
-	}
-}
-#[no_mangle]
-/// Frees the buffer pointed to by `data` if `datalen` is non-0.
-pub extern "C" fn CVec_TransactionZ_free(_res: CVec_TransactionZ) { }
-impl Drop for CVec_TransactionZ {
-	fn drop(&mut self) {
-		if self.datalen == 0 { return; }
-		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
-	}
-}
-impl Clone for CVec_TransactionZ {
-	fn clone(&self) -> Self {
-		let mut res = Vec::new();
-		if self.datalen == 0 { return Self::from(res); }
-		res.extend_from_slice(unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) });
-		Self::from(res)
-	}
-}
-#[repr(C)]
 /// A tuple of 2 elements. See the individual fields for the types contained.
 pub struct C2Tuple_u32TxOutZ {
 	/// The element at position 0
@@ -12745,71 +13978,29 @@ pub extern "C" fn COption_SocketAddressZ_free(_res: COption_SocketAddressZ) { }
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn COption_SocketAddressZ_clone(orig: &COption_SocketAddressZ) -> COption_SocketAddressZ { Clone::clone(&orig) }
 #[repr(C)]
-/// A tuple of 2 elements. See the individual fields for the types contained.
-pub struct C2Tuple_PublicKeyCOption_SocketAddressZZ {
-	/// The element at position 0
-	pub a: crate::c_types::PublicKey,
-	/// The element at position 1
-	pub b: crate::c_types::derived::COption_SocketAddressZ,
-}
-impl From<(crate::c_types::PublicKey, crate::c_types::derived::COption_SocketAddressZ)> for C2Tuple_PublicKeyCOption_SocketAddressZZ {
-	fn from (tup: (crate::c_types::PublicKey, crate::c_types::derived::COption_SocketAddressZ)) -> Self {
-		Self {
-			a: tup.0,
-			b: tup.1,
-		}
-	}
-}
-impl C2Tuple_PublicKeyCOption_SocketAddressZZ {
-	#[allow(unused)] pub(crate) fn to_rust(mut self) -> (crate::c_types::PublicKey, crate::c_types::derived::COption_SocketAddressZ) {
-		(self.a, self.b)
-	}
-}
-impl Clone for C2Tuple_PublicKeyCOption_SocketAddressZZ {
-	fn clone(&self) -> Self {
-		Self {
-			a: Clone::clone(&self.a),
-			b: Clone::clone(&self.b),
-		}
-	}
-}
-#[no_mangle]
-/// Creates a new tuple which has the same data as `orig`
-/// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn C2Tuple_PublicKeyCOption_SocketAddressZZ_clone(orig: &C2Tuple_PublicKeyCOption_SocketAddressZZ) -> C2Tuple_PublicKeyCOption_SocketAddressZZ { Clone::clone(&orig) }
-/// Creates a new C2Tuple_PublicKeyCOption_SocketAddressZZ from the contained elements.
-#[no_mangle]
-pub extern "C" fn C2Tuple_PublicKeyCOption_SocketAddressZZ_new(a: crate::c_types::PublicKey, b: crate::c_types::derived::COption_SocketAddressZ) -> C2Tuple_PublicKeyCOption_SocketAddressZZ {
-	C2Tuple_PublicKeyCOption_SocketAddressZZ { a, b, }
-}
-
-#[no_mangle]
-/// Frees any resources used by the C2Tuple_PublicKeyCOption_SocketAddressZZ.
-pub extern "C" fn C2Tuple_PublicKeyCOption_SocketAddressZZ_free(_res: C2Tuple_PublicKeyCOption_SocketAddressZZ) { }
-#[repr(C)]
-/// A dynamically-allocated array of crate::c_types::derived::C2Tuple_PublicKeyCOption_SocketAddressZZs of arbitrary size.
+/// A dynamically-allocated array of crate::lightning::ln::peer_handler::PeerDetailss of arbitrary size.
 /// This corresponds to std::vector in C++
-pub struct CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ {
+pub struct CVec_PeerDetailsZ {
 	/// The elements in the array.
 	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
-	pub data: *mut crate::c_types::derived::C2Tuple_PublicKeyCOption_SocketAddressZZ,
+	pub data: *mut crate::lightning::ln::peer_handler::PeerDetails,
 	/// The number of elements pointed to by `data`.
 	pub datalen: usize
 }
-impl CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ {
-	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::derived::C2Tuple_PublicKeyCOption_SocketAddressZZ> {
+impl CVec_PeerDetailsZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::lightning::ln::peer_handler::PeerDetails> {
 		if self.datalen == 0 { return Vec::new(); }
 		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
 		self.data = core::ptr::null_mut();
 		self.datalen = 0;
 		ret
 	}
-	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::derived::C2Tuple_PublicKeyCOption_SocketAddressZZ] {
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::lightning::ln::peer_handler::PeerDetails] {
 		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
 	}
 }
-impl From<Vec<crate::c_types::derived::C2Tuple_PublicKeyCOption_SocketAddressZZ>> for CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ {
-	fn from(v: Vec<crate::c_types::derived::C2Tuple_PublicKeyCOption_SocketAddressZZ>) -> Self {
+impl From<Vec<crate::lightning::ln::peer_handler::PeerDetails>> for CVec_PeerDetailsZ {
+	fn from(v: Vec<crate::lightning::ln::peer_handler::PeerDetails>) -> Self {
 		let datalen = v.len();
 		let data = Box::into_raw(v.into_boxed_slice());
 		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
@@ -12817,19 +14008,11 @@ impl From<Vec<crate::c_types::derived::C2Tuple_PublicKeyCOption_SocketAddressZZ>
 }
 #[no_mangle]
 /// Frees the buffer pointed to by `data` if `datalen` is non-0.
-pub extern "C" fn CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ_free(_res: CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ) { }
-impl Drop for CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ {
+pub extern "C" fn CVec_PeerDetailsZ_free(_res: CVec_PeerDetailsZ) { }
+impl Drop for CVec_PeerDetailsZ {
 	fn drop(&mut self) {
 		if self.datalen == 0 { return; }
 		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
-	}
-}
-impl Clone for CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ {
-	fn clone(&self) -> Self {
-		let mut res = Vec::new();
-		if self.datalen == 0 { return Self::from(res); }
-		res.extend_from_slice(unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) });
-		Self::from(res)
 	}
 }
 #[repr(C)]
@@ -13672,6 +14855,198 @@ impl Clone for CResult_C2Tuple_ThirtyTwoBytesChannelMonitorZIOErrorZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_C2Tuple_ThirtyTwoBytesChannelMonitorZIOErrorZ_clone(orig: &CResult_C2Tuple_ThirtyTwoBytesChannelMonitorZIOErrorZ) -> CResult_C2Tuple_ThirtyTwoBytesChannelMonitorZIOErrorZ { Clone::clone(&orig) }
 #[repr(C)]
+/// The contents of CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ
+pub union CResult_UnsignedInvoiceRequestBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice_request::UnsignedInvoiceRequest,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice_request::UnsignedInvoiceRequest on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ {
+	/// The contents of this CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_UnsignedInvoiceRequestBolt12SemanticErrorZPtr,
+	/// Whether this CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ_ok(o: crate::lightning::offers::invoice_request::UnsignedInvoiceRequest) -> CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ {
+	CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ {
+		contents: CResult_UnsignedInvoiceRequestBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ {
+	CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ {
+		contents: CResult_UnsignedInvoiceRequestBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ_is_ok(o: &CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ.
+pub extern "C" fn CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ_free(_res: CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ) { }
+impl Drop for CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::UnsignedInvoiceRequest, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::UnsignedInvoiceRequest, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_UnsignedInvoiceRequestBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_UnsignedInvoiceRequestBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_UnsignedInvoiceRequestBolt12SemanticErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::invoice_request::UnsignedInvoiceRequest>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_UnsignedInvoiceRequestBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ_clone(orig: &CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ) -> CResult_UnsignedInvoiceRequestBolt12SemanticErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_InvoiceRequestBolt12SemanticErrorZ
+pub union CResult_InvoiceRequestBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice_request::InvoiceRequest,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_InvoiceRequestBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice_request::InvoiceRequest on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_InvoiceRequestBolt12SemanticErrorZ {
+	/// The contents of this CResult_InvoiceRequestBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_InvoiceRequestBolt12SemanticErrorZPtr,
+	/// Whether this CResult_InvoiceRequestBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_InvoiceRequestBolt12SemanticErrorZ_ok(o: crate::lightning::offers::invoice_request::InvoiceRequest) -> CResult_InvoiceRequestBolt12SemanticErrorZ {
+	CResult_InvoiceRequestBolt12SemanticErrorZ {
+		contents: CResult_InvoiceRequestBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_InvoiceRequestBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_InvoiceRequestBolt12SemanticErrorZ {
+	CResult_InvoiceRequestBolt12SemanticErrorZ {
+		contents: CResult_InvoiceRequestBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_InvoiceRequestBolt12SemanticErrorZ_is_ok(o: &CResult_InvoiceRequestBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_InvoiceRequestBolt12SemanticErrorZ.
+pub extern "C" fn CResult_InvoiceRequestBolt12SemanticErrorZ_free(_res: CResult_InvoiceRequestBolt12SemanticErrorZ) { }
+impl Drop for CResult_InvoiceRequestBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::InvoiceRequest, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_InvoiceRequestBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::InvoiceRequest, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_InvoiceRequestBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_InvoiceRequestBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_InvoiceRequestBolt12SemanticErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_InvoiceRequestBolt12SemanticErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::invoice_request::InvoiceRequest>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_InvoiceRequestBolt12SemanticErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::offers::parse::Bolt12SemanticError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestBolt12SemanticErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_InvoiceRequestBolt12SemanticErrorZ_clone(orig: &CResult_InvoiceRequestBolt12SemanticErrorZ) -> CResult_InvoiceRequestBolt12SemanticErrorZ { Clone::clone(&orig) }
+#[repr(C)]
 #[derive(Clone)]
 /// An enum which can either contain a crate::c_types::SecretKey or not
 pub enum COption_SecretKeyZ {
@@ -13708,6 +15083,85 @@ pub extern "C" fn COption_SecretKeyZ_free(_res: COption_SecretKeyZ) { }
 /// Creates a new COption_SecretKeyZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn COption_SecretKeyZ_clone(orig: &COption_SecretKeyZ) -> COption_SecretKeyZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ
+pub union CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice::InvoiceWithExplicitSigningPubkeyBuilder,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice::InvoiceWithExplicitSigningPubkeyBuilder on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ {
+	/// The contents of this CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZPtr,
+	/// Whether this CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ_ok(o: crate::lightning::offers::invoice::InvoiceWithExplicitSigningPubkeyBuilder) -> CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ {
+	CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ {
+		contents: CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ {
+	CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ {
+		contents: CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ_is_ok(o: &CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ.
+pub extern "C" fn CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ_free(_res: CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ) { }
+impl Drop for CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice::InvoiceWithExplicitSigningPubkeyBuilder, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice::InvoiceWithExplicitSigningPubkeyBuilder, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_InvoiceWithExplicitSigningPubkeyBuilderBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
 #[repr(C)]
 /// The contents of CResult_VerifiedInvoiceRequestNoneZ
 pub union CResult_VerifiedInvoiceRequestNoneZPtr {
@@ -13801,6 +15255,181 @@ impl Clone for CResult_VerifiedInvoiceRequestNoneZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_VerifiedInvoiceRequestNoneZ_clone(orig: &CResult_VerifiedInvoiceRequestNoneZ) -> CResult_VerifiedInvoiceRequestNoneZ { Clone::clone(&orig) }
 #[repr(C)]
+/// The contents of CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ
+pub union CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice::InvoiceWithDerivedSigningPubkeyBuilder,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::offers::parse::Bolt12SemanticError,
+}
+#[repr(C)]
+/// A CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice::InvoiceWithDerivedSigningPubkeyBuilder on success and a crate::lightning::offers::parse::Bolt12SemanticError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ {
+	/// The contents of this CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZPtr,
+	/// Whether this CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ in the success state.
+pub extern "C" fn CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ_ok(o: crate::lightning::offers::invoice::InvoiceWithDerivedSigningPubkeyBuilder) -> CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ {
+	CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ {
+		contents: CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ in the error state.
+pub extern "C" fn CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ_err(e: crate::lightning::offers::parse::Bolt12SemanticError) -> CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ {
+	CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ {
+		contents: CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ_is_ok(o: &CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ.
+pub extern "C" fn CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ_free(_res: CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ) { }
+impl Drop for CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice::InvoiceWithDerivedSigningPubkeyBuilder, crate::lightning::offers::parse::Bolt12SemanticError>> for CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice::InvoiceWithDerivedSigningPubkeyBuilder, crate::lightning::offers::parse::Bolt12SemanticError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+#[repr(C)]
+/// The contents of CResult_InvoiceRequestFieldsDecodeErrorZ
+pub union CResult_InvoiceRequestFieldsDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::offers::invoice_request::InvoiceRequestFields,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_InvoiceRequestFieldsDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::offers::invoice_request::InvoiceRequestFields on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_InvoiceRequestFieldsDecodeErrorZ {
+	/// The contents of this CResult_InvoiceRequestFieldsDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_InvoiceRequestFieldsDecodeErrorZPtr,
+	/// Whether this CResult_InvoiceRequestFieldsDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestFieldsDecodeErrorZ in the success state.
+pub extern "C" fn CResult_InvoiceRequestFieldsDecodeErrorZ_ok(o: crate::lightning::offers::invoice_request::InvoiceRequestFields) -> CResult_InvoiceRequestFieldsDecodeErrorZ {
+	CResult_InvoiceRequestFieldsDecodeErrorZ {
+		contents: CResult_InvoiceRequestFieldsDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestFieldsDecodeErrorZ in the error state.
+pub extern "C" fn CResult_InvoiceRequestFieldsDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_InvoiceRequestFieldsDecodeErrorZ {
+	CResult_InvoiceRequestFieldsDecodeErrorZ {
+		contents: CResult_InvoiceRequestFieldsDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_InvoiceRequestFieldsDecodeErrorZ_is_ok(o: &CResult_InvoiceRequestFieldsDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_InvoiceRequestFieldsDecodeErrorZ.
+pub extern "C" fn CResult_InvoiceRequestFieldsDecodeErrorZ_free(_res: CResult_InvoiceRequestFieldsDecodeErrorZ) { }
+impl Drop for CResult_InvoiceRequestFieldsDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::InvoiceRequestFields, crate::lightning::ln::msgs::DecodeError>> for CResult_InvoiceRequestFieldsDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::offers::invoice_request::InvoiceRequestFields, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_InvoiceRequestFieldsDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_InvoiceRequestFieldsDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_InvoiceRequestFieldsDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_InvoiceRequestFieldsDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::offers::invoice_request::InvoiceRequestFields>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_InvoiceRequestFieldsDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_InvoiceRequestFieldsDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_InvoiceRequestFieldsDecodeErrorZ_clone(orig: &CResult_InvoiceRequestFieldsDecodeErrorZ) -> CResult_InvoiceRequestFieldsDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
 /// An enum which can either contain a  or not
 pub enum COption_NoneZ {
 	/// When we're in this state, this COption_NoneZ contains a 
@@ -13875,6 +15504,43 @@ impl Clone for CVec_WitnessZ {
 		Self::from(res)
 	}
 }
+#[repr(C)]
+#[derive(Clone)]
+/// An enum which can either contain a crate::c_types::ECDSASignature or not
+pub enum COption_ECDSASignatureZ {
+	/// When we're in this state, this COption_ECDSASignatureZ contains a crate::c_types::ECDSASignature
+	Some(crate::c_types::ECDSASignature),
+	/// When we're in this state, this COption_ECDSASignatureZ contains nothing
+	None
+}
+impl COption_ECDSASignatureZ {
+	#[allow(unused)] pub(crate) fn is_some(&self) -> bool {
+		if let Self::None = self { false } else { true }
+	}
+	#[allow(unused)] pub(crate) fn is_none(&self) -> bool {
+		!self.is_some()
+	}
+	#[allow(unused)] pub(crate) fn take(mut self) -> crate::c_types::ECDSASignature {
+		if let Self::Some(v) = self { v } else { unreachable!() }
+	}
+}
+#[no_mangle]
+/// Constructs a new COption_ECDSASignatureZ containing a crate::c_types::ECDSASignature
+pub extern "C" fn COption_ECDSASignatureZ_some(o: crate::c_types::ECDSASignature) -> COption_ECDSASignatureZ {
+	COption_ECDSASignatureZ::Some(o)
+}
+#[no_mangle]
+/// Constructs a new COption_ECDSASignatureZ containing nothing
+pub extern "C" fn COption_ECDSASignatureZ_none() -> COption_ECDSASignatureZ {
+	COption_ECDSASignatureZ::None
+}
+#[no_mangle]
+/// Frees any resources associated with the crate::c_types::ECDSASignature, if we are in the Some state
+pub extern "C" fn COption_ECDSASignatureZ_free(_res: COption_ECDSASignatureZ) { }
+#[no_mangle]
+/// Creates a new COption_ECDSASignatureZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn COption_ECDSASignatureZ_clone(orig: &COption_ECDSASignatureZ) -> COption_ECDSASignatureZ { Clone::clone(&orig) }
 #[repr(C)]
 #[derive(Clone)]
 /// An enum which can either contain a i64 or not
@@ -19364,14 +21030,6 @@ impl Drop for CVec_FutureZ {
 		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
 	}
 }
-impl Clone for CVec_FutureZ {
-	fn clone(&self) -> Self {
-		let mut res = Vec::new();
-		if self.datalen == 0 { return Self::from(res); }
-		res.extend_from_slice(unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) });
-		Self::from(res)
-	}
-}
 #[repr(C)]
 /// The contents of CResult_OffersMessageDecodeErrorZ
 pub union CResult_OffersMessageDecodeErrorZPtr {
@@ -20835,6 +22493,52 @@ impl Clone for CResult_ShutdownScriptInvalidShutdownScriptZ {
 /// Creates a new CResult_ShutdownScriptInvalidShutdownScriptZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_ShutdownScriptInvalidShutdownScriptZ_clone(orig: &CResult_ShutdownScriptInvalidShutdownScriptZ) -> CResult_ShutdownScriptInvalidShutdownScriptZ { Clone::clone(&orig) }
+#[repr(C)]
+/// A dynamically-allocated array of crate::c_types::Transactions of arbitrary size.
+/// This corresponds to std::vector in C++
+pub struct CVec_TransactionZ {
+	/// The elements in the array.
+	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+	pub data: *mut crate::c_types::Transaction,
+	/// The number of elements pointed to by `data`.
+	pub datalen: usize
+}
+impl CVec_TransactionZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::Transaction> {
+		if self.datalen == 0 { return Vec::new(); }
+		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
+		self.data = core::ptr::null_mut();
+		self.datalen = 0;
+		ret
+	}
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::Transaction] {
+		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
+	}
+}
+impl From<Vec<crate::c_types::Transaction>> for CVec_TransactionZ {
+	fn from(v: Vec<crate::c_types::Transaction>) -> Self {
+		let datalen = v.len();
+		let data = Box::into_raw(v.into_boxed_slice());
+		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
+	}
+}
+#[no_mangle]
+/// Frees the buffer pointed to by `data` if `datalen` is non-0.
+pub extern "C" fn CVec_TransactionZ_free(_res: CVec_TransactionZ) { }
+impl Drop for CVec_TransactionZ {
+	fn drop(&mut self) {
+		if self.datalen == 0 { return; }
+		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
+	}
+}
+impl Clone for CVec_TransactionZ {
+	fn clone(&self) -> Self {
+		let mut res = Vec::new();
+		if self.datalen == 0 { return Self::from(res); }
+		res.extend_from_slice(unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) });
+		Self::from(res)
+	}
+}
 #[repr(C)]
 /// The contents of CResult_PaymentPurposeDecodeErrorZ
 pub union CResult_PaymentPurposeDecodeErrorZPtr {
@@ -23300,6 +25004,102 @@ impl Clone for CResult_UntrustedStringDecodeErrorZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_UntrustedStringDecodeErrorZ_clone(orig: &CResult_UntrustedStringDecodeErrorZ) -> CResult_UntrustedStringDecodeErrorZ { Clone::clone(&orig) }
 #[repr(C)]
+/// The contents of CResult_ChannelIdDecodeErrorZ
+pub union CResult_ChannelIdDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::ln::types::ChannelId,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_ChannelIdDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::ln::types::ChannelId on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_ChannelIdDecodeErrorZ {
+	/// The contents of this CResult_ChannelIdDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_ChannelIdDecodeErrorZPtr,
+	/// Whether this CResult_ChannelIdDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_ChannelIdDecodeErrorZ in the success state.
+pub extern "C" fn CResult_ChannelIdDecodeErrorZ_ok(o: crate::lightning::ln::types::ChannelId) -> CResult_ChannelIdDecodeErrorZ {
+	CResult_ChannelIdDecodeErrorZ {
+		contents: CResult_ChannelIdDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_ChannelIdDecodeErrorZ in the error state.
+pub extern "C" fn CResult_ChannelIdDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_ChannelIdDecodeErrorZ {
+	CResult_ChannelIdDecodeErrorZ {
+		contents: CResult_ChannelIdDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_ChannelIdDecodeErrorZ_is_ok(o: &CResult_ChannelIdDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_ChannelIdDecodeErrorZ.
+pub extern "C" fn CResult_ChannelIdDecodeErrorZ_free(_res: CResult_ChannelIdDecodeErrorZ) { }
+impl Drop for CResult_ChannelIdDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::ln::types::ChannelId, crate::lightning::ln::msgs::DecodeError>> for CResult_ChannelIdDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::ln::types::ChannelId, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_ChannelIdDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_ChannelIdDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_ChannelIdDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_ChannelIdDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::ln::types::ChannelId>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_ChannelIdDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_ChannelIdDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_ChannelIdDecodeErrorZ_clone(orig: &CResult_ChannelIdDecodeErrorZ) -> CResult_ChannelIdDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
 /// A tuple of 2 elements. See the individual fields for the types contained.
 pub struct C2Tuple__u832u16Z {
 	/// The element at position 0
@@ -23534,6 +25334,486 @@ impl Clone for CResult_PaymentConstraintsDecodeErrorZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_PaymentConstraintsDecodeErrorZ_clone(orig: &CResult_PaymentConstraintsDecodeErrorZ) -> CResult_PaymentConstraintsDecodeErrorZ { Clone::clone(&orig) }
 #[repr(C)]
+/// The contents of CResult_PaymentContextDecodeErrorZ
+pub union CResult_PaymentContextDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::blinded_path::payment::PaymentContext,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_PaymentContextDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::blinded_path::payment::PaymentContext on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_PaymentContextDecodeErrorZ {
+	/// The contents of this CResult_PaymentContextDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_PaymentContextDecodeErrorZPtr,
+	/// Whether this CResult_PaymentContextDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_PaymentContextDecodeErrorZ in the success state.
+pub extern "C" fn CResult_PaymentContextDecodeErrorZ_ok(o: crate::lightning::blinded_path::payment::PaymentContext) -> CResult_PaymentContextDecodeErrorZ {
+	CResult_PaymentContextDecodeErrorZ {
+		contents: CResult_PaymentContextDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_PaymentContextDecodeErrorZ in the error state.
+pub extern "C" fn CResult_PaymentContextDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_PaymentContextDecodeErrorZ {
+	CResult_PaymentContextDecodeErrorZ {
+		contents: CResult_PaymentContextDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_PaymentContextDecodeErrorZ_is_ok(o: &CResult_PaymentContextDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_PaymentContextDecodeErrorZ.
+pub extern "C" fn CResult_PaymentContextDecodeErrorZ_free(_res: CResult_PaymentContextDecodeErrorZ) { }
+impl Drop for CResult_PaymentContextDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::blinded_path::payment::PaymentContext, crate::lightning::ln::msgs::DecodeError>> for CResult_PaymentContextDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::blinded_path::payment::PaymentContext, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_PaymentContextDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_PaymentContextDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_PaymentContextDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_PaymentContextDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::blinded_path::payment::PaymentContext>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_PaymentContextDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_PaymentContextDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_PaymentContextDecodeErrorZ_clone(orig: &CResult_PaymentContextDecodeErrorZ) -> CResult_PaymentContextDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_UnknownPaymentContextDecodeErrorZ
+pub union CResult_UnknownPaymentContextDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::blinded_path::payment::UnknownPaymentContext,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_UnknownPaymentContextDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::blinded_path::payment::UnknownPaymentContext on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_UnknownPaymentContextDecodeErrorZ {
+	/// The contents of this CResult_UnknownPaymentContextDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_UnknownPaymentContextDecodeErrorZPtr,
+	/// Whether this CResult_UnknownPaymentContextDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_UnknownPaymentContextDecodeErrorZ in the success state.
+pub extern "C" fn CResult_UnknownPaymentContextDecodeErrorZ_ok(o: crate::lightning::blinded_path::payment::UnknownPaymentContext) -> CResult_UnknownPaymentContextDecodeErrorZ {
+	CResult_UnknownPaymentContextDecodeErrorZ {
+		contents: CResult_UnknownPaymentContextDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_UnknownPaymentContextDecodeErrorZ in the error state.
+pub extern "C" fn CResult_UnknownPaymentContextDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_UnknownPaymentContextDecodeErrorZ {
+	CResult_UnknownPaymentContextDecodeErrorZ {
+		contents: CResult_UnknownPaymentContextDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_UnknownPaymentContextDecodeErrorZ_is_ok(o: &CResult_UnknownPaymentContextDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_UnknownPaymentContextDecodeErrorZ.
+pub extern "C" fn CResult_UnknownPaymentContextDecodeErrorZ_free(_res: CResult_UnknownPaymentContextDecodeErrorZ) { }
+impl Drop for CResult_UnknownPaymentContextDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::blinded_path::payment::UnknownPaymentContext, crate::lightning::ln::msgs::DecodeError>> for CResult_UnknownPaymentContextDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::blinded_path::payment::UnknownPaymentContext, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_UnknownPaymentContextDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_UnknownPaymentContextDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_UnknownPaymentContextDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_UnknownPaymentContextDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::blinded_path::payment::UnknownPaymentContext>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_UnknownPaymentContextDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_UnknownPaymentContextDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_UnknownPaymentContextDecodeErrorZ_clone(orig: &CResult_UnknownPaymentContextDecodeErrorZ) -> CResult_UnknownPaymentContextDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_Bolt12OfferContextDecodeErrorZ
+pub union CResult_Bolt12OfferContextDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::blinded_path::payment::Bolt12OfferContext,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_Bolt12OfferContextDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::blinded_path::payment::Bolt12OfferContext on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_Bolt12OfferContextDecodeErrorZ {
+	/// The contents of this CResult_Bolt12OfferContextDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_Bolt12OfferContextDecodeErrorZPtr,
+	/// Whether this CResult_Bolt12OfferContextDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12OfferContextDecodeErrorZ in the success state.
+pub extern "C" fn CResult_Bolt12OfferContextDecodeErrorZ_ok(o: crate::lightning::blinded_path::payment::Bolt12OfferContext) -> CResult_Bolt12OfferContextDecodeErrorZ {
+	CResult_Bolt12OfferContextDecodeErrorZ {
+		contents: CResult_Bolt12OfferContextDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12OfferContextDecodeErrorZ in the error state.
+pub extern "C" fn CResult_Bolt12OfferContextDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_Bolt12OfferContextDecodeErrorZ {
+	CResult_Bolt12OfferContextDecodeErrorZ {
+		contents: CResult_Bolt12OfferContextDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_Bolt12OfferContextDecodeErrorZ_is_ok(o: &CResult_Bolt12OfferContextDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_Bolt12OfferContextDecodeErrorZ.
+pub extern "C" fn CResult_Bolt12OfferContextDecodeErrorZ_free(_res: CResult_Bolt12OfferContextDecodeErrorZ) { }
+impl Drop for CResult_Bolt12OfferContextDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::blinded_path::payment::Bolt12OfferContext, crate::lightning::ln::msgs::DecodeError>> for CResult_Bolt12OfferContextDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::blinded_path::payment::Bolt12OfferContext, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_Bolt12OfferContextDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_Bolt12OfferContextDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_Bolt12OfferContextDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_Bolt12OfferContextDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::blinded_path::payment::Bolt12OfferContext>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_Bolt12OfferContextDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12OfferContextDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_Bolt12OfferContextDecodeErrorZ_clone(orig: &CResult_Bolt12OfferContextDecodeErrorZ) -> CResult_Bolt12OfferContextDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_Bolt12RefundContextDecodeErrorZ
+pub union CResult_Bolt12RefundContextDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::blinded_path::payment::Bolt12RefundContext,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_Bolt12RefundContextDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::blinded_path::payment::Bolt12RefundContext on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_Bolt12RefundContextDecodeErrorZ {
+	/// The contents of this CResult_Bolt12RefundContextDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_Bolt12RefundContextDecodeErrorZPtr,
+	/// Whether this CResult_Bolt12RefundContextDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12RefundContextDecodeErrorZ in the success state.
+pub extern "C" fn CResult_Bolt12RefundContextDecodeErrorZ_ok(o: crate::lightning::blinded_path::payment::Bolt12RefundContext) -> CResult_Bolt12RefundContextDecodeErrorZ {
+	CResult_Bolt12RefundContextDecodeErrorZ {
+		contents: CResult_Bolt12RefundContextDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12RefundContextDecodeErrorZ in the error state.
+pub extern "C" fn CResult_Bolt12RefundContextDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_Bolt12RefundContextDecodeErrorZ {
+	CResult_Bolt12RefundContextDecodeErrorZ {
+		contents: CResult_Bolt12RefundContextDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_Bolt12RefundContextDecodeErrorZ_is_ok(o: &CResult_Bolt12RefundContextDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_Bolt12RefundContextDecodeErrorZ.
+pub extern "C" fn CResult_Bolt12RefundContextDecodeErrorZ_free(_res: CResult_Bolt12RefundContextDecodeErrorZ) { }
+impl Drop for CResult_Bolt12RefundContextDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::blinded_path::payment::Bolt12RefundContext, crate::lightning::ln::msgs::DecodeError>> for CResult_Bolt12RefundContextDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::blinded_path::payment::Bolt12RefundContext, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_Bolt12RefundContextDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_Bolt12RefundContextDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_Bolt12RefundContextDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_Bolt12RefundContextDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::blinded_path::payment::Bolt12RefundContext>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_Bolt12RefundContextDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_Bolt12RefundContextDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_Bolt12RefundContextDecodeErrorZ_clone(orig: &CResult_Bolt12RefundContextDecodeErrorZ) -> CResult_Bolt12RefundContextDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_StrSecp256k1ErrorZ
+pub union CResult_StrSecp256k1ErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::c_types::Str,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::c_types::Secp256k1Error,
+}
+#[repr(C)]
+/// A CResult_StrSecp256k1ErrorZ represents the result of a fallible operation,
+/// containing a crate::c_types::Str on success and a crate::c_types::Secp256k1Error on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_StrSecp256k1ErrorZ {
+	/// The contents of this CResult_StrSecp256k1ErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_StrSecp256k1ErrorZPtr,
+	/// Whether this CResult_StrSecp256k1ErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_StrSecp256k1ErrorZ in the success state.
+pub extern "C" fn CResult_StrSecp256k1ErrorZ_ok(o: crate::c_types::Str) -> CResult_StrSecp256k1ErrorZ {
+	CResult_StrSecp256k1ErrorZ {
+		contents: CResult_StrSecp256k1ErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_StrSecp256k1ErrorZ in the error state.
+pub extern "C" fn CResult_StrSecp256k1ErrorZ_err(e: crate::c_types::Secp256k1Error) -> CResult_StrSecp256k1ErrorZ {
+	CResult_StrSecp256k1ErrorZ {
+		contents: CResult_StrSecp256k1ErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_StrSecp256k1ErrorZ_is_ok(o: &CResult_StrSecp256k1ErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_StrSecp256k1ErrorZ.
+pub extern "C" fn CResult_StrSecp256k1ErrorZ_free(_res: CResult_StrSecp256k1ErrorZ) { }
+impl Drop for CResult_StrSecp256k1ErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::c_types::Str, crate::c_types::Secp256k1Error>> for CResult_StrSecp256k1ErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::Str, crate::c_types::Secp256k1Error>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_StrSecp256k1ErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_StrSecp256k1ErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_StrSecp256k1ErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_StrSecp256k1ErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::c_types::Str>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_StrSecp256k1ErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::c_types::Secp256k1Error>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_StrSecp256k1ErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_StrSecp256k1ErrorZ_clone(orig: &CResult_StrSecp256k1ErrorZ) -> CResult_StrSecp256k1ErrorZ { Clone::clone(&orig) }
+#[repr(C)]
 /// A tuple of 3 elements. See the individual fields for the types contained.
 pub struct C3Tuple_ThirtyTwoBytesRecipientOnionFieldsRouteParametersZ {
 	/// The element at position 0
@@ -23671,102 +25951,6 @@ impl Clone for CResult_C3Tuple_ThirtyTwoBytesRecipientOnionFieldsRouteParameters
 /// Creates a new CResult_C3Tuple_ThirtyTwoBytesRecipientOnionFieldsRouteParametersZNoneZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_C3Tuple_ThirtyTwoBytesRecipientOnionFieldsRouteParametersZNoneZ_clone(orig: &CResult_C3Tuple_ThirtyTwoBytesRecipientOnionFieldsRouteParametersZNoneZ) -> CResult_C3Tuple_ThirtyTwoBytesRecipientOnionFieldsRouteParametersZNoneZ { Clone::clone(&orig) }
-#[repr(C)]
-/// The contents of CResult_StrSecp256k1ErrorZ
-pub union CResult_StrSecp256k1ErrorZPtr {
-	/// A pointer to the contents in the success state.
-	/// Reading from this pointer when `result_ok` is not set is undefined.
-	pub result: *mut crate::c_types::Str,
-	/// A pointer to the contents in the error state.
-	/// Reading from this pointer when `result_ok` is set is undefined.
-	pub err: *mut crate::c_types::Secp256k1Error,
-}
-#[repr(C)]
-/// A CResult_StrSecp256k1ErrorZ represents the result of a fallible operation,
-/// containing a crate::c_types::Str on success and a crate::c_types::Secp256k1Error on failure.
-/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
-pub struct CResult_StrSecp256k1ErrorZ {
-	/// The contents of this CResult_StrSecp256k1ErrorZ, accessible via either
-	/// `err` or `result` depending on the state of `result_ok`.
-	pub contents: CResult_StrSecp256k1ErrorZPtr,
-	/// Whether this CResult_StrSecp256k1ErrorZ represents a success state.
-	pub result_ok: bool,
-}
-#[no_mangle]
-/// Creates a new CResult_StrSecp256k1ErrorZ in the success state.
-pub extern "C" fn CResult_StrSecp256k1ErrorZ_ok(o: crate::c_types::Str) -> CResult_StrSecp256k1ErrorZ {
-	CResult_StrSecp256k1ErrorZ {
-		contents: CResult_StrSecp256k1ErrorZPtr {
-			result: Box::into_raw(Box::new(o)),
-		},
-		result_ok: true,
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_StrSecp256k1ErrorZ in the error state.
-pub extern "C" fn CResult_StrSecp256k1ErrorZ_err(e: crate::c_types::Secp256k1Error) -> CResult_StrSecp256k1ErrorZ {
-	CResult_StrSecp256k1ErrorZ {
-		contents: CResult_StrSecp256k1ErrorZPtr {
-			err: Box::into_raw(Box::new(e)),
-		},
-		result_ok: false,
-	}
-}
-/// Checks if the given object is currently in the success state
-#[no_mangle]
-pub extern "C" fn CResult_StrSecp256k1ErrorZ_is_ok(o: &CResult_StrSecp256k1ErrorZ) -> bool {
-	o.result_ok
-}
-#[no_mangle]
-/// Frees any resources used by the CResult_StrSecp256k1ErrorZ.
-pub extern "C" fn CResult_StrSecp256k1ErrorZ_free(_res: CResult_StrSecp256k1ErrorZ) { }
-impl Drop for CResult_StrSecp256k1ErrorZ {
-	fn drop(&mut self) {
-		if self.result_ok {
-			if unsafe { !(self.contents.result as *mut ()).is_null() } {
-				let _ = unsafe { Box::from_raw(self.contents.result) };
-			}
-		} else {
-			if unsafe { !(self.contents.err as *mut ()).is_null() } {
-				let _ = unsafe { Box::from_raw(self.contents.err) };
-			}
-		}
-	}
-}
-impl From<crate::c_types::CResultTempl<crate::c_types::Str, crate::c_types::Secp256k1Error>> for CResult_StrSecp256k1ErrorZ {
-	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::Str, crate::c_types::Secp256k1Error>) -> Self {
-		let contents = if o.result_ok {
-			let result = unsafe { o.contents.result };
-			unsafe { o.contents.result = core::ptr::null_mut() };
-			CResult_StrSecp256k1ErrorZPtr { result }
-		} else {
-			let err = unsafe { o.contents.err };
-			unsafe { o.contents.err = core::ptr::null_mut(); }
-			CResult_StrSecp256k1ErrorZPtr { err }
-		};
-		Self {
-			contents,
-			result_ok: o.result_ok,
-		}
-	}
-}
-impl Clone for CResult_StrSecp256k1ErrorZ {
-	fn clone(&self) -> Self {
-		if self.result_ok {
-			Self { result_ok: true, contents: CResult_StrSecp256k1ErrorZPtr {
-				result: Box::into_raw(Box::new(<crate::c_types::Str>::clone(unsafe { &*self.contents.result })))
-			} }
-		} else {
-			Self { result_ok: false, contents: CResult_StrSecp256k1ErrorZPtr {
-				err: Box::into_raw(Box::new(<crate::c_types::Secp256k1Error>::clone(unsafe { &*self.contents.err })))
-			} }
-		}
-	}
-}
-#[no_mangle]
-/// Creates a new CResult_StrSecp256k1ErrorZ which has the same data as `orig`
-/// but with all dynamically-allocated buffers duplicated in new buffers.
-pub extern "C" fn CResult_StrSecp256k1ErrorZ_clone(orig: &CResult_StrSecp256k1ErrorZ) -> CResult_StrSecp256k1ErrorZ { Clone::clone(&orig) }
 #[repr(C)]
 /// The contents of CResult_TxOutUtxoLookupErrorZ
 pub union CResult_TxOutUtxoLookupErrorZPtr {
@@ -23988,6 +26172,23 @@ impl From<crate::c_types::CResultTempl<crate::c_types::derived::C3Tuple_PublicKe
 		}
 	}
 }
+impl Clone for CResult_C3Tuple_PublicKeyOnionMessageCOption_CVec_SocketAddressZZZSendErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_C3Tuple_PublicKeyOnionMessageCOption_CVec_SocketAddressZZZSendErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::c_types::derived::C3Tuple_PublicKeyOnionMessageCOption_CVec_SocketAddressZZZ>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_C3Tuple_PublicKeyOnionMessageCOption_CVec_SocketAddressZZZSendErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::onion_message::messenger::SendError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_C3Tuple_PublicKeyOnionMessageCOption_CVec_SocketAddressZZZSendErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_C3Tuple_PublicKeyOnionMessageCOption_CVec_SocketAddressZZZSendErrorZ_clone(orig: &CResult_C3Tuple_PublicKeyOnionMessageCOption_CVec_SocketAddressZZZSendErrorZ) -> CResult_C3Tuple_PublicKeyOnionMessageCOption_CVec_SocketAddressZZZSendErrorZ { Clone::clone(&orig) }
 #[repr(C)]
 /// The contents of CResult_PeeledOnionNoneZ
 pub union CResult_PeeledOnionNoneZPtr {
@@ -24063,6 +26264,23 @@ impl From<crate::c_types::CResultTempl<crate::lightning::onion_message::messenge
 		}
 	}
 }
+impl Clone for CResult_PeeledOnionNoneZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_PeeledOnionNoneZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::onion_message::messenger::PeeledOnion>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_PeeledOnionNoneZPtr {
+				err: core::ptr::null_mut()
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_PeeledOnionNoneZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_PeeledOnionNoneZ_clone(orig: &CResult_PeeledOnionNoneZ) -> CResult_PeeledOnionNoneZ { Clone::clone(&orig) }
 #[repr(C)]
 /// The contents of CResult_SendSuccessSendErrorZ
 pub union CResult_SendSuccessSendErrorZPtr {
@@ -24142,6 +26360,23 @@ impl From<crate::c_types::CResultTempl<crate::lightning::onion_message::messenge
 		}
 	}
 }
+impl Clone for CResult_SendSuccessSendErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_SendSuccessSendErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::onion_message::messenger::SendSuccess>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_SendSuccessSendErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::onion_message::messenger::SendError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_SendSuccessSendErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_SendSuccessSendErrorZ_clone(orig: &CResult_SendSuccessSendErrorZ) -> CResult_SendSuccessSendErrorZ { Clone::clone(&orig) }
 #[repr(C)]
 /// The contents of CResult_BlindedPathNoneZ
 pub union CResult_BlindedPathNoneZPtr {
@@ -24660,6 +26895,464 @@ impl Clone for CResult_InvoiceErrorDecodeErrorZ {
 /// Creates a new CResult_InvoiceErrorDecodeErrorZ which has the same data as `orig`
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_InvoiceErrorDecodeErrorZ_clone(orig: &CResult_InvoiceErrorDecodeErrorZ) -> CResult_InvoiceErrorDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_TrackedSpendableOutputDecodeErrorZ
+pub union CResult_TrackedSpendableOutputDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::util::sweep::TrackedSpendableOutput,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_TrackedSpendableOutputDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::util::sweep::TrackedSpendableOutput on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_TrackedSpendableOutputDecodeErrorZ {
+	/// The contents of this CResult_TrackedSpendableOutputDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_TrackedSpendableOutputDecodeErrorZPtr,
+	/// Whether this CResult_TrackedSpendableOutputDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_TrackedSpendableOutputDecodeErrorZ in the success state.
+pub extern "C" fn CResult_TrackedSpendableOutputDecodeErrorZ_ok(o: crate::lightning::util::sweep::TrackedSpendableOutput) -> CResult_TrackedSpendableOutputDecodeErrorZ {
+	CResult_TrackedSpendableOutputDecodeErrorZ {
+		contents: CResult_TrackedSpendableOutputDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_TrackedSpendableOutputDecodeErrorZ in the error state.
+pub extern "C" fn CResult_TrackedSpendableOutputDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_TrackedSpendableOutputDecodeErrorZ {
+	CResult_TrackedSpendableOutputDecodeErrorZ {
+		contents: CResult_TrackedSpendableOutputDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_TrackedSpendableOutputDecodeErrorZ_is_ok(o: &CResult_TrackedSpendableOutputDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_TrackedSpendableOutputDecodeErrorZ.
+pub extern "C" fn CResult_TrackedSpendableOutputDecodeErrorZ_free(_res: CResult_TrackedSpendableOutputDecodeErrorZ) { }
+impl Drop for CResult_TrackedSpendableOutputDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::util::sweep::TrackedSpendableOutput, crate::lightning::ln::msgs::DecodeError>> for CResult_TrackedSpendableOutputDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::util::sweep::TrackedSpendableOutput, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_TrackedSpendableOutputDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_TrackedSpendableOutputDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_TrackedSpendableOutputDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_TrackedSpendableOutputDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::util::sweep::TrackedSpendableOutput>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_TrackedSpendableOutputDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_TrackedSpendableOutputDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_TrackedSpendableOutputDecodeErrorZ_clone(orig: &CResult_TrackedSpendableOutputDecodeErrorZ) -> CResult_TrackedSpendableOutputDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// The contents of CResult_OutputSpendStatusDecodeErrorZ
+pub union CResult_OutputSpendStatusDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::util::sweep::OutputSpendStatus,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_OutputSpendStatusDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::util::sweep::OutputSpendStatus on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_OutputSpendStatusDecodeErrorZ {
+	/// The contents of this CResult_OutputSpendStatusDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_OutputSpendStatusDecodeErrorZPtr,
+	/// Whether this CResult_OutputSpendStatusDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_OutputSpendStatusDecodeErrorZ in the success state.
+pub extern "C" fn CResult_OutputSpendStatusDecodeErrorZ_ok(o: crate::lightning::util::sweep::OutputSpendStatus) -> CResult_OutputSpendStatusDecodeErrorZ {
+	CResult_OutputSpendStatusDecodeErrorZ {
+		contents: CResult_OutputSpendStatusDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OutputSpendStatusDecodeErrorZ in the error state.
+pub extern "C" fn CResult_OutputSpendStatusDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_OutputSpendStatusDecodeErrorZ {
+	CResult_OutputSpendStatusDecodeErrorZ {
+		contents: CResult_OutputSpendStatusDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_OutputSpendStatusDecodeErrorZ_is_ok(o: &CResult_OutputSpendStatusDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_OutputSpendStatusDecodeErrorZ.
+pub extern "C" fn CResult_OutputSpendStatusDecodeErrorZ_free(_res: CResult_OutputSpendStatusDecodeErrorZ) { }
+impl Drop for CResult_OutputSpendStatusDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::util::sweep::OutputSpendStatus, crate::lightning::ln::msgs::DecodeError>> for CResult_OutputSpendStatusDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::util::sweep::OutputSpendStatus, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_OutputSpendStatusDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_OutputSpendStatusDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+impl Clone for CResult_OutputSpendStatusDecodeErrorZ {
+	fn clone(&self) -> Self {
+		if self.result_ok {
+			Self { result_ok: true, contents: CResult_OutputSpendStatusDecodeErrorZPtr {
+				result: Box::into_raw(Box::new(<crate::lightning::util::sweep::OutputSpendStatus>::clone(unsafe { &*self.contents.result })))
+			} }
+		} else {
+			Self { result_ok: false, contents: CResult_OutputSpendStatusDecodeErrorZPtr {
+				err: Box::into_raw(Box::new(<crate::lightning::ln::msgs::DecodeError>::clone(unsafe { &*self.contents.err })))
+			} }
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OutputSpendStatusDecodeErrorZ which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn CResult_OutputSpendStatusDecodeErrorZ_clone(orig: &CResult_OutputSpendStatusDecodeErrorZ) -> CResult_OutputSpendStatusDecodeErrorZ { Clone::clone(&orig) }
+#[repr(C)]
+/// An enum which can either contain a crate::lightning::chain::Filter or not
+pub enum COption_FilterZ {
+	/// When we're in this state, this COption_FilterZ contains a crate::lightning::chain::Filter
+	Some(crate::lightning::chain::Filter),
+	/// When we're in this state, this COption_FilterZ contains nothing
+	None
+}
+impl COption_FilterZ {
+	#[allow(unused)] pub(crate) fn is_some(&self) -> bool {
+		if let Self::None = self { false } else { true }
+	}
+	#[allow(unused)] pub(crate) fn is_none(&self) -> bool {
+		!self.is_some()
+	}
+	#[allow(unused)] pub(crate) fn take(mut self) -> crate::lightning::chain::Filter {
+		if let Self::Some(v) = self { v } else { unreachable!() }
+	}
+}
+#[no_mangle]
+/// Constructs a new COption_FilterZ containing a crate::lightning::chain::Filter
+pub extern "C" fn COption_FilterZ_some(o: crate::lightning::chain::Filter) -> COption_FilterZ {
+	COption_FilterZ::Some(o)
+}
+#[no_mangle]
+/// Constructs a new COption_FilterZ containing nothing
+pub extern "C" fn COption_FilterZ_none() -> COption_FilterZ {
+	COption_FilterZ::None
+}
+#[no_mangle]
+/// Frees any resources associated with the crate::lightning::chain::Filter, if we are in the Some state
+pub extern "C" fn COption_FilterZ_free(_res: COption_FilterZ) { }
+#[repr(C)]
+/// A dynamically-allocated array of crate::lightning::util::sweep::TrackedSpendableOutputs of arbitrary size.
+/// This corresponds to std::vector in C++
+pub struct CVec_TrackedSpendableOutputZ {
+	/// The elements in the array.
+	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+	pub data: *mut crate::lightning::util::sweep::TrackedSpendableOutput,
+	/// The number of elements pointed to by `data`.
+	pub datalen: usize
+}
+impl CVec_TrackedSpendableOutputZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::lightning::util::sweep::TrackedSpendableOutput> {
+		if self.datalen == 0 { return Vec::new(); }
+		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
+		self.data = core::ptr::null_mut();
+		self.datalen = 0;
+		ret
+	}
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::lightning::util::sweep::TrackedSpendableOutput] {
+		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
+	}
+}
+impl From<Vec<crate::lightning::util::sweep::TrackedSpendableOutput>> for CVec_TrackedSpendableOutputZ {
+	fn from(v: Vec<crate::lightning::util::sweep::TrackedSpendableOutput>) -> Self {
+		let datalen = v.len();
+		let data = Box::into_raw(v.into_boxed_slice());
+		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
+	}
+}
+#[no_mangle]
+/// Frees the buffer pointed to by `data` if `datalen` is non-0.
+pub extern "C" fn CVec_TrackedSpendableOutputZ_free(_res: CVec_TrackedSpendableOutputZ) { }
+impl Drop for CVec_TrackedSpendableOutputZ {
+	fn drop(&mut self) {
+		if self.datalen == 0 { return; }
+		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
+	}
+}
+impl Clone for CVec_TrackedSpendableOutputZ {
+	fn clone(&self) -> Self {
+		let mut res = Vec::new();
+		if self.datalen == 0 { return Self::from(res); }
+		res.extend_from_slice(unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) });
+		Self::from(res)
+	}
+}
+#[repr(C)]
+/// The contents of CResult_OutputSweeperDecodeErrorZ
+pub union CResult_OutputSweeperDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning::util::sweep::OutputSweeper,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_OutputSweeperDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning::util::sweep::OutputSweeper on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_OutputSweeperDecodeErrorZ {
+	/// The contents of this CResult_OutputSweeperDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_OutputSweeperDecodeErrorZPtr,
+	/// Whether this CResult_OutputSweeperDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_OutputSweeperDecodeErrorZ in the success state.
+pub extern "C" fn CResult_OutputSweeperDecodeErrorZ_ok(o: crate::lightning::util::sweep::OutputSweeper) -> CResult_OutputSweeperDecodeErrorZ {
+	CResult_OutputSweeperDecodeErrorZ {
+		contents: CResult_OutputSweeperDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_OutputSweeperDecodeErrorZ in the error state.
+pub extern "C" fn CResult_OutputSweeperDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_OutputSweeperDecodeErrorZ {
+	CResult_OutputSweeperDecodeErrorZ {
+		contents: CResult_OutputSweeperDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_OutputSweeperDecodeErrorZ_is_ok(o: &CResult_OutputSweeperDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_OutputSweeperDecodeErrorZ.
+pub extern "C" fn CResult_OutputSweeperDecodeErrorZ_free(_res: CResult_OutputSweeperDecodeErrorZ) { }
+impl Drop for CResult_OutputSweeperDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning::util::sweep::OutputSweeper, crate::lightning::ln::msgs::DecodeError>> for CResult_OutputSweeperDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning::util::sweep::OutputSweeper, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_OutputSweeperDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_OutputSweeperDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+#[repr(C)]
+/// A tuple of 2 elements. See the individual fields for the types contained.
+pub struct C2Tuple_BestBlockOutputSweeperZ {
+	/// The element at position 0
+	pub a: crate::lightning::chain::BestBlock,
+	/// The element at position 1
+	pub b: crate::lightning::util::sweep::OutputSweeper,
+}
+impl From<(crate::lightning::chain::BestBlock, crate::lightning::util::sweep::OutputSweeper)> for C2Tuple_BestBlockOutputSweeperZ {
+	fn from (tup: (crate::lightning::chain::BestBlock, crate::lightning::util::sweep::OutputSweeper)) -> Self {
+		Self {
+			a: tup.0,
+			b: tup.1,
+		}
+	}
+}
+impl C2Tuple_BestBlockOutputSweeperZ {
+	#[allow(unused)] pub(crate) fn to_rust(mut self) -> (crate::lightning::chain::BestBlock, crate::lightning::util::sweep::OutputSweeper) {
+		(self.a, self.b)
+	}
+}
+/// Creates a new C2Tuple_BestBlockOutputSweeperZ from the contained elements.
+#[no_mangle]
+pub extern "C" fn C2Tuple_BestBlockOutputSweeperZ_new(a: crate::lightning::chain::BestBlock, b: crate::lightning::util::sweep::OutputSweeper) -> C2Tuple_BestBlockOutputSweeperZ {
+	C2Tuple_BestBlockOutputSweeperZ { a, b, }
+}
+
+#[no_mangle]
+/// Frees any resources used by the C2Tuple_BestBlockOutputSweeperZ.
+pub extern "C" fn C2Tuple_BestBlockOutputSweeperZ_free(_res: C2Tuple_BestBlockOutputSweeperZ) { }
+#[repr(C)]
+/// The contents of CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ
+pub union CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::c_types::derived::C2Tuple_BestBlockOutputSweeperZ,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning::ln::msgs::DecodeError,
+}
+#[repr(C)]
+/// A CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ represents the result of a fallible operation,
+/// containing a crate::c_types::derived::C2Tuple_BestBlockOutputSweeperZ on success and a crate::lightning::ln::msgs::DecodeError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ {
+	/// The contents of this CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZPtr,
+	/// Whether this CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ in the success state.
+pub extern "C" fn CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ_ok(o: crate::c_types::derived::C2Tuple_BestBlockOutputSweeperZ) -> CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ {
+	CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ {
+		contents: CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ in the error state.
+pub extern "C" fn CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ_err(e: crate::lightning::ln::msgs::DecodeError) -> CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ {
+	CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ {
+		contents: CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ_is_ok(o: &CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ.
+pub extern "C" fn CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ_free(_res: CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ) { }
+impl Drop for CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::c_types::derived::C2Tuple_BestBlockOutputSweeperZ, crate::lightning::ln::msgs::DecodeError>> for CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::c_types::derived::C2Tuple_BestBlockOutputSweeperZ, crate::lightning::ln::msgs::DecodeError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
 #[repr(C)]
 /// The contents of CResult_DelayedPaymentBasepointDecodeErrorZ
 pub union CResult_DelayedPaymentBasepointDecodeErrorZPtr {
@@ -25237,38 +27930,6 @@ impl Clone for CResult_RevocationKeyDecodeErrorZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_RevocationKeyDecodeErrorZ_clone(orig: &CResult_RevocationKeyDecodeErrorZ) -> CResult_RevocationKeyDecodeErrorZ { Clone::clone(&orig) }
 #[repr(C)]
-/// An enum which can either contain a crate::lightning::chain::Filter or not
-pub enum COption_FilterZ {
-	/// When we're in this state, this COption_FilterZ contains a crate::lightning::chain::Filter
-	Some(crate::lightning::chain::Filter),
-	/// When we're in this state, this COption_FilterZ contains nothing
-	None
-}
-impl COption_FilterZ {
-	#[allow(unused)] pub(crate) fn is_some(&self) -> bool {
-		if let Self::None = self { false } else { true }
-	}
-	#[allow(unused)] pub(crate) fn is_none(&self) -> bool {
-		!self.is_some()
-	}
-	#[allow(unused)] pub(crate) fn take(mut self) -> crate::lightning::chain::Filter {
-		if let Self::Some(v) = self { v } else { unreachable!() }
-	}
-}
-#[no_mangle]
-/// Constructs a new COption_FilterZ containing a crate::lightning::chain::Filter
-pub extern "C" fn COption_FilterZ_some(o: crate::lightning::chain::Filter) -> COption_FilterZ {
-	COption_FilterZ::Some(o)
-}
-#[no_mangle]
-/// Constructs a new COption_FilterZ containing nothing
-pub extern "C" fn COption_FilterZ_none() -> COption_FilterZ {
-	COption_FilterZ::None
-}
-#[no_mangle]
-/// Frees any resources associated with the crate::lightning::chain::Filter, if we are in the Some state
-pub extern "C" fn COption_FilterZ_free(_res: COption_FilterZ) { }
-#[repr(C)]
 /// The contents of CResult_LockedChannelMonitorNoneZ
 pub union CResult_LockedChannelMonitorNoneZPtr {
 	/// A pointer to the contents in the success state.
@@ -25344,29 +28005,71 @@ impl From<crate::c_types::CResultTempl<crate::lightning::chain::chainmonitor::Lo
 	}
 }
 #[repr(C)]
-/// A dynamically-allocated array of crate::lightning::chain::transaction::OutPoints of arbitrary size.
+/// A tuple of 2 elements. See the individual fields for the types contained.
+pub struct C2Tuple_OutPointChannelIdZ {
+	/// The element at position 0
+	pub a: crate::lightning::chain::transaction::OutPoint,
+	/// The element at position 1
+	pub b: crate::lightning::ln::types::ChannelId,
+}
+impl From<(crate::lightning::chain::transaction::OutPoint, crate::lightning::ln::types::ChannelId)> for C2Tuple_OutPointChannelIdZ {
+	fn from (tup: (crate::lightning::chain::transaction::OutPoint, crate::lightning::ln::types::ChannelId)) -> Self {
+		Self {
+			a: tup.0,
+			b: tup.1,
+		}
+	}
+}
+impl C2Tuple_OutPointChannelIdZ {
+	#[allow(unused)] pub(crate) fn to_rust(mut self) -> (crate::lightning::chain::transaction::OutPoint, crate::lightning::ln::types::ChannelId) {
+		(self.a, self.b)
+	}
+}
+impl Clone for C2Tuple_OutPointChannelIdZ {
+	fn clone(&self) -> Self {
+		Self {
+			a: Clone::clone(&self.a),
+			b: Clone::clone(&self.b),
+		}
+	}
+}
+#[no_mangle]
+/// Creates a new tuple which has the same data as `orig`
+/// but with all dynamically-allocated buffers duplicated in new buffers.
+pub extern "C" fn C2Tuple_OutPointChannelIdZ_clone(orig: &C2Tuple_OutPointChannelIdZ) -> C2Tuple_OutPointChannelIdZ { Clone::clone(&orig) }
+/// Creates a new C2Tuple_OutPointChannelIdZ from the contained elements.
+#[no_mangle]
+pub extern "C" fn C2Tuple_OutPointChannelIdZ_new(a: crate::lightning::chain::transaction::OutPoint, b: crate::lightning::ln::types::ChannelId) -> C2Tuple_OutPointChannelIdZ {
+	C2Tuple_OutPointChannelIdZ { a, b, }
+}
+
+#[no_mangle]
+/// Frees any resources used by the C2Tuple_OutPointChannelIdZ.
+pub extern "C" fn C2Tuple_OutPointChannelIdZ_free(_res: C2Tuple_OutPointChannelIdZ) { }
+#[repr(C)]
+/// A dynamically-allocated array of crate::c_types::derived::C2Tuple_OutPointChannelIdZs of arbitrary size.
 /// This corresponds to std::vector in C++
-pub struct CVec_OutPointZ {
+pub struct CVec_C2Tuple_OutPointChannelIdZZ {
 	/// The elements in the array.
 	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
-	pub data: *mut crate::lightning::chain::transaction::OutPoint,
+	pub data: *mut crate::c_types::derived::C2Tuple_OutPointChannelIdZ,
 	/// The number of elements pointed to by `data`.
 	pub datalen: usize
 }
-impl CVec_OutPointZ {
-	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::lightning::chain::transaction::OutPoint> {
+impl CVec_C2Tuple_OutPointChannelIdZZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::c_types::derived::C2Tuple_OutPointChannelIdZ> {
 		if self.datalen == 0 { return Vec::new(); }
 		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
 		self.data = core::ptr::null_mut();
 		self.datalen = 0;
 		ret
 	}
-	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::lightning::chain::transaction::OutPoint] {
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::c_types::derived::C2Tuple_OutPointChannelIdZ] {
 		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
 	}
 }
-impl From<Vec<crate::lightning::chain::transaction::OutPoint>> for CVec_OutPointZ {
-	fn from(v: Vec<crate::lightning::chain::transaction::OutPoint>) -> Self {
+impl From<Vec<crate::c_types::derived::C2Tuple_OutPointChannelIdZ>> for CVec_C2Tuple_OutPointChannelIdZZ {
+	fn from(v: Vec<crate::c_types::derived::C2Tuple_OutPointChannelIdZ>) -> Self {
 		let datalen = v.len();
 		let data = Box::into_raw(v.into_boxed_slice());
 		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
@@ -25374,14 +28077,14 @@ impl From<Vec<crate::lightning::chain::transaction::OutPoint>> for CVec_OutPoint
 }
 #[no_mangle]
 /// Frees the buffer pointed to by `data` if `datalen` is non-0.
-pub extern "C" fn CVec_OutPointZ_free(_res: CVec_OutPointZ) { }
-impl Drop for CVec_OutPointZ {
+pub extern "C" fn CVec_C2Tuple_OutPointChannelIdZZ_free(_res: CVec_C2Tuple_OutPointChannelIdZZ) { }
+impl Drop for CVec_C2Tuple_OutPointChannelIdZZ {
 	fn drop(&mut self) {
 		if self.datalen == 0 { return; }
 		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
 	}
 }
-impl Clone for CVec_OutPointZ {
+impl Clone for CVec_C2Tuple_OutPointChannelIdZZ {
 	fn clone(&self) -> Self {
 		let mut res = Vec::new();
 		if self.datalen == 0 { return Self::from(res); }

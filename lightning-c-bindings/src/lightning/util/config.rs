@@ -852,7 +852,7 @@ pub extern "C" fn ChannelHandshakeLimits_debug_str_void(o: *const c_void) -> Str
 pub extern "C" fn ChannelHandshakeLimits_default() -> ChannelHandshakeLimits {
 	ChannelHandshakeLimits { inner: ObjOps::heap_alloc(Default::default()), is_owned: true }
 }
-/// Options for how to set the max dust HTLC exposure allowed on a channel. See
+/// Options for how to set the max dust exposure allowed on a channel. See
 /// [`ChannelConfig::max_dust_htlc_exposure`] for details.
 #[derive(Clone)]
 #[must_use]
@@ -869,19 +869,17 @@ pub enum MaxDustHTLCExposure {
 	/// exposure and the new minimum value for HTLCs to be economically viable to claim.
 	FixedLimitMsat(
 		u64),
-	/// This sets a multiplier on the estimated high priority feerate (sats/KW, as obtained from
-	/// [`FeeEstimator`]) to determine the maximum allowed dust exposure. If this variant is used
-	/// then the maximum dust exposure in millisatoshis is calculated as:
-	/// `high_priority_feerate_per_kw * value`. For example, with our default value
-	/// `FeeRateMultiplier(5000)`:
+	/// This sets a multiplier on the [`ConfirmationTarget::OnChainSweep`] feerate (in sats/KW) to
+	/// determine the maximum allowed dust exposure. If this variant is used then the maximum dust
+	/// exposure in millisatoshis is calculated as:
+	/// `feerate_per_kw * value`. For example, with our default value
+	/// `FeeRateMultiplier(10_000)`:
 	///
 	/// - For the minimum fee rate of 1 sat/vByte (250 sat/KW, although the minimum
 	/// defaults to 253 sats/KW for rounding, see [`FeeEstimator`]), the max dust exposure would
-	/// be 253 * 5000 = 1,265,000 msats.
+	/// be 253 * 10_000 = 2,530,000 msats.
 	/// - For a fee rate of 30 sat/vByte (7500 sat/KW), the max dust exposure would be
-	/// 7500 * 5000 = 37,500,000 msats.
-	///
-	/// This allows the maximum dust exposure to automatically scale with fee rate changes.
+	/// 7500 * 50_000 = 75,000,000 msats (0.00075 BTC).
 	///
 	/// Note, if you're using a third-party fee estimator, this may leave you more exposed to a
 	/// fee griefing attack, where your fee estimator may purposely overestimate the fee rate,
@@ -896,6 +894,7 @@ pub enum MaxDustHTLCExposure {
 	/// by default this will be set to a [`Self::FixedLimitMsat`] of 5,000,000 msat.
 	///
 	/// [`FeeEstimator`]: crate::chain::chaininterface::FeeEstimator
+	/// [`ConfirmationTarget::OnChainSweep`]: crate::chain::chaininterface::ConfirmationTarget::OnChainSweep
 	FeeRateMultiplier(
 		u64),
 }
@@ -1175,13 +1174,16 @@ pub extern "C" fn ChannelConfig_get_cltv_expiry_delta(this_ptr: &ChannelConfig) 
 pub extern "C" fn ChannelConfig_set_cltv_expiry_delta(this_ptr: &mut ChannelConfig, mut val: u16) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.cltv_expiry_delta = val;
 }
-/// Limit our total exposure to in-flight HTLCs which are burned to fees as they are too
-/// small to claim on-chain.
+/// Limit our total exposure to potential loss to on-chain fees on close, including in-flight
+/// HTLCs which are burned to fees as they are too small to claim on-chain and fees on
+/// commitment transaction(s) broadcasted by our counterparty in excess of our own fee estimate.
+///
+/// # HTLC-based Dust Exposure
 ///
 /// When an HTLC present in one of our channels is below a \"dust\" threshold, the HTLC will
 /// not be claimable on-chain, instead being turned into additional miner fees if either
 /// party force-closes the channel. Because the threshold is per-HTLC, our total exposure
-/// to such payments may be sustantial if there are many dust HTLCs present when the
+/// to such payments may be substantial if there are many dust HTLCs present when the
 /// channel is force-closed.
 ///
 /// The dust threshold for each HTLC is based on the `dust_limit_satoshis` for each party in a
@@ -1195,19 +1197,52 @@ pub extern "C" fn ChannelConfig_set_cltv_expiry_delta(this_ptr: &mut ChannelConf
 /// The selected limit is applied for sent, forwarded, and received HTLCs and limits the total
 /// exposure across all three types per-channel.
 ///
-/// Default value: [`MaxDustHTLCExposure::FeeRateMultiplier`] with a multiplier of 5000.
+/// # Transaction Fee Dust Exposure
+///
+/// Further, counterparties broadcasting a commitment transaction in a force-close may result
+/// in other balance being burned to fees, and thus all fees on commitment and HTLC
+/// transactions in excess of our local fee estimates are included in the dust calculation.
+///
+/// Because of this, another way to look at this limit is to divide it by 43,000 (or 218,750
+/// for non-anchor channels) and see it as the maximum feerate disagreement (in sats/vB) per
+/// non-dust HTLC we're allowed to have with our peers before risking a force-closure for
+/// inbound channels.
+///
+/// Thus, for the default value of 10_000 * a current feerate estimate of 10 sat/vB (or 2,500
+/// sat/KW), we risk force-closure if we disagree with our peer by:
+/// * `10_000 * 2_500 / 43_000 / (483*2)` = 0.6 sat/vB for anchor channels with 483 HTLCs in
+///   both directions (the maximum),
+/// * `10_000 * 2_500 / 43_000 / (50*2)` = 5.8 sat/vB for anchor channels with 50 HTLCs in both
+///   directions (the LDK default max from [`ChannelHandshakeConfig::our_max_accepted_htlcs`])
+/// * `10_000 * 2_500 / 218_750 / (483*2)` = 0.1 sat/vB for non-anchor channels with 483 HTLCs
+///   in both directions (the maximum),
+/// * `10_000 * 2_500 / 218_750 / (50*2)` = 1.1 sat/vB for non-anchor channels with 50 HTLCs
+///   in both (the LDK default maximum from [`ChannelHandshakeConfig::our_max_accepted_htlcs`])
+///
+/// Note that when using [`MaxDustHTLCExposure::FeeRateMultiplier`] this maximum disagreement
+/// will scale linearly with increases (or decreases) in the our feerate estimates. Further,
+/// for anchor channels we expect our counterparty to use a relatively low feerate estimate
+/// while we use [`ConfirmationTarget::OnChainSweep`] (which should be relatively high) and
+/// feerate disagreement force-closures should only occur when theirs is higher than ours.
+///
+/// Default value: [`MaxDustHTLCExposure::FeeRateMultiplier`] with a multiplier of 10_000.
+///
+/// [`ConfirmationTarget::OnChainSweep`]: crate::chain::chaininterface::ConfirmationTarget::OnChainSweep
 #[no_mangle]
 pub extern "C" fn ChannelConfig_get_max_dust_htlc_exposure(this_ptr: &ChannelConfig) -> crate::lightning::util::config::MaxDustHTLCExposure {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_dust_htlc_exposure;
 	crate::lightning::util::config::MaxDustHTLCExposure::from_native(inner_val)
 }
-/// Limit our total exposure to in-flight HTLCs which are burned to fees as they are too
-/// small to claim on-chain.
+/// Limit our total exposure to potential loss to on-chain fees on close, including in-flight
+/// HTLCs which are burned to fees as they are too small to claim on-chain and fees on
+/// commitment transaction(s) broadcasted by our counterparty in excess of our own fee estimate.
+///
+/// # HTLC-based Dust Exposure
 ///
 /// When an HTLC present in one of our channels is below a \"dust\" threshold, the HTLC will
 /// not be claimable on-chain, instead being turned into additional miner fees if either
 /// party force-closes the channel. Because the threshold is per-HTLC, our total exposure
-/// to such payments may be sustantial if there are many dust HTLCs present when the
+/// to such payments may be substantial if there are many dust HTLCs present when the
 /// channel is force-closed.
 ///
 /// The dust threshold for each HTLC is based on the `dust_limit_satoshis` for each party in a
@@ -1221,7 +1256,37 @@ pub extern "C" fn ChannelConfig_get_max_dust_htlc_exposure(this_ptr: &ChannelCon
 /// The selected limit is applied for sent, forwarded, and received HTLCs and limits the total
 /// exposure across all three types per-channel.
 ///
-/// Default value: [`MaxDustHTLCExposure::FeeRateMultiplier`] with a multiplier of 5000.
+/// # Transaction Fee Dust Exposure
+///
+/// Further, counterparties broadcasting a commitment transaction in a force-close may result
+/// in other balance being burned to fees, and thus all fees on commitment and HTLC
+/// transactions in excess of our local fee estimates are included in the dust calculation.
+///
+/// Because of this, another way to look at this limit is to divide it by 43,000 (or 218,750
+/// for non-anchor channels) and see it as the maximum feerate disagreement (in sats/vB) per
+/// non-dust HTLC we're allowed to have with our peers before risking a force-closure for
+/// inbound channels.
+///
+/// Thus, for the default value of 10_000 * a current feerate estimate of 10 sat/vB (or 2,500
+/// sat/KW), we risk force-closure if we disagree with our peer by:
+/// * `10_000 * 2_500 / 43_000 / (483*2)` = 0.6 sat/vB for anchor channels with 483 HTLCs in
+///   both directions (the maximum),
+/// * `10_000 * 2_500 / 43_000 / (50*2)` = 5.8 sat/vB for anchor channels with 50 HTLCs in both
+///   directions (the LDK default max from [`ChannelHandshakeConfig::our_max_accepted_htlcs`])
+/// * `10_000 * 2_500 / 218_750 / (483*2)` = 0.1 sat/vB for non-anchor channels with 483 HTLCs
+///   in both directions (the maximum),
+/// * `10_000 * 2_500 / 218_750 / (50*2)` = 1.1 sat/vB for non-anchor channels with 50 HTLCs
+///   in both (the LDK default maximum from [`ChannelHandshakeConfig::our_max_accepted_htlcs`])
+///
+/// Note that when using [`MaxDustHTLCExposure::FeeRateMultiplier`] this maximum disagreement
+/// will scale linearly with increases (or decreases) in the our feerate estimates. Further,
+/// for anchor channels we expect our counterparty to use a relatively low feerate estimate
+/// while we use [`ConfirmationTarget::OnChainSweep`] (which should be relatively high) and
+/// feerate disagreement force-closures should only occur when theirs is higher than ours.
+///
+/// Default value: [`MaxDustHTLCExposure::FeeRateMultiplier`] with a multiplier of 10_000.
+///
+/// [`ConfirmationTarget::OnChainSweep`]: crate::chain::chaininterface::ConfirmationTarget::OnChainSweep
 #[no_mangle]
 pub extern "C" fn ChannelConfig_set_max_dust_htlc_exposure(this_ptr: &mut ChannelConfig, mut val: crate::lightning::util::config::MaxDustHTLCExposure) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_dust_htlc_exposure = val.into_native();

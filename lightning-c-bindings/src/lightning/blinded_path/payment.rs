@@ -332,7 +332,7 @@ pub extern "C" fn ReceiveTlvs_get_payment_secret(this_ptr: &ReceiveTlvs) -> *con
 /// Used to authenticate the sender of a payment to the receiver and tie MPP HTLCs together.
 #[no_mangle]
 pub extern "C" fn ReceiveTlvs_set_payment_secret(this_ptr: &mut ReceiveTlvs, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_secret = ::lightning::ln::PaymentSecret(val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_secret = ::lightning::ln::types::PaymentSecret(val.data);
 }
 /// Constraints for the receiver of this payment.
 #[no_mangle]
@@ -345,13 +345,25 @@ pub extern "C" fn ReceiveTlvs_get_payment_constraints(this_ptr: &ReceiveTlvs) ->
 pub extern "C" fn ReceiveTlvs_set_payment_constraints(this_ptr: &mut ReceiveTlvs, mut val: crate::lightning::blinded_path::payment::PaymentConstraints) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_constraints = *unsafe { Box::from_raw(val.take_inner()) };
 }
+/// Context for the receiver of this payment.
+#[no_mangle]
+pub extern "C" fn ReceiveTlvs_get_payment_context(this_ptr: &ReceiveTlvs) -> crate::lightning::blinded_path::payment::PaymentContext {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_context;
+	crate::lightning::blinded_path::payment::PaymentContext::from_native(inner_val)
+}
+/// Context for the receiver of this payment.
+#[no_mangle]
+pub extern "C" fn ReceiveTlvs_set_payment_context(this_ptr: &mut ReceiveTlvs, mut val: crate::lightning::blinded_path::payment::PaymentContext) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_context = val.into_native();
+}
 /// Constructs a new ReceiveTlvs given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ReceiveTlvs_new(mut payment_secret_arg: crate::c_types::ThirtyTwoBytes, mut payment_constraints_arg: crate::lightning::blinded_path::payment::PaymentConstraints) -> ReceiveTlvs {
+pub extern "C" fn ReceiveTlvs_new(mut payment_secret_arg: crate::c_types::ThirtyTwoBytes, mut payment_constraints_arg: crate::lightning::blinded_path::payment::PaymentConstraints, mut payment_context_arg: crate::lightning::blinded_path::payment::PaymentContext) -> ReceiveTlvs {
 	ReceiveTlvs { inner: ObjOps::heap_alloc(nativeReceiveTlvs {
-		payment_secret: ::lightning::ln::PaymentSecret(payment_secret_arg.data),
+		payment_secret: ::lightning::ln::types::PaymentSecret(payment_secret_arg.data),
 		payment_constraints: *unsafe { Box::from_raw(payment_constraints_arg.take_inner()) },
+		payment_context: payment_context_arg.into_native(),
 	}), is_owned: true }
 }
 impl Clone for ReceiveTlvs {
@@ -604,6 +616,461 @@ pub extern "C" fn PaymentConstraints_clone(orig: &PaymentConstraints) -> Payment
 /// Get a string which allows debug introspection of a PaymentConstraints object
 pub extern "C" fn PaymentConstraints_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::payment::PaymentConstraints }).into()}
+/// The context of an inbound payment, which is included in a [`BlindedPath`] via [`ReceiveTlvs`]
+/// and surfaced in [`PaymentPurpose`].
+///
+/// [`BlindedPath`]: crate::blinded_path::BlindedPath
+/// [`PaymentPurpose`]: crate::events::PaymentPurpose
+#[derive(Clone)]
+#[must_use]
+#[repr(C)]
+pub enum PaymentContext {
+	/// The payment context was unknown.
+	Unknown(
+		crate::lightning::blinded_path::payment::UnknownPaymentContext),
+	/// The payment was made for an invoice requested from a BOLT 12 [`Offer`].
+	///
+	/// [`Offer`]: crate::offers::offer::Offer
+	Bolt12Offer(
+		crate::lightning::blinded_path::payment::Bolt12OfferContext),
+	/// The payment was made for an invoice sent for a BOLT 12 [`Refund`].
+	///
+	/// [`Refund`]: crate::offers::refund::Refund
+	Bolt12Refund(
+		crate::lightning::blinded_path::payment::Bolt12RefundContext),
+}
+use lightning::blinded_path::payment::PaymentContext as PaymentContextImport;
+pub(crate) type nativePaymentContext = PaymentContextImport;
+
+impl PaymentContext {
+	#[allow(unused)]
+	pub(crate) fn to_native(&self) -> nativePaymentContext {
+		match self {
+			PaymentContext::Unknown (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativePaymentContext::Unknown (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
+			PaymentContext::Bolt12Offer (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativePaymentContext::Bolt12Offer (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
+			PaymentContext::Bolt12Refund (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativePaymentContext::Bolt12Refund (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn into_native(self) -> nativePaymentContext {
+		match self {
+			PaymentContext::Unknown (mut a, ) => {
+				nativePaymentContext::Unknown (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+			PaymentContext::Bolt12Offer (mut a, ) => {
+				nativePaymentContext::Bolt12Offer (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+			PaymentContext::Bolt12Refund (mut a, ) => {
+				nativePaymentContext::Bolt12Refund (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn from_native(native: &PaymentContextImport) -> Self {
+		let native = unsafe { &*(native as *const _ as *const c_void as *const nativePaymentContext) };
+		match native {
+			nativePaymentContext::Unknown (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				PaymentContext::Unknown (
+					crate::lightning::blinded_path::payment::UnknownPaymentContext { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
+			nativePaymentContext::Bolt12Offer (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				PaymentContext::Bolt12Offer (
+					crate::lightning::blinded_path::payment::Bolt12OfferContext { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
+			nativePaymentContext::Bolt12Refund (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				PaymentContext::Bolt12Refund (
+					crate::lightning::blinded_path::payment::Bolt12RefundContext { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn native_into(native: nativePaymentContext) -> Self {
+		match native {
+			nativePaymentContext::Unknown (mut a, ) => {
+				PaymentContext::Unknown (
+					crate::lightning::blinded_path::payment::UnknownPaymentContext { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+			nativePaymentContext::Bolt12Offer (mut a, ) => {
+				PaymentContext::Bolt12Offer (
+					crate::lightning::blinded_path::payment::Bolt12OfferContext { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+			nativePaymentContext::Bolt12Refund (mut a, ) => {
+				PaymentContext::Bolt12Refund (
+					crate::lightning::blinded_path::payment::Bolt12RefundContext { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+		}
+	}
+}
+/// Frees any resources used by the PaymentContext
+#[no_mangle]
+pub extern "C" fn PaymentContext_free(this_ptr: PaymentContext) { }
+/// Creates a copy of the PaymentContext
+#[no_mangle]
+pub extern "C" fn PaymentContext_clone(orig: &PaymentContext) -> PaymentContext {
+	orig.clone()
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn PaymentContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const PaymentContext)).clone() })) as *mut c_void
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn PaymentContext_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut PaymentContext) };
+}
+#[no_mangle]
+/// Utility method to constructs a new Unknown-variant PaymentContext
+pub extern "C" fn PaymentContext_unknown(a: crate::lightning::blinded_path::payment::UnknownPaymentContext) -> PaymentContext {
+	PaymentContext::Unknown(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new Bolt12Offer-variant PaymentContext
+pub extern "C" fn PaymentContext_bolt12_offer(a: crate::lightning::blinded_path::payment::Bolt12OfferContext) -> PaymentContext {
+	PaymentContext::Bolt12Offer(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new Bolt12Refund-variant PaymentContext
+pub extern "C" fn PaymentContext_bolt12_refund(a: crate::lightning::blinded_path::payment::Bolt12RefundContext) -> PaymentContext {
+	PaymentContext::Bolt12Refund(a, )
+}
+/// Get a string which allows debug introspection of a PaymentContext object
+pub extern "C" fn PaymentContext_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::payment::PaymentContext }).into()}
+/// Checks if two PaymentContexts contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+#[no_mangle]
+pub extern "C" fn PaymentContext_eq(a: &PaymentContext, b: &PaymentContext) -> bool {
+	if &a.to_native() == &b.to_native() { true } else { false }
+}
+
+use lightning::blinded_path::payment::UnknownPaymentContext as nativeUnknownPaymentContextImport;
+pub(crate) type nativeUnknownPaymentContext = nativeUnknownPaymentContextImport;
+
+/// An unknown payment context.
+#[must_use]
+#[repr(C)]
+pub struct UnknownPaymentContext {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeUnknownPaymentContext,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl Drop for UnknownPaymentContext {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeUnknownPaymentContext>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the UnknownPaymentContext, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn UnknownPaymentContext_free(this_obj: UnknownPaymentContext) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn UnknownPaymentContext_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeUnknownPaymentContext) };
+}
+#[allow(unused)]
+impl UnknownPaymentContext {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeUnknownPaymentContext {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeUnknownPaymentContext {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeUnknownPaymentContext {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+}
+impl Clone for UnknownPaymentContext {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeUnknownPaymentContext>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn UnknownPaymentContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeUnknownPaymentContext)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the UnknownPaymentContext
+pub extern "C" fn UnknownPaymentContext_clone(orig: &UnknownPaymentContext) -> UnknownPaymentContext {
+	orig.clone()
+}
+/// Get a string which allows debug introspection of a UnknownPaymentContext object
+pub extern "C" fn UnknownPaymentContext_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::payment::UnknownPaymentContext }).into()}
+/// Checks if two UnknownPaymentContexts contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn UnknownPaymentContext_eq(a: &UnknownPaymentContext, b: &UnknownPaymentContext) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+
+use lightning::blinded_path::payment::Bolt12OfferContext as nativeBolt12OfferContextImport;
+pub(crate) type nativeBolt12OfferContext = nativeBolt12OfferContextImport;
+
+/// The context of a payment made for an invoice requested from a BOLT 12 [`Offer`].
+///
+/// [`Offer`]: crate::offers::offer::Offer
+#[must_use]
+#[repr(C)]
+pub struct Bolt12OfferContext {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeBolt12OfferContext,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl Drop for Bolt12OfferContext {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeBolt12OfferContext>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the Bolt12OfferContext, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn Bolt12OfferContext_free(this_obj: Bolt12OfferContext) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt12OfferContext_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeBolt12OfferContext) };
+}
+#[allow(unused)]
+impl Bolt12OfferContext {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeBolt12OfferContext {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeBolt12OfferContext {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeBolt12OfferContext {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+}
+/// The identifier of the [`Offer`].
+///
+/// [`Offer`]: crate::offers::offer::Offer
+#[no_mangle]
+pub extern "C" fn Bolt12OfferContext_get_offer_id(this_ptr: &Bolt12OfferContext) -> crate::lightning::offers::offer::OfferId {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().offer_id;
+	crate::lightning::offers::offer::OfferId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::offers::offer::OfferId<>) as *mut _) }, is_owned: false }
+}
+/// The identifier of the [`Offer`].
+///
+/// [`Offer`]: crate::offers::offer::Offer
+#[no_mangle]
+pub extern "C" fn Bolt12OfferContext_set_offer_id(this_ptr: &mut Bolt12OfferContext, mut val: crate::lightning::offers::offer::OfferId) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.offer_id = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// Fields from an [`InvoiceRequest`] sent for a [`Bolt12Invoice`].
+///
+/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+/// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
+#[no_mangle]
+pub extern "C" fn Bolt12OfferContext_get_invoice_request(this_ptr: &Bolt12OfferContext) -> crate::lightning::offers::invoice_request::InvoiceRequestFields {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().invoice_request;
+	crate::lightning::offers::invoice_request::InvoiceRequestFields { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::offers::invoice_request::InvoiceRequestFields<>) as *mut _) }, is_owned: false }
+}
+/// Fields from an [`InvoiceRequest`] sent for a [`Bolt12Invoice`].
+///
+/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+/// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
+#[no_mangle]
+pub extern "C" fn Bolt12OfferContext_set_invoice_request(this_ptr: &mut Bolt12OfferContext, mut val: crate::lightning::offers::invoice_request::InvoiceRequestFields) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.invoice_request = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// Constructs a new Bolt12OfferContext given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12OfferContext_new(mut offer_id_arg: crate::lightning::offers::offer::OfferId, mut invoice_request_arg: crate::lightning::offers::invoice_request::InvoiceRequestFields) -> Bolt12OfferContext {
+	Bolt12OfferContext { inner: ObjOps::heap_alloc(nativeBolt12OfferContext {
+		offer_id: *unsafe { Box::from_raw(offer_id_arg.take_inner()) },
+		invoice_request: *unsafe { Box::from_raw(invoice_request_arg.take_inner()) },
+	}), is_owned: true }
+}
+impl Clone for Bolt12OfferContext {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeBolt12OfferContext>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt12OfferContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt12OfferContext)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the Bolt12OfferContext
+pub extern "C" fn Bolt12OfferContext_clone(orig: &Bolt12OfferContext) -> Bolt12OfferContext {
+	orig.clone()
+}
+/// Get a string which allows debug introspection of a Bolt12OfferContext object
+pub extern "C" fn Bolt12OfferContext_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::payment::Bolt12OfferContext }).into()}
+/// Checks if two Bolt12OfferContexts contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn Bolt12OfferContext_eq(a: &Bolt12OfferContext, b: &Bolt12OfferContext) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+
+use lightning::blinded_path::payment::Bolt12RefundContext as nativeBolt12RefundContextImport;
+pub(crate) type nativeBolt12RefundContext = nativeBolt12RefundContextImport;
+
+/// The context of a payment made for an invoice sent for a BOLT 12 [`Refund`].
+///
+/// [`Refund`]: crate::offers::refund::Refund
+#[must_use]
+#[repr(C)]
+pub struct Bolt12RefundContext {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeBolt12RefundContext,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl Drop for Bolt12RefundContext {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeBolt12RefundContext>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the Bolt12RefundContext, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn Bolt12RefundContext_free(this_obj: Bolt12RefundContext) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt12RefundContext_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeBolt12RefundContext) };
+}
+#[allow(unused)]
+impl Bolt12RefundContext {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeBolt12RefundContext {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeBolt12RefundContext {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeBolt12RefundContext {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+}
+/// Constructs a new Bolt12RefundContext given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12RefundContext_new() -> Bolt12RefundContext {
+	Bolt12RefundContext { inner: ObjOps::heap_alloc(nativeBolt12RefundContext {
+	}), is_owned: true }
+}
+impl Clone for Bolt12RefundContext {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeBolt12RefundContext>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt12RefundContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt12RefundContext)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the Bolt12RefundContext
+pub extern "C" fn Bolt12RefundContext_clone(orig: &Bolt12RefundContext) -> Bolt12RefundContext {
+	orig.clone()
+}
+/// Get a string which allows debug introspection of a Bolt12RefundContext object
+pub extern "C" fn Bolt12RefundContext_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::payment::Bolt12RefundContext }).into()}
+/// Checks if two Bolt12RefundContexts contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn Bolt12RefundContext_eq(a: &Bolt12RefundContext, b: &Bolt12RefundContext) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
 #[no_mangle]
 /// Serialize the ForwardTlvs object into a byte array which can be read by ForwardTlvs_read
 pub extern "C" fn ForwardTlvs_write(obj: &crate::lightning::blinded_path::payment::ForwardTlvs) -> crate::c_types::derived::CVec_u8Z {
@@ -652,5 +1119,69 @@ pub(crate) extern "C" fn PaymentConstraints_write_void(obj: *const c_void) -> cr
 pub extern "C" fn PaymentConstraints_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_PaymentConstraintsDecodeErrorZ {
 	let res: Result<lightning::blinded_path::payment::PaymentConstraints, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::payment::PaymentConstraints { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
+/// Serialize the PaymentContext object into a byte array which can be read by PaymentContext_read
+pub extern "C" fn PaymentContext_write(obj: &crate::lightning::blinded_path::payment::PaymentContext) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(&unsafe { &*obj }.to_native())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn PaymentContext_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	PaymentContext_write(unsafe { &*(obj as *const PaymentContext) })
+}
+#[no_mangle]
+/// Read a PaymentContext from a byte array, created by PaymentContext_write
+pub extern "C" fn PaymentContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_PaymentContextDecodeErrorZ {
+	let res: Result<lightning::blinded_path::payment::PaymentContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::payment::PaymentContext::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
+/// Serialize the UnknownPaymentContext object into a byte array which can be read by UnknownPaymentContext_read
+pub extern "C" fn UnknownPaymentContext_write(obj: &crate::lightning::blinded_path::payment::UnknownPaymentContext) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn UnknownPaymentContext_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUnknownPaymentContext) })
+}
+#[no_mangle]
+/// Read a UnknownPaymentContext from a byte array, created by UnknownPaymentContext_write
+pub extern "C" fn UnknownPaymentContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_UnknownPaymentContextDecodeErrorZ {
+	let res: Result<lightning::blinded_path::payment::UnknownPaymentContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::payment::UnknownPaymentContext { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
+/// Serialize the Bolt12OfferContext object into a byte array which can be read by Bolt12OfferContext_read
+pub extern "C" fn Bolt12OfferContext_write(obj: &crate::lightning::blinded_path::payment::Bolt12OfferContext) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn Bolt12OfferContext_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeBolt12OfferContext) })
+}
+#[no_mangle]
+/// Read a Bolt12OfferContext from a byte array, created by Bolt12OfferContext_write
+pub extern "C" fn Bolt12OfferContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_Bolt12OfferContextDecodeErrorZ {
+	let res: Result<lightning::blinded_path::payment::Bolt12OfferContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::payment::Bolt12OfferContext { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
+/// Serialize the Bolt12RefundContext object into a byte array which can be read by Bolt12RefundContext_read
+pub extern "C" fn Bolt12RefundContext_write(obj: &crate::lightning::blinded_path::payment::Bolt12RefundContext) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn Bolt12RefundContext_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeBolt12RefundContext) })
+}
+#[no_mangle]
+/// Read a Bolt12RefundContext from a byte array, created by Bolt12RefundContext_write
+pub extern "C" fn Bolt12RefundContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_Bolt12RefundContextDecodeErrorZ {
+	let res: Result<lightning::blinded_path::payment::Bolt12RefundContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::payment::Bolt12RefundContext { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }

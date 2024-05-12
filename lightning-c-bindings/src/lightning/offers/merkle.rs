@@ -118,3 +118,96 @@ pub extern "C" fn TaggedHash_merkle_root(this_arg: &crate::lightning::offers::me
 	crate::c_types::ThirtyTwoBytes { data: *ret.as_ref() }
 }
 
+/// Error when signing messages.
+#[derive(Clone)]
+#[must_use]
+#[repr(C)]
+pub enum SignError {
+	/// User-defined error when signing the message.
+	Signing,
+	/// Error when verifying the produced signature using the given pubkey.
+	Verification(
+		crate::c_types::Secp256k1Error),
+}
+use lightning::offers::merkle::SignError as SignErrorImport;
+pub(crate) type nativeSignError = SignErrorImport;
+
+impl SignError {
+	#[allow(unused)]
+	pub(crate) fn to_native(&self) -> nativeSignError {
+		match self {
+			SignError::Signing => nativeSignError::Signing,
+			SignError::Verification (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeSignError::Verification (
+					a_nonref.into_rust(),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn into_native(self) -> nativeSignError {
+		match self {
+			SignError::Signing => nativeSignError::Signing,
+			SignError::Verification (mut a, ) => {
+				nativeSignError::Verification (
+					a.into_rust(),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn from_native(native: &SignErrorImport) -> Self {
+		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeSignError) };
+		match native {
+			nativeSignError::Signing => SignError::Signing,
+			nativeSignError::Verification (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				SignError::Verification (
+					crate::c_types::Secp256k1Error::from_rust(a_nonref),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn native_into(native: nativeSignError) -> Self {
+		match native {
+			nativeSignError::Signing => SignError::Signing,
+			nativeSignError::Verification (mut a, ) => {
+				SignError::Verification (
+					crate::c_types::Secp256k1Error::from_rust(a),
+				)
+			},
+		}
+	}
+}
+/// Frees any resources used by the SignError
+#[no_mangle]
+pub extern "C" fn SignError_free(this_ptr: SignError) { }
+/// Creates a copy of the SignError
+#[no_mangle]
+pub extern "C" fn SignError_clone(orig: &SignError) -> SignError {
+	orig.clone()
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn SignError_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const SignError)).clone() })) as *mut c_void
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn SignError_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut SignError) };
+}
+#[no_mangle]
+/// Utility method to constructs a new Signing-variant SignError
+pub extern "C" fn SignError_signing() -> SignError {
+	SignError::Signing}
+#[no_mangle]
+/// Utility method to constructs a new Verification-variant SignError
+pub extern "C" fn SignError_verification(a: crate::c_types::Secp256k1Error) -> SignError {
+	SignError::Verification(a, )
+}
+/// Get a string which allows debug introspection of a SignError object
+pub extern "C" fn SignError_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::merkle::SignError }).into()}

@@ -119,9 +119,47 @@ pub extern "C" fn InboundHTLCErr_new(mut err_code_arg: u16, mut err_data_arg: cr
 		msg: msg_arg.into_str(),
 	}), is_owned: true }
 }
+impl Clone for InboundHTLCErr {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeInboundHTLCErr>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn InboundHTLCErr_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInboundHTLCErr)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the InboundHTLCErr
+pub extern "C" fn InboundHTLCErr_clone(orig: &InboundHTLCErr) -> InboundHTLCErr {
+	orig.clone()
+}
 /// Get a string which allows debug introspection of a InboundHTLCErr object
 pub extern "C" fn InboundHTLCErr_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::onion_payment::InboundHTLCErr }).into()}
+/// Generates a non-cryptographic 64-bit hash of the InboundHTLCErr.
+#[no_mangle]
+pub extern "C" fn InboundHTLCErr_hash(o: &InboundHTLCErr) -> u64 {
+	if o.inner.is_null() { return 0; }
+	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
+	#[allow(deprecated)]
+	let mut hasher = core::hash::SipHasher::new();
+	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
+	core::hash::Hasher::finish(&hasher)
+}
+/// Checks if two InboundHTLCErrs contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn InboundHTLCErr_eq(a: &InboundHTLCErr, b: &InboundHTLCErr) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
 /// Peel one layer off an incoming onion, returning a [`PendingHTLCInfo`] that contains information
 /// about the intended next-hop for the HTLC.
 ///

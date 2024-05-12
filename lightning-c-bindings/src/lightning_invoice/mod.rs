@@ -2386,6 +2386,7 @@ pub extern "C" fn RawBolt11Invoice_private_routes(this_arg: &crate::lightning_in
 	local_ret.into()
 }
 
+/// Returns `None` if no amount is set or on overflow.
 #[must_use]
 #[no_mangle]
 pub extern "C" fn RawBolt11Invoice_amount_pico_btc(this_arg: &crate::lightning_invoice::RawBolt11Invoice) -> crate::c_types::derived::COption_u64Z {
@@ -2585,6 +2586,15 @@ pub extern "C" fn Bolt11Invoice_features(this_arg: &crate::lightning_invoice::Bo
 #[no_mangle]
 pub extern "C" fn Bolt11Invoice_recover_payee_pub_key(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::c_types::PublicKey {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.recover_payee_pub_key();
+	crate::c_types::PublicKey::from_rust(&ret)
+}
+
+/// Recover the payee's public key if one was included in the invoice, otherwise return the
+/// recovered public key from the signature
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt11Invoice_get_payee_pub_key(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::c_types::PublicKey {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_payee_pub_key();
 	crate::c_types::PublicKey::from_rust(&ret)
 }
 

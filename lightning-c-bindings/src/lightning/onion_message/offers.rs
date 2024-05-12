@@ -273,7 +273,7 @@ pub extern "C" fn OffersMessage_as_OnionMessageContents(this_arg: &OffersMessage
 
 #[must_use]
 extern "C" fn OffersMessage_OnionMessageContents_tlv_type(this_arg: *const c_void) -> u64 {
-	let mut ret = <nativeOffersMessage as lightning::onion_message::packet::OnionMessageContents<>>::tlv_type(unsafe { &mut *(this_arg as *mut nativeOffersMessage) }, );
+	let mut ret = <nativeOffersMessage as lightning::onion_message::packet::OnionMessageContents>::tlv_type(unsafe { &mut *(this_arg as *mut nativeOffersMessage) }, );
 	ret
 }
 extern "C" fn OnionMessageContents_OffersMessage_cloned(new_obj: &mut crate::lightning::onion_message::packet::OnionMessageContents) {
