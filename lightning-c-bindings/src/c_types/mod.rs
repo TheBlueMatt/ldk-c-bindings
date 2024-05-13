@@ -292,6 +292,9 @@ impl BigEndianScalar {
 pub extern "C" fn BigEndianScalar_new(big_endian_bytes: ThirtyTwoBytes) -> BigEndianScalar {
 	BigEndianScalar { big_endian_bytes: big_endian_bytes.data }
 }
+#[no_mangle]
+/// Creates a new BigEndianScalar which has the same data as `orig`
+pub extern "C" fn BigEndianScalar_clone(orig: &BigEndianScalar) -> BigEndianScalar { orig.clone() }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
