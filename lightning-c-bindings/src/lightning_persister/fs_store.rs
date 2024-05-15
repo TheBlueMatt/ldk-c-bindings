@@ -110,25 +110,25 @@ pub extern "C" fn FilesystemStore_as_KVStore(this_arg: &FilesystemStore) -> crat
 
 #[must_use]
 extern "C" fn FilesystemStore_KVStore_read(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str) -> crate::c_types::derived::CResult_CVec_u8ZIOErrorZ {
-	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore<>>::read(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str());
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore>::read(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { item }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_rust(e) }).into() };
 	local_ret
 }
 #[must_use]
 extern "C" fn FilesystemStore_KVStore_write(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str, mut buf: crate::c_types::u8slice) -> crate::c_types::derived::CResult_NoneIOErrorZ {
-	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore<>>::write(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str(), buf.to_slice());
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore>::write(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str(), buf.to_slice());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_rust(e) }).into() };
 	local_ret
 }
 #[must_use]
 extern "C" fn FilesystemStore_KVStore_remove(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str, mut lazy: bool) -> crate::c_types::derived::CResult_NoneIOErrorZ {
-	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore<>>::remove(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str(), lazy);
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore>::remove(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str(), lazy);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_rust(e) }).into() };
 	local_ret
 }
 #[must_use]
 extern "C" fn FilesystemStore_KVStore_list(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str) -> crate::c_types::derived::CResult_CVec_StrZIOErrorZ {
-	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore<>>::list(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str());
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore>::list(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { item.into() }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_rust(e) }).into() };
 	local_ret
 }

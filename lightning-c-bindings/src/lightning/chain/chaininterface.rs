@@ -168,6 +168,17 @@ pub enum ConfirmationTarget {
 	///
 	/// [`ChannelManager::close_channel_with_feerate_and_script`]: crate::ln::channelmanager::ChannelManager::close_channel_with_feerate_and_script
 	ChannelCloseMinimum,
+	/// The feerate [`OutputSweeper`] will use on transactions spending
+	/// [`SpendableOutputDescriptor`]s after a channel closure.
+	///
+	/// Generally spending these outputs is safe as long as they eventually confirm, so a value
+	/// (slightly above) the mempool minimum should suffice. However, as this value will influence
+	/// how long funds will be unavailable after channel closure, [`FeeEstimator`] implementors
+	/// might want to choose a higher feerate to regain control over funds faster.
+	///
+	/// [`OutputSweeper`]: crate::util::sweep::OutputSweeper
+	/// [`SpendableOutputDescriptor`]: crate::sign::SpendableOutputDescriptor
+	OutputSpendingFee,
 }
 use lightning::chain::chaininterface::ConfirmationTarget as ConfirmationTargetImport;
 pub(crate) type nativeConfirmationTarget = ConfirmationTargetImport;
@@ -182,6 +193,7 @@ impl ConfirmationTarget {
 			ConfirmationTarget::AnchorChannelFee => nativeConfirmationTarget::AnchorChannelFee,
 			ConfirmationTarget::NonAnchorChannelFee => nativeConfirmationTarget::NonAnchorChannelFee,
 			ConfirmationTarget::ChannelCloseMinimum => nativeConfirmationTarget::ChannelCloseMinimum,
+			ConfirmationTarget::OutputSpendingFee => nativeConfirmationTarget::OutputSpendingFee,
 		}
 	}
 	#[allow(unused)]
@@ -193,6 +205,7 @@ impl ConfirmationTarget {
 			ConfirmationTarget::AnchorChannelFee => nativeConfirmationTarget::AnchorChannelFee,
 			ConfirmationTarget::NonAnchorChannelFee => nativeConfirmationTarget::NonAnchorChannelFee,
 			ConfirmationTarget::ChannelCloseMinimum => nativeConfirmationTarget::ChannelCloseMinimum,
+			ConfirmationTarget::OutputSpendingFee => nativeConfirmationTarget::OutputSpendingFee,
 		}
 	}
 	#[allow(unused)]
@@ -205,6 +218,7 @@ impl ConfirmationTarget {
 			nativeConfirmationTarget::AnchorChannelFee => ConfirmationTarget::AnchorChannelFee,
 			nativeConfirmationTarget::NonAnchorChannelFee => ConfirmationTarget::NonAnchorChannelFee,
 			nativeConfirmationTarget::ChannelCloseMinimum => ConfirmationTarget::ChannelCloseMinimum,
+			nativeConfirmationTarget::OutputSpendingFee => ConfirmationTarget::OutputSpendingFee,
 		}
 	}
 	#[allow(unused)]
@@ -216,6 +230,7 @@ impl ConfirmationTarget {
 			nativeConfirmationTarget::AnchorChannelFee => ConfirmationTarget::AnchorChannelFee,
 			nativeConfirmationTarget::NonAnchorChannelFee => ConfirmationTarget::NonAnchorChannelFee,
 			nativeConfirmationTarget::ChannelCloseMinimum => ConfirmationTarget::ChannelCloseMinimum,
+			nativeConfirmationTarget::OutputSpendingFee => ConfirmationTarget::OutputSpendingFee,
 		}
 	}
 }
@@ -258,6 +273,10 @@ pub extern "C" fn ConfirmationTarget_non_anchor_channel_fee() -> ConfirmationTar
 /// Utility method to constructs a new ChannelCloseMinimum-variant ConfirmationTarget
 pub extern "C" fn ConfirmationTarget_channel_close_minimum() -> ConfirmationTarget {
 	ConfirmationTarget::ChannelCloseMinimum}
+#[no_mangle]
+/// Utility method to constructs a new OutputSpendingFee-variant ConfirmationTarget
+pub extern "C" fn ConfirmationTarget_output_spending_fee() -> ConfirmationTarget {
+	ConfirmationTarget::OutputSpendingFee}
 /// Get a string which allows debug introspection of a ConfirmationTarget object
 pub extern "C" fn ConfirmationTarget_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::chain::chaininterface::ConfirmationTarget }).into()}
@@ -286,6 +305,10 @@ pub extern "C" fn ConfirmationTarget_eq(a: &ConfirmationTarget, b: &Confirmation
 ///
 /// Note that all of the functions implemented here *must* be reentrant-safe (obviously - they're
 /// called from inside the library in response to chain events, P2P events, or timer events).
+///
+/// LDK may generate a substantial number of fee-estimation calls in some cases. You should
+/// pre-calculate and cache the fee estimate results to ensure you don't substantially slow HTLC
+/// handling.
 #[repr(C)]
 pub struct FeeEstimator {
 	/// An opaque pointer which is passed to your function implementations as an argument.

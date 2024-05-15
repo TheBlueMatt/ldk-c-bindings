@@ -32,8 +32,8 @@ LDKCResult_ChannelMonitorUpdateStatusNoneZ add_channel_monitor(const void *this_
 LDKChannelMonitorUpdateStatus update_channel_monitor(const void *this_arg, LDKOutPoint funding_txo, const LDKChannelMonitorUpdate *monitor) {
 	return ChannelMonitorUpdateStatus_completed();
 }
-LDKCVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ monitors_pending_monitor_events(const void *this_arg) {
-	LDKCVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ empty_htlc_vec = {
+LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ monitors_pending_monitor_events(const void *this_arg) {
+	LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ empty_htlc_vec = {
 		.data = NULL,
 		.datalen = 0,
 	};

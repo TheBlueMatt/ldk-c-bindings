@@ -47,7 +47,8 @@
 //! let pubkey = PublicKey::from(keys);
 //!
 //! let expiration = SystemTime::now() + Duration::from_secs(24 * 60 * 60);
-//! let refund = RefundBuilder::new(\"coffee, large\".to_string(), vec![1; 32], pubkey, 20_000)?
+//! let refund = RefundBuilder::new(vec![1; 32], pubkey, 20_000)?
+//!     .description(\"coffee, large\".to_string())
 //!     .absolute_expiry(expiration.duration_since(SystemTime::UNIX_EPOCH).unwrap())
 //!     .issuer(\"Foo Bar\".to_string())
 //!     .path(create_blinded_path())
@@ -88,6 +89,212 @@ use bitcoin::hashes::Hash;
 use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
+
+
+use lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder as nativeRefundMaybeWithDerivedMetadataBuilderImport;
+pub(crate) type nativeRefundMaybeWithDerivedMetadataBuilder = nativeRefundMaybeWithDerivedMetadataBuilderImport<'static, >;
+
+/// Builds a [`Refund`] for the \"offer for money\" flow.
+///
+/// See [module-level documentation] for usage.
+///
+/// [module-level documentation]: self
+#[must_use]
+#[repr(C)]
+pub struct RefundMaybeWithDerivedMetadataBuilder {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeRefundMaybeWithDerivedMetadataBuilder,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl Drop for RefundMaybeWithDerivedMetadataBuilder {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeRefundMaybeWithDerivedMetadataBuilder>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the RefundMaybeWithDerivedMetadataBuilder, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_free(this_obj: RefundMaybeWithDerivedMetadataBuilder) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn RefundMaybeWithDerivedMetadataBuilder_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeRefundMaybeWithDerivedMetadataBuilder) };
+}
+#[allow(unused)]
+impl RefundMaybeWithDerivedMetadataBuilder {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeRefundMaybeWithDerivedMetadataBuilder {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeRefundMaybeWithDerivedMetadataBuilder {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeRefundMaybeWithDerivedMetadataBuilder {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+}
+impl Clone for RefundMaybeWithDerivedMetadataBuilder {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeRefundMaybeWithDerivedMetadataBuilder>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn RefundMaybeWithDerivedMetadataBuilder_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRefundMaybeWithDerivedMetadataBuilder)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the RefundMaybeWithDerivedMetadataBuilder
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_clone(orig: &RefundMaybeWithDerivedMetadataBuilder) -> RefundMaybeWithDerivedMetadataBuilder {
+	orig.clone()
+}
+/// Creates a new builder for a refund using the [`Refund::payer_id`] for the public node id to
+/// send to if no [`Refund::paths`] are set. Otherwise, it may be a transient pubkey.
+///
+/// Additionally, sets the required (empty) [`Refund::description`], [`Refund::payer_metadata`],
+/// and [`Refund::amount_msats`].
+///
+/// # Note
+///
+/// If constructing a [`Refund`] for use with a [`ChannelManager`], use
+/// [`ChannelManager::create_refund_builder`] instead of [`RefundBuilder::new`].
+///
+/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
+/// [`ChannelManager::create_refund_builder`]: crate::ln::channelmanager::ChannelManager::create_refund_builder
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_new(mut metadata: crate::c_types::derived::CVec_u8Z, mut payer_id: crate::c_types::PublicKey, mut amount_msats: u64) -> crate::c_types::derived::CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	let mut local_metadata = Vec::new(); for mut item in metadata.into_rust().drain(..) { local_metadata.push( { item }); };
+	let mut ret = lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder::new(local_metadata, payer_id.into_rust(), amount_msats);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
+	local_ret
+}
+
+/// Similar to [`RefundBuilder::new`] except, if [`RefundBuilder::path`] is called, the payer id
+/// is derived from the given [`ExpandedKey`] and nonce. This provides sender privacy by using a
+/// different payer id for each refund, assuming a different nonce is used.  Otherwise, the
+/// provided `node_id` is used for the payer id.
+///
+/// Also, sets the metadata when [`RefundBuilder::build`] is called such that it can be used to
+/// verify that an [`InvoiceRequest`] was produced for the refund given an [`ExpandedKey`].
+///
+/// The `payment_id` is encrypted in the metadata and should be unique. This ensures that only
+/// one invoice will be paid for the refund and that payments can be uniquely identified.
+///
+/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+/// [`ExpandedKey`]: crate::ln::inbound_payment::ExpandedKey
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_deriving_payer_id(mut node_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut entropy_source: crate::lightning::sign::EntropySource, mut amount_msats: u64, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	let mut ret = lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder::deriving_payer_id(node_id.into_rust(), expanded_key.get_native_ref(), entropy_source, secp256k1::global::SECP256K1, amount_msats, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
+	local_ret
+}
+
+/// Sets the [`Refund::description`].
+///
+/// Successive calls to this method will override the previous setting.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_description(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut description: crate::c_types::Str) {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).description(description.into_string());
+	() /*ret*/
+}
+
+/// Sets the [`Refund::absolute_expiry`] as seconds since the Unix epoch. Any expiry that has
+/// already passed is valid and can be checked for using [`Refund::is_expired`].
+///
+/// Successive calls to this method will override the previous setting.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_absolute_expiry(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut absolute_expiry: u64) {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).absolute_expiry(core::time::Duration::from_secs(absolute_expiry));
+	() /*ret*/
+}
+
+/// Sets the [`Refund::issuer`].
+///
+/// Successive calls to this method will override the previous setting.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_issuer(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut issuer: crate::c_types::Str) {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).issuer(issuer.into_string());
+	() /*ret*/
+}
+
+/// Adds a blinded path to [`Refund::paths`]. Must include at least one path if only connected
+/// by private channels or if [`Refund::payer_id`] is not a public node id.
+///
+/// Successive calls to this method will add another blinded path. Caller is responsible for not
+/// adding duplicate paths.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_path(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut path: crate::lightning::blinded_path::BlindedPath) {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).path(*unsafe { Box::from_raw(path.take_inner()) });
+	() /*ret*/
+}
+
+/// Sets the [`Refund::chain`] of the given [`Network`] for paying an invoice. If not
+/// called, [`Network::Bitcoin`] is assumed.
+///
+/// Successive calls to this method will override the previous setting.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_chain(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut network: crate::bitcoin::network::Network) {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).chain(network.into_bitcoin());
+	() /*ret*/
+}
+
+/// Sets [`Refund::quantity`] of items. This is purely for informational purposes. It is useful
+/// when the refund pertains to a [`Bolt12Invoice`] that paid for more than one item from an
+/// [`Offer`] as specified by [`InvoiceRequest::quantity`].
+///
+/// Successive calls to this method will override the previous setting.
+///
+/// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
+/// [`InvoiceRequest::quantity`]: crate::offers::invoice_request::InvoiceRequest::quantity
+/// [`Offer`]: crate::offers::offer::Offer
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_quantity(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut quantity: u64) {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).quantity(quantity);
+	() /*ret*/
+}
+
+/// Sets the [`Refund::payer_note`].
+///
+/// Successive calls to this method will override the previous setting.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_payer_note(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut payer_note: crate::c_types::Str) {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).payer_note(payer_note.into_string());
+	() /*ret*/
+}
+
+/// Builds a [`Refund`] after checking for valid semantics.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_build(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder) -> crate::c_types::derived::CResult_RefundBolt12SemanticErrorZ {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).build();
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::refund::Refund { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
+	local_ret
+}
 
 
 use lightning::offers::refund::Refund as nativeRefundImport;
@@ -296,6 +503,16 @@ pub extern "C" fn Refund_payer_note(this_arg: &crate::lightning::offers::refund:
 	local_ret
 }
 
+/// Generates a non-cryptographic 64-bit hash of the Refund.
+#[no_mangle]
+pub extern "C" fn Refund_hash(o: &Refund) -> u64 {
+	if o.inner.is_null() { return 0; }
+	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
+	#[allow(deprecated)]
+	let mut hasher = core::hash::SipHasher::new();
+	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
+	core::hash::Hasher::finish(&hasher)
+}
 #[no_mangle]
 /// Serialize the Refund object into a byte array which can be read by Refund_read
 pub extern "C" fn Refund_write(obj: &crate::lightning::offers::refund::Refund) -> crate::c_types::derived::CVec_u8Z {

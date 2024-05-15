@@ -193,7 +193,7 @@ pub enum ParsedOnionMessageContents {
 		crate::lightning::onion_message::packet::OnionMessageContents),
 }
 use lightning::onion_message::packet::ParsedOnionMessageContents as ParsedOnionMessageContentsImport;
-pub(crate) type nativeParsedOnionMessageContents = ParsedOnionMessageContentsImport<crate::lightning::onion_message::packet::OnionMessageContents>;
+pub(crate) type nativeParsedOnionMessageContents = ParsedOnionMessageContentsImport<crate::lightning::onion_message::packet::OnionMessageContents, >;
 
 impl ParsedOnionMessageContents {
 	#[allow(unused)]
@@ -229,7 +229,7 @@ impl ParsedOnionMessageContents {
 		}
 	}
 	#[allow(unused)]
-	pub(crate) fn from_native(native: &ParsedOnionMessageContentsImport<crate::lightning::onion_message::packet::OnionMessageContents>) -> Self {
+	pub(crate) fn from_native(native: &ParsedOnionMessageContentsImport<crate::lightning::onion_message::packet::OnionMessageContents, >) -> Self {
 		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeParsedOnionMessageContents) };
 		match native {
 			nativeParsedOnionMessageContents::Offers (ref a, ) => {
@@ -319,7 +319,7 @@ pub extern "C" fn ParsedOnionMessageContents_as_OnionMessageContents(this_arg: &
 
 #[must_use]
 extern "C" fn ParsedOnionMessageContents_OnionMessageContents_tlv_type(this_arg: *const c_void) -> u64 {
-	let mut ret = <nativeParsedOnionMessageContents as lightning::onion_message::packet::OnionMessageContents<>>::tlv_type(unsafe { &mut *(this_arg as *mut nativeParsedOnionMessageContents) }, );
+	let mut ret = <nativeParsedOnionMessageContents as lightning::onion_message::packet::OnionMessageContents>::tlv_type(unsafe { &mut *(this_arg as *mut nativeParsedOnionMessageContents) }, );
 	ret
 }
 extern "C" fn OnionMessageContents_ParsedOnionMessageContents_cloned(new_obj: &mut crate::lightning::onion_message::packet::OnionMessageContents) {

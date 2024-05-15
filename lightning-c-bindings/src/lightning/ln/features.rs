@@ -64,6 +64,8 @@
 //!      for more info).
 //! - `Keysend` - send funds to a node without an invoice
 //!     (see the [`Keysend` feature assignment proposal](https://github.com/lightning/bolts/issues/605#issuecomment-606679798) for more information).
+//! - `Trampoline` - supports receiving and forwarding Trampoline payments
+//!     (see the [`Trampoline` feature proposal](https://github.com/lightning/bolts/pull/836) for more information).
 //!
 //! LDK knows about the following features, but does not support them:
 //! - `AnchorsNonzeroFeeHtlcTx` - the initial version of anchor outputs, which was later found to be
@@ -1399,6 +1401,90 @@ pub extern "C" fn NodeFeatures_supports_keysend(this_arg: &crate::lightning::ln:
 #[no_mangle]
 pub extern "C" fn NodeFeatures_requires_keysend(this_arg: &crate::lightning::ln::features::NodeFeatures) -> bool {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_keysend();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_trampoline_routing_optional(this_arg: &mut crate::lightning::ln::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::ln::features::nativeInitFeatures)) }.set_trampoline_routing_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_trampoline_routing_required(this_arg: &mut crate::lightning::ln::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::ln::features::nativeInitFeatures)) }.set_trampoline_routing_required()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_trampoline_routing(this_arg: &crate::lightning::ln::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_trampoline_routing();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_trampoline_routing_optional(this_arg: &mut crate::lightning::ln::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::ln::features::nativeNodeFeatures)) }.set_trampoline_routing_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_trampoline_routing_required(this_arg: &mut crate::lightning::ln::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::ln::features::nativeNodeFeatures)) }.set_trampoline_routing_required()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_trampoline_routing(this_arg: &crate::lightning::ln::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_trampoline_routing();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_set_trampoline_routing_optional(this_arg: &mut crate::lightning::ln::features::Bolt11InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::ln::features::nativeBolt11InvoiceFeatures)) }.set_trampoline_routing_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_set_trampoline_routing_required(this_arg: &mut crate::lightning::ln::features::Bolt11InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::ln::features::nativeBolt11InvoiceFeatures)) }.set_trampoline_routing_required()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_supports_trampoline_routing(this_arg: &crate::lightning::ln::features::Bolt11InvoiceFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_trampoline_routing();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_trampoline_routing(this_arg: &crate::lightning::ln::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_trampoline_routing();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_trampoline_routing(this_arg: &crate::lightning::ln::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_trampoline_routing();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_requires_trampoline_routing(this_arg: &crate::lightning::ln::features::Bolt11InvoiceFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_trampoline_routing();
 	ret
 }
 

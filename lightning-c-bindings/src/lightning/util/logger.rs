@@ -245,17 +245,21 @@ pub extern "C" fn Record_set_peer_id(this_ptr: &mut Record, mut val: crate::c_ty
 }
 /// The channel id of the channel pertaining to the logged record. May be a temporary id before
 /// the channel has been funded.
+///
+/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn Record_get_channel_id(this_ptr: &Record) -> crate::c_types::derived::COption_ThirtyTwoBytesZ {
+pub extern "C" fn Record_get_channel_id(this_ptr: &Record) -> crate::lightning::ln::types::ChannelId {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_id;
-	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::c_types::ThirtyTwoBytes { data: (*inner_val.as_ref().unwrap()).clone().0 } }) };
+	let mut local_inner_val = crate::lightning::ln::types::ChannelId { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::types::ChannelId<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
 /// The channel id of the channel pertaining to the logged record. May be a temporary id before
 /// the channel has been funded.
+///
+/// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn Record_set_channel_id(this_ptr: &mut Record, mut val: crate::c_types::derived::COption_ThirtyTwoBytesZ) {
-	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::lightning::ln::ChannelId({ val_opt.take() }.data) }})} };
+pub extern "C" fn Record_set_channel_id(this_ptr: &mut Record, mut val: crate::lightning::ln::types::ChannelId) {
+	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_id = local_val;
 }
 /// The message body.
@@ -305,11 +309,12 @@ pub extern "C" fn Record_set_line(this_ptr: &mut Record, mut val: u32) {
 /// Constructs a new Record given each field
 ///
 /// Note that peer_id_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+/// Note that channel_id_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Record_new(mut level_arg: crate::lightning::util::logger::Level, mut peer_id_arg: crate::c_types::PublicKey, mut channel_id_arg: crate::c_types::derived::COption_ThirtyTwoBytesZ, mut args_arg: crate::c_types::Str, mut module_path_arg: crate::c_types::Str, mut file_arg: crate::c_types::Str, mut line_arg: u32) -> Record {
+pub extern "C" fn Record_new(mut level_arg: crate::lightning::util::logger::Level, mut peer_id_arg: crate::c_types::PublicKey, mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut args_arg: crate::c_types::Str, mut module_path_arg: crate::c_types::Str, mut file_arg: crate::c_types::Str, mut line_arg: u32) -> Record {
 	let mut local_peer_id_arg = if peer_id_arg.is_null() { None } else { Some( { peer_id_arg.into_rust() }) };
-	let mut local_channel_id_arg = { /*channel_id_arg*/ let channel_id_arg_opt = channel_id_arg; if channel_id_arg_opt.is_none() { None } else { Some({ { ::lightning::ln::ChannelId({ channel_id_arg_opt.take() }.data) }})} };
+	let mut local_channel_id_arg = if channel_id_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_id_arg.take_inner()) } }) };
 	Record { inner: ObjOps::heap_alloc(nativeRecord {
 		level: level_arg.into_native(),
 		peer_id: local_peer_id_arg,

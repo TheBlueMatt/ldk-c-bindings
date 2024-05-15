@@ -153,6 +153,8 @@ pub enum Bolt12SemanticError {
 	DuplicatePaymentId,
 	/// Blinded paths were expected but were missing.
 	MissingPaths,
+	/// Blinded paths were provided but were not expected.
+	UnexpectedPaths,
 	/// The blinded payinfo given does not match the number of blinded path hops.
 	InvalidPayInfo,
 	/// An invoice creation time was expected but was missing.
@@ -192,6 +194,7 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::MissingPayerId => nativeBolt12SemanticError::MissingPayerId,
 			Bolt12SemanticError::DuplicatePaymentId => nativeBolt12SemanticError::DuplicatePaymentId,
 			Bolt12SemanticError::MissingPaths => nativeBolt12SemanticError::MissingPaths,
+			Bolt12SemanticError::UnexpectedPaths => nativeBolt12SemanticError::UnexpectedPaths,
 			Bolt12SemanticError::InvalidPayInfo => nativeBolt12SemanticError::InvalidPayInfo,
 			Bolt12SemanticError::MissingCreationTime => nativeBolt12SemanticError::MissingCreationTime,
 			Bolt12SemanticError::MissingPaymentHash => nativeBolt12SemanticError::MissingPaymentHash,
@@ -224,6 +227,7 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::MissingPayerId => nativeBolt12SemanticError::MissingPayerId,
 			Bolt12SemanticError::DuplicatePaymentId => nativeBolt12SemanticError::DuplicatePaymentId,
 			Bolt12SemanticError::MissingPaths => nativeBolt12SemanticError::MissingPaths,
+			Bolt12SemanticError::UnexpectedPaths => nativeBolt12SemanticError::UnexpectedPaths,
 			Bolt12SemanticError::InvalidPayInfo => nativeBolt12SemanticError::InvalidPayInfo,
 			Bolt12SemanticError::MissingCreationTime => nativeBolt12SemanticError::MissingCreationTime,
 			Bolt12SemanticError::MissingPaymentHash => nativeBolt12SemanticError::MissingPaymentHash,
@@ -257,6 +261,7 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::MissingPayerId => Bolt12SemanticError::MissingPayerId,
 			nativeBolt12SemanticError::DuplicatePaymentId => Bolt12SemanticError::DuplicatePaymentId,
 			nativeBolt12SemanticError::MissingPaths => Bolt12SemanticError::MissingPaths,
+			nativeBolt12SemanticError::UnexpectedPaths => Bolt12SemanticError::UnexpectedPaths,
 			nativeBolt12SemanticError::InvalidPayInfo => Bolt12SemanticError::InvalidPayInfo,
 			nativeBolt12SemanticError::MissingCreationTime => Bolt12SemanticError::MissingCreationTime,
 			nativeBolt12SemanticError::MissingPaymentHash => Bolt12SemanticError::MissingPaymentHash,
@@ -289,6 +294,7 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::MissingPayerId => Bolt12SemanticError::MissingPayerId,
 			nativeBolt12SemanticError::DuplicatePaymentId => Bolt12SemanticError::DuplicatePaymentId,
 			nativeBolt12SemanticError::MissingPaths => Bolt12SemanticError::MissingPaths,
+			nativeBolt12SemanticError::UnexpectedPaths => Bolt12SemanticError::UnexpectedPaths,
 			nativeBolt12SemanticError::InvalidPayInfo => Bolt12SemanticError::InvalidPayInfo,
 			nativeBolt12SemanticError::MissingCreationTime => Bolt12SemanticError::MissingCreationTime,
 			nativeBolt12SemanticError::MissingPaymentHash => Bolt12SemanticError::MissingPaymentHash,
@@ -403,6 +409,10 @@ pub extern "C" fn Bolt12SemanticError_duplicate_payment_id() -> Bolt12SemanticEr
 /// Utility method to constructs a new MissingPaths-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_missing_paths() -> Bolt12SemanticError {
 	Bolt12SemanticError::MissingPaths}
+#[no_mangle]
+/// Utility method to constructs a new UnexpectedPaths-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_unexpected_paths() -> Bolt12SemanticError {
+	Bolt12SemanticError::UnexpectedPaths}
 #[no_mangle]
 /// Utility method to constructs a new InvalidPayInfo-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_invalid_pay_info() -> Bolt12SemanticError {

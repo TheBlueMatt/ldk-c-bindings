@@ -144,7 +144,7 @@ pub extern "C" fn UntrustedString_read(ser: crate::c_types::u8slice) -> crate::c
 }
 
 use lightning::util::string::PrintableString as nativePrintableStringImport;
-pub(crate) type nativePrintableString = nativePrintableStringImport<'static>;
+pub(crate) type nativePrintableString = nativePrintableStringImport<'static, >;
 
 /// A string that displays only printable characters, replacing control characters with
 /// [`core::char::REPLACEMENT_CHARACTER`].

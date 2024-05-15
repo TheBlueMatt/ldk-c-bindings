@@ -333,7 +333,7 @@ pub(crate) fn LockableScore_clone_fields(orig: &LockableScore) -> LockableScore 
 }
 
 use lightning::routing::scoring::LockableScore as rustLockableScore;
-impl<'a> rustLockableScore<'a> for LockableScore {
+impl<'a> rustLockableScore<'a, > for LockableScore {
 	type ScoreUpdate = crate::lightning::routing::scoring::ScoreUpdate;
 	type ScoreLookUp = crate::lightning::routing::scoring::ScoreLookUp;
 	type WriteLocked = crate::lightning::routing::scoring::ScoreUpdate;
@@ -399,7 +399,7 @@ pub(crate) fn WriteableScore_clone_fields(orig: &WriteableScore) -> WriteableSco
 		free: Clone::clone(&orig.free),
 	}
 }
-impl<'a> lightning::routing::scoring::LockableScore<'a> for WriteableScore {
+impl<'a> lightning::routing::scoring::LockableScore<'a, > for WriteableScore {
 	type ScoreUpdate = crate::lightning::routing::scoring::ScoreUpdate;
 	type ScoreLookUp = crate::lightning::routing::scoring::ScoreLookUp;
 	type WriteLocked = crate::lightning::routing::scoring::ScoreUpdate;
@@ -421,7 +421,7 @@ impl lightning::util::ser::Writeable for WriteableScore {
 }
 
 use lightning::routing::scoring::WriteableScore as rustWriteableScore;
-impl<'a> rustWriteableScore<'a> for WriteableScore {
+impl<'a> rustWriteableScore<'a, > for WriteableScore {
 }
 
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
@@ -449,7 +449,7 @@ impl Drop for WriteableScore {
 }
 
 use lightning::routing::scoring::MultiThreadedLockableScore as nativeMultiThreadedLockableScoreImport;
-pub(crate) type nativeMultiThreadedLockableScore = nativeMultiThreadedLockableScoreImport<crate::lightning::routing::scoring::Score>;
+pub(crate) type nativeMultiThreadedLockableScore = nativeMultiThreadedLockableScoreImport<crate::lightning::routing::scoring::Score, >;
 
 /// A concrete implementation of [`LockableScore`] which supports multi-threading.
 #[must_use]
@@ -522,12 +522,12 @@ pub extern "C" fn MultiThreadedLockableScore_as_LockableScore(this_arg: &MultiTh
 
 #[must_use]
 extern "C" fn MultiThreadedLockableScore_LockableScore_read_lock(this_arg: *const c_void) -> crate::lightning::routing::scoring::ScoreLookUp {
-	let mut ret = <nativeMultiThreadedLockableScore as lightning::routing::scoring::LockableScore<>>::read_lock(unsafe { &mut *(this_arg as *mut nativeMultiThreadedLockableScore) }, );
+	let mut ret = <nativeMultiThreadedLockableScore as lightning::routing::scoring::LockableScore<'_, >>::read_lock(unsafe { &mut *(this_arg as *mut nativeMultiThreadedLockableScore) }, );
 	Into::into(ret)
 }
 #[must_use]
 extern "C" fn MultiThreadedLockableScore_LockableScore_write_lock(this_arg: *const c_void) -> crate::lightning::routing::scoring::ScoreUpdate {
-	let mut ret = <nativeMultiThreadedLockableScore as lightning::routing::scoring::LockableScore<>>::write_lock(unsafe { &mut *(this_arg as *mut nativeMultiThreadedLockableScore) }, );
+	let mut ret = <nativeMultiThreadedLockableScore as lightning::routing::scoring::LockableScore<'_, >>::write_lock(unsafe { &mut *(this_arg as *mut nativeMultiThreadedLockableScore) }, );
 	Into::into(ret)
 }
 
@@ -578,7 +578,7 @@ pub extern "C" fn MultiThreadedLockableScore_new(mut score: crate::lightning::ro
 
 
 use lightning::routing::scoring::MultiThreadedScoreLockRead as nativeMultiThreadedScoreLockReadImport;
-pub(crate) type nativeMultiThreadedScoreLockRead = nativeMultiThreadedScoreLockReadImport<'static, crate::lightning::routing::scoring::Score>;
+pub(crate) type nativeMultiThreadedScoreLockRead = nativeMultiThreadedScoreLockReadImport<'static, crate::lightning::routing::scoring::Score, >;
 
 /// A locked `MultiThreadedLockableScore`.
 #[must_use]
@@ -629,7 +629,7 @@ impl MultiThreadedScoreLockRead {
 }
 
 use lightning::routing::scoring::MultiThreadedScoreLockWrite as nativeMultiThreadedScoreLockWriteImport;
-pub(crate) type nativeMultiThreadedScoreLockWrite = nativeMultiThreadedScoreLockWriteImport<'static, crate::lightning::routing::scoring::Score>;
+pub(crate) type nativeMultiThreadedScoreLockWrite = nativeMultiThreadedScoreLockWriteImport<'static, crate::lightning::routing::scoring::Score, >;
 
 /// A locked `MultiThreadedLockableScore`.
 #[must_use]
@@ -701,7 +701,7 @@ pub extern "C" fn MultiThreadedScoreLockRead_as_ScoreLookUp(this_arg: &MultiThre
 
 #[must_use]
 extern "C" fn MultiThreadedScoreLockRead_ScoreLookUp_channel_penalty_msat(this_arg: *const c_void, candidate: &crate::lightning::routing::router::CandidateRouteHop, mut usage: crate::lightning::routing::scoring::ChannelUsage, score_params: &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters) -> u64 {
-	let mut ret = <nativeMultiThreadedScoreLockRead as lightning::routing::scoring::ScoreLookUp<>>::channel_penalty_msat(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockRead) }, &candidate.to_native(), *unsafe { Box::from_raw(usage.take_inner()) }, score_params.get_native_ref());
+	let mut ret = <nativeMultiThreadedScoreLockRead as lightning::routing::scoring::ScoreLookUp>::channel_penalty_msat(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockRead) }, &candidate.to_native(), *unsafe { Box::from_raw(usage.take_inner()) }, score_params.get_native_ref());
 	ret
 }
 
@@ -740,19 +740,19 @@ pub extern "C" fn MultiThreadedScoreLockWrite_as_ScoreUpdate(this_arg: &MultiThr
 }
 
 extern "C" fn MultiThreadedScoreLockWrite_ScoreUpdate_payment_path_failed(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: u64) {
-	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate<>>::payment_path_failed(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate>::payment_path_failed(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn MultiThreadedScoreLockWrite_ScoreUpdate_payment_path_successful(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut duration_since_epoch: u64) {
-	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate<>>::payment_path_successful(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
+	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate>::payment_path_successful(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn MultiThreadedScoreLockWrite_ScoreUpdate_probe_failed(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: u64) {
-	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate<>>::probe_failed(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate>::probe_failed(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn MultiThreadedScoreLockWrite_ScoreUpdate_probe_successful(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut duration_since_epoch: u64) {
-	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate<>>::probe_successful(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
+	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate>::probe_successful(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn MultiThreadedScoreLockWrite_ScoreUpdate_time_passed(this_arg: *mut c_void, mut duration_since_epoch: u64) {
-	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate<>>::time_passed(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeMultiThreadedScoreLockWrite as lightning::routing::scoring::ScoreUpdate>::time_passed(unsafe { &mut *(this_arg as *mut nativeMultiThreadedScoreLockWrite) }, core::time::Duration::from_secs(duration_since_epoch))
 }
 
 
@@ -974,7 +974,7 @@ pub extern "C" fn FixedPenaltyScorer_as_ScoreLookUp(this_arg: &FixedPenaltyScore
 
 #[must_use]
 extern "C" fn FixedPenaltyScorer_ScoreLookUp_channel_penalty_msat(this_arg: *const c_void, candidate: &crate::lightning::routing::router::CandidateRouteHop, mut usage: crate::lightning::routing::scoring::ChannelUsage, score_params: &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters) -> u64 {
-	let mut ret = <nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreLookUp<>>::channel_penalty_msat(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, &candidate.to_native(), *unsafe { Box::from_raw(usage.take_inner()) }, score_params.get_native_ref());
+	let mut ret = <nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreLookUp>::channel_penalty_msat(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, &candidate.to_native(), *unsafe { Box::from_raw(usage.take_inner()) }, score_params.get_native_ref());
 	ret
 }
 
@@ -1004,19 +1004,19 @@ pub extern "C" fn FixedPenaltyScorer_as_ScoreUpdate(this_arg: &FixedPenaltyScore
 }
 
 extern "C" fn FixedPenaltyScorer_ScoreUpdate_payment_path_failed(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: u64) {
-	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate<>>::payment_path_failed(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate>::payment_path_failed(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn FixedPenaltyScorer_ScoreUpdate_payment_path_successful(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut duration_since_epoch: u64) {
-	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate<>>::payment_path_successful(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
+	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate>::payment_path_successful(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn FixedPenaltyScorer_ScoreUpdate_probe_failed(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: u64) {
-	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate<>>::probe_failed(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate>::probe_failed(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn FixedPenaltyScorer_ScoreUpdate_probe_successful(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut duration_since_epoch: u64) {
-	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate<>>::probe_successful(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
+	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate>::probe_successful(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn FixedPenaltyScorer_ScoreUpdate_time_passed(this_arg: *mut c_void, mut duration_since_epoch: u64) {
-	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate<>>::time_passed(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeFixedPenaltyScorer as lightning::routing::scoring::ScoreUpdate>::time_passed(unsafe { &mut *(this_arg as *mut nativeFixedPenaltyScorer) }, core::time::Duration::from_secs(duration_since_epoch))
 }
 
 #[no_mangle]
@@ -1038,7 +1038,7 @@ pub extern "C" fn FixedPenaltyScorer_read(ser: crate::c_types::u8slice, arg: u64
 }
 
 use lightning::routing::scoring::ProbabilisticScorer as nativeProbabilisticScorerImport;
-pub(crate) type nativeProbabilisticScorer = nativeProbabilisticScorerImport<&'static lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>, crate::lightning::util::logger::Logger>;
+pub(crate) type nativeProbabilisticScorer = nativeProbabilisticScorerImport<&'static lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>, crate::lightning::util::logger::Logger, >;
 
 /// [`ScoreLookUp`] implementation using channel success probability distributions.
 ///
@@ -1844,7 +1844,7 @@ pub extern "C" fn ProbabilisticScorer_as_ScoreLookUp(this_arg: &ProbabilisticSco
 
 #[must_use]
 extern "C" fn ProbabilisticScorer_ScoreLookUp_channel_penalty_msat(this_arg: *const c_void, candidate: &crate::lightning::routing::router::CandidateRouteHop, mut usage: crate::lightning::routing::scoring::ChannelUsage, score_params: &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters) -> u64 {
-	let mut ret = <nativeProbabilisticScorer as lightning::routing::scoring::ScoreLookUp<>>::channel_penalty_msat(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, &candidate.to_native(), *unsafe { Box::from_raw(usage.take_inner()) }, score_params.get_native_ref());
+	let mut ret = <nativeProbabilisticScorer as lightning::routing::scoring::ScoreLookUp>::channel_penalty_msat(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, &candidate.to_native(), *unsafe { Box::from_raw(usage.take_inner()) }, score_params.get_native_ref());
 	ret
 }
 
@@ -1874,19 +1874,19 @@ pub extern "C" fn ProbabilisticScorer_as_ScoreUpdate(this_arg: &ProbabilisticSco
 }
 
 extern "C" fn ProbabilisticScorer_ScoreUpdate_payment_path_failed(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: u64) {
-	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate<>>::payment_path_failed(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate>::payment_path_failed(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn ProbabilisticScorer_ScoreUpdate_payment_path_successful(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut duration_since_epoch: u64) {
-	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate<>>::payment_path_successful(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
+	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate>::payment_path_successful(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn ProbabilisticScorer_ScoreUpdate_probe_failed(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: u64) {
-	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate<>>::probe_failed(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate>::probe_failed(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn ProbabilisticScorer_ScoreUpdate_probe_successful(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut duration_since_epoch: u64) {
-	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate<>>::probe_successful(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
+	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate>::probe_successful(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
 }
 extern "C" fn ProbabilisticScorer_ScoreUpdate_time_passed(this_arg: *mut c_void, mut duration_since_epoch: u64) {
-	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate<>>::time_passed(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, core::time::Duration::from_secs(duration_since_epoch))
+	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate>::time_passed(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, core::time::Duration::from_secs(duration_since_epoch))
 }
 
 impl From<nativeProbabilisticScorer> for crate::lightning::routing::scoring::Score {

@@ -376,19 +376,27 @@ function REALLY_PIN_CC {
 	cargo update -p cc --precise "1.0.79" --verbose
 	( RUSTC_BOOTSTRAP=1 cargo build --features=std -v --release --target x86_64-apple-darwin -Zbuild-std=std,panic_abort > /dev/null 2>&1 ) || echo -n
 	( RUSTC_BOOTSTRAP=1 cargo build --features=std -v --release --target aarch64-apple-darwin -Zbuild-std=std,panic_abort > /dev/null 2>&1 ) || echo -n
+	pushd ../deterministic-build-wrappers/compiler-builtins-dummy
+	cargo build > /dev/null 2>&1 || echo -n
+	popd
 	# Sadly, std also depends on cc, and we can't pin it in that tree
 	# directly. Instead, we have to delete the file out of the cargo
 	# registry and build --offline to avoid it using the latest version.
 	NEW_CC_DEP="$CARGO_HOME"
 	[ "$NEW_CC_DEP" = "" ] && NEW_CC_DEP="$HOME"
-	[ -d "$NEW_CC_DEP/.cargo/registry/cache/"github.com-* ] && CARGO_REGISTRY_CACHE="$NEW_CC_DEP/.cargo/registry/cache/"github.com-*
-	[ -d "$NEW_CC_DEP/.cargo/registry/cache/"index.crates.io-* ] && CARGO_REGISTRY_CACHE="$NEW_CC_DEP/.cargo/registry/cache/"index.crates.io-*
+	[ -d "$NEW_CC_DEP/.cargo/registry/cache/"github.com-* ] && CARGO_REGISTRY_CACHE="$(echo "$NEW_CC_DEP/.cargo/registry/cache/"github.com-*)"
+	[ -d "$NEW_CC_DEP/.cargo/registry/cache/"index.crates.io-* ] && CARGO_REGISTRY_CACHE="$(echo "$NEW_CC_DEP/.cargo/registry/cache/"index.crates.io-*)"
 	if [ -d "$CARGO_REGISTRY_CACHE" ]; then
+		if [ -f "$CARGO_REGISTRY_CACHE/compiler_builtins-0.1.109.crate" ]; then
+			mv "$CARGO_REGISTRY_CACHE/compiler_builtins-0.1.109.crate" ./
+		fi
 		if [ -f "$CARGO_REGISTRY_CACHE/cc-1.0.79.crate" ]; then
 			mv "$CARGO_REGISTRY_CACHE/cc-1.0.79.crate" ./
 		fi
-		rm -f "$CARGO_REGISTRY_CACHE/"*/cc-*.crate
+		rm -f "$CARGO_REGISTRY_CACHE/"cc-*.crate
 		[ -f ./cc-1.0.79.crate ] && mv ./cc-1.0.79.crate "$CARGO_REGISTRY_CACHE/"
+		rm -f "$CARGO_REGISTRY_CACHE/"compiler_builtins-0.1.11*.crate
+		[ -f ./compiler_builtins-0.1.109.crate ] && mv ./compiler_builtins-0.1.109.crate "$CARGO_REGISTRY_CACHE/"
 	else
 		echo "Couldn't find cargo cache, build-std builds are likely to fail!"
 	fi

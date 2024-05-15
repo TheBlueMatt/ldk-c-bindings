@@ -222,6 +222,10 @@ pub enum BumpTransactionEvent {
 	/// [`EcdsaChannelSigner::sign_holder_anchor_input`]: crate::sign::ecdsa::EcdsaChannelSigner::sign_holder_anchor_input
 	/// [`build_anchor_input_witness`]: crate::ln::chan_utils::build_anchor_input_witness
 	ChannelClose {
+		/// The `channel_id` of the channel which has been closed.
+		channel_id: crate::lightning::ln::types::ChannelId,
+		/// Counterparty in the closed channel.
+		counterparty_node_id: crate::c_types::PublicKey,
 		/// The unique identifier for the claim of the anchor output in the commitment transaction.
 		///
 		/// The identifier must map to the set of external UTXOs assigned to the claim, such that
@@ -275,6 +279,10 @@ pub enum BumpTransactionEvent {
 	/// [`EcdsaChannelSigner`]: crate::sign::ecdsa::EcdsaChannelSigner
 	/// [`EcdsaChannelSigner::sign_holder_htlc_transaction`]: crate::sign::ecdsa::EcdsaChannelSigner::sign_holder_htlc_transaction
 	HTLCResolution {
+		/// The `channel_id` of the channel which has been closed.
+		channel_id: crate::lightning::ln::types::ChannelId,
+		/// Counterparty in the closed channel.
+		counterparty_node_id: crate::c_types::PublicKey,
 		/// The unique identifier for the claim of the HTLCs in the confirmed commitment
 		/// transaction.
 		///
@@ -298,7 +306,9 @@ impl BumpTransactionEvent {
 	#[allow(unused)]
 	pub(crate) fn to_native(&self) -> nativeBumpTransactionEvent {
 		match self {
-			BumpTransactionEvent::ChannelClose {ref claim_id, ref package_target_feerate_sat_per_1000_weight, ref commitment_tx, ref commitment_tx_fee_satoshis, ref anchor_descriptor, ref pending_htlcs, } => {
+			BumpTransactionEvent::ChannelClose {ref channel_id, ref counterparty_node_id, ref claim_id, ref package_target_feerate_sat_per_1000_weight, ref commitment_tx, ref commitment_tx_fee_satoshis, ref anchor_descriptor, ref pending_htlcs, } => {
+				let mut channel_id_nonref = Clone::clone(channel_id);
+				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
 				let mut claim_id_nonref = Clone::clone(claim_id);
 				let mut package_target_feerate_sat_per_1000_weight_nonref = Clone::clone(package_target_feerate_sat_per_1000_weight);
 				let mut commitment_tx_nonref = Clone::clone(commitment_tx);
@@ -307,6 +317,8 @@ impl BumpTransactionEvent {
 				let mut pending_htlcs_nonref = Clone::clone(pending_htlcs);
 				let mut local_pending_htlcs_nonref = Vec::new(); for mut item in pending_htlcs_nonref.into_rust().drain(..) { local_pending_htlcs_nonref.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				nativeBumpTransactionEvent::ChannelClose {
+					channel_id: *unsafe { Box::from_raw(channel_id_nonref.take_inner()) },
+					counterparty_node_id: counterparty_node_id_nonref.into_rust(),
 					claim_id: ::lightning::chain::ClaimId(claim_id_nonref.data),
 					package_target_feerate_sat_per_1000_weight: package_target_feerate_sat_per_1000_weight_nonref,
 					commitment_tx: commitment_tx_nonref.into_bitcoin(),
@@ -315,13 +327,17 @@ impl BumpTransactionEvent {
 					pending_htlcs: local_pending_htlcs_nonref,
 				}
 			},
-			BumpTransactionEvent::HTLCResolution {ref claim_id, ref target_feerate_sat_per_1000_weight, ref htlc_descriptors, ref tx_lock_time, } => {
+			BumpTransactionEvent::HTLCResolution {ref channel_id, ref counterparty_node_id, ref claim_id, ref target_feerate_sat_per_1000_weight, ref htlc_descriptors, ref tx_lock_time, } => {
+				let mut channel_id_nonref = Clone::clone(channel_id);
+				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
 				let mut claim_id_nonref = Clone::clone(claim_id);
 				let mut target_feerate_sat_per_1000_weight_nonref = Clone::clone(target_feerate_sat_per_1000_weight);
 				let mut htlc_descriptors_nonref = Clone::clone(htlc_descriptors);
 				let mut local_htlc_descriptors_nonref = Vec::new(); for mut item in htlc_descriptors_nonref.into_rust().drain(..) { local_htlc_descriptors_nonref.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				let mut tx_lock_time_nonref = Clone::clone(tx_lock_time);
 				nativeBumpTransactionEvent::HTLCResolution {
+					channel_id: *unsafe { Box::from_raw(channel_id_nonref.take_inner()) },
+					counterparty_node_id: counterparty_node_id_nonref.into_rust(),
 					claim_id: ::lightning::chain::ClaimId(claim_id_nonref.data),
 					target_feerate_sat_per_1000_weight: target_feerate_sat_per_1000_weight_nonref,
 					htlc_descriptors: local_htlc_descriptors_nonref,
@@ -333,9 +349,11 @@ impl BumpTransactionEvent {
 	#[allow(unused)]
 	pub(crate) fn into_native(self) -> nativeBumpTransactionEvent {
 		match self {
-			BumpTransactionEvent::ChannelClose {mut claim_id, mut package_target_feerate_sat_per_1000_weight, mut commitment_tx, mut commitment_tx_fee_satoshis, mut anchor_descriptor, mut pending_htlcs, } => {
+			BumpTransactionEvent::ChannelClose {mut channel_id, mut counterparty_node_id, mut claim_id, mut package_target_feerate_sat_per_1000_weight, mut commitment_tx, mut commitment_tx_fee_satoshis, mut anchor_descriptor, mut pending_htlcs, } => {
 				let mut local_pending_htlcs = Vec::new(); for mut item in pending_htlcs.into_rust().drain(..) { local_pending_htlcs.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				nativeBumpTransactionEvent::ChannelClose {
+					channel_id: *unsafe { Box::from_raw(channel_id.take_inner()) },
+					counterparty_node_id: counterparty_node_id.into_rust(),
 					claim_id: ::lightning::chain::ClaimId(claim_id.data),
 					package_target_feerate_sat_per_1000_weight: package_target_feerate_sat_per_1000_weight,
 					commitment_tx: commitment_tx.into_bitcoin(),
@@ -344,9 +362,11 @@ impl BumpTransactionEvent {
 					pending_htlcs: local_pending_htlcs,
 				}
 			},
-			BumpTransactionEvent::HTLCResolution {mut claim_id, mut target_feerate_sat_per_1000_weight, mut htlc_descriptors, mut tx_lock_time, } => {
+			BumpTransactionEvent::HTLCResolution {mut channel_id, mut counterparty_node_id, mut claim_id, mut target_feerate_sat_per_1000_weight, mut htlc_descriptors, mut tx_lock_time, } => {
 				let mut local_htlc_descriptors = Vec::new(); for mut item in htlc_descriptors.into_rust().drain(..) { local_htlc_descriptors.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				nativeBumpTransactionEvent::HTLCResolution {
+					channel_id: *unsafe { Box::from_raw(channel_id.take_inner()) },
+					counterparty_node_id: counterparty_node_id.into_rust(),
 					claim_id: ::lightning::chain::ClaimId(claim_id.data),
 					target_feerate_sat_per_1000_weight: target_feerate_sat_per_1000_weight,
 					htlc_descriptors: local_htlc_descriptors,
@@ -359,7 +379,9 @@ impl BumpTransactionEvent {
 	pub(crate) fn from_native(native: &BumpTransactionEventImport) -> Self {
 		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeBumpTransactionEvent) };
 		match native {
-			nativeBumpTransactionEvent::ChannelClose {ref claim_id, ref package_target_feerate_sat_per_1000_weight, ref commitment_tx, ref commitment_tx_fee_satoshis, ref anchor_descriptor, ref pending_htlcs, } => {
+			nativeBumpTransactionEvent::ChannelClose {ref channel_id, ref counterparty_node_id, ref claim_id, ref package_target_feerate_sat_per_1000_weight, ref commitment_tx, ref commitment_tx_fee_satoshis, ref anchor_descriptor, ref pending_htlcs, } => {
+				let mut channel_id_nonref = Clone::clone(channel_id);
+				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
 				let mut claim_id_nonref = Clone::clone(claim_id);
 				let mut package_target_feerate_sat_per_1000_weight_nonref = Clone::clone(package_target_feerate_sat_per_1000_weight);
 				let mut commitment_tx_nonref = Clone::clone(commitment_tx);
@@ -368,6 +390,8 @@ impl BumpTransactionEvent {
 				let mut pending_htlcs_nonref = Clone::clone(pending_htlcs);
 				let mut local_pending_htlcs_nonref = Vec::new(); for mut item in pending_htlcs_nonref.drain(..) { local_pending_htlcs_nonref.push( { crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				BumpTransactionEvent::ChannelClose {
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id_nonref), is_owned: true },
+					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id_nonref),
 					claim_id: crate::c_types::ThirtyTwoBytes { data: claim_id_nonref.0 },
 					package_target_feerate_sat_per_1000_weight: package_target_feerate_sat_per_1000_weight_nonref,
 					commitment_tx: crate::c_types::Transaction::from_bitcoin(&commitment_tx_nonref),
@@ -376,13 +400,17 @@ impl BumpTransactionEvent {
 					pending_htlcs: local_pending_htlcs_nonref.into(),
 				}
 			},
-			nativeBumpTransactionEvent::HTLCResolution {ref claim_id, ref target_feerate_sat_per_1000_weight, ref htlc_descriptors, ref tx_lock_time, } => {
+			nativeBumpTransactionEvent::HTLCResolution {ref channel_id, ref counterparty_node_id, ref claim_id, ref target_feerate_sat_per_1000_weight, ref htlc_descriptors, ref tx_lock_time, } => {
+				let mut channel_id_nonref = Clone::clone(channel_id);
+				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
 				let mut claim_id_nonref = Clone::clone(claim_id);
 				let mut target_feerate_sat_per_1000_weight_nonref = Clone::clone(target_feerate_sat_per_1000_weight);
 				let mut htlc_descriptors_nonref = Clone::clone(htlc_descriptors);
 				let mut local_htlc_descriptors_nonref = Vec::new(); for mut item in htlc_descriptors_nonref.drain(..) { local_htlc_descriptors_nonref.push( { crate::lightning::sign::HTLCDescriptor { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				let mut tx_lock_time_nonref = Clone::clone(tx_lock_time);
 				BumpTransactionEvent::HTLCResolution {
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id_nonref), is_owned: true },
+					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id_nonref),
 					claim_id: crate::c_types::ThirtyTwoBytes { data: claim_id_nonref.0 },
 					target_feerate_sat_per_1000_weight: target_feerate_sat_per_1000_weight_nonref,
 					htlc_descriptors: local_htlc_descriptors_nonref.into(),
@@ -394,9 +422,11 @@ impl BumpTransactionEvent {
 	#[allow(unused)]
 	pub(crate) fn native_into(native: nativeBumpTransactionEvent) -> Self {
 		match native {
-			nativeBumpTransactionEvent::ChannelClose {mut claim_id, mut package_target_feerate_sat_per_1000_weight, mut commitment_tx, mut commitment_tx_fee_satoshis, mut anchor_descriptor, mut pending_htlcs, } => {
+			nativeBumpTransactionEvent::ChannelClose {mut channel_id, mut counterparty_node_id, mut claim_id, mut package_target_feerate_sat_per_1000_weight, mut commitment_tx, mut commitment_tx_fee_satoshis, mut anchor_descriptor, mut pending_htlcs, } => {
 				let mut local_pending_htlcs = Vec::new(); for mut item in pending_htlcs.drain(..) { local_pending_htlcs.push( { crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				BumpTransactionEvent::ChannelClose {
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id), is_owned: true },
+					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id),
 					claim_id: crate::c_types::ThirtyTwoBytes { data: claim_id.0 },
 					package_target_feerate_sat_per_1000_weight: package_target_feerate_sat_per_1000_weight,
 					commitment_tx: crate::c_types::Transaction::from_bitcoin(&commitment_tx),
@@ -405,9 +435,11 @@ impl BumpTransactionEvent {
 					pending_htlcs: local_pending_htlcs.into(),
 				}
 			},
-			nativeBumpTransactionEvent::HTLCResolution {mut claim_id, mut target_feerate_sat_per_1000_weight, mut htlc_descriptors, mut tx_lock_time, } => {
+			nativeBumpTransactionEvent::HTLCResolution {mut channel_id, mut counterparty_node_id, mut claim_id, mut target_feerate_sat_per_1000_weight, mut htlc_descriptors, mut tx_lock_time, } => {
 				let mut local_htlc_descriptors = Vec::new(); for mut item in htlc_descriptors.drain(..) { local_htlc_descriptors.push( { crate::lightning::sign::HTLCDescriptor { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				BumpTransactionEvent::HTLCResolution {
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id), is_owned: true },
+					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id),
 					claim_id: crate::c_types::ThirtyTwoBytes { data: claim_id.0 },
 					target_feerate_sat_per_1000_weight: target_feerate_sat_per_1000_weight,
 					htlc_descriptors: local_htlc_descriptors.into(),
@@ -437,8 +469,10 @@ pub(crate) extern "C" fn BumpTransactionEvent_free_void(this_ptr: *mut c_void) {
 }
 #[no_mangle]
 /// Utility method to constructs a new ChannelClose-variant BumpTransactionEvent
-pub extern "C" fn BumpTransactionEvent_channel_close(claim_id: crate::c_types::ThirtyTwoBytes, package_target_feerate_sat_per_1000_weight: u32, commitment_tx: crate::c_types::Transaction, commitment_tx_fee_satoshis: u64, anchor_descriptor: crate::lightning::events::bump_transaction::AnchorDescriptor, pending_htlcs: crate::c_types::derived::CVec_HTLCOutputInCommitmentZ) -> BumpTransactionEvent {
+pub extern "C" fn BumpTransactionEvent_channel_close(channel_id: crate::lightning::ln::types::ChannelId, counterparty_node_id: crate::c_types::PublicKey, claim_id: crate::c_types::ThirtyTwoBytes, package_target_feerate_sat_per_1000_weight: u32, commitment_tx: crate::c_types::Transaction, commitment_tx_fee_satoshis: u64, anchor_descriptor: crate::lightning::events::bump_transaction::AnchorDescriptor, pending_htlcs: crate::c_types::derived::CVec_HTLCOutputInCommitmentZ) -> BumpTransactionEvent {
 	BumpTransactionEvent::ChannelClose {
+		channel_id,
+		counterparty_node_id,
 		claim_id,
 		package_target_feerate_sat_per_1000_weight,
 		commitment_tx,
@@ -449,8 +483,10 @@ pub extern "C" fn BumpTransactionEvent_channel_close(claim_id: crate::c_types::T
 }
 #[no_mangle]
 /// Utility method to constructs a new HTLCResolution-variant BumpTransactionEvent
-pub extern "C" fn BumpTransactionEvent_htlcresolution(claim_id: crate::c_types::ThirtyTwoBytes, target_feerate_sat_per_1000_weight: u32, htlc_descriptors: crate::c_types::derived::CVec_HTLCDescriptorZ, tx_lock_time: u32) -> BumpTransactionEvent {
+pub extern "C" fn BumpTransactionEvent_htlcresolution(channel_id: crate::lightning::ln::types::ChannelId, counterparty_node_id: crate::c_types::PublicKey, claim_id: crate::c_types::ThirtyTwoBytes, target_feerate_sat_per_1000_weight: u32, htlc_descriptors: crate::c_types::derived::CVec_HTLCDescriptorZ, tx_lock_time: u32) -> BumpTransactionEvent {
 	BumpTransactionEvent::HTLCResolution {
+		channel_id,
+		counterparty_node_id,
 		claim_id,
 		target_feerate_sat_per_1000_weight,
 		htlc_descriptors,
@@ -1051,7 +1087,7 @@ impl Drop for WalletSource {
 }
 
 use lightning::events::bump_transaction::Wallet as nativeWalletImport;
-pub(crate) type nativeWallet = nativeWalletImport<crate::lightning::events::bump_transaction::WalletSource, crate::lightning::util::logger::Logger>;
+pub(crate) type nativeWallet = nativeWalletImport<crate::lightning::events::bump_transaction::WalletSource, crate::lightning::util::logger::Logger, >;
 
 /// A wrapper over [`WalletSource`] that implements [`CoinSelection`] by preferring UTXOs that would
 /// avoid conflicting double spends. If not enough UTXOs are available to do so, conflicting double
@@ -1137,20 +1173,20 @@ pub extern "C" fn Wallet_as_CoinSelectionSource(this_arg: &Wallet) -> crate::lig
 extern "C" fn Wallet_CoinSelectionSource_select_confirmed_utxos(this_arg: *const c_void, mut claim_id: crate::c_types::ThirtyTwoBytes, mut must_spend: crate::c_types::derived::CVec_InputZ, mut must_pay_to: crate::c_types::derived::CVec_TxOutZ, mut target_feerate_sat_per_1000_weight: u32) -> crate::c_types::derived::CResult_CoinSelectionNoneZ {
 	let mut local_must_spend = Vec::new(); for mut item in must_spend.into_rust().drain(..) { local_must_spend.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	let mut local_must_pay_to = Vec::new(); for mut item in must_pay_to.into_rust().drain(..) { local_must_pay_to.push( { item.into_rust() }); };
-	let mut ret = <nativeWallet as lightning::events::bump_transaction::CoinSelectionSource<>>::select_confirmed_utxos(unsafe { &mut *(this_arg as *mut nativeWallet) }, ::lightning::chain::ClaimId(claim_id.data), local_must_spend, &local_must_pay_to[..], target_feerate_sat_per_1000_weight);
+	let mut ret = <nativeWallet as lightning::events::bump_transaction::CoinSelectionSource>::select_confirmed_utxos(unsafe { &mut *(this_arg as *mut nativeWallet) }, ::lightning::chain::ClaimId(claim_id.data), local_must_spend, &local_must_pay_to[..], target_feerate_sat_per_1000_weight);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::events::bump_transaction::CoinSelection { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 #[must_use]
 extern "C" fn Wallet_CoinSelectionSource_sign_psbt(this_arg: *const c_void, mut psbt: crate::c_types::derived::CVec_u8Z) -> crate::c_types::derived::CResult_TransactionNoneZ {
-	let mut ret = <nativeWallet as lightning::events::bump_transaction::CoinSelectionSource<>>::sign_psbt(unsafe { &mut *(this_arg as *mut nativeWallet) }, ::bitcoin::psbt::PartiallySignedTransaction::deserialize(psbt.as_slice()).expect("Invalid PSBT format"));
+	let mut ret = <nativeWallet as lightning::events::bump_transaction::CoinSelectionSource>::sign_psbt(unsafe { &mut *(this_arg as *mut nativeWallet) }, ::bitcoin::psbt::PartiallySignedTransaction::deserialize(psbt.as_slice()).expect("Invalid PSBT format"));
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::Transaction::from_bitcoin(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 
 
 use lightning::events::bump_transaction::BumpTransactionEventHandler as nativeBumpTransactionEventHandlerImport;
-pub(crate) type nativeBumpTransactionEventHandler = nativeBumpTransactionEventHandlerImport<crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::events::bump_transaction::CoinSelectionSource, crate::lightning::sign::SignerProvider, crate::lightning::util::logger::Logger>;
+pub(crate) type nativeBumpTransactionEventHandler = nativeBumpTransactionEventHandlerImport<crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::events::bump_transaction::CoinSelectionSource, crate::lightning::sign::SignerProvider, crate::lightning::util::logger::Logger, >;
 
 /// A handler for [`Event::BumpTransaction`] events that sources confirmed UTXOs from a
 /// [`CoinSelectionSource`] to fee bump transactions via Child-Pays-For-Parent (CPFP) or

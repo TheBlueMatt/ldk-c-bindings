@@ -730,7 +730,7 @@ pub extern "C" fn RecipientOnionFields_get_payment_secret(this_ptr: &RecipientOn
 /// recipient will not reject it.
 #[no_mangle]
 pub extern "C" fn RecipientOnionFields_set_payment_secret(this_ptr: &mut RecipientOnionFields, mut val: crate::c_types::derived::COption_ThirtyTwoBytesZ) {
-	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::lightning::ln::PaymentSecret({ val_opt.take() }.data) }})} };
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentSecret({ val_opt.take() }.data) }})} };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_secret = local_val;
 }
 /// The payment metadata serves a similar purpose as [`Self::payment_secret`] but is of
@@ -823,7 +823,7 @@ pub extern "C" fn RecipientOnionFields_read(ser: crate::c_types::u8slice) -> cra
 #[must_use]
 #[no_mangle]
 pub extern "C" fn RecipientOnionFields_secret_only(mut payment_secret: crate::c_types::ThirtyTwoBytes) -> crate::lightning::ln::outbound_payment::RecipientOnionFields {
-	let mut ret = lightning::ln::outbound_payment::RecipientOnionFields::secret_only(::lightning::ln::PaymentSecret(payment_secret.data));
+	let mut ret = lightning::ln::outbound_payment::RecipientOnionFields::secret_only(::lightning::ln::types::PaymentSecret(payment_secret.data));
 	crate::lightning::ln::outbound_payment::RecipientOnionFields { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 

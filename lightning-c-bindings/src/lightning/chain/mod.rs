@@ -96,6 +96,37 @@ impl BestBlock {
 		ret
 	}
 }
+/// The block's hash
+#[no_mangle]
+pub extern "C" fn BestBlock_get_block_hash(this_ptr: &BestBlock) -> *const [u8; 32] {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().block_hash;
+	inner_val.as_ref()
+}
+/// The block's hash
+#[no_mangle]
+pub extern "C" fn BestBlock_set_block_hash(this_ptr: &mut BestBlock, mut val: crate::c_types::ThirtyTwoBytes) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.block_hash = ::bitcoin::hash_types::BlockHash::from_slice(&val.data[..]).unwrap();
+}
+/// The height at which the block was confirmed.
+#[no_mangle]
+pub extern "C" fn BestBlock_get_height(this_ptr: &BestBlock) -> u32 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().height;
+	*inner_val
+}
+/// The height at which the block was confirmed.
+#[no_mangle]
+pub extern "C" fn BestBlock_set_height(this_ptr: &mut BestBlock, mut val: u32) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.height = val;
+}
+/// Constructs a new BestBlock given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn BestBlock_new(mut block_hash_arg: crate::c_types::ThirtyTwoBytes, mut height_arg: u32) -> BestBlock {
+	BestBlock { inner: ObjOps::heap_alloc(nativeBestBlock {
+		block_hash: ::bitcoin::hash_types::BlockHash::from_slice(&block_hash_arg.data[..]).unwrap(),
+		height: height_arg,
+	}), is_owned: true }
+}
 impl Clone for BestBlock {
 	fn clone(&self) -> Self {
 		Self {
@@ -115,6 +146,19 @@ pub(crate) extern "C" fn BestBlock_clone_void(this_ptr: *const c_void) -> *mut c
 pub extern "C" fn BestBlock_clone(orig: &BestBlock) -> BestBlock {
 	orig.clone()
 }
+/// Get a string which allows debug introspection of a BestBlock object
+pub extern "C" fn BestBlock_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::chain::BestBlock }).into()}
+/// Generates a non-cryptographic 64-bit hash of the BestBlock.
+#[no_mangle]
+pub extern "C" fn BestBlock_hash(o: &BestBlock) -> u64 {
+	if o.inner.is_null() { return 0; }
+	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
+	#[allow(deprecated)]
+	let mut hasher = core::hash::SipHasher::new();
+	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
+	core::hash::Hasher::finish(&hasher)
+}
 /// Checks if two BestBlocks contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
 /// Two objects with NULL inner values will be considered "equal" here.
@@ -133,30 +177,22 @@ pub extern "C" fn BestBlock_from_network(mut network: crate::bitcoin::network::N
 	crate::lightning::chain::BestBlock { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
-/// Returns a `BestBlock` as identified by the given block hash and height.
-#[must_use]
 #[no_mangle]
-pub extern "C" fn BestBlock_new(mut block_hash: crate::c_types::ThirtyTwoBytes, mut height: u32) -> crate::lightning::chain::BestBlock {
-	let mut ret = lightning::chain::BestBlock::new(::bitcoin::hash_types::BlockHash::from_slice(&block_hash.data[..]).unwrap(), height);
-	crate::lightning::chain::BestBlock { inner: ObjOps::heap_alloc(ret), is_owned: true }
+/// Serialize the BestBlock object into a byte array which can be read by BestBlock_read
+pub extern "C" fn BestBlock_write(obj: &crate::lightning::chain::BestBlock) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
 }
-
-/// Returns the best block hash.
-#[must_use]
+#[allow(unused)]
+pub(crate) extern "C" fn BestBlock_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeBestBlock) })
+}
 #[no_mangle]
-pub extern "C" fn BestBlock_block_hash(this_arg: &crate::lightning::chain::BestBlock) -> crate::c_types::ThirtyTwoBytes {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.block_hash();
-	crate::c_types::ThirtyTwoBytes { data: *ret.as_ref() }
+/// Read a BestBlock from a byte array, created by BestBlock_write
+pub extern "C" fn BestBlock_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_BestBlockDecodeErrorZ {
+	let res: Result<lightning::chain::BestBlock, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::chain::BestBlock { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
 }
-
-/// Returns the best block height.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn BestBlock_height(this_arg: &crate::lightning::chain::BestBlock) -> u32 {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.height();
-	ret
-}
-
 /// The `Listen` trait is used to notify when blocks have been connected or disconnected from the
 /// chain.
 ///
@@ -590,7 +626,7 @@ pub struct Watch {
 	///
 	/// For details on asynchronous [`ChannelMonitor`] updating and returning
 	/// [`MonitorEvent::Completed`] here, see [`ChannelMonitorUpdateStatus::InProgress`].
-	pub release_pending_monitor_events: extern "C" fn (this_arg: *const c_void) -> crate::c_types::derived::CVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ,
+	pub release_pending_monitor_events: extern "C" fn (this_arg: *const c_void) -> crate::c_types::derived::CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ,
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
 	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
@@ -609,7 +645,7 @@ pub(crate) fn Watch_clone_fields(orig: &Watch) -> Watch {
 }
 
 use lightning::chain::Watch as rustWatch;
-impl rustWatch<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner> for Watch {
+impl rustWatch<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner, > for Watch {
 	fn watch_channel(&self, mut funding_txo: lightning::chain::transaction::OutPoint, mut monitor: lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner>) -> Result<lightning::chain::ChannelMonitorUpdateStatus, ()> {
 		let mut ret = (self.watch_channel)(self.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(funding_txo), is_owned: true }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(monitor), is_owned: true });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_native() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
@@ -619,9 +655,9 @@ impl rustWatch<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner> for W
 		let mut ret = (self.update_channel)(self.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(funding_txo), is_owned: true }, &crate::lightning::chain::channelmonitor::ChannelMonitorUpdate { inner: unsafe { ObjOps::nonnull_ptr_to_inner((update as *const lightning::chain::channelmonitor::ChannelMonitorUpdate<>) as *mut _) }, is_owned: false });
 		ret.into_native()
 	}
-	fn release_pending_monitor_events(&self) -> Vec<(lightning::chain::transaction::OutPoint, Vec<lightning::chain::channelmonitor::MonitorEvent>, Option<bitcoin::secp256k1::PublicKey>)> {
+	fn release_pending_monitor_events(&self) -> Vec<(lightning::chain::transaction::OutPoint, lightning::ln::types::ChannelId, Vec<lightning::chain::channelmonitor::MonitorEvent>, Option<bitcoin::secp256k1::PublicKey>)> {
 		let mut ret = (self.release_pending_monitor_events)(self.this_arg);
-		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2) = item.to_rust(); let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.into_rust().drain(..) { local_orig_ret_0_1.push( { item.into_native() }); }; let mut local_orig_ret_0_2 = if orig_ret_0_2.is_null() { None } else { Some( { orig_ret_0_2.into_rust() }) }; let mut local_ret_0 = (*unsafe { Box::from_raw(orig_ret_0_0.take_inner()) }, local_orig_ret_0_1, local_orig_ret_0_2); local_ret_0 }); };
+		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2, mut orig_ret_0_3) = item.to_rust(); let mut local_orig_ret_0_2 = Vec::new(); for mut item in orig_ret_0_2.into_rust().drain(..) { local_orig_ret_0_2.push( { item.into_native() }); }; let mut local_orig_ret_0_3 = if orig_ret_0_3.is_null() { None } else { Some( { orig_ret_0_3.into_rust() }) }; let mut local_ret_0 = (*unsafe { Box::from_raw(orig_ret_0_0.take_inner()) }, *unsafe { Box::from_raw(orig_ret_0_1.take_inner()) }, local_orig_ret_0_2, local_orig_ret_0_3); local_ret_0 }); };
 		local_ret
 	}
 }

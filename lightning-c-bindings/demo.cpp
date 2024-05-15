@@ -174,12 +174,12 @@ LDKChannelMonitorUpdateStatus update_channel_monitor(const void *this_arg, LDKOu
 	mons_updated += 1;
 	return ChannelMonitorUpdateStatus_completed();
 }
-LDKCVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ monitors_pending_monitor_events(const void *this_arg) {
+LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ monitors_pending_monitor_events(const void *this_arg) {
 	NodeMonitors* arg = (NodeMonitors*) this_arg;
 	std::unique_lock<std::mutex> l(arg->mut);
 
 	if (arg->mons.size() == 0) {
-		return LDKCVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ {
+		return LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
 			.data = NULL,
 			.datalen = 0,
 		};
@@ -191,9 +191,12 @@ LDKCVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ monitors_pending_monitor_e
 		LDK::C2Tuple_OutPointCVec_u8ZZ funding_info = ChannelMonitor_get_funding_txo(&arg->mons[0].second);
 		LDK::OutPoint outpoint = std::move(funding_info->a);
 		LDKPublicKey counterparty_node_id = ChannelMonitor_get_counterparty_node_id(&arg->mons[0].second);
-		LDK::C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ tuple = C3Tuple_OutPointCVec_MonitorEventZPublicKeyZ_new(std::move(outpoint), std::move(events), std::move(counterparty_node_id));
-		auto vec = LDKCVec_C3Tuple_OutPointCVec_MonitorEventZPublicKeyZZ {
-			.data = (LDKC3Tuple_OutPointCVec_MonitorEventZPublicKeyZ*)malloc(sizeof(LDKC3Tuple_OutPointCVec_MonitorEventZPublicKeyZ)),
+		LDKThirtyTwoBytes channel_id;
+		memset(&channel_id, 0, sizeof(channel_id));
+		LDK::ChannelId chan_id = ChannelId_new(channel_id);
+		LDK::C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ tuple = C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ_new(std::move(outpoint), std::move(chan_id), std::move(events), std::move(counterparty_node_id));
+		auto vec = LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
+			.data = (LDKC4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ*)malloc(sizeof(LDKC4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ)),
 			.datalen = 1,
 		};
 		vec.data[0] = std::move(tuple);
@@ -230,8 +233,8 @@ public:
 		std::cout << __FILE__ << ":" << __LINE__ << " - " << "Awaiting initial handshake completion..." << std::endl;
 		while (true) {
 			// Wait for the initial handshakes to complete...
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_1 = PeerManager_get_peer_node_ids(&net1);
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_2 = PeerManager_get_peer_node_ids(&net2);
+			LDK::CVec_PeerDetailsZ peers_1 = PeerManager_list_peers(&net1);
+			LDK::CVec_PeerDetailsZ peers_2 = PeerManager_list_peers(&net2);
 			if (peers_1->datalen == 1 && peers_2->datalen == 1) { break; }
 			std::this_thread::yield();
 		}
@@ -249,8 +252,8 @@ public:
 		std::cout << __FILE__ << ":" << __LINE__ << " - " << "Awaiting new connection handshake..." << std::endl;
 		while (true) {
 			// Wait for the new connection handshake...
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_1 = PeerManager_get_peer_node_ids(&net1);
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_2 = PeerManager_get_peer_node_ids(&net2);
+			LDK::CVec_PeerDetailsZ peers_1 = PeerManager_list_peers(&net1);
+			LDK::CVec_PeerDetailsZ peers_2 = PeerManager_list_peers(&net2);
 			if (peers_1->datalen == 1 && peers_2->datalen == 1) { break; }
 			std::this_thread::yield();
 		}
@@ -261,8 +264,8 @@ public:
 		while (true) {
 			PeerManager_disconnect_by_node_id(&net1, ChannelManager_get_our_node_id(&cm2));
 			// Wait for the peers to disconnect...
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_1 = PeerManager_get_peer_node_ids(&net1);
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_2 = PeerManager_get_peer_node_ids(&net2);
+			LDK::CVec_PeerDetailsZ peers_1 = PeerManager_list_peers(&net1);
+			LDK::CVec_PeerDetailsZ peers_2 = PeerManager_list_peers(&net2);
 			if (peers_1->datalen == 0 && peers_2->datalen == 0) { break; }
 			std::this_thread::yield();
 		}
@@ -277,8 +280,8 @@ public:
 		std::cout << __FILE__ << ":" << __LINE__ << " - " << "Awaiting initial handshake completion..." << std::endl;
 		while (true) {
 			// Wait for the initial handshakes to complete...
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_1 = PeerManager_get_peer_node_ids(&net1);
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_2 = PeerManager_get_peer_node_ids(&net2);
+			LDK::CVec_PeerDetailsZ peers_1 = PeerManager_list_peers(&net1);
+			LDK::CVec_PeerDetailsZ peers_2 = PeerManager_list_peers(&net2);
 			if (peers_1->datalen == 1 && peers_2->datalen == 1) { break; }
 			std::this_thread::yield();
 		}
@@ -367,8 +370,8 @@ public:
 		std::cout << __FILE__ << ":" << __LINE__ << " - " << "Awaiting initial handshake completion..." << std::endl;
 		while (true) {
 			// Wait for the initial handshakes to complete...
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_1 = PeerManager_get_peer_node_ids(&net1);
-			LDK::CVec_C2Tuple_PublicKeyCOption_SocketAddressZZZ peers_2 = PeerManager_get_peer_node_ids(&net2);
+			LDK::CVec_PeerDetailsZ peers_1 = PeerManager_list_peers(&net1);
+			LDK::CVec_PeerDetailsZ peers_2 = PeerManager_list_peers(&net2);
 			if (peers_1->datalen == 1 && peers_2->datalen ==1) { break; }
 			std::this_thread::yield();
 		}
@@ -612,7 +615,7 @@ int main() {
 		LDK::CustomMessageHandler custom_msg_handler1 = IgnoringMessageHandler_as_CustomMessageHandler(&ignoring_handler1);
 		LDK::CustomOnionMessageHandler custom_onion_msg_handler1 = IgnoringMessageHandler_as_CustomOnionMessageHandler(&ignoring_handler1);
 		LDK::DefaultMessageRouter mr1 = DefaultMessageRouter_new(&net_graph1, KeysManager_as_EntropySource(&keys1));
-		LDK::OnionMessenger om1 = OnionMessenger_new(KeysManager_as_EntropySource(&keys1), KeysManager_as_NodeSigner(&keys1), logger1, DefaultMessageRouter_as_MessageRouter(&mr1), IgnoringMessageHandler_as_OffersMessageHandler(&ignoring_handler1), std::move(custom_onion_msg_handler1));
+		LDK::OnionMessenger om1 = OnionMessenger_new(KeysManager_as_EntropySource(&keys1), KeysManager_as_NodeSigner(&keys1), logger1, ChannelManager_as_NodeIdLookUp(&cm1), DefaultMessageRouter_as_MessageRouter(&mr1), IgnoringMessageHandler_as_OffersMessageHandler(&ignoring_handler1), std::move(custom_onion_msg_handler1));
 
 		LDK::CVec_ChannelDetailsZ channels = ChannelManager_list_channels(&cm1);
 		assert(channels->datalen == 0);
@@ -648,7 +651,7 @@ int main() {
 		LDK::CustomMessageHandler custom_msg_handler2 = IgnoringMessageHandler_as_CustomMessageHandler(&ignoring_handler2);
 		LDK::CustomOnionMessageHandler custom_onion_msg_handler2 = IgnoringMessageHandler_as_CustomOnionMessageHandler(&ignoring_handler2);
 		LDK::DefaultMessageRouter mr2 = DefaultMessageRouter_new(&net_graph2, KeysManager_as_EntropySource(&keys2));
-		LDK::OnionMessenger om2 = OnionMessenger_new(KeysManager_as_EntropySource(&keys2), KeysManager_as_NodeSigner(&keys2), logger2, DefaultMessageRouter_as_MessageRouter(&mr2), IgnoringMessageHandler_as_OffersMessageHandler(&ignoring_handler2), std::move(custom_onion_msg_handler2));
+		LDK::OnionMessenger om2 = OnionMessenger_new(KeysManager_as_EntropySource(&keys2), KeysManager_as_NodeSigner(&keys2), logger2, ChannelManager_as_NodeIdLookUp(&cm2), DefaultMessageRouter_as_MessageRouter(&mr2), IgnoringMessageHandler_as_OffersMessageHandler(&ignoring_handler2), std::move(custom_onion_msg_handler2));
 
 		LDK::CVec_ChannelDetailsZ channels2 = ChannelManager_list_channels(&cm2);
 		assert(channels2->datalen == 0);
@@ -668,7 +671,7 @@ int main() {
 		PeersConnection conn(cm1, cm2, net1, net2);
 
 		// Note that we have to bind the result to a C++ class to make sure it gets free'd
-		LDK::CResult_ThirtyTwoBytesAPIErrorZ res = ChannelManager_create_channel(&cm1, ChannelManager_get_our_node_id(&cm2), 40000, 1000, U128_new(user_id_1), COption_ThirtyTwoBytesZ_none(), UserConfig_default());
+		LDK::CResult_ChannelIdAPIErrorZ res = ChannelManager_create_channel(&cm1, ChannelManager_get_our_node_id(&cm2), 40000, 1000, U128_new(user_id_1), LDKChannelId { .inner = NULL, .is_owned = false }, UserConfig_default());
 		assert(res->result_ok);
 		PeerManager_process_events(&net1);
 
@@ -708,7 +711,7 @@ int main() {
 				assert(!memcmp(queue.events[0]->funding_generation_ready.output_script.data, channel_open_block + 58 + 81, 34));
 				LDKTransaction funding_transaction { .data = const_cast<uint8_t*>(channel_open_block + 81), .datalen = sizeof(channel_open_block) - 81, .data_is_owned = false };
 
-				LDK::CResult_NoneAPIErrorZ fund_res = ChannelManager_funding_transaction_generated(&cm1, &queue.events[0]->funding_generation_ready.temporary_channel_id.data, queue.events[0]->funding_generation_ready.counterparty_node_id, funding_transaction);
+				LDK::CResult_NoneAPIErrorZ fund_res = ChannelManager_funding_transaction_generated(&cm1, &queue.events[0]->funding_generation_ready.temporary_channel_id, queue.events[0]->funding_generation_ready.counterparty_node_id, funding_transaction);
 				assert(fund_res->result_ok);
 				break;
 			}
@@ -737,7 +740,7 @@ int main() {
 			ev1.process_pending_events(handler);
 			if (queue.events.size() == 1) {
 				assert(queue.events[0]->tag == LDKEvent_ChannelPending);
-				assert(!memcmp(queue.events[0]->channel_pending.channel_id.data, expected_chan_id, 32));
+				assert(!memcmp(ChannelId_get_a(&queue.events[0]->channel_pending.channel_id), expected_chan_id, 32));
 				break;
 			}
 			std::this_thread::yield();
@@ -752,7 +755,7 @@ int main() {
 			ev2.process_pending_events(handler);
 			if (queue.events.size() == 1) {
 				assert(queue.events[0]->tag == LDKEvent_ChannelPending);
-				assert(!memcmp(queue.events[0]->channel_pending.channel_id.data, expected_chan_id, 32));
+				assert(!memcmp(ChannelId_get_a(&queue.events[0]->channel_pending.channel_id), expected_chan_id, 32));
 				break;
 			}
 			std::this_thread::yield();
@@ -793,7 +796,7 @@ int main() {
 			ev2.process_pending_events(handler);
 			if (queue.events.size() == 1) {
 				assert(queue.events[0]->tag == LDKEvent_ChannelReady);
-				assert(!memcmp(queue.events[0]->channel_ready.channel_id.data, expected_chan_id, 32));
+				assert(!memcmp(ChannelId_get_a(&queue.events[0]->channel_ready.channel_id), expected_chan_id, 32));
 				break;
 			}
 			std::this_thread::yield();
@@ -807,7 +810,7 @@ int main() {
 			ev1.process_pending_events(handler);
 			if (queue.events.size() == 1) {
 				assert(queue.events[0]->tag == LDKEvent_ChannelReady);
-				assert(!memcmp(queue.events[0]->channel_ready.channel_id.data, expected_chan_id, 32));
+				assert(!memcmp(ChannelId_get_a(&queue.events[0]->channel_ready.channel_id), expected_chan_id, 32));
 				break;
 			}
 			std::this_thread::yield();
@@ -823,7 +826,8 @@ int main() {
 				const LDKChannelDetails *channel = &outbound_channels->data[0];
 				LDK::ChannelCounterparty counterparty = ChannelDetails_get_counterparty(channel);
 
-				assert(!memcmp(ChannelDetails_get_channel_id(channel), expected_chan_id, 32));
+				LDK::ChannelId chan_id = ChannelDetails_get_channel_id(channel);
+				assert(!memcmp(ChannelId_get_a(&chan_id), expected_chan_id, 32));
 				assert(!memcmp(
 					ChannelCounterparty_get_node_id(&counterparty).compressed_form,
 					ChannelManager_get_our_node_id(&cm2).compressed_form, 33));
@@ -926,12 +930,12 @@ int main() {
 			assert(queue.events.size() == 1);
 			assert(queue.events[0]->tag == LDKEvent_PaymentClaimable);
 			assert(!memcmp(queue.events[0]->payment_claimable.payment_hash.data, payment_hash.data, 32));
-			assert(queue.events[0]->payment_claimable.purpose.tag == LDKPaymentPurpose_InvoicePayment);
-			assert(!memcmp(queue.events[0]->payment_claimable.purpose.invoice_payment.payment_secret.data,
+			assert(queue.events[0]->payment_claimable.purpose.tag == LDKPaymentPurpose_Bolt11InvoicePayment);
+			assert(!memcmp(queue.events[0]->payment_claimable.purpose.bolt11_invoice_payment.payment_secret.data,
 					Bolt11Invoice_payment_secret(invoice->contents.result), 32));
 			assert(queue.events[0]->payment_claimable.amount_msat == 5000);
-			assert(queue.events[0]->payment_claimable.purpose.invoice_payment.payment_preimage.tag == LDKCOption_ThirtyTwoBytesZ_Some);
-			memcpy(payment_preimage.data, queue.events[0]->payment_claimable.purpose.invoice_payment.payment_preimage.some.data, 32);
+			assert(queue.events[0]->payment_claimable.purpose.bolt11_invoice_payment.payment_preimage.tag == LDKCOption_ThirtyTwoBytesZ_Some);
+			memcpy(payment_preimage.data, queue.events[0]->payment_claimable.purpose.bolt11_invoice_payment.payment_preimage.some.data, 32);
 			ChannelManager_claim_funds(&cm2, payment_preimage);
 
 			queue.events.clear();
@@ -939,7 +943,7 @@ int main() {
 			assert(queue.events.size() == 1);
 			assert(queue.events[0]->tag == LDKEvent_PaymentClaimed);
 			assert(!memcmp(queue.events[0]->payment_claimed.payment_hash.data, payment_hash.data, 32));
-			assert(queue.events[0]->payment_claimed.purpose.tag == LDKPaymentPurpose_InvoicePayment);
+			assert(queue.events[0]->payment_claimed.purpose.tag == LDKPaymentPurpose_Bolt11InvoicePayment);
 		}
 		PeerManager_process_events(&net2);
 		// Wait until we've passed through a full set of monitor updates (ie new preimage + CS/RAA messages)
@@ -1010,7 +1014,7 @@ int main() {
 	};
 	LDK::DefaultMessageRouter mr1 = DefaultMessageRouter_new(&net_graph1, KeysManager_as_EntropySource(&keys1));
 	LDK::IgnoringMessageHandler ignorer_1 = IgnoringMessageHandler_new();
-	LDK::OnionMessenger om1 = OnionMessenger_new(KeysManager_as_EntropySource(&keys1), KeysManager_as_NodeSigner(&keys1), logger1, DefaultMessageRouter_as_MessageRouter(&mr1), IgnoringMessageHandler_as_OffersMessageHandler(&ignorer_1), std::move(custom_onion_msg_handler1));
+	LDK::OnionMessenger om1 = OnionMessenger_new(KeysManager_as_EntropySource(&keys1), KeysManager_as_NodeSigner(&keys1), logger1, ChannelManager_as_NodeIdLookUp(&cm1), DefaultMessageRouter_as_MessageRouter(&mr1), IgnoringMessageHandler_as_OffersMessageHandler(&ignorer_1), std::move(custom_onion_msg_handler1));
 
 	LDK::CVec_ChannelMonitorZ mons_list2 = LDKCVec_ChannelMonitorZ { .data = (LDKChannelMonitor*)malloc(sizeof(LDKChannelMonitor)), .datalen = 1 };
 	assert(mons2.mons.size() == 1);
@@ -1038,11 +1042,12 @@ int main() {
 	};
 	LDK::DefaultMessageRouter mr2 = DefaultMessageRouter_new(&net_graph2, KeysManager_as_EntropySource(&keys2));
 	LDK::IgnoringMessageHandler ignorer_2 = IgnoringMessageHandler_new();
-	LDK::OnionMessenger om2 = OnionMessenger_new(KeysManager_as_EntropySource(&keys2), KeysManager_as_NodeSigner(&keys2), logger2, DefaultMessageRouter_as_MessageRouter(&mr2), IgnoringMessageHandler_as_OffersMessageHandler(&ignorer_2), custom_onion_msg_handler2);
+	LDK::OnionMessenger om2 = OnionMessenger_new(KeysManager_as_EntropySource(&keys2), KeysManager_as_NodeSigner(&keys2), logger2, ChannelManager_as_NodeIdLookUp(&cm2), DefaultMessageRouter_as_MessageRouter(&mr2), IgnoringMessageHandler_as_OffersMessageHandler(&ignorer_2), custom_onion_msg_handler2);
 
 	// Attempt to close the channel...
-	uint8_t chan_id[32];
-	for (int i = 0; i < 32; i++) { chan_id[i] = channel_open_txid[31-i]; }
+	LDKThirtyTwoBytes chan_id_bytes;
+	for (int i = 0; i < 32; i++) { chan_id_bytes.data[i] = channel_open_txid[31-i]; }
+	LDK::ChannelId chan_id = ChannelId_new(chan_id_bytes);
 	LDK::CResult_NoneAPIErrorZ close_res = ChannelManager_close_channel(&cm1, &chan_id, ChannelManager_get_our_node_id(&cm2));
 	assert(!close_res->result_ok); // Note that we can't close while disconnected!
 
@@ -1148,19 +1153,19 @@ int main() {
 			assert(queue2.events[0]->tag == LDKEvent_PaymentClaimable);
 			const struct LDKEvent_LDKPaymentClaimable_Body *event_data = &queue2.events[0]->payment_claimable;
 			assert(!memcmp(event_data->payment_hash.data, Bolt11Invoice_payment_hash(invoice2), 32));
-			assert(event_data->purpose.tag == LDKPaymentPurpose_InvoicePayment);
-			assert(!memcmp(event_data->purpose.invoice_payment.payment_secret.data,
+			assert(event_data->purpose.tag == LDKPaymentPurpose_Bolt11InvoicePayment);
+			assert(!memcmp(event_data->purpose.bolt11_invoice_payment.payment_secret.data,
 					Bolt11Invoice_payment_secret(invoice2), 32));
 			assert(event_data->amount_msat == 10000);
-			assert(event_data->purpose.invoice_payment.payment_preimage.tag == LDKCOption_ThirtyTwoBytesZ_Some);
-			ChannelManager_claim_funds(&cm2, event_data->purpose.invoice_payment.payment_preimage.some);
+			assert(event_data->purpose.bolt11_invoice_payment.payment_preimage.tag == LDKCOption_ThirtyTwoBytesZ_Some);
+			ChannelManager_claim_funds(&cm2, event_data->purpose.bolt11_invoice_payment.payment_preimage.some);
 
 			queue2.events.clear();
 			ev2.process_pending_events(handler2);
 			assert(queue2.events.size() == 1);
 			assert(queue2.events[0]->tag == LDKEvent_PaymentClaimed);
 			assert(!memcmp(queue2.events[0]->payment_claimed.payment_hash.data, Bolt11Invoice_payment_hash(invoice2), 32));
-			assert(queue2.events[0]->payment_claimed.purpose.tag == LDKPaymentPurpose_InvoicePayment);
+			assert(queue2.events[0]->payment_claimed.purpose.tag == LDKPaymentPurpose_Bolt11InvoicePayment);
 
 			break;
 		}

@@ -7,6 +7,8 @@ use bitcoin::Transaction as BitcoinTransaction;
 use bitcoin::Witness as BitcoinWitness;
 use bitcoin::address;
 use bitcoin::address::WitnessProgram as BitcoinWitnessProgram;
+use bitcoin::key::TweakedPublicKey as BitcoinTweakedPublicKey;
+use bitcoin::key::XOnlyPublicKey;
 use bitcoin::hashes::Hash;
 use bitcoin::secp256k1::PublicKey as SecpPublicKey;
 use bitcoin::secp256k1::SecretKey as SecpSecretKey;
@@ -169,6 +171,25 @@ impl PublicKey {
 	pub(crate) fn null() -> Self { Self { compressed_form: [0; 33] } }
 }
 
+#[derive(Clone)]
+#[repr(C)]
+/// Represents a tweaked X-only public key as required for BIP 340 (Taproot).
+pub struct TweakedPublicKey {
+	/// The bytes of the public key X coordinate
+	pub x_coordinate: [u8; 32],
+}
+impl TweakedPublicKey {
+	pub(crate) fn from_rust(pk: &BitcoinTweakedPublicKey) -> Self {
+		Self {
+			x_coordinate: pk.serialize(),
+		}
+	}
+	pub(crate) fn into_rust(&self) -> BitcoinTweakedPublicKey {
+		let xonly_key = XOnlyPublicKey::from_slice(&self.x_coordinate).unwrap();
+		BitcoinTweakedPublicKey::dangerous_assume_tweaked(xonly_key)
+	}
+}
+
 #[repr(C)]
 #[derive(Clone)]
 /// Represents a valid secp256k1 secret key serialized as a 32 byte array.
@@ -271,6 +292,9 @@ impl BigEndianScalar {
 pub extern "C" fn BigEndianScalar_new(big_endian_bytes: ThirtyTwoBytes) -> BigEndianScalar {
 	BigEndianScalar { big_endian_bytes: big_endian_bytes.data }
 }
+#[no_mangle]
+/// Creates a new BigEndianScalar which has the same data as `orig`
+pub extern "C" fn BigEndianScalar_clone(orig: &BigEndianScalar) -> BigEndianScalar { orig.clone() }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -753,6 +777,7 @@ pub struct ThirtyTwoBytes {
 	pub data: [u8; 32],
 }
 
+#[derive(Clone)]
 #[repr(C)]
 /// A 3-byte byte array.
 pub struct ThreeBytes { /** The three bytes */ pub data: [u8; 3], }

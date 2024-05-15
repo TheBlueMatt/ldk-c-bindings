@@ -540,22 +540,32 @@ pub fn write_method_params<W: std::io::Write>(w: &mut W, sig: &syn::Signature, t
 	let mut first_arg = true;
 	let mut num_unused = 0;
 	for inp in sig.inputs.iter() {
+		let mut handle_self = |is_ref: bool, is_mut: bool| {
+			write!(w, "{}this_arg: {}{}", if !is_ref { "mut " } else { "" },
+				if is_ref {
+					match (self_ptr, is_mut) {
+						(true, true) => "*mut ",
+						(true, false) => "*const ",
+						(false, true) => "&mut ",
+						(false, false) => "&",
+					}
+				} else { "" }, this_param).unwrap();
+			assert!(first_arg);
+			first_arg = false;
+		};
 		match inp {
 			syn::FnArg::Receiver(recv) => {
 				if !recv.attrs.is_empty() { unimplemented!(); }
-				write!(w, "{}this_arg: {}{}", if recv.reference.is_none() { "mut " } else { "" },
-					if recv.reference.is_some() {
-						match (self_ptr, recv.mutability.is_some()) {
-							(true, true) => "*mut ",
-							(true, false) => "*const ",
-							(false, true) => "&mut ",
-							(false, false) => "&",
-						}
-					} else { "" }, this_param).unwrap();
-				assert!(first_arg);
-				first_arg = false;
+				handle_self(recv.reference.is_some(), recv.mutability.is_some());
 			},
 			syn::FnArg::Typed(arg) => {
+				if let syn::Pat::Ident(id) = &*arg.pat {
+					if format!("{}", id.ident) == "self" {
+						handle_self(id.by_ref.is_some(), id.mutability.is_some());
+						continue;
+					}
+				}
+
 				if types.skip_arg(&*arg.ty, generics) { continue; }
 				if !arg.attrs.is_empty() { unimplemented!(); }
 				// First get the c type so that we can check if it ends up being a reference:
@@ -583,14 +593,19 @@ pub fn write_method_params<W: std::io::Write>(w: &mut W, sig: &syn::Signature, t
 	write!(w, ")").unwrap();
 	match &sig.output {
 		syn::ReturnType::Type(_, rtype) => {
-			write!(w, " -> ").unwrap();
-			if let Some(mut remaining_path) = first_seg_self(&*rtype) {
-				if remaining_path.next().is_none() {
-					write!(w, "{}", this_param).unwrap();
-					return;
+			let mut ret_ty = Vec::new();
+			types.write_c_type(&mut ret_ty, &*rtype, generics, true);
+
+			if !ret_ty.is_empty() {
+				write!(w, " -> ").unwrap();
+				if let Some(mut remaining_path) = first_seg_self(&*rtype) {
+					if remaining_path.next().is_none() {
+						write!(w, "{}", this_param).unwrap();
+						return;
+					}
 				}
+				w.write_all(&ret_ty).unwrap();
 			}
-			types.write_c_type(w, &*rtype, generics, true);
 		},
 		_ => {},
 	}
@@ -606,6 +621,12 @@ pub fn write_method_var_decl_body<W: std::io::Write>(w: &mut W, sig: &syn::Signa
 		match inp {
 			syn::FnArg::Receiver(_) => {},
 			syn::FnArg::Typed(arg) => {
+				if let syn::Pat::Ident(id) = &*arg.pat {
+					if format!("{}", id.ident) == "self" {
+						continue;
+					}
+				}
+
 				if types.skip_arg(&*arg.ty, generics) { continue; }
 				if !arg.attrs.is_empty() { unimplemented!(); }
 				macro_rules! write_new_var {
@@ -666,6 +687,17 @@ pub fn write_method_call_params<W: std::io::Write>(w: &mut W, sig: &syn::Signatu
 				}
 			},
 			syn::FnArg::Typed(arg) => {
+				if let syn::Pat::Ident(id) = &*arg.pat {
+					if format!("{}", id.ident) == "self" {
+						if to_c {
+							if id.by_ref.is_none() && !matches!(&*arg.ty, syn::Type::Reference(_)) { unimplemented!(); }
+							write!(w, "self.this_arg").unwrap();
+							first_arg = false;
+						}
+						continue;
+					}
+				}
+
 				if types.skip_arg(&*arg.ty, generics) {
 					if !to_c {
 						if !first_arg {
@@ -748,14 +780,18 @@ pub fn write_method_call_params<W: std::io::Write>(w: &mut W, sig: &syn::Signatu
 /// Prints concrete generic parameters for a struct/trait/function, including the less-than and
 /// greater-than symbols, if any generic parameters are defined.
 pub fn maybe_write_generics<W: std::io::Write>(w: &mut W, generics: &syn::Generics, generics_impld: &syn::PathArguments, types: &TypeResolver, concrete_lifetimes: bool) {
-	maybe_write_generics_intern(w, generics, generics_impld, types, concrete_lifetimes, false);
+	maybe_write_generics_intern(w, generics, Some(generics_impld), types, concrete_lifetimes, false);
 }
 
 pub fn maybe_write_non_lifetime_generics<W: std::io::Write>(w: &mut W, generics: &syn::Generics, generics_impld: &syn::PathArguments, types: &TypeResolver) {
-	maybe_write_generics_intern(w, generics, generics_impld, types, false, true);
+	maybe_write_generics_intern(w, generics, Some(generics_impld), types, false, true);
 }
 
-fn maybe_write_generics_intern<W: std::io::Write>(w: &mut W, generics: &syn::Generics, generics_impld: &syn::PathArguments, types: &TypeResolver, concrete_lifetimes: bool, dummy_lifetimes: bool) {
+pub fn maybe_write_type_non_lifetime_generics<W: std::io::Write>(w: &mut W, generics: &syn::Generics, types: &TypeResolver) {
+	maybe_write_generics_intern(w, generics, None, types, false, true);
+}
+
+fn maybe_write_generics_intern<W: std::io::Write>(w: &mut W, generics: &syn::Generics, generics_impld: Option<&syn::PathArguments>, types: &TypeResolver, concrete_lifetimes: bool, dummy_lifetimes: bool) {
 	let mut gen_types = GenericTypes::new(None);
 	assert!(gen_types.learn_generics(generics, types));
 	if generics.params.is_empty() { return; }
@@ -784,25 +820,28 @@ fn maybe_write_generics_intern<W: std::io::Write>(w: &mut W, generics: &syn::Gen
 	for (idx, generic) in generics.params.iter().enumerate() {
 		match generic {
 			syn::GenericParam::Type(type_param) => {
-				write!(w, "{}", if idx != 0 { ", " } else { "" }).unwrap();
+				let mut out = Vec::new();
 				let type_ident = &type_param.ident;
 				if types.understood_c_type(&syn::parse_quote!(#type_ident), Some(&gen_types)) {
-					types.write_c_type_in_generic_param(w, &syn::parse_quote!(#type_ident), Some(&gen_types), false);
+					types.write_c_type_in_generic_param(&mut out, &syn::parse_quote!(#type_ident), Some(&gen_types), false);
 				} else {
-					if let syn::PathArguments::AngleBracketed(args) = generics_impld {
+					if let Some(syn::PathArguments::AngleBracketed(args)) = generics_impld {
 						if let syn::GenericArgument::Type(ty) = &args.args[idx] {
-							types.write_c_type_in_generic_param(w, &ty, Some(&gen_types), false);
+							types.write_c_type_in_generic_param(&mut out, &ty, Some(&gen_types), false);
 						}
 					}
+				}
+				if !out.is_empty() {
+					write!(w, "{}, ", String::from_utf8(out).unwrap()).unwrap();
 				}
 			},
 			syn::GenericParam::Lifetime(lt) => {
 				if dummy_lifetimes {
-					write!(w, "'_").unwrap();
+					write!(w, "'_, ").unwrap();
 				} else if concrete_lifetimes {
-					write!(w, "'static").unwrap();
+					write!(w, "'static, ").unwrap();
 				} else {
-					write!(w, "{}'{}", if idx != 0 { ", " } else { "" }, lt.lifetime.ident).unwrap();
+					write!(w, "'{}, ", lt.lifetime.ident).unwrap();
 				}
 			},
 			_ => unimplemented!(),

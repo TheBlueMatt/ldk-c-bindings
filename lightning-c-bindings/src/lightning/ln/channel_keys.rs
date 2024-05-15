@@ -139,6 +139,14 @@ pub extern "C" fn DelayedPaymentBasepoint_to_public_key(this_arg: &crate::lightn
 	crate::c_types::PublicKey::from_rust(&ret)
 }
 
+///Derives the \"tweak\" used in calculate [`DelayedPaymentKey::from_basepoint`].\n\n[`DelayedPaymentKey::from_basepoint`] calculates a private key as:\n`privkey = basepoint_secret + SHA256(per_commitment_point || basepoint)`\n\nThis calculates the hash part in the tweak derivation process, which is used to\nensure that each key is unique and cannot be guessed by an external party.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn DelayedPaymentBasepoint_derive_add_tweak(this_arg: &crate::lightning::ln::channel_keys::DelayedPaymentBasepoint, mut per_commitment_point: crate::c_types::PublicKey) -> crate::c_types::ThirtyTwoBytes {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.derive_add_tweak(&per_commitment_point.into_rust());
+	crate::c_types::ThirtyTwoBytes { data: *ret.as_ref() }
+}
+
 #[no_mangle]
 /// Serialize the DelayedPaymentBasepoint object into a byte array which can be read by DelayedPaymentBasepoint_read
 pub extern "C" fn DelayedPaymentBasepoint_write(obj: &crate::lightning::ln::channel_keys::DelayedPaymentBasepoint) -> crate::c_types::derived::CVec_u8Z {
@@ -423,6 +431,14 @@ pub extern "C" fn HtlcBasepoint_to_public_key(this_arg: &crate::lightning::ln::c
 	crate::c_types::PublicKey::from_rust(&ret)
 }
 
+///Derives the \"tweak\" used in calculate [`HtlcKey::from_basepoint`].\n\n[`HtlcKey::from_basepoint`] calculates a private key as:\n`privkey = basepoint_secret + SHA256(per_commitment_point || basepoint)`\n\nThis calculates the hash part in the tweak derivation process, which is used to\nensure that each key is unique and cannot be guessed by an external party.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn HtlcBasepoint_derive_add_tweak(this_arg: &crate::lightning::ln::channel_keys::HtlcBasepoint, mut per_commitment_point: crate::c_types::PublicKey) -> crate::c_types::ThirtyTwoBytes {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.derive_add_tweak(&per_commitment_point.into_rust());
+	crate::c_types::ThirtyTwoBytes { data: *ret.as_ref() }
+}
+
 #[no_mangle]
 /// Serialize the HtlcBasepoint object into a byte array which can be read by HtlcBasepoint_read
 pub extern "C" fn HtlcBasepoint_write(obj: &crate::lightning::ln::channel_keys::HtlcBasepoint) -> crate::c_types::derived::CVec_u8Z {
@@ -586,6 +602,15 @@ pub extern "C" fn HtlcKey_read(ser: crate::c_types::u8slice) -> crate::c_types::
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::ln::channel_keys::HtlcKey { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
+/// Adds a tweak to a public key to derive a new public key.
+///
+/// May panic if `tweak` is not the output of a SHA-256 hash.
+#[no_mangle]
+pub extern "C" fn add_public_key_tweak(mut base_point: crate::c_types::PublicKey, tweak: *const [u8; 32]) -> crate::c_types::PublicKey {
+	let mut ret = lightning::ln::channel_keys::add_public_key_tweak(secp256k1::global::SECP256K1, &base_point.into_rust(), &::bitcoin::hashes::sha256::Hash::from_slice(&unsafe { &*tweak }[..]).unwrap());
+	crate::c_types::PublicKey::from_rust(&ret)
+}
+
 
 use lightning::ln::channel_keys::RevocationBasepoint as nativeRevocationBasepointImport;
 pub(crate) type nativeRevocationBasepoint = nativeRevocationBasepointImport;

@@ -1,0 +1,7 @@
+[package]
+name = "compiler-builtins-dummy"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+compiler_builtins = "=0.1.109"

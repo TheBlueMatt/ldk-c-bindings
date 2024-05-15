@@ -124,6 +124,29 @@ pub extern "C" fn ChannelMonitorUpdate_get_update_id(this_ptr: &ChannelMonitorUp
 pub extern "C" fn ChannelMonitorUpdate_set_update_id(this_ptr: &mut ChannelMonitorUpdate, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.update_id = val;
 }
+/// The channel ID associated with these updates.
+///
+/// Will be `None` for `ChannelMonitorUpdate`s constructed on LDK versions prior to 0.0.121 and
+/// always `Some` otherwise.
+///
+/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[no_mangle]
+pub extern "C" fn ChannelMonitorUpdate_get_channel_id(this_ptr: &ChannelMonitorUpdate) -> crate::lightning::ln::types::ChannelId {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_id;
+	let mut local_inner_val = crate::lightning::ln::types::ChannelId { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::types::ChannelId<>) as *mut _ }, is_owned: false };
+	local_inner_val
+}
+/// The channel ID associated with these updates.
+///
+/// Will be `None` for `ChannelMonitorUpdate`s constructed on LDK versions prior to 0.0.121 and
+/// always `Some` otherwise.
+///
+/// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[no_mangle]
+pub extern "C" fn ChannelMonitorUpdate_set_channel_id(this_ptr: &mut ChannelMonitorUpdate, mut val: crate::lightning::ln::types::ChannelId) {
+	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_id = local_val;
+}
 impl Clone for ChannelMonitorUpdate {
 	fn clone(&self) -> Self {
 		Self {
@@ -191,6 +214,16 @@ pub enum MonitorEvent {
 	HTLCEvent(
 		crate::lightning::chain::channelmonitor::HTLCUpdate),
 	/// Indicates we broadcasted the channel's latest commitment transaction and thus closed the
+	/// channel. Holds information about the channel and why it was closed.
+	HolderForceClosedWithInfo {
+		/// The reason the channel was closed.
+		reason: crate::lightning::events::ClosureReason,
+		/// The funding outpoint of the channel.
+		outpoint: crate::lightning::chain::transaction::OutPoint,
+		/// The channel ID of the channel.
+		channel_id: crate::lightning::ln::types::ChannelId,
+	},
+	/// Indicates we broadcasted the channel's latest commitment transaction and thus closed the
 	/// channel.
 	HolderForceClosed(
 		crate::lightning::chain::transaction::OutPoint),
@@ -201,6 +234,8 @@ pub enum MonitorEvent {
 	Completed {
 		/// The funding outpoint of the [`ChannelMonitor`] that was updated
 		funding_txo: crate::lightning::chain::transaction::OutPoint,
+		/// The channel ID of the channel associated with the [`ChannelMonitor`]
+		channel_id: crate::lightning::ln::types::ChannelId,
 		/// The Update ID from [`ChannelMonitorUpdate::update_id`] which was applied or
 		/// [`ChannelMonitor::get_latest_update_id`].
 		///
@@ -222,17 +257,29 @@ impl MonitorEvent {
 					*unsafe { Box::from_raw(a_nonref.take_inner()) },
 				)
 			},
+			MonitorEvent::HolderForceClosedWithInfo {ref reason, ref outpoint, ref channel_id, } => {
+				let mut reason_nonref = Clone::clone(reason);
+				let mut outpoint_nonref = Clone::clone(outpoint);
+				let mut channel_id_nonref = Clone::clone(channel_id);
+				nativeMonitorEvent::HolderForceClosedWithInfo {
+					reason: reason_nonref.into_native(),
+					outpoint: *unsafe { Box::from_raw(outpoint_nonref.take_inner()) },
+					channel_id: *unsafe { Box::from_raw(channel_id_nonref.take_inner()) },
+				}
+			},
 			MonitorEvent::HolderForceClosed (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				nativeMonitorEvent::HolderForceClosed (
 					*unsafe { Box::from_raw(a_nonref.take_inner()) },
 				)
 			},
-			MonitorEvent::Completed {ref funding_txo, ref monitor_update_id, } => {
+			MonitorEvent::Completed {ref funding_txo, ref channel_id, ref monitor_update_id, } => {
 				let mut funding_txo_nonref = Clone::clone(funding_txo);
+				let mut channel_id_nonref = Clone::clone(channel_id);
 				let mut monitor_update_id_nonref = Clone::clone(monitor_update_id);
 				nativeMonitorEvent::Completed {
 					funding_txo: *unsafe { Box::from_raw(funding_txo_nonref.take_inner()) },
+					channel_id: *unsafe { Box::from_raw(channel_id_nonref.take_inner()) },
 					monitor_update_id: monitor_update_id_nonref,
 				}
 			},
@@ -246,14 +293,22 @@ impl MonitorEvent {
 					*unsafe { Box::from_raw(a.take_inner()) },
 				)
 			},
+			MonitorEvent::HolderForceClosedWithInfo {mut reason, mut outpoint, mut channel_id, } => {
+				nativeMonitorEvent::HolderForceClosedWithInfo {
+					reason: reason.into_native(),
+					outpoint: *unsafe { Box::from_raw(outpoint.take_inner()) },
+					channel_id: *unsafe { Box::from_raw(channel_id.take_inner()) },
+				}
+			},
 			MonitorEvent::HolderForceClosed (mut a, ) => {
 				nativeMonitorEvent::HolderForceClosed (
 					*unsafe { Box::from_raw(a.take_inner()) },
 				)
 			},
-			MonitorEvent::Completed {mut funding_txo, mut monitor_update_id, } => {
+			MonitorEvent::Completed {mut funding_txo, mut channel_id, mut monitor_update_id, } => {
 				nativeMonitorEvent::Completed {
 					funding_txo: *unsafe { Box::from_raw(funding_txo.take_inner()) },
+					channel_id: *unsafe { Box::from_raw(channel_id.take_inner()) },
 					monitor_update_id: monitor_update_id,
 				}
 			},
@@ -269,17 +324,29 @@ impl MonitorEvent {
 					crate::lightning::chain::channelmonitor::HTLCUpdate { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
 				)
 			},
+			nativeMonitorEvent::HolderForceClosedWithInfo {ref reason, ref outpoint, ref channel_id, } => {
+				let mut reason_nonref = Clone::clone(reason);
+				let mut outpoint_nonref = Clone::clone(outpoint);
+				let mut channel_id_nonref = Clone::clone(channel_id);
+				MonitorEvent::HolderForceClosedWithInfo {
+					reason: crate::lightning::events::ClosureReason::native_into(reason_nonref),
+					outpoint: crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(outpoint_nonref), is_owned: true },
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id_nonref), is_owned: true },
+				}
+			},
 			nativeMonitorEvent::HolderForceClosed (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				MonitorEvent::HolderForceClosed (
 					crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
 				)
 			},
-			nativeMonitorEvent::Completed {ref funding_txo, ref monitor_update_id, } => {
+			nativeMonitorEvent::Completed {ref funding_txo, ref channel_id, ref monitor_update_id, } => {
 				let mut funding_txo_nonref = Clone::clone(funding_txo);
+				let mut channel_id_nonref = Clone::clone(channel_id);
 				let mut monitor_update_id_nonref = Clone::clone(monitor_update_id);
 				MonitorEvent::Completed {
 					funding_txo: crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(funding_txo_nonref), is_owned: true },
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id_nonref), is_owned: true },
 					monitor_update_id: monitor_update_id_nonref,
 				}
 			},
@@ -293,14 +360,22 @@ impl MonitorEvent {
 					crate::lightning::chain::channelmonitor::HTLCUpdate { inner: ObjOps::heap_alloc(a), is_owned: true },
 				)
 			},
+			nativeMonitorEvent::HolderForceClosedWithInfo {mut reason, mut outpoint, mut channel_id, } => {
+				MonitorEvent::HolderForceClosedWithInfo {
+					reason: crate::lightning::events::ClosureReason::native_into(reason),
+					outpoint: crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(outpoint), is_owned: true },
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id), is_owned: true },
+				}
+			},
 			nativeMonitorEvent::HolderForceClosed (mut a, ) => {
 				MonitorEvent::HolderForceClosed (
 					crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(a), is_owned: true },
 				)
 			},
-			nativeMonitorEvent::Completed {mut funding_txo, mut monitor_update_id, } => {
+			nativeMonitorEvent::Completed {mut funding_txo, mut channel_id, mut monitor_update_id, } => {
 				MonitorEvent::Completed {
 					funding_txo: crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(funding_txo), is_owned: true },
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id), is_owned: true },
 					monitor_update_id: monitor_update_id,
 				}
 			},
@@ -331,15 +406,25 @@ pub extern "C" fn MonitorEvent_htlcevent(a: crate::lightning::chain::channelmoni
 	MonitorEvent::HTLCEvent(a, )
 }
 #[no_mangle]
+/// Utility method to constructs a new HolderForceClosedWithInfo-variant MonitorEvent
+pub extern "C" fn MonitorEvent_holder_force_closed_with_info(reason: crate::lightning::events::ClosureReason, outpoint: crate::lightning::chain::transaction::OutPoint, channel_id: crate::lightning::ln::types::ChannelId) -> MonitorEvent {
+	MonitorEvent::HolderForceClosedWithInfo {
+		reason,
+		outpoint,
+		channel_id,
+	}
+}
+#[no_mangle]
 /// Utility method to constructs a new HolderForceClosed-variant MonitorEvent
 pub extern "C" fn MonitorEvent_holder_force_closed(a: crate::lightning::chain::transaction::OutPoint) -> MonitorEvent {
 	MonitorEvent::HolderForceClosed(a, )
 }
 #[no_mangle]
 /// Utility method to constructs a new Completed-variant MonitorEvent
-pub extern "C" fn MonitorEvent_completed(funding_txo: crate::lightning::chain::transaction::OutPoint, monitor_update_id: u64) -> MonitorEvent {
+pub extern "C" fn MonitorEvent_completed(funding_txo: crate::lightning::chain::transaction::OutPoint, channel_id: crate::lightning::ln::types::ChannelId, monitor_update_id: u64) -> MonitorEvent {
 	MonitorEvent::Completed {
 		funding_txo,
+		channel_id,
 		monitor_update_id,
 	}
 }
@@ -585,8 +670,8 @@ impl Balance {
 				nativeBalance::ContentiousClaimable {
 					amount_satoshis: amount_satoshis_nonref,
 					timeout_height: timeout_height_nonref,
-					payment_hash: ::lightning::ln::PaymentHash(payment_hash_nonref.data),
-					payment_preimage: ::lightning::ln::PaymentPreimage(payment_preimage_nonref.data),
+					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
+					payment_preimage: ::lightning::ln::types::PaymentPreimage(payment_preimage_nonref.data),
 				}
 			},
 			Balance::MaybeTimeoutClaimableHTLC {ref amount_satoshis, ref claimable_height, ref payment_hash, } => {
@@ -596,7 +681,7 @@ impl Balance {
 				nativeBalance::MaybeTimeoutClaimableHTLC {
 					amount_satoshis: amount_satoshis_nonref,
 					claimable_height: claimable_height_nonref,
-					payment_hash: ::lightning::ln::PaymentHash(payment_hash_nonref.data),
+					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
 				}
 			},
 			Balance::MaybePreimageClaimableHTLC {ref amount_satoshis, ref expiry_height, ref payment_hash, } => {
@@ -606,7 +691,7 @@ impl Balance {
 				nativeBalance::MaybePreimageClaimableHTLC {
 					amount_satoshis: amount_satoshis_nonref,
 					expiry_height: expiry_height_nonref,
-					payment_hash: ::lightning::ln::PaymentHash(payment_hash_nonref.data),
+					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
 				}
 			},
 			Balance::CounterpartyRevokedOutputClaimable {ref amount_satoshis, } => {
@@ -635,22 +720,22 @@ impl Balance {
 				nativeBalance::ContentiousClaimable {
 					amount_satoshis: amount_satoshis,
 					timeout_height: timeout_height,
-					payment_hash: ::lightning::ln::PaymentHash(payment_hash.data),
-					payment_preimage: ::lightning::ln::PaymentPreimage(payment_preimage.data),
+					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
+					payment_preimage: ::lightning::ln::types::PaymentPreimage(payment_preimage.data),
 				}
 			},
 			Balance::MaybeTimeoutClaimableHTLC {mut amount_satoshis, mut claimable_height, mut payment_hash, } => {
 				nativeBalance::MaybeTimeoutClaimableHTLC {
 					amount_satoshis: amount_satoshis,
 					claimable_height: claimable_height,
-					payment_hash: ::lightning::ln::PaymentHash(payment_hash.data),
+					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
 				}
 			},
 			Balance::MaybePreimageClaimableHTLC {mut amount_satoshis, mut expiry_height, mut payment_hash, } => {
 				nativeBalance::MaybePreimageClaimableHTLC {
 					amount_satoshis: amount_satoshis,
 					expiry_height: expiry_height,
-					payment_hash: ::lightning::ln::PaymentHash(payment_hash.data),
+					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
 				}
 			},
 			Balance::CounterpartyRevokedOutputClaimable {mut amount_satoshis, } => {
@@ -854,7 +939,7 @@ pub extern "C" fn Balance_claimable_amount_satoshis(this_arg: &crate::lightning:
 
 
 use lightning::chain::channelmonitor::ChannelMonitor as nativeChannelMonitorImport;
-pub(crate) type nativeChannelMonitor = nativeChannelMonitorImport<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner>;
+pub(crate) type nativeChannelMonitor = nativeChannelMonitorImport<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner, >;
 
 /// A ChannelMonitor handles chain events (blocks connected and disconnected) and generates
 /// on-chain transactions to ensure no loss of funds occurs.
@@ -969,6 +1054,14 @@ pub extern "C" fn ChannelMonitor_get_funding_txo(this_arg: &crate::lightning::ch
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_funding_txo();
 	let (mut orig_ret_0, mut orig_ret_1) = ret; let mut local_ret = (crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(orig_ret_0), is_owned: true }, orig_ret_1.to_bytes().into()).into();
 	local_ret
+}
+
+/// Gets the channel_id of the channel this ChannelMonitor is monitoring for.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelMonitor_channel_id(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::ln::types::ChannelId {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.channel_id();
+	crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// Gets a list of txids, with their output scripts (in the order they appear in the
@@ -1106,26 +1199,18 @@ pub extern "C" fn ChannelMonitor_get_counterparty_node_id(this_arg: &crate::ligh
 	local_ret
 }
 
-/// Used by [`ChannelManager`] deserialization to broadcast the latest holder state if its copy
-/// of the channel state was out-of-date.
-///
-/// You may also use this to broadcast the latest local commitment transaction, either because
+/// You may use this to broadcast the latest local commitment transaction, either because
 /// a monitor update failed or because we've fallen behind (i.e. we've received proof that our
 /// counterparty side knows a revocation secret we gave them that they shouldn't know).
 ///
-/// Broadcasting these transactions in the second case is UNSAFE, as they allow counterparty
+/// Broadcasting these transactions in this manner is UNSAFE, as they allow counterparty
 /// side to punish you. Nevertheless you may want to broadcast them if counterparty doesn't
 /// close channel with their commitment transaction after a substantial amount of time. Best
 /// may be to contact the other node operator out-of-band to coordinate other options available
 /// to you.
-///
-/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
-#[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelMonitor_get_latest_holder_commitment_txn(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, logger: &crate::lightning::util::logger::Logger) -> crate::c_types::derived::CVec_TransactionZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_latest_holder_commitment_txn(logger);
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::c_types::Transaction::from_bitcoin(&item) }); };
-	local_ret.into()
+pub extern "C" fn ChannelMonitor_broadcast_latest_holder_commitment_txn(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, broadcaster: &crate::lightning::chain::chaininterface::BroadcasterInterface, fee_estimator: &crate::lightning::chain::chaininterface::FeeEstimator, logger: &crate::lightning::util::logger::Logger) {
+	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.broadcast_latest_holder_commitment_txn(broadcaster, fee_estimator, logger)
 }
 
 /// Processes transactions in a newly connected block, which may result in any of the following:
@@ -1225,6 +1310,13 @@ pub extern "C" fn ChannelMonitor_rebroadcast_pending_claims(this_arg: &crate::li
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.rebroadcast_pending_claims(broadcaster, fee_estimator, logger)
 }
 
+/// Triggers rebroadcasts of pending claims from a force-closed channel after a transaction
+/// signature generation failure.
+#[no_mangle]
+pub extern "C" fn ChannelMonitor_signer_unblocked(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut fee_estimator: crate::lightning::chain::chaininterface::FeeEstimator, logger: &crate::lightning::util::logger::Logger) {
+	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.signer_unblocked(broadcaster, fee_estimator, logger)
+}
+
 /// Returns the descriptors for relevant outputs (i.e., those that we can spend) within the
 /// transaction if they exist and the transaction has at least [`ANTI_REORG_DELAY`]
 /// confirmations. For [`SpendableOutputDescriptor::DelayedPaymentOutput`] descriptors to be
@@ -1249,6 +1341,18 @@ pub extern "C" fn ChannelMonitor_get_spendable_outputs(this_arg: &crate::lightni
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_spendable_outputs(&tx.into_bitcoin(), confirmation_height);
 	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::sign::SpendableOutputDescriptor::native_into(item) }); };
 	local_ret.into()
+}
+
+/// Checks if the monitor is fully resolved. Resolved monitor is one that has claimed all of
+/// its outputs and balances (i.e. [`Self::get_claimable_balances`] returns an empty set).
+///
+/// This function returns true only if [`Self::get_claimable_balances`] has been empty for at least
+/// 4032 blocks as an additional protection against any bugs resulting in spuriously empty balance sets.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelMonitor_is_fully_resolved(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, logger: &crate::lightning::util::logger::Logger) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.is_fully_resolved(logger);
+	ret
 }
 
 /// Gets the balances in this channel which are either claimable by us if we were to

@@ -86,8 +86,6 @@ use lightning::util::wakers::Future as nativeFutureImport;
 pub(crate) type nativeFuture = nativeFutureImport;
 
 /// A simple future which can complete once, and calls some callback(s) when it does so.
-///
-/// Clones can be made and all futures cloned from the same source will complete at the same time.
 #[must_use]
 #[repr(C)]
 pub struct Future {
@@ -134,25 +132,6 @@ impl Future {
 		ret
 	}
 }
-impl Clone for Future {
-	fn clone(&self) -> Self {
-		Self {
-			inner: if <*mut nativeFuture>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
-			is_owned: true,
-		}
-	}
-}
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn Future_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeFuture)).clone() })) as *mut c_void
-}
-#[no_mangle]
-/// Creates a copy of the Future
-pub extern "C" fn Future_clone(orig: &Future) -> Future {
-	orig.clone()
-}
 /// Registers a callback to be called upon completion of this future. If the future has already
 /// completed, the callback will be called immediately.
 #[no_mangle]
@@ -162,8 +141,8 @@ pub extern "C" fn Future_register_callback_fn(this_arg: &crate::lightning::util:
 
 /// Waits until this [`Future`] completes.
 #[no_mangle]
-pub extern "C" fn Future_wait(mut this_arg: crate::lightning::util::wakers::Future) {
-	(*unsafe { Box::from_raw(this_arg.take_inner()) }).wait()
+pub extern "C" fn Future_wait(this_arg: &crate::lightning::util::wakers::Future) {
+	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.wait()
 }
 
 /// Waits until this [`Future`] completes or the given amount of time has elapsed.
@@ -171,8 +150,8 @@ pub extern "C" fn Future_wait(mut this_arg: crate::lightning::util::wakers::Futu
 /// Returns true if the [`Future`] completed, false if the time elapsed.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Future_wait_timeout(mut this_arg: crate::lightning::util::wakers::Future, mut max_wait: u64) -> bool {
-	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).wait_timeout(core::time::Duration::from_secs(max_wait));
+pub extern "C" fn Future_wait_timeout(this_arg: &crate::lightning::util::wakers::Future, mut max_wait: u64) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.wait_timeout(core::time::Duration::from_secs(max_wait));
 	ret
 }
 
@@ -231,16 +210,16 @@ impl Sleeper {
 /// Constructs a new sleeper from one future, allowing blocking on it.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Sleeper_from_single_future(mut future: crate::lightning::util::wakers::Future) -> crate::lightning::util::wakers::Sleeper {
-	let mut ret = lightning::util::wakers::Sleeper::from_single_future(*unsafe { Box::from_raw(future.take_inner()) });
+pub extern "C" fn Sleeper_from_single_future(future: &crate::lightning::util::wakers::Future) -> crate::lightning::util::wakers::Sleeper {
+	let mut ret = lightning::util::wakers::Sleeper::from_single_future(future.get_native_ref());
 	crate::lightning::util::wakers::Sleeper { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// Constructs a new sleeper from two futures, allowing blocking on both at once.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Sleeper_from_two_futures(mut fut_a: crate::lightning::util::wakers::Future, mut fut_b: crate::lightning::util::wakers::Future) -> crate::lightning::util::wakers::Sleeper {
-	let mut ret = lightning::util::wakers::Sleeper::from_two_futures(*unsafe { Box::from_raw(fut_a.take_inner()) }, *unsafe { Box::from_raw(fut_b.take_inner()) });
+pub extern "C" fn Sleeper_from_two_futures(fut_a: &crate::lightning::util::wakers::Future, fut_b: &crate::lightning::util::wakers::Future) -> crate::lightning::util::wakers::Sleeper {
+	let mut ret = lightning::util::wakers::Sleeper::from_two_futures(fut_a.get_native_ref(), fut_b.get_native_ref());
 	crate::lightning::util::wakers::Sleeper { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 

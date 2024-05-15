@@ -391,6 +391,14 @@ pub extern "C" fn TransactionU16LenLimited_into_transaction(mut this_arg: crate:
 	crate::c_types::Transaction::from_bitcoin(&ret)
 }
 
+/// Returns a reference to the contained `Transaction`
+#[must_use]
+#[no_mangle]
+pub extern "C" fn TransactionU16LenLimited_as_transaction(this_arg: &crate::lightning::util::ser::TransactionU16LenLimited) -> crate::c_types::Transaction {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.as_transaction();
+	crate::c_types::Transaction::from_bitcoin(ret)
+}
+
 #[no_mangle]
 /// Serialize the TransactionU16LenLimited object into a byte array which can be read by TransactionU16LenLimited_read
 pub extern "C" fn TransactionU16LenLimited_write(obj: &crate::lightning::util::ser::TransactionU16LenLimited) -> crate::c_types::derived::CVec_u8Z {
