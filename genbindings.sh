@@ -206,12 +206,14 @@ if [ "$2" = "true" ]; then
 	add_crate "lightning-background-processor" "lightning_background_processor" --features=std
 	add_crate "lightning-invoice" "lightning_invoice" --features=std
 	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync" --features=std
+	add_crate "lightning-transaction-sync" "lightning_transaction_sync" --features=esplora-blocking,electrum
 else
 	add_crate lightning lightning --features=no-std
 	drop_crate "lightning-persister"
 	add_crate "lightning-background-processor" "lightning_background_processor" --features=no-std
-	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync" --features=no-std
 	add_crate "lightning-invoice" "lightning_invoice" --features=no-std
+	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync" --features=no-std
+	drop_crate "lightning-transaction-sync"
 	CARGO_BUILD_ARGS="--features=no-std"
 fi
 
