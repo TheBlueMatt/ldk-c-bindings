@@ -1408,7 +1408,9 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 
 						write!(w, "\talloc::format!(\"{{:?}}\", unsafe {{ o as *const crate::{} }}).into()", resolved_path).unwrap();
 						writeln!(w, "}}").unwrap();
-					} else if path_matches_nongeneric(&trait_path.1, &["Display"]) {
+					} else if full_trait_path_opt.as_ref().map(|s| s.as_str()) == Some("core::fmt::Display") ||
+						path_matches_nongeneric(&trait_path.1, &["Display"])
+					{
 						writeln!(w, "#[no_mangle]").unwrap();
 						writeln!(w, "/// Get the string representation of a {} object", ident).unwrap();
 						writeln!(w, "pub extern \"C\" fn {}_to_str(o: &crate::{}) -> Str {{", ident, resolved_path).unwrap();
