@@ -7,11 +7,19 @@
 # ever (indirectly) depend on multiple versions of the same crate.
 args=("$@")
 IS_LIGHTNING=false
+SKIP_EMBED_BITCODE=false
 for ((i=0; i<"${#args[@]}"; ++i)); do
     case ${args[i]} in
         --crate-name)
-			if [ "${args[i+1]}" = "lightning" -o "${args[i+1]}" = "lightning_background_processor" -o "${args[i+1]}" = "lightning_invoice" -o "${args[i+1]}" = "lightning_persister" -o "${args[i+1]}" = "lightning_rapid_gossip_sync" -o "${args[i+1]}" = "ldk" ]; then
+			if [ "${args[i+1]}" = "lightning" -o "${args[i+1]}" = "lightning_background_processor" -o "${args[i+1]}" = "lightning_invoice" -o "${args[i+1]}" = "lightning_persister" -o "${args[i+1]}" = "lightning_rapid_gossip_sync" -o "${args[i+1]}" = "lightning_transaction_sync" -o "${args[i+1]}" = "ldk" ]; then
 				IS_LIGHTNING=true
+			fi
+			;;
+		--crate-type)
+			if [ "${args[i+1]}" = "proc-macro" ]; then
+				# If we're building a proc-macro, rustc incorrectly passes our RUSTFLAGS containing
+				# embed-bitcode=yes, which we don't want.
+				SKIP_EMBED_BITCODE=true
 			fi
 			;;
     esac
@@ -24,7 +32,16 @@ for ((i=0; i<"${#args[@]}"; ++i)); do
 				args[i]="metadata=42"
 			fi
 			;;
+		embed-bitcode=yes)
+			if [ "$SKIP_EMBED_BITCODE" = "true" ]; then
+				args[i]="embed-bitcode=no"
+			fi
+			;;
+		lto)
+			if [ "$SKIP_EMBED_BITCODE" = "true" ]; then
+				args[i]="lto=no"
+			fi
+			;;
     esac
 done
-
 $LDK_RUSTC_PATH "${args[@]}"
