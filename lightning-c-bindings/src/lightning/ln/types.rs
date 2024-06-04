@@ -217,3 +217,8 @@ pub extern "C" fn ChannelId_read(ser: crate::c_types::u8slice) -> crate::c_types
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
+#[no_mangle]
+/// Get the string representation of a ChannelId object
+pub extern "C" fn ChannelId_to_str(o: &crate::lightning::ln::types::ChannelId) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}

@@ -538,3 +538,8 @@ pub extern "C" fn Refund_from_str(s: crate::c_types::Str) -> crate::c_types::der
 		},
 	}.into()
 }
+#[no_mangle]
+/// Get the string representation of a Refund object
+pub extern "C" fn Refund_to_str(o: &crate::lightning::offers::refund::Refund) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}

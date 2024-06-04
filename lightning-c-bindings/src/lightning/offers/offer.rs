@@ -1138,3 +1138,8 @@ pub extern "C" fn Offer_from_str(s: crate::c_types::Str) -> crate::c_types::deri
 		},
 	}.into()
 }
+#[no_mangle]
+/// Get the string representation of a Offer object
+pub extern "C" fn Offer_to_str(o: &crate::lightning::offers::offer::Offer) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}

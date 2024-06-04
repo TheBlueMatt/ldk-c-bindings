@@ -1307,6 +1307,11 @@ pub extern "C" fn PeerHandleError_clone(orig: &PeerHandleError) -> PeerHandleErr
 /// Get a string which allows debug introspection of a PeerHandleError object
 pub extern "C" fn PeerHandleError_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::peer_handler::PeerHandleError }).into()}
+#[no_mangle]
+/// Get the string representation of a PeerHandleError object
+pub extern "C" fn PeerHandleError_to_str(o: &crate::lightning::ln::peer_handler::PeerHandleError) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
 
 use lightning::ln::peer_handler::PeerManager as nativePeerManagerImport;
 pub(crate) type nativePeerManager = nativePeerManagerImport<crate::lightning::ln::peer_handler::SocketDescriptor, crate::lightning::ln::msgs::ChannelMessageHandler, crate::lightning::ln::msgs::RoutingMessageHandler, crate::lightning::ln::msgs::OnionMessageHandler, crate::lightning::util::logger::Logger, crate::lightning::ln::peer_handler::CustomMessageHandler, crate::lightning::sign::NodeSigner, >;

@@ -263,6 +263,11 @@ pub extern "C" fn Hostname_len(this_arg: &crate::lightning::util::ser::Hostname)
 }
 
 #[no_mangle]
+/// Get the string representation of a Hostname object
+pub extern "C" fn Hostname_to_str(o: &crate::lightning::util::ser::Hostname) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
+#[no_mangle]
 /// Serialize the Hostname object into a byte array which can be read by Hostname_read
 pub extern "C" fn Hostname_write(obj: &crate::lightning::util::ser::Hostname) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())

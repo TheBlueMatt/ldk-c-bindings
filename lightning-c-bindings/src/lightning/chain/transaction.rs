@@ -144,6 +144,11 @@ pub extern "C" fn OutPoint_hash(o: &OutPoint) -> u64 {
 	core::hash::Hasher::finish(&hasher)
 }
 #[no_mangle]
+/// Get the string representation of a OutPoint object
+pub extern "C" fn OutPoint_to_str(o: &crate::lightning::chain::transaction::OutPoint) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
+#[no_mangle]
 /// Serialize the OutPoint object into a byte array which can be read by OutPoint_read
 pub extern "C" fn OutPoint_write(obj: &crate::lightning::chain::transaction::OutPoint) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
