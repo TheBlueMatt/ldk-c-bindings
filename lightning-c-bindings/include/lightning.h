@@ -997,6 +997,20 @@ typedef enum LDKSocketAddressParseError {
 } LDKSocketAddressParseError;
 
 /**
+ * An error that possibly needs to be handled by the user.
+ */
+typedef enum LDKTxSyncError {
+   /**
+    * A transaction sync failed and needs to be retried eventually.
+    */
+   LDKTxSyncError_Failed,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKTxSyncError_Sentinel,
+} LDKTxSyncError;
+
+/**
  * An error when accessing the chain via [`UtxoLookup`].
  */
 typedef enum LDKUtxoLookupError {
@@ -19446,6 +19460,228 @@ typedef struct LDKCResult_COption_EventZDecodeErrorZ {
    bool result_ok;
 } LDKCResult_COption_EventZDecodeErrorZ;
 
+
+
+/**
+ * Synchronizes LDK with a given Electrum server.
+ *
+ * Needs to be registered with a [`ChainMonitor`] via the [`Filter`] interface to be informed of
+ * transactions and outputs to monitor for on-chain confirmation, unconfirmation, and
+ * reconfirmation.
+ *
+ * Note that registration via [`Filter`] needs to happen before any calls to
+ * [`Watch::watch_channel`] to ensure we get notified of the items to monitor.
+ *
+ * [`ChainMonitor`]: lightning::chain::chainmonitor::ChainMonitor
+ * [`Watch::watch_channel`]: lightning::chain::Watch::watch_channel
+ * [`Filter`]: lightning::chain::Filter
+ */
+typedef struct MUST_USE_STRUCT LDKElectrumSyncClient {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeElectrumSyncClient *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKElectrumSyncClient;
+
+/**
+ * The contents of CResult_ElectrumSyncClientTxSyncErrorZ
+ */
+typedef union LDKCResult_ElectrumSyncClientTxSyncErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKElectrumSyncClient *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   enum LDKTxSyncError *err;
+} LDKCResult_ElectrumSyncClientTxSyncErrorZPtr;
+
+/**
+ * A CResult_ElectrumSyncClientTxSyncErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning_transaction_sync::electrum::ElectrumSyncClient on success and a crate::lightning_transaction_sync::error::TxSyncError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_ElectrumSyncClientTxSyncErrorZ {
+   /**
+    * The contents of this CResult_ElectrumSyncClientTxSyncErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_ElectrumSyncClientTxSyncErrorZPtr contents;
+   /**
+    * Whether this CResult_ElectrumSyncClientTxSyncErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_ElectrumSyncClientTxSyncErrorZ;
+
+/**
+ * The `Confirm` trait is used to notify LDK when relevant transactions have been confirmed on
+ * chain or unconfirmed during a chain reorganization.
+ *
+ * Clients sourcing chain data using a transaction-oriented API should prefer this interface over
+ * [`Listen`]. For instance, an Electrum-based transaction sync implementation may implement
+ * [`Filter`] to subscribe to relevant transactions and unspent outputs it should monitor for
+ * on-chain activity. Then, it needs to notify LDK via this interface upon observing any changes
+ * with reference to the confirmation status of the monitored objects.
+ *
+ * # Use
+ * The intended use is as follows:
+ * - Call [`transactions_confirmed`] to notify LDK whenever any of the registered transactions or
+ *   outputs are, respectively, confirmed or spent on chain.
+ * - Call [`transaction_unconfirmed`] to notify LDK whenever any transaction returned by
+ *   [`get_relevant_txids`] is no longer confirmed in the block with the given block hash.
+ * - Call [`best_block_updated`] to notify LDK whenever a new chain tip becomes available.
+ *
+ * # Order
+ *
+ * Clients must call these methods in chain order. Specifically:
+ * - Transactions which are confirmed in a particular block must be given before transactions
+ *   confirmed in a later block.
+ * - Dependent transactions within the same block must be given in topological order, possibly in
+ *   separate calls.
+ * - All unconfirmed transactions must be given after the original confirmations and before *any*
+ *   reconfirmations, i.e., [`transactions_confirmed`] and [`transaction_unconfirmed`] calls should
+ *   never be interleaved, but always conduced *en bloc*.
+ * - Any reconfirmed transactions need to be explicitly unconfirmed before they are reconfirmed
+ *   in regard to the new block.
+ *
+ * See individual method documentation for further details.
+ *
+ * [`transactions_confirmed`]: Self::transactions_confirmed
+ * [`transaction_unconfirmed`]: Self::transaction_unconfirmed
+ * [`best_block_updated`]: Self::best_block_updated
+ * [`get_relevant_txids`]: Self::get_relevant_txids
+ */
+typedef struct LDKConfirm {
+   /**
+    * An opaque pointer which is passed to your function implementations as an argument.
+    * This has no meaning in the LDK, and can be NULL or any other value.
+    */
+   void *this_arg;
+   /**
+    * Notifies LDK of transactions confirmed in a block with a given header and height.
+    *
+    * Must be called for any transactions registered by [`Filter::register_tx`] or any
+    * transactions spending an output registered by [`Filter::register_output`]. Such transactions
+    * appearing in the same block do not need to be included in the same call; instead, multiple
+    * calls with additional transactions may be made so long as they are made in [chain order].
+    *
+    * May be called before or after [`best_block_updated`] for the corresponding block. However,
+    * in the event of a chain reorganization, it must not be called with a `header` that is no
+    * longer in the chain as of the last call to [`best_block_updated`].
+    *
+    * [chain order]: Confirm#order
+    * [`best_block_updated`]: Self::best_block_updated
+    */
+   void (*transactions_confirmed)(const void *this_arg, const uint8_t (*header)[80], struct LDKCVec_C2Tuple_usizeTransactionZZ txdata, uint32_t height);
+   /**
+    * Notifies LDK of a transaction that is no longer confirmed as result of a chain reorganization.
+    *
+    * Must be called for any transaction returned by [`get_relevant_txids`] if it has been
+    * reorganized out of the best chain or if it is no longer confirmed in the block with the
+    * given block hash. Once called, the given transaction will not be returned
+    * by [`get_relevant_txids`], unless it has been reconfirmed via [`transactions_confirmed`].
+    *
+    * [`get_relevant_txids`]: Self::get_relevant_txids
+    * [`transactions_confirmed`]: Self::transactions_confirmed
+    */
+   void (*transaction_unconfirmed)(const void *this_arg, const uint8_t (*txid)[32]);
+   /**
+    * Notifies LDK of an update to the best header connected at the given height.
+    *
+    * Must be called whenever a new chain tip becomes available. May be skipped for intermediary
+    * blocks.
+    */
+   void (*best_block_updated)(const void *this_arg, const uint8_t (*header)[80], uint32_t height);
+   /**
+    * Returns transactions that must be monitored for reorganization out of the chain along
+    * with the height and the hash of the block as part of which it had been previously confirmed.
+    *
+    * Note that the returned `Option<BlockHash>` might be `None` for channels created with LDK
+    * 0.0.112 and prior, in which case you need to manually track previous confirmations.
+    *
+    * Will include any transactions passed to [`transactions_confirmed`] that have insufficient
+    * confirmations to be safe from a chain reorganization. Will not include any transactions
+    * passed to [`transaction_unconfirmed`], unless later reconfirmed.
+    *
+    * Must be called to determine the subset of transactions that must be monitored for
+    * reorganization. Will be idempotent between calls but may change as a result of calls to the
+    * other interface methods. Thus, this is useful to determine which transactions must be
+    * given to [`transaction_unconfirmed`].
+    *
+    * If any of the returned transactions are confirmed in a block other than the one with the
+    * given hash at the given height, they need to be unconfirmed and reconfirmed via
+    * [`transaction_unconfirmed`] and [`transactions_confirmed`], respectively.
+    *
+    * [`transactions_confirmed`]: Self::transactions_confirmed
+    * [`transaction_unconfirmed`]: Self::transaction_unconfirmed
+    */
+   struct LDKCVec_C3Tuple_ThirtyTwoBytesu32COption_ThirtyTwoBytesZZZ (*get_relevant_txids)(const void *this_arg);
+   /**
+    * Frees any resources associated with this object given its this_arg pointer.
+    * Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
+    */
+   void (*free)(void *this_arg);
+} LDKConfirm;
+
+/**
+ * A dynamically-allocated array of crate::lightning::chain::Confirms of arbitrary size.
+ * This corresponds to std::vector in C++
+ */
+typedef struct LDKCVec_ConfirmZ {
+   /**
+    * The elements in the array.
+    * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+    */
+   struct LDKConfirm *data;
+   /**
+    * The number of elements pointed to by `data`.
+    */
+   uintptr_t datalen;
+} LDKCVec_ConfirmZ;
+
+/**
+ * The contents of CResult_NoneTxSyncErrorZ
+ */
+typedef union LDKCResult_NoneTxSyncErrorZPtr {
+   /**
+    * Note that this value is always NULL, as there are no contents in the OK variant
+    */
+   void *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   enum LDKTxSyncError *err;
+} LDKCResult_NoneTxSyncErrorZPtr;
+
+/**
+ * A CResult_NoneTxSyncErrorZ represents the result of a fallible operation,
+ * containing a () on success and a crate::lightning_transaction_sync::error::TxSyncError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_NoneTxSyncErrorZ {
+   /**
+    * The contents of this CResult_NoneTxSyncErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_NoneTxSyncErrorZPtr contents;
+   /**
+    * Whether this CResult_NoneTxSyncErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_NoneTxSyncErrorZ;
+
 /**
  * Sub-errors which don't have specific information in them use this type.
  */
@@ -22543,116 +22779,6 @@ typedef struct LDKListen {
 } LDKListen;
 
 /**
- * The `Confirm` trait is used to notify LDK when relevant transactions have been confirmed on
- * chain or unconfirmed during a chain reorganization.
- *
- * Clients sourcing chain data using a transaction-oriented API should prefer this interface over
- * [`Listen`]. For instance, an Electrum-based transaction sync implementation may implement
- * [`Filter`] to subscribe to relevant transactions and unspent outputs it should monitor for
- * on-chain activity. Then, it needs to notify LDK via this interface upon observing any changes
- * with reference to the confirmation status of the monitored objects.
- *
- * # Use
- * The intended use is as follows:
- * - Call [`transactions_confirmed`] to notify LDK whenever any of the registered transactions or
- *   outputs are, respectively, confirmed or spent on chain.
- * - Call [`transaction_unconfirmed`] to notify LDK whenever any transaction returned by
- *   [`get_relevant_txids`] is no longer confirmed in the block with the given block hash.
- * - Call [`best_block_updated`] to notify LDK whenever a new chain tip becomes available.
- *
- * # Order
- *
- * Clients must call these methods in chain order. Specifically:
- * - Transactions which are confirmed in a particular block must be given before transactions
- *   confirmed in a later block.
- * - Dependent transactions within the same block must be given in topological order, possibly in
- *   separate calls.
- * - All unconfirmed transactions must be given after the original confirmations and before *any*
- *   reconfirmations, i.e., [`transactions_confirmed`] and [`transaction_unconfirmed`] calls should
- *   never be interleaved, but always conduced *en bloc*.
- * - Any reconfirmed transactions need to be explicitly unconfirmed before they are reconfirmed
- *   in regard to the new block.
- *
- * See individual method documentation for further details.
- *
- * [`transactions_confirmed`]: Self::transactions_confirmed
- * [`transaction_unconfirmed`]: Self::transaction_unconfirmed
- * [`best_block_updated`]: Self::best_block_updated
- * [`get_relevant_txids`]: Self::get_relevant_txids
- */
-typedef struct LDKConfirm {
-   /**
-    * An opaque pointer which is passed to your function implementations as an argument.
-    * This has no meaning in the LDK, and can be NULL or any other value.
-    */
-   void *this_arg;
-   /**
-    * Notifies LDK of transactions confirmed in a block with a given header and height.
-    *
-    * Must be called for any transactions registered by [`Filter::register_tx`] or any
-    * transactions spending an output registered by [`Filter::register_output`]. Such transactions
-    * appearing in the same block do not need to be included in the same call; instead, multiple
-    * calls with additional transactions may be made so long as they are made in [chain order].
-    *
-    * May be called before or after [`best_block_updated`] for the corresponding block. However,
-    * in the event of a chain reorganization, it must not be called with a `header` that is no
-    * longer in the chain as of the last call to [`best_block_updated`].
-    *
-    * [chain order]: Confirm#order
-    * [`best_block_updated`]: Self::best_block_updated
-    */
-   void (*transactions_confirmed)(const void *this_arg, const uint8_t (*header)[80], struct LDKCVec_C2Tuple_usizeTransactionZZ txdata, uint32_t height);
-   /**
-    * Notifies LDK of a transaction that is no longer confirmed as result of a chain reorganization.
-    *
-    * Must be called for any transaction returned by [`get_relevant_txids`] if it has been
-    * reorganized out of the best chain or if it is no longer confirmed in the block with the
-    * given block hash. Once called, the given transaction will not be returned
-    * by [`get_relevant_txids`], unless it has been reconfirmed via [`transactions_confirmed`].
-    *
-    * [`get_relevant_txids`]: Self::get_relevant_txids
-    * [`transactions_confirmed`]: Self::transactions_confirmed
-    */
-   void (*transaction_unconfirmed)(const void *this_arg, const uint8_t (*txid)[32]);
-   /**
-    * Notifies LDK of an update to the best header connected at the given height.
-    *
-    * Must be called whenever a new chain tip becomes available. May be skipped for intermediary
-    * blocks.
-    */
-   void (*best_block_updated)(const void *this_arg, const uint8_t (*header)[80], uint32_t height);
-   /**
-    * Returns transactions that must be monitored for reorganization out of the chain along
-    * with the height and the hash of the block as part of which it had been previously confirmed.
-    *
-    * Note that the returned `Option<BlockHash>` might be `None` for channels created with LDK
-    * 0.0.112 and prior, in which case you need to manually track previous confirmations.
-    *
-    * Will include any transactions passed to [`transactions_confirmed`] that have insufficient
-    * confirmations to be safe from a chain reorganization. Will not include any transactions
-    * passed to [`transaction_unconfirmed`], unless later reconfirmed.
-    *
-    * Must be called to determine the subset of transactions that must be monitored for
-    * reorganization. Will be idempotent between calls but may change as a result of calls to the
-    * other interface methods. Thus, this is useful to determine which transactions must be
-    * given to [`transaction_unconfirmed`].
-    *
-    * If any of the returned transactions are confirmed in a block other than the one with the
-    * given hash at the given height, they need to be unconfirmed and reconfirmed via
-    * [`transaction_unconfirmed`] and [`transactions_confirmed`], respectively.
-    *
-    * [`transactions_confirmed`]: Self::transactions_confirmed
-    * [`transaction_unconfirmed`]: Self::transaction_unconfirmed
-    */
-   struct LDKCVec_C3Tuple_ThirtyTwoBytesu32COption_ThirtyTwoBytesZZZ (*get_relevant_txids)(const void *this_arg);
-   /**
-    * Frees any resources associated with this object given its this_arg pointer.
-    * Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
-    */
-   void (*free)(void *this_arg);
-} LDKConfirm;
-
-/**
  * A `enum` signalling to the [`OutputSweeper`] that it should delay spending an output until a
  * future block height is reached.
  */
@@ -25207,6 +25333,41 @@ typedef struct MUST_USE_STRUCT LDKFallback {
       };
    };
 } LDKFallback;
+
+
+
+/**
+ * Synchronizes LDK with a given [`Esplora`] server.
+ *
+ * Needs to be registered with a [`ChainMonitor`] via the [`Filter`] interface to be informed of
+ * transactions and outputs to monitor for on-chain confirmation, unconfirmation, and
+ * reconfirmation.
+ *
+ * Note that registration via [`Filter`] needs to happen before any calls to
+ * [`Watch::watch_channel`] to ensure we get notified of the items to monitor.
+ *
+ * This uses and exposes either a blocking or async client variant dependent on whether the
+ * `esplora-blocking` or the `esplora-async` feature is enabled.
+ *
+ * [`Esplora`]: https://github.com/Blockstream/electrs
+ * [`ChainMonitor`]: lightning::chain::chainmonitor::ChainMonitor
+ * [`Watch::watch_channel`]: lightning::chain::Watch::watch_channel
+ * [`Filter`]: lightning::chain::Filter
+ */
+typedef struct MUST_USE_STRUCT LDKEsploraSyncClient {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeEsploraSyncClient *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKEsploraSyncClient;
 
 extern const uintptr_t MAX_BUF_SIZE;
 
@@ -32086,6 +32247,51 @@ void CResult_COption_EventZDecodeErrorZ_free(struct LDKCResult_COption_EventZDec
  * but with all dynamically-allocated buffers duplicated in new buffers.
  */
 struct LDKCResult_COption_EventZDecodeErrorZ CResult_COption_EventZDecodeErrorZ_clone(const struct LDKCResult_COption_EventZDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_ElectrumSyncClientTxSyncErrorZ in the success state.
+ */
+struct LDKCResult_ElectrumSyncClientTxSyncErrorZ CResult_ElectrumSyncClientTxSyncErrorZ_ok(struct LDKElectrumSyncClient o);
+
+/**
+ * Creates a new CResult_ElectrumSyncClientTxSyncErrorZ in the error state.
+ */
+struct LDKCResult_ElectrumSyncClientTxSyncErrorZ CResult_ElectrumSyncClientTxSyncErrorZ_err(enum LDKTxSyncError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_ElectrumSyncClientTxSyncErrorZ_is_ok(const struct LDKCResult_ElectrumSyncClientTxSyncErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_ElectrumSyncClientTxSyncErrorZ.
+ */
+void CResult_ElectrumSyncClientTxSyncErrorZ_free(struct LDKCResult_ElectrumSyncClientTxSyncErrorZ _res);
+
+/**
+ * Frees the buffer pointed to by `data` if `datalen` is non-0.
+ */
+void CVec_ConfirmZ_free(struct LDKCVec_ConfirmZ _res);
+
+/**
+ * Creates a new CResult_NoneTxSyncErrorZ in the success state.
+ */
+struct LDKCResult_NoneTxSyncErrorZ CResult_NoneTxSyncErrorZ_ok(void);
+
+/**
+ * Creates a new CResult_NoneTxSyncErrorZ in the error state.
+ */
+struct LDKCResult_NoneTxSyncErrorZ CResult_NoneTxSyncErrorZ_err(enum LDKTxSyncError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_NoneTxSyncErrorZ_is_ok(const struct LDKCResult_NoneTxSyncErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_NoneTxSyncErrorZ.
+ */
+void CResult_NoneTxSyncErrorZ_free(struct LDKCResult_NoneTxSyncErrorZ _res);
 
 /**
  * Creates a new CResult_SiPrefixBolt11ParseErrorZ in the success state.
@@ -57914,6 +58120,78 @@ MUST_USE_RES struct LDKCResult_u32GraphSyncErrorZ RapidGossipSync_update_network
  * Returns whether a rapid gossip sync has completed at least once.
  */
 MUST_USE_RES bool RapidGossipSync_is_initial_sync_complete(const struct LDKRapidGossipSync *NONNULL_PTR this_arg);
+
+/**
+ * Frees any resources used by the EsploraSyncClient, if is_owned is set and inner is non-NULL.
+ */
+void EsploraSyncClient_free(struct LDKEsploraSyncClient this_obj);
+
+/**
+ * Returns a new [`EsploraSyncClient`] object.
+ */
+MUST_USE_RES struct LDKEsploraSyncClient EsploraSyncClient_new(struct LDKStr server_url, struct LDKLogger logger);
+
+/**
+ * Synchronizes the given `confirmables` via their [`Confirm`] interface implementations. This
+ * method should be called regularly to keep LDK up-to-date with current chain data.
+ *
+ * For example, instances of [`ChannelManager`] and [`ChainMonitor`] can be informed about the
+ * newest on-chain activity related to the items previously registered via the [`Filter`]
+ * interface.
+ *
+ * [`Confirm`]: lightning::chain::Confirm
+ * [`ChainMonitor`]: lightning::chain::chainmonitor::ChainMonitor
+ * [`ChannelManager`]: lightning::ln::channelmanager::ChannelManager
+ * [`Filter`]: lightning::chain::Filter
+ */
+MUST_USE_RES struct LDKCResult_NoneTxSyncErrorZ EsploraSyncClient_sync(const struct LDKEsploraSyncClient *NONNULL_PTR this_arg, struct LDKCVec_ConfirmZ confirmables);
+
+/**
+ * Constructs a new Filter which calls the relevant methods on this_arg.
+ * This copies the `inner` pointer in this_arg and thus the returned Filter must be freed before this_arg is
+ */
+struct LDKFilter EsploraSyncClient_as_Filter(const struct LDKEsploraSyncClient *NONNULL_PTR this_arg);
+
+/**
+ * Frees any resources used by the ElectrumSyncClient, if is_owned is set and inner is non-NULL.
+ */
+void ElectrumSyncClient_free(struct LDKElectrumSyncClient this_obj);
+
+/**
+ * Returns a new [`ElectrumSyncClient`] object.
+ */
+MUST_USE_RES struct LDKCResult_ElectrumSyncClientTxSyncErrorZ ElectrumSyncClient_new(struct LDKStr server_url, struct LDKLogger logger);
+
+/**
+ * Synchronizes the given `confirmables` via their [`Confirm`] interface implementations. This
+ * method should be called regularly to keep LDK up-to-date with current chain data.
+ *
+ * For example, instances of [`ChannelManager`] and [`ChainMonitor`] can be informed about the
+ * newest on-chain activity related to the items previously registered via the [`Filter`]
+ * interface.
+ *
+ * [`Confirm`]: lightning::chain::Confirm
+ * [`ChainMonitor`]: lightning::chain::chainmonitor::ChainMonitor
+ * [`ChannelManager`]: lightning::ln::channelmanager::ChannelManager
+ * [`Filter`]: lightning::chain::Filter
+ */
+MUST_USE_RES struct LDKCResult_NoneTxSyncErrorZ ElectrumSyncClient_sync(const struct LDKElectrumSyncClient *NONNULL_PTR this_arg, struct LDKCVec_ConfirmZ confirmables);
+
+/**
+ * Constructs a new Filter which calls the relevant methods on this_arg.
+ * This copies the `inner` pointer in this_arg and thus the returned Filter must be freed before this_arg is
+ */
+struct LDKFilter ElectrumSyncClient_as_Filter(const struct LDKElectrumSyncClient *NONNULL_PTR this_arg);
+
+/**
+ * Creates a copy of the TxSyncError
+ */
+enum LDKTxSyncError TxSyncError_clone(const enum LDKTxSyncError *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new Failed-variant TxSyncError
+ */
+enum LDKTxSyncError TxSyncError_failed(void);
 
 #endif /* LDK_C_BINDINGS_H */
 

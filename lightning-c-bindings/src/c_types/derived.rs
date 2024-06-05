@@ -24030,6 +24030,198 @@ impl Clone for CResult_COption_EventZDecodeErrorZ {
 /// but with all dynamically-allocated buffers duplicated in new buffers.
 pub extern "C" fn CResult_COption_EventZDecodeErrorZ_clone(orig: &CResult_COption_EventZDecodeErrorZ) -> CResult_COption_EventZDecodeErrorZ { Clone::clone(&orig) }
 #[repr(C)]
+/// The contents of CResult_ElectrumSyncClientTxSyncErrorZ
+pub union CResult_ElectrumSyncClientTxSyncErrorZPtr {
+	/// A pointer to the contents in the success state.
+	/// Reading from this pointer when `result_ok` is not set is undefined.
+	pub result: *mut crate::lightning_transaction_sync::electrum::ElectrumSyncClient,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning_transaction_sync::error::TxSyncError,
+}
+#[repr(C)]
+/// A CResult_ElectrumSyncClientTxSyncErrorZ represents the result of a fallible operation,
+/// containing a crate::lightning_transaction_sync::electrum::ElectrumSyncClient on success and a crate::lightning_transaction_sync::error::TxSyncError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_ElectrumSyncClientTxSyncErrorZ {
+	/// The contents of this CResult_ElectrumSyncClientTxSyncErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_ElectrumSyncClientTxSyncErrorZPtr,
+	/// Whether this CResult_ElectrumSyncClientTxSyncErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_ElectrumSyncClientTxSyncErrorZ in the success state.
+pub extern "C" fn CResult_ElectrumSyncClientTxSyncErrorZ_ok(o: crate::lightning_transaction_sync::electrum::ElectrumSyncClient) -> CResult_ElectrumSyncClientTxSyncErrorZ {
+	CResult_ElectrumSyncClientTxSyncErrorZ {
+		contents: CResult_ElectrumSyncClientTxSyncErrorZPtr {
+			result: Box::into_raw(Box::new(o)),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_ElectrumSyncClientTxSyncErrorZ in the error state.
+pub extern "C" fn CResult_ElectrumSyncClientTxSyncErrorZ_err(e: crate::lightning_transaction_sync::error::TxSyncError) -> CResult_ElectrumSyncClientTxSyncErrorZ {
+	CResult_ElectrumSyncClientTxSyncErrorZ {
+		contents: CResult_ElectrumSyncClientTxSyncErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_ElectrumSyncClientTxSyncErrorZ_is_ok(o: &CResult_ElectrumSyncClientTxSyncErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_ElectrumSyncClientTxSyncErrorZ.
+pub extern "C" fn CResult_ElectrumSyncClientTxSyncErrorZ_free(_res: CResult_ElectrumSyncClientTxSyncErrorZ) { }
+impl Drop for CResult_ElectrumSyncClientTxSyncErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+			if unsafe { !(self.contents.result as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.result) };
+			}
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<crate::lightning_transaction_sync::electrum::ElectrumSyncClient, crate::lightning_transaction_sync::error::TxSyncError>> for CResult_ElectrumSyncClientTxSyncErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<crate::lightning_transaction_sync::electrum::ElectrumSyncClient, crate::lightning_transaction_sync::error::TxSyncError>) -> Self {
+		let contents = if o.result_ok {
+			let result = unsafe { o.contents.result };
+			unsafe { o.contents.result = core::ptr::null_mut() };
+			CResult_ElectrumSyncClientTxSyncErrorZPtr { result }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_ElectrumSyncClientTxSyncErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+#[repr(C)]
+/// A dynamically-allocated array of crate::lightning::chain::Confirms of arbitrary size.
+/// This corresponds to std::vector in C++
+pub struct CVec_ConfirmZ {
+	/// The elements in the array.
+	/// If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+	pub data: *mut crate::lightning::chain::Confirm,
+	/// The number of elements pointed to by `data`.
+	pub datalen: usize
+}
+impl CVec_ConfirmZ {
+	#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<crate::lightning::chain::Confirm> {
+		if self.datalen == 0 { return Vec::new(); }
+		let ret = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }.into();
+		self.data = core::ptr::null_mut();
+		self.datalen = 0;
+		ret
+	}
+	#[allow(unused)] pub(crate) fn as_slice(&self) -> &[crate::lightning::chain::Confirm] {
+		unsafe { core::slice::from_raw_parts_mut(self.data, self.datalen) }
+	}
+}
+impl From<Vec<crate::lightning::chain::Confirm>> for CVec_ConfirmZ {
+	fn from(v: Vec<crate::lightning::chain::Confirm>) -> Self {
+		let datalen = v.len();
+		let data = Box::into_raw(v.into_boxed_slice());
+		Self { datalen, data: unsafe { (*data).as_mut_ptr() } }
+	}
+}
+#[no_mangle]
+/// Frees the buffer pointed to by `data` if `datalen` is non-0.
+pub extern "C" fn CVec_ConfirmZ_free(_res: CVec_ConfirmZ) { }
+impl Drop for CVec_ConfirmZ {
+	fn drop(&mut self) {
+		if self.datalen == 0 { return; }
+		let _ = unsafe { Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) };
+	}
+}
+#[repr(C)]
+/// The contents of CResult_NoneTxSyncErrorZ
+pub union CResult_NoneTxSyncErrorZPtr {
+	/// Note that this value is always NULL, as there are no contents in the OK variant
+	pub result: *mut core::ffi::c_void,
+	/// A pointer to the contents in the error state.
+	/// Reading from this pointer when `result_ok` is set is undefined.
+	pub err: *mut crate::lightning_transaction_sync::error::TxSyncError,
+}
+#[repr(C)]
+/// A CResult_NoneTxSyncErrorZ represents the result of a fallible operation,
+/// containing a () on success and a crate::lightning_transaction_sync::error::TxSyncError on failure.
+/// `result_ok` indicates the overall state, and the contents are provided via `contents`.
+pub struct CResult_NoneTxSyncErrorZ {
+	/// The contents of this CResult_NoneTxSyncErrorZ, accessible via either
+	/// `err` or `result` depending on the state of `result_ok`.
+	pub contents: CResult_NoneTxSyncErrorZPtr,
+	/// Whether this CResult_NoneTxSyncErrorZ represents a success state.
+	pub result_ok: bool,
+}
+#[no_mangle]
+/// Creates a new CResult_NoneTxSyncErrorZ in the success state.
+pub extern "C" fn CResult_NoneTxSyncErrorZ_ok() -> CResult_NoneTxSyncErrorZ {
+	CResult_NoneTxSyncErrorZ {
+		contents: CResult_NoneTxSyncErrorZPtr {
+			result: core::ptr::null_mut(),
+		},
+		result_ok: true,
+	}
+}
+#[no_mangle]
+/// Creates a new CResult_NoneTxSyncErrorZ in the error state.
+pub extern "C" fn CResult_NoneTxSyncErrorZ_err(e: crate::lightning_transaction_sync::error::TxSyncError) -> CResult_NoneTxSyncErrorZ {
+	CResult_NoneTxSyncErrorZ {
+		contents: CResult_NoneTxSyncErrorZPtr {
+			err: Box::into_raw(Box::new(e)),
+		},
+		result_ok: false,
+	}
+}
+/// Checks if the given object is currently in the success state
+#[no_mangle]
+pub extern "C" fn CResult_NoneTxSyncErrorZ_is_ok(o: &CResult_NoneTxSyncErrorZ) -> bool {
+	o.result_ok
+}
+#[no_mangle]
+/// Frees any resources used by the CResult_NoneTxSyncErrorZ.
+pub extern "C" fn CResult_NoneTxSyncErrorZ_free(_res: CResult_NoneTxSyncErrorZ) { }
+impl Drop for CResult_NoneTxSyncErrorZ {
+	fn drop(&mut self) {
+		if self.result_ok {
+		} else {
+			if unsafe { !(self.contents.err as *mut ()).is_null() } {
+				let _ = unsafe { Box::from_raw(self.contents.err) };
+			}
+		}
+	}
+}
+impl From<crate::c_types::CResultTempl<(), crate::lightning_transaction_sync::error::TxSyncError>> for CResult_NoneTxSyncErrorZ {
+	fn from(mut o: crate::c_types::CResultTempl<(), crate::lightning_transaction_sync::error::TxSyncError>) -> Self {
+		let contents = if o.result_ok {
+			let _ = unsafe { Box::from_raw(o.contents.result) };
+			o.contents.result = core::ptr::null_mut();
+			CResult_NoneTxSyncErrorZPtr { result: core::ptr::null_mut() }
+		} else {
+			let err = unsafe { o.contents.err };
+			unsafe { o.contents.err = core::ptr::null_mut(); }
+			CResult_NoneTxSyncErrorZPtr { err }
+		};
+		Self {
+			contents,
+			result_ok: o.result_ok,
+		}
+	}
+}
+#[repr(C)]
 /// The contents of CResult_SiPrefixBolt11ParseErrorZ
 pub union CResult_SiPrefixBolt11ParseErrorZPtr {
 	/// A pointer to the contents in the success state.
