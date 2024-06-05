@@ -2102,9 +2102,7 @@ fn convert_file<'a, 'b>(libast: &'a FullLibraryAST, crate_types: &CrateTypes<'a>
 			// TODO: We need to map deny(missing_docs) in the source crate(s)
 			//writeln!(out, "#![deny(missing_docs)]").unwrap();
 
-			writeln!(out, "#![cfg_attr(not(feature = \"std\"), no_std)]").unwrap();
-			writeln!(out, "#[cfg(not(any(feature = \"std\", feature = \"no-std\")))]").unwrap();
-			writeln!(out, "compile_error!(\"at least one of the `std` or `no-std` features must be enabled\");").unwrap();
+			writeln!(out, "#![cfg_attr(feature = \"no-std\", no_std)]").unwrap();
 			writeln!(out, "extern crate alloc;").unwrap();
 
 			writeln!(out, "pub mod version;").unwrap();

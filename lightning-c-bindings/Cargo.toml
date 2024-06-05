@@ -15,18 +15,17 @@ crate-type = ["staticlib"
 ,"cdylib"]
 
 [features]
-no-std = ["bitcoin/no-std", "lightning/no-std", "lightning-invoice/no-std", "lightning-background-processor/no-std", "core2"]
-std = ["bitcoin/std", "lightning/std", "lightning-invoice/std", "lightning-background-processor/std"]
+no-std = ["core2"]
 
 [dependencies]
 bitcoin = { version = "0.30", default-features = false }
 secp256k1 = { version = "0.27", features = ["global-context", "recovery"] }
 # Note that the following line is matched by genbindings to update the path
-lightning = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
+lightning = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false, features = ["std"] }
 lightning-persister = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
-lightning-invoice = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
-lightning-background-processor = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
-lightning-rapid-gossip-sync = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
+lightning-invoice = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false, features = ["std"] }
+lightning-background-processor = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false, features = ["std"] }
+lightning-rapid-gossip-sync = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false, features = ["std"] }
 
 core2 = { version = "0.3.0", optional = true, default-features = false }
 

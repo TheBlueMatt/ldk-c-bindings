@@ -24,11 +24,10 @@ use core::convert::TryInto; // Bindings need at least rustc 1.34
 use alloc::borrow::ToOwned;
 use core::ffi::c_void;
 
-#[cfg(feature = "std")]
+#[cfg(not(feature = "no-std"))]
 pub(crate) use std::io::{self, Cursor, Read};
 #[cfg(feature = "no-std")]
 pub(crate) use core2::io::{self, Cursor, Read};
-#[cfg(feature = "no-std")]
 use alloc::{boxed::Box, vec::Vec, string::String};
 
 use core::convert::TryFrom;
@@ -869,7 +868,7 @@ impl Str {
 		};
 		String::from_utf8(bytes).unwrap()
 	}
-	#[cfg(feature = "std")]
+	#[cfg(not(feature = "no-std"))]
 	pub(crate) fn into_pathbuf(mut self) -> std::path::PathBuf {
 		std::path::PathBuf::from(self.into_string())
 	}
@@ -880,7 +879,7 @@ impl Into<Str> for String {
 		Str { chars: s.as_ptr(), len: s.len(), chars_is_owned: true }
 	}
 }
-#[cfg(feature = "std")]
+#[cfg(not(feature = "no-std"))]
 impl Into<Str> for std::path::PathBuf {
 	fn into(self) -> Str {
 		self.into_os_string().into_string().expect("We expect paths to be UTF-8 valid").into()

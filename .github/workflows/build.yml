@@ -34,7 +34,7 @@ jobs:
         run: |
           # Note that the version tags aren't checked into git
           touch src/version.rs
-          RUSTFLAGS="--cfg=c_bindings" cargo check --features std
+          RUSTFLAGS="--cfg=c_bindings" cargo check
       - name: Install cbindgen
         run: |
           git clone https://github.com/eqrion/cbindgen
@@ -94,7 +94,7 @@ jobs:
         run: |
           # Note that the version tags aren't checked into git
           touch src/version.rs
-          RUSTFLAGS="--cfg=c_bindings" cargo check --features std
+          RUSTFLAGS="--cfg=c_bindings" cargo check
       - name: Install cbindgen
         run: |
           git clone https://github.com/eqrion/cbindgen

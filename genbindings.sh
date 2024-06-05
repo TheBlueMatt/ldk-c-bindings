@@ -180,11 +180,13 @@ pub mod $2 {
 	echo "}" >> /tmp/$1-crate-source.txt
 	cat /tmp/$1-crate-source.txt >> /tmp/crate-source.txt
 	rm /tmp/$1-crate-source.txt
+	FEATURES="$(echo "$3\"" | sed 's/--features=/"/' | sed 's/,/", "/g')"
+	[ "$FEATURES" = '"' ] && FEATURES=""
 	if is_gnu_sed; then
-		sed -E -i 's|#*'$1' = \{ .*|'$1' = \{ path = "'"$LIGHTNING_PATH"'/'$1'", default-features = false }|' lightning-c-bindings/Cargo.toml
+		sed -E -i 's|#*'$1' = \{ .*|'$1' = \{ path = "'"$LIGHTNING_PATH"'/'$1'", default-features = false, features = ['"$FEATURES"'] }|' lightning-c-bindings/Cargo.toml
 	else
 		# OSX sed is for some reason not compatible with GNU sed
-		sed -E -i '' 's|#*'$1' = \{ .*|'$1' = \{ path = "'"$LIGHTNING_PATH"'/'$1'", default-features = false }|' lightning-c-bindings/Cargo.toml
+		sed -E -i '' 's|#*'$1' = \{ .*|'$1' = \{ path = "'"$LIGHTNING_PATH"'/'$1'", default-features = false, features = ['"$FEATURES"'] }|' lightning-c-bindings/Cargo.toml
 	fi
 }
 
@@ -204,7 +206,6 @@ if [ "$2" = "true" ]; then
 	add_crate "lightning-background-processor" "lightning_background_processor" --features=std
 	add_crate "lightning-invoice" "lightning_invoice" --features=std
 	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync" --features=std
-	CARGO_BUILD_ARGS="--features=std"
 else
 	add_crate lightning lightning --features=no-std
 	drop_crate "lightning-persister"
