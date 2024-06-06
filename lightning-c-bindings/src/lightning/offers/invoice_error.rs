@@ -260,6 +260,11 @@ pub extern "C" fn InvoiceError_from_string(mut s: crate::c_types::Str) -> crate:
 }
 
 #[no_mangle]
+/// Get the string representation of a InvoiceError object
+pub extern "C" fn InvoiceError_to_str(o: &crate::lightning::offers::invoice_error::InvoiceError) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
+#[no_mangle]
 /// Serialize the InvoiceError object into a byte array which can be read by InvoiceError_read
 pub extern "C" fn InvoiceError_write(obj: &crate::lightning::offers::invoice_error::InvoiceError) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())

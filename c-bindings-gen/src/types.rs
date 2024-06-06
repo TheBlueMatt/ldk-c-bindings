@@ -656,7 +656,7 @@ impl<'mod_lifetime, 'crate_lft: 'mod_lifetime> ImportResolver<'mod_lifetime, 'cr
 			}
 		}
 
-		if p.leading_colon.is_some() {
+		let result = if p.leading_colon.is_some() {
 			let mut res: String = p.segments.iter().enumerate().map(|(idx, seg)| {
 				format!("{}{}", if idx == 0 { "" } else { "::" }, seg.ident)
 			}).collect();
@@ -667,11 +667,10 @@ impl<'mod_lifetime, 'crate_lft: 'mod_lifetime> ImportResolver<'mod_lifetime, 'cr
 			Some(res)
 		} else if let Some(id) = p.get_ident() {
 			self.maybe_resolve_ident(id)
+		} else if p.segments.len() == 1 {
+			let seg = p.segments.iter().next().unwrap();
+			self.maybe_resolve_ident(&seg.ident)
 		} else {
-			if p.segments.len() == 1 {
-				let seg = p.segments.iter().next().unwrap();
-				return self.maybe_resolve_ident(&seg.ident);
-			}
 			let mut seg_iter = p.segments.iter();
 			let first_seg = seg_iter.next().unwrap();
 			let remaining: String = seg_iter.map(|seg| {
@@ -693,6 +692,13 @@ impl<'mod_lifetime, 'crate_lft: 'mod_lifetime> ImportResolver<'mod_lifetime, 'cr
 			} else if self.library.modules.get(&format!("{}::{}", self.module_path, first_seg.ident)).is_some() {
 				Some(format!("{}::{}{}", self.module_path, first_seg.ident, remaining))
 			} else { None }
+		};
+		// We're only set up to handle `Vec` imported via the prelude, but its often imported
+		// via the alloc stdlib crate, so map it here.
+		if result.as_ref().map(|s| s.as_str()) == Some("alloc::vec::Vec") {
+			Some("Vec".to_string())
+		} else {
+			result
 		}
 	}
 

@@ -271,3 +271,8 @@ pub extern "C" fn ShutdownScript_is_compatible(this_arg: &crate::lightning::ln::
 	ret
 }
 
+#[no_mangle]
+/// Get the string representation of a ShutdownScript object
+pub extern "C" fn ShutdownScript_to_str(o: &crate::lightning::ln::script::ShutdownScript) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}

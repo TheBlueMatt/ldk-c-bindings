@@ -600,6 +600,58 @@ typedef enum LDKIOError {
 } LDKIOError;
 
 /**
+ * Exposes the state of pending inbound HTLCs.
+ *
+ * At a high level, an HTLC being forwarded from one Lightning node to another Lightning node goes
+ * through the following states in the state machine:
+ * - Announced for addition by the originating node through the update_add_htlc message.
+ * - Added to the commitment transaction of the receiving node and originating node in turn
+ *   through the exchange of commitment_signed and revoke_and_ack messages.
+ * - Announced for resolution (fulfillment or failure) by the receiving node through either one of
+ *   the update_fulfill_htlc, update_fail_htlc, and update_fail_malformed_htlc messages.
+ * - Removed from the commitment transaction of the originating node and receiving node in turn
+ *   through the exchange of commitment_signed and revoke_and_ack messages.
+ *
+ * This can be used to inspect what next message an HTLC is waiting for to advance its state.
+ */
+typedef enum LDKInboundHTLCStateDetails {
+   /**
+    * We have added this HTLC in our commitment transaction by receiving commitment_signed and
+    * returning revoke_and_ack. We are awaiting the appropriate revoke_and_ack's from the remote
+    * before this HTLC is included on the remote commitment transaction.
+    */
+   LDKInboundHTLCStateDetails_AwaitingRemoteRevokeToAdd,
+   /**
+    * This HTLC has been included in the commitment_signed and revoke_and_ack messages on both sides
+    * and is included in both commitment transactions.
+    *
+    * This HTLC is now safe to either forward or be claimed as a payment by us. The HTLC will
+    * remain in this state until the forwarded upstream HTLC has been resolved and we resolve this
+    * HTLC correspondingly, or until we claim it as a payment. If it is part of a multipart
+    * payment, it will only be claimed together with other required parts.
+    */
+   LDKInboundHTLCStateDetails_Committed,
+   /**
+    * We have received the preimage for this HTLC and it is being removed by fulfilling it with
+    * update_fulfill_htlc. This HTLC is still on both commitment transactions, but we are awaiting
+    * the appropriate revoke_and_ack's from the remote before this HTLC is removed from the remote
+    * commitment transaction after update_fulfill_htlc.
+    */
+   LDKInboundHTLCStateDetails_AwaitingRemoteRevokeToRemoveFulfill,
+   /**
+    * The HTLC is being removed by failing it with update_fail_htlc or update_fail_malformed_htlc.
+    * This HTLC is still on both commitment transactions, but we are awaiting the appropriate
+    * revoke_and_ack's from the remote before this HTLC is removed from the remote commitment
+    * transaction.
+    */
+   LDKInboundHTLCStateDetails_AwaitingRemoteRevokeToRemoveFail,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKInboundHTLCStateDetails_Sentinel,
+} LDKInboundHTLCStateDetails;
+
+/**
  * An enum representing the available verbosity levels of the logger.
  */
 typedef enum LDKLevel {
@@ -658,6 +710,55 @@ typedef enum LDKNetwork {
     */
    LDKNetwork_Sentinel,
 } LDKNetwork;
+
+/**
+ * Exposes the state of pending outbound HTLCs.
+ *
+ * At a high level, an HTLC being forwarded from one Lightning node to another Lightning node goes
+ * through the following states in the state machine:
+ * - Announced for addition by the originating node through the update_add_htlc message.
+ * - Added to the commitment transaction of the receiving node and originating node in turn
+ *   through the exchange of commitment_signed and revoke_and_ack messages.
+ * - Announced for resolution (fulfillment or failure) by the receiving node through either one of
+ *   the update_fulfill_htlc, update_fail_htlc, and update_fail_malformed_htlc messages.
+ * - Removed from the commitment transaction of the originating node and receiving node in turn
+ *   through the exchange of commitment_signed and revoke_and_ack messages.
+ *
+ * This can be used to inspect what next message an HTLC is waiting for to advance its state.
+ */
+typedef enum LDKOutboundHTLCStateDetails {
+   /**
+    * We are awaiting the appropriate revoke_and_ack's from the remote before the HTLC is added
+    * on the remote's commitment transaction after update_add_htlc.
+    */
+   LDKOutboundHTLCStateDetails_AwaitingRemoteRevokeToAdd,
+   /**
+    * The HTLC has been added to the remote's commitment transaction by sending commitment_signed
+    * and receiving revoke_and_ack in return.
+    *
+    * The HTLC will remain in this state until the remote node resolves the HTLC, or until we
+    * unilaterally close the channel due to a timeout with an uncooperative remote node.
+    */
+   LDKOutboundHTLCStateDetails_Committed,
+   /**
+    * The HTLC has been fulfilled successfully by the remote with a preimage in update_fulfill_htlc,
+    * and we removed the HTLC from our commitment transaction by receiving commitment_signed and
+    * returning revoke_and_ack. We are awaiting the appropriate revoke_and_ack's from the remote
+    * for the removal from its commitment transaction.
+    */
+   LDKOutboundHTLCStateDetails_AwaitingRemoteRevokeToRemoveSuccess,
+   /**
+    * The HTLC has been failed by the remote with update_fail_htlc or update_fail_malformed_htlc,
+    * and we removed the HTLC from our commitment transaction by receiving commitment_signed and
+    * returning revoke_and_ack. We are awaiting the appropriate revoke_and_ack's from the remote
+    * for the removal from its commitment transaction.
+    */
+   LDKOutboundHTLCStateDetails_AwaitingRemoteRevokeToRemoveFailure,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKOutboundHTLCStateDetails_Sentinel,
+} LDKOutboundHTLCStateDetails;
 
 /**
  * The reason the payment failed. Used in [`Event::PaymentFailed`].
@@ -4282,6 +4383,9 @@ typedef struct LDKCResult_NoneIOErrorZ {
 
 /**
  * Details of a channel, as returned by [`ChannelManager::list_channels`] and [`ChannelManager::list_usable_channels`]
+ *
+ * [`ChannelManager::list_channels`]: crate::ln::channelmanager::ChannelManager::list_channels
+ * [`ChannelManager::list_usable_channels`]: crate::ln::channelmanager::ChannelManager::list_usable_channels
  */
 typedef struct MUST_USE_STRUCT LDKChannelDetails {
    /**
@@ -4299,7 +4403,7 @@ typedef struct MUST_USE_STRUCT LDKChannelDetails {
 } LDKChannelDetails;
 
 /**
- * A dynamically-allocated array of crate::lightning::ln::channelmanager::ChannelDetailss of arbitrary size.
+ * A dynamically-allocated array of crate::lightning::ln::channel_state::ChannelDetailss of arbitrary size.
  * This corresponds to std::vector in C++
  */
 typedef struct LDKCVec_ChannelDetailsZ {
@@ -9603,33 +9707,6 @@ typedef struct LDKCOption_C2Tuple_u64u16ZZ {
 } LDKCOption_C2Tuple_u64u16ZZ;
 
 /**
- * An enum which can either contain a crate::lightning::ln::channelmanager::ChannelShutdownState or not
- */
-typedef enum LDKCOption_ChannelShutdownStateZ_Tag {
-   /**
-    * When we're in this state, this COption_ChannelShutdownStateZ contains a crate::lightning::ln::channelmanager::ChannelShutdownState
-    */
-   LDKCOption_ChannelShutdownStateZ_Some,
-   /**
-    * When we're in this state, this COption_ChannelShutdownStateZ contains nothing
-    */
-   LDKCOption_ChannelShutdownStateZ_None,
-   /**
-    * Must be last for serialization purposes
-    */
-   LDKCOption_ChannelShutdownStateZ_Sentinel,
-} LDKCOption_ChannelShutdownStateZ_Tag;
-
-typedef struct LDKCOption_ChannelShutdownStateZ {
-   LDKCOption_ChannelShutdownStateZ_Tag tag;
-   union {
-      struct {
-         enum LDKChannelShutdownState some;
-      };
-   };
-} LDKCOption_ChannelShutdownStateZ;
-
-/**
  * The contents of CResult_ChannelIdAPIErrorZ
  */
 typedef union LDKCResult_ChannelIdAPIErrorZPtr {
@@ -10518,146 +10595,6 @@ typedef struct LDKCVec_C3Tuple_OffersMessageDestinationBlindedPathZZ {
 
 
 /**
- * Information needed for constructing an invoice route hint for this channel.
- */
-typedef struct MUST_USE_STRUCT LDKCounterpartyForwardingInfo {
-   /**
-    * A pointer to the opaque Rust object.
-    * Nearly everywhere, inner must be non-null, however in places where
-    * the Rust equivalent takes an Option, it may be set to null to indicate None.
-    */
-   LDKnativeCounterpartyForwardingInfo *inner;
-   /**
-    * Indicates that this is the only struct which contains the same pointer.
-    * Rust functions which take ownership of an object provided via an argument require
-    * this to be true and invalidate the object pointed to by inner.
-    */
-   bool is_owned;
-} LDKCounterpartyForwardingInfo;
-
-/**
- * The contents of CResult_CounterpartyForwardingInfoDecodeErrorZ
- */
-typedef union LDKCResult_CounterpartyForwardingInfoDecodeErrorZPtr {
-   /**
-    * A pointer to the contents in the success state.
-    * Reading from this pointer when `result_ok` is not set is undefined.
-    */
-   struct LDKCounterpartyForwardingInfo *result;
-   /**
-    * A pointer to the contents in the error state.
-    * Reading from this pointer when `result_ok` is set is undefined.
-    */
-   struct LDKDecodeError *err;
-} LDKCResult_CounterpartyForwardingInfoDecodeErrorZPtr;
-
-/**
- * A CResult_CounterpartyForwardingInfoDecodeErrorZ represents the result of a fallible operation,
- * containing a crate::lightning::ln::channelmanager::CounterpartyForwardingInfo on success and a crate::lightning::ln::msgs::DecodeError on failure.
- * `result_ok` indicates the overall state, and the contents are provided via `contents`.
- */
-typedef struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ {
-   /**
-    * The contents of this CResult_CounterpartyForwardingInfoDecodeErrorZ, accessible via either
-    * `err` or `result` depending on the state of `result_ok`.
-    */
-   union LDKCResult_CounterpartyForwardingInfoDecodeErrorZPtr contents;
-   /**
-    * Whether this CResult_CounterpartyForwardingInfoDecodeErrorZ represents a success state.
-    */
-   bool result_ok;
-} LDKCResult_CounterpartyForwardingInfoDecodeErrorZ;
-
-
-
-/**
- * Channel parameters which apply to our counterparty. These are split out from [`ChannelDetails`]
- * to better separate parameters.
- */
-typedef struct MUST_USE_STRUCT LDKChannelCounterparty {
-   /**
-    * A pointer to the opaque Rust object.
-    * Nearly everywhere, inner must be non-null, however in places where
-    * the Rust equivalent takes an Option, it may be set to null to indicate None.
-    */
-   LDKnativeChannelCounterparty *inner;
-   /**
-    * Indicates that this is the only struct which contains the same pointer.
-    * Rust functions which take ownership of an object provided via an argument require
-    * this to be true and invalidate the object pointed to by inner.
-    */
-   bool is_owned;
-} LDKChannelCounterparty;
-
-/**
- * The contents of CResult_ChannelCounterpartyDecodeErrorZ
- */
-typedef union LDKCResult_ChannelCounterpartyDecodeErrorZPtr {
-   /**
-    * A pointer to the contents in the success state.
-    * Reading from this pointer when `result_ok` is not set is undefined.
-    */
-   struct LDKChannelCounterparty *result;
-   /**
-    * A pointer to the contents in the error state.
-    * Reading from this pointer when `result_ok` is set is undefined.
-    */
-   struct LDKDecodeError *err;
-} LDKCResult_ChannelCounterpartyDecodeErrorZPtr;
-
-/**
- * A CResult_ChannelCounterpartyDecodeErrorZ represents the result of a fallible operation,
- * containing a crate::lightning::ln::channelmanager::ChannelCounterparty on success and a crate::lightning::ln::msgs::DecodeError on failure.
- * `result_ok` indicates the overall state, and the contents are provided via `contents`.
- */
-typedef struct LDKCResult_ChannelCounterpartyDecodeErrorZ {
-   /**
-    * The contents of this CResult_ChannelCounterpartyDecodeErrorZ, accessible via either
-    * `err` or `result` depending on the state of `result_ok`.
-    */
-   union LDKCResult_ChannelCounterpartyDecodeErrorZPtr contents;
-   /**
-    * Whether this CResult_ChannelCounterpartyDecodeErrorZ represents a success state.
-    */
-   bool result_ok;
-} LDKCResult_ChannelCounterpartyDecodeErrorZ;
-
-/**
- * The contents of CResult_ChannelDetailsDecodeErrorZ
- */
-typedef union LDKCResult_ChannelDetailsDecodeErrorZPtr {
-   /**
-    * A pointer to the contents in the success state.
-    * Reading from this pointer when `result_ok` is not set is undefined.
-    */
-   struct LDKChannelDetails *result;
-   /**
-    * A pointer to the contents in the error state.
-    * Reading from this pointer when `result_ok` is set is undefined.
-    */
-   struct LDKDecodeError *err;
-} LDKCResult_ChannelDetailsDecodeErrorZPtr;
-
-/**
- * A CResult_ChannelDetailsDecodeErrorZ represents the result of a fallible operation,
- * containing a crate::lightning::ln::channelmanager::ChannelDetails on success and a crate::lightning::ln::msgs::DecodeError on failure.
- * `result_ok` indicates the overall state, and the contents are provided via `contents`.
- */
-typedef struct LDKCResult_ChannelDetailsDecodeErrorZ {
-   /**
-    * The contents of this CResult_ChannelDetailsDecodeErrorZ, accessible via either
-    * `err` or `result` depending on the state of `result_ok`.
-    */
-   union LDKCResult_ChannelDetailsDecodeErrorZPtr contents;
-   /**
-    * Whether this CResult_ChannelDetailsDecodeErrorZ represents a success state.
-    */
-   bool result_ok;
-} LDKCResult_ChannelDetailsDecodeErrorZ;
-
-
-
-/**
  * Route hints used in constructing invoices for [phantom node payents].
  *
  * [phantom node payments]: crate::sign::PhantomKeysManager
@@ -11052,39 +10989,6 @@ typedef struct LDKCResult_BlindedFailureDecodeErrorZ {
     */
    bool result_ok;
 } LDKCResult_BlindedFailureDecodeErrorZ;
-
-/**
- * The contents of CResult_ChannelShutdownStateDecodeErrorZ
- */
-typedef union LDKCResult_ChannelShutdownStateDecodeErrorZPtr {
-   /**
-    * A pointer to the contents in the success state.
-    * Reading from this pointer when `result_ok` is not set is undefined.
-    */
-   enum LDKChannelShutdownState *result;
-   /**
-    * A pointer to the contents in the error state.
-    * Reading from this pointer when `result_ok` is set is undefined.
-    */
-   struct LDKDecodeError *err;
-} LDKCResult_ChannelShutdownStateDecodeErrorZPtr;
-
-/**
- * A CResult_ChannelShutdownStateDecodeErrorZ represents the result of a fallible operation,
- * containing a crate::lightning::ln::channelmanager::ChannelShutdownState on success and a crate::lightning::ln::msgs::DecodeError on failure.
- * `result_ok` indicates the overall state, and the contents are provided via `contents`.
- */
-typedef struct LDKCResult_ChannelShutdownStateDecodeErrorZ {
-   /**
-    * The contents of this CResult_ChannelShutdownStateDecodeErrorZ, accessible via either
-    * `err` or `result` depending on the state of `result_ok`.
-    */
-   union LDKCResult_ChannelShutdownStateDecodeErrorZPtr contents;
-   /**
-    * Whether this CResult_ChannelShutdownStateDecodeErrorZ represents a success state.
-    */
-   bool result_ok;
-} LDKCResult_ChannelShutdownStateDecodeErrorZ;
 
 
 
@@ -16496,6 +16400,464 @@ typedef struct LDKCResult_Bolt11InvoiceSignOrCreationErrorZ {
     */
    bool result_ok;
 } LDKCResult_Bolt11InvoiceSignOrCreationErrorZ;
+
+/**
+ * An enum which can either contain a crate::lightning::ln::channel_state::InboundHTLCStateDetails or not
+ */
+typedef enum LDKCOption_InboundHTLCStateDetailsZ_Tag {
+   /**
+    * When we're in this state, this COption_InboundHTLCStateDetailsZ contains a crate::lightning::ln::channel_state::InboundHTLCStateDetails
+    */
+   LDKCOption_InboundHTLCStateDetailsZ_Some,
+   /**
+    * When we're in this state, this COption_InboundHTLCStateDetailsZ contains nothing
+    */
+   LDKCOption_InboundHTLCStateDetailsZ_None,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKCOption_InboundHTLCStateDetailsZ_Sentinel,
+} LDKCOption_InboundHTLCStateDetailsZ_Tag;
+
+typedef struct LDKCOption_InboundHTLCStateDetailsZ {
+   LDKCOption_InboundHTLCStateDetailsZ_Tag tag;
+   union {
+      struct {
+         enum LDKInboundHTLCStateDetails some;
+      };
+   };
+} LDKCOption_InboundHTLCStateDetailsZ;
+
+/**
+ * The contents of CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ
+ */
+typedef union LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKCOption_InboundHTLCStateDetailsZ *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZPtr;
+
+/**
+ * A CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::c_types::derived::COption_InboundHTLCStateDetailsZ on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ {
+   /**
+    * The contents of this CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ;
+
+
+
+/**
+ * Exposes details around pending inbound HTLCs.
+ */
+typedef struct MUST_USE_STRUCT LDKInboundHTLCDetails {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeInboundHTLCDetails *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKInboundHTLCDetails;
+
+/**
+ * The contents of CResult_InboundHTLCDetailsDecodeErrorZ
+ */
+typedef union LDKCResult_InboundHTLCDetailsDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKInboundHTLCDetails *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_InboundHTLCDetailsDecodeErrorZPtr;
+
+/**
+ * A CResult_InboundHTLCDetailsDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning::ln::channel_state::InboundHTLCDetails on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_InboundHTLCDetailsDecodeErrorZ {
+   /**
+    * The contents of this CResult_InboundHTLCDetailsDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_InboundHTLCDetailsDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_InboundHTLCDetailsDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_InboundHTLCDetailsDecodeErrorZ;
+
+/**
+ * An enum which can either contain a crate::lightning::ln::channel_state::OutboundHTLCStateDetails or not
+ */
+typedef enum LDKCOption_OutboundHTLCStateDetailsZ_Tag {
+   /**
+    * When we're in this state, this COption_OutboundHTLCStateDetailsZ contains a crate::lightning::ln::channel_state::OutboundHTLCStateDetails
+    */
+   LDKCOption_OutboundHTLCStateDetailsZ_Some,
+   /**
+    * When we're in this state, this COption_OutboundHTLCStateDetailsZ contains nothing
+    */
+   LDKCOption_OutboundHTLCStateDetailsZ_None,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKCOption_OutboundHTLCStateDetailsZ_Sentinel,
+} LDKCOption_OutboundHTLCStateDetailsZ_Tag;
+
+typedef struct LDKCOption_OutboundHTLCStateDetailsZ {
+   LDKCOption_OutboundHTLCStateDetailsZ_Tag tag;
+   union {
+      struct {
+         enum LDKOutboundHTLCStateDetails some;
+      };
+   };
+} LDKCOption_OutboundHTLCStateDetailsZ;
+
+/**
+ * The contents of CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ
+ */
+typedef union LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKCOption_OutboundHTLCStateDetailsZ *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZPtr;
+
+/**
+ * A CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::c_types::derived::COption_OutboundHTLCStateDetailsZ on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ {
+   /**
+    * The contents of this CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ;
+
+
+
+/**
+ * Exposes details around pending outbound HTLCs.
+ */
+typedef struct MUST_USE_STRUCT LDKOutboundHTLCDetails {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeOutboundHTLCDetails *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKOutboundHTLCDetails;
+
+/**
+ * The contents of CResult_OutboundHTLCDetailsDecodeErrorZ
+ */
+typedef union LDKCResult_OutboundHTLCDetailsDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKOutboundHTLCDetails *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_OutboundHTLCDetailsDecodeErrorZPtr;
+
+/**
+ * A CResult_OutboundHTLCDetailsDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning::ln::channel_state::OutboundHTLCDetails on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_OutboundHTLCDetailsDecodeErrorZ {
+   /**
+    * The contents of this CResult_OutboundHTLCDetailsDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_OutboundHTLCDetailsDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_OutboundHTLCDetailsDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_OutboundHTLCDetailsDecodeErrorZ;
+
+
+
+/**
+ * Information needed for constructing an invoice route hint for this channel.
+ */
+typedef struct MUST_USE_STRUCT LDKCounterpartyForwardingInfo {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeCounterpartyForwardingInfo *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKCounterpartyForwardingInfo;
+
+/**
+ * The contents of CResult_CounterpartyForwardingInfoDecodeErrorZ
+ */
+typedef union LDKCResult_CounterpartyForwardingInfoDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKCounterpartyForwardingInfo *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_CounterpartyForwardingInfoDecodeErrorZPtr;
+
+/**
+ * A CResult_CounterpartyForwardingInfoDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning::ln::channel_state::CounterpartyForwardingInfo on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ {
+   /**
+    * The contents of this CResult_CounterpartyForwardingInfoDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_CounterpartyForwardingInfoDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_CounterpartyForwardingInfoDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_CounterpartyForwardingInfoDecodeErrorZ;
+
+
+
+/**
+ * Channel parameters which apply to our counterparty. These are split out from [`ChannelDetails`]
+ * to better separate parameters.
+ */
+typedef struct MUST_USE_STRUCT LDKChannelCounterparty {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeChannelCounterparty *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKChannelCounterparty;
+
+/**
+ * The contents of CResult_ChannelCounterpartyDecodeErrorZ
+ */
+typedef union LDKCResult_ChannelCounterpartyDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKChannelCounterparty *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_ChannelCounterpartyDecodeErrorZPtr;
+
+/**
+ * A CResult_ChannelCounterpartyDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning::ln::channel_state::ChannelCounterparty on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_ChannelCounterpartyDecodeErrorZ {
+   /**
+    * The contents of this CResult_ChannelCounterpartyDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_ChannelCounterpartyDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_ChannelCounterpartyDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_ChannelCounterpartyDecodeErrorZ;
+
+/**
+ * An enum which can either contain a crate::lightning::ln::channel_state::ChannelShutdownState or not
+ */
+typedef enum LDKCOption_ChannelShutdownStateZ_Tag {
+   /**
+    * When we're in this state, this COption_ChannelShutdownStateZ contains a crate::lightning::ln::channel_state::ChannelShutdownState
+    */
+   LDKCOption_ChannelShutdownStateZ_Some,
+   /**
+    * When we're in this state, this COption_ChannelShutdownStateZ contains nothing
+    */
+   LDKCOption_ChannelShutdownStateZ_None,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKCOption_ChannelShutdownStateZ_Sentinel,
+} LDKCOption_ChannelShutdownStateZ_Tag;
+
+typedef struct LDKCOption_ChannelShutdownStateZ {
+   LDKCOption_ChannelShutdownStateZ_Tag tag;
+   union {
+      struct {
+         enum LDKChannelShutdownState some;
+      };
+   };
+} LDKCOption_ChannelShutdownStateZ;
+
+/**
+ * A dynamically-allocated array of crate::lightning::ln::channel_state::InboundHTLCDetailss of arbitrary size.
+ * This corresponds to std::vector in C++
+ */
+typedef struct LDKCVec_InboundHTLCDetailsZ {
+   /**
+    * The elements in the array.
+    * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+    */
+   struct LDKInboundHTLCDetails *data;
+   /**
+    * The number of elements pointed to by `data`.
+    */
+   uintptr_t datalen;
+} LDKCVec_InboundHTLCDetailsZ;
+
+/**
+ * A dynamically-allocated array of crate::lightning::ln::channel_state::OutboundHTLCDetailss of arbitrary size.
+ * This corresponds to std::vector in C++
+ */
+typedef struct LDKCVec_OutboundHTLCDetailsZ {
+   /**
+    * The elements in the array.
+    * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+    */
+   struct LDKOutboundHTLCDetails *data;
+   /**
+    * The number of elements pointed to by `data`.
+    */
+   uintptr_t datalen;
+} LDKCVec_OutboundHTLCDetailsZ;
+
+/**
+ * The contents of CResult_ChannelDetailsDecodeErrorZ
+ */
+typedef union LDKCResult_ChannelDetailsDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKChannelDetails *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_ChannelDetailsDecodeErrorZPtr;
+
+/**
+ * A CResult_ChannelDetailsDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning::ln::channel_state::ChannelDetails on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_ChannelDetailsDecodeErrorZ {
+   /**
+    * The contents of this CResult_ChannelDetailsDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_ChannelDetailsDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_ChannelDetailsDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_ChannelDetailsDecodeErrorZ;
+
+/**
+ * The contents of CResult_ChannelShutdownStateDecodeErrorZ
+ */
+typedef union LDKCResult_ChannelShutdownStateDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   enum LDKChannelShutdownState *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_ChannelShutdownStateDecodeErrorZPtr;
+
+/**
+ * A CResult_ChannelShutdownStateDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning::ln::channel_state::ChannelShutdownState on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_ChannelShutdownStateDecodeErrorZ {
+   /**
+    * The contents of this CResult_ChannelShutdownStateDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_ChannelShutdownStateDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_ChannelShutdownStateDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_ChannelShutdownStateDecodeErrorZ;
 
 
 
@@ -27746,27 +28108,6 @@ void COption_C2Tuple_u64u16ZZ_free(struct LDKCOption_C2Tuple_u64u16ZZ _res);
 struct LDKCOption_C2Tuple_u64u16ZZ COption_C2Tuple_u64u16ZZ_clone(const struct LDKCOption_C2Tuple_u64u16ZZ *NONNULL_PTR orig);
 
 /**
- * Constructs a new COption_ChannelShutdownStateZ containing a crate::lightning::ln::channelmanager::ChannelShutdownState
- */
-struct LDKCOption_ChannelShutdownStateZ COption_ChannelShutdownStateZ_some(enum LDKChannelShutdownState o);
-
-/**
- * Constructs a new COption_ChannelShutdownStateZ containing nothing
- */
-struct LDKCOption_ChannelShutdownStateZ COption_ChannelShutdownStateZ_none(void);
-
-/**
- * Frees any resources associated with the crate::lightning::ln::channelmanager::ChannelShutdownState, if we are in the Some state
- */
-void COption_ChannelShutdownStateZ_free(struct LDKCOption_ChannelShutdownStateZ _res);
-
-/**
- * Creates a new COption_ChannelShutdownStateZ which has the same data as `orig`
- * but with all dynamically-allocated buffers duplicated in new buffers.
- */
-struct LDKCOption_ChannelShutdownStateZ COption_ChannelShutdownStateZ_clone(const struct LDKCOption_ChannelShutdownStateZ *NONNULL_PTR orig);
-
-/**
  * Creates a new CResult_ChannelIdAPIErrorZ in the success state.
  */
 struct LDKCResult_ChannelIdAPIErrorZ CResult_ChannelIdAPIErrorZ_ok(struct LDKChannelId o);
@@ -28142,84 +28483,6 @@ void C3Tuple_OffersMessageDestinationBlindedPathZ_free(struct LDKC3Tuple_OffersM
 void CVec_C3Tuple_OffersMessageDestinationBlindedPathZZ_free(struct LDKCVec_C3Tuple_OffersMessageDestinationBlindedPathZZ _res);
 
 /**
- * Creates a new CResult_CounterpartyForwardingInfoDecodeErrorZ in the success state.
- */
-struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ CResult_CounterpartyForwardingInfoDecodeErrorZ_ok(struct LDKCounterpartyForwardingInfo o);
-
-/**
- * Creates a new CResult_CounterpartyForwardingInfoDecodeErrorZ in the error state.
- */
-struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ CResult_CounterpartyForwardingInfoDecodeErrorZ_err(struct LDKDecodeError e);
-
-/**
- * Checks if the given object is currently in the success state
- */
-bool CResult_CounterpartyForwardingInfoDecodeErrorZ_is_ok(const struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ *NONNULL_PTR o);
-
-/**
- * Frees any resources used by the CResult_CounterpartyForwardingInfoDecodeErrorZ.
- */
-void CResult_CounterpartyForwardingInfoDecodeErrorZ_free(struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ _res);
-
-/**
- * Creates a new CResult_CounterpartyForwardingInfoDecodeErrorZ which has the same data as `orig`
- * but with all dynamically-allocated buffers duplicated in new buffers.
- */
-struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ CResult_CounterpartyForwardingInfoDecodeErrorZ_clone(const struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ *NONNULL_PTR orig);
-
-/**
- * Creates a new CResult_ChannelCounterpartyDecodeErrorZ in the success state.
- */
-struct LDKCResult_ChannelCounterpartyDecodeErrorZ CResult_ChannelCounterpartyDecodeErrorZ_ok(struct LDKChannelCounterparty o);
-
-/**
- * Creates a new CResult_ChannelCounterpartyDecodeErrorZ in the error state.
- */
-struct LDKCResult_ChannelCounterpartyDecodeErrorZ CResult_ChannelCounterpartyDecodeErrorZ_err(struct LDKDecodeError e);
-
-/**
- * Checks if the given object is currently in the success state
- */
-bool CResult_ChannelCounterpartyDecodeErrorZ_is_ok(const struct LDKCResult_ChannelCounterpartyDecodeErrorZ *NONNULL_PTR o);
-
-/**
- * Frees any resources used by the CResult_ChannelCounterpartyDecodeErrorZ.
- */
-void CResult_ChannelCounterpartyDecodeErrorZ_free(struct LDKCResult_ChannelCounterpartyDecodeErrorZ _res);
-
-/**
- * Creates a new CResult_ChannelCounterpartyDecodeErrorZ which has the same data as `orig`
- * but with all dynamically-allocated buffers duplicated in new buffers.
- */
-struct LDKCResult_ChannelCounterpartyDecodeErrorZ CResult_ChannelCounterpartyDecodeErrorZ_clone(const struct LDKCResult_ChannelCounterpartyDecodeErrorZ *NONNULL_PTR orig);
-
-/**
- * Creates a new CResult_ChannelDetailsDecodeErrorZ in the success state.
- */
-struct LDKCResult_ChannelDetailsDecodeErrorZ CResult_ChannelDetailsDecodeErrorZ_ok(struct LDKChannelDetails o);
-
-/**
- * Creates a new CResult_ChannelDetailsDecodeErrorZ in the error state.
- */
-struct LDKCResult_ChannelDetailsDecodeErrorZ CResult_ChannelDetailsDecodeErrorZ_err(struct LDKDecodeError e);
-
-/**
- * Checks if the given object is currently in the success state
- */
-bool CResult_ChannelDetailsDecodeErrorZ_is_ok(const struct LDKCResult_ChannelDetailsDecodeErrorZ *NONNULL_PTR o);
-
-/**
- * Frees any resources used by the CResult_ChannelDetailsDecodeErrorZ.
- */
-void CResult_ChannelDetailsDecodeErrorZ_free(struct LDKCResult_ChannelDetailsDecodeErrorZ _res);
-
-/**
- * Creates a new CResult_ChannelDetailsDecodeErrorZ which has the same data as `orig`
- * but with all dynamically-allocated buffers duplicated in new buffers.
- */
-struct LDKCResult_ChannelDetailsDecodeErrorZ CResult_ChannelDetailsDecodeErrorZ_clone(const struct LDKCResult_ChannelDetailsDecodeErrorZ *NONNULL_PTR orig);
-
-/**
  * Creates a new CResult_PhantomRouteHintsDecodeErrorZ in the success state.
  */
 struct LDKCResult_PhantomRouteHintsDecodeErrorZ CResult_PhantomRouteHintsDecodeErrorZ_ok(struct LDKPhantomRouteHints o);
@@ -28348,32 +28611,6 @@ void CResult_BlindedFailureDecodeErrorZ_free(struct LDKCResult_BlindedFailureDec
  * but with all dynamically-allocated buffers duplicated in new buffers.
  */
 struct LDKCResult_BlindedFailureDecodeErrorZ CResult_BlindedFailureDecodeErrorZ_clone(const struct LDKCResult_BlindedFailureDecodeErrorZ *NONNULL_PTR orig);
-
-/**
- * Creates a new CResult_ChannelShutdownStateDecodeErrorZ in the success state.
- */
-struct LDKCResult_ChannelShutdownStateDecodeErrorZ CResult_ChannelShutdownStateDecodeErrorZ_ok(enum LDKChannelShutdownState o);
-
-/**
- * Creates a new CResult_ChannelShutdownStateDecodeErrorZ in the error state.
- */
-struct LDKCResult_ChannelShutdownStateDecodeErrorZ CResult_ChannelShutdownStateDecodeErrorZ_err(struct LDKDecodeError e);
-
-/**
- * Checks if the given object is currently in the success state
- */
-bool CResult_ChannelShutdownStateDecodeErrorZ_is_ok(const struct LDKCResult_ChannelShutdownStateDecodeErrorZ *NONNULL_PTR o);
-
-/**
- * Frees any resources used by the CResult_ChannelShutdownStateDecodeErrorZ.
- */
-void CResult_ChannelShutdownStateDecodeErrorZ_free(struct LDKCResult_ChannelShutdownStateDecodeErrorZ _res);
-
-/**
- * Creates a new CResult_ChannelShutdownStateDecodeErrorZ which has the same data as `orig`
- * but with all dynamically-allocated buffers duplicated in new buffers.
- */
-struct LDKCResult_ChannelShutdownStateDecodeErrorZ CResult_ChannelShutdownStateDecodeErrorZ_clone(const struct LDKCResult_ChannelShutdownStateDecodeErrorZ *NONNULL_PTR orig);
 
 /**
  * Frees the buffer pointed to by `data` if `datalen` is non-0.
@@ -30833,6 +31070,287 @@ void CResult_Bolt11InvoiceSignOrCreationErrorZ_free(struct LDKCResult_Bolt11Invo
 struct LDKCResult_Bolt11InvoiceSignOrCreationErrorZ CResult_Bolt11InvoiceSignOrCreationErrorZ_clone(const struct LDKCResult_Bolt11InvoiceSignOrCreationErrorZ *NONNULL_PTR orig);
 
 /**
+ * Constructs a new COption_InboundHTLCStateDetailsZ containing a crate::lightning::ln::channel_state::InboundHTLCStateDetails
+ */
+struct LDKCOption_InboundHTLCStateDetailsZ COption_InboundHTLCStateDetailsZ_some(enum LDKInboundHTLCStateDetails o);
+
+/**
+ * Constructs a new COption_InboundHTLCStateDetailsZ containing nothing
+ */
+struct LDKCOption_InboundHTLCStateDetailsZ COption_InboundHTLCStateDetailsZ_none(void);
+
+/**
+ * Frees any resources associated with the crate::lightning::ln::channel_state::InboundHTLCStateDetails, if we are in the Some state
+ */
+void COption_InboundHTLCStateDetailsZ_free(struct LDKCOption_InboundHTLCStateDetailsZ _res);
+
+/**
+ * Creates a new COption_InboundHTLCStateDetailsZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCOption_InboundHTLCStateDetailsZ COption_InboundHTLCStateDetailsZ_clone(const struct LDKCOption_InboundHTLCStateDetailsZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ in the success state.
+ */
+struct LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ_ok(struct LDKCOption_InboundHTLCStateDetailsZ o);
+
+/**
+ * Creates a new CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ in the error state.
+ */
+struct LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ_is_ok(const struct LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ.
+ */
+void CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ_free(struct LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ CResult_COption_InboundHTLCStateDetailsZDecodeErrorZ_clone(const struct LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_InboundHTLCDetailsDecodeErrorZ in the success state.
+ */
+struct LDKCResult_InboundHTLCDetailsDecodeErrorZ CResult_InboundHTLCDetailsDecodeErrorZ_ok(struct LDKInboundHTLCDetails o);
+
+/**
+ * Creates a new CResult_InboundHTLCDetailsDecodeErrorZ in the error state.
+ */
+struct LDKCResult_InboundHTLCDetailsDecodeErrorZ CResult_InboundHTLCDetailsDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_InboundHTLCDetailsDecodeErrorZ_is_ok(const struct LDKCResult_InboundHTLCDetailsDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_InboundHTLCDetailsDecodeErrorZ.
+ */
+void CResult_InboundHTLCDetailsDecodeErrorZ_free(struct LDKCResult_InboundHTLCDetailsDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_InboundHTLCDetailsDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_InboundHTLCDetailsDecodeErrorZ CResult_InboundHTLCDetailsDecodeErrorZ_clone(const struct LDKCResult_InboundHTLCDetailsDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Constructs a new COption_OutboundHTLCStateDetailsZ containing a crate::lightning::ln::channel_state::OutboundHTLCStateDetails
+ */
+struct LDKCOption_OutboundHTLCStateDetailsZ COption_OutboundHTLCStateDetailsZ_some(enum LDKOutboundHTLCStateDetails o);
+
+/**
+ * Constructs a new COption_OutboundHTLCStateDetailsZ containing nothing
+ */
+struct LDKCOption_OutboundHTLCStateDetailsZ COption_OutboundHTLCStateDetailsZ_none(void);
+
+/**
+ * Frees any resources associated with the crate::lightning::ln::channel_state::OutboundHTLCStateDetails, if we are in the Some state
+ */
+void COption_OutboundHTLCStateDetailsZ_free(struct LDKCOption_OutboundHTLCStateDetailsZ _res);
+
+/**
+ * Creates a new COption_OutboundHTLCStateDetailsZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCOption_OutboundHTLCStateDetailsZ COption_OutboundHTLCStateDetailsZ_clone(const struct LDKCOption_OutboundHTLCStateDetailsZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ in the success state.
+ */
+struct LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ_ok(struct LDKCOption_OutboundHTLCStateDetailsZ o);
+
+/**
+ * Creates a new CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ in the error state.
+ */
+struct LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ_is_ok(const struct LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ.
+ */
+void CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ_free(struct LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ CResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ_clone(const struct LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_OutboundHTLCDetailsDecodeErrorZ in the success state.
+ */
+struct LDKCResult_OutboundHTLCDetailsDecodeErrorZ CResult_OutboundHTLCDetailsDecodeErrorZ_ok(struct LDKOutboundHTLCDetails o);
+
+/**
+ * Creates a new CResult_OutboundHTLCDetailsDecodeErrorZ in the error state.
+ */
+struct LDKCResult_OutboundHTLCDetailsDecodeErrorZ CResult_OutboundHTLCDetailsDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_OutboundHTLCDetailsDecodeErrorZ_is_ok(const struct LDKCResult_OutboundHTLCDetailsDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_OutboundHTLCDetailsDecodeErrorZ.
+ */
+void CResult_OutboundHTLCDetailsDecodeErrorZ_free(struct LDKCResult_OutboundHTLCDetailsDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_OutboundHTLCDetailsDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_OutboundHTLCDetailsDecodeErrorZ CResult_OutboundHTLCDetailsDecodeErrorZ_clone(const struct LDKCResult_OutboundHTLCDetailsDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_CounterpartyForwardingInfoDecodeErrorZ in the success state.
+ */
+struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ CResult_CounterpartyForwardingInfoDecodeErrorZ_ok(struct LDKCounterpartyForwardingInfo o);
+
+/**
+ * Creates a new CResult_CounterpartyForwardingInfoDecodeErrorZ in the error state.
+ */
+struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ CResult_CounterpartyForwardingInfoDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_CounterpartyForwardingInfoDecodeErrorZ_is_ok(const struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_CounterpartyForwardingInfoDecodeErrorZ.
+ */
+void CResult_CounterpartyForwardingInfoDecodeErrorZ_free(struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_CounterpartyForwardingInfoDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ CResult_CounterpartyForwardingInfoDecodeErrorZ_clone(const struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_ChannelCounterpartyDecodeErrorZ in the success state.
+ */
+struct LDKCResult_ChannelCounterpartyDecodeErrorZ CResult_ChannelCounterpartyDecodeErrorZ_ok(struct LDKChannelCounterparty o);
+
+/**
+ * Creates a new CResult_ChannelCounterpartyDecodeErrorZ in the error state.
+ */
+struct LDKCResult_ChannelCounterpartyDecodeErrorZ CResult_ChannelCounterpartyDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_ChannelCounterpartyDecodeErrorZ_is_ok(const struct LDKCResult_ChannelCounterpartyDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_ChannelCounterpartyDecodeErrorZ.
+ */
+void CResult_ChannelCounterpartyDecodeErrorZ_free(struct LDKCResult_ChannelCounterpartyDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_ChannelCounterpartyDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_ChannelCounterpartyDecodeErrorZ CResult_ChannelCounterpartyDecodeErrorZ_clone(const struct LDKCResult_ChannelCounterpartyDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Constructs a new COption_ChannelShutdownStateZ containing a crate::lightning::ln::channel_state::ChannelShutdownState
+ */
+struct LDKCOption_ChannelShutdownStateZ COption_ChannelShutdownStateZ_some(enum LDKChannelShutdownState o);
+
+/**
+ * Constructs a new COption_ChannelShutdownStateZ containing nothing
+ */
+struct LDKCOption_ChannelShutdownStateZ COption_ChannelShutdownStateZ_none(void);
+
+/**
+ * Frees any resources associated with the crate::lightning::ln::channel_state::ChannelShutdownState, if we are in the Some state
+ */
+void COption_ChannelShutdownStateZ_free(struct LDKCOption_ChannelShutdownStateZ _res);
+
+/**
+ * Creates a new COption_ChannelShutdownStateZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCOption_ChannelShutdownStateZ COption_ChannelShutdownStateZ_clone(const struct LDKCOption_ChannelShutdownStateZ *NONNULL_PTR orig);
+
+/**
+ * Frees the buffer pointed to by `data` if `datalen` is non-0.
+ */
+void CVec_InboundHTLCDetailsZ_free(struct LDKCVec_InboundHTLCDetailsZ _res);
+
+/**
+ * Frees the buffer pointed to by `data` if `datalen` is non-0.
+ */
+void CVec_OutboundHTLCDetailsZ_free(struct LDKCVec_OutboundHTLCDetailsZ _res);
+
+/**
+ * Creates a new CResult_ChannelDetailsDecodeErrorZ in the success state.
+ */
+struct LDKCResult_ChannelDetailsDecodeErrorZ CResult_ChannelDetailsDecodeErrorZ_ok(struct LDKChannelDetails o);
+
+/**
+ * Creates a new CResult_ChannelDetailsDecodeErrorZ in the error state.
+ */
+struct LDKCResult_ChannelDetailsDecodeErrorZ CResult_ChannelDetailsDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_ChannelDetailsDecodeErrorZ_is_ok(const struct LDKCResult_ChannelDetailsDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_ChannelDetailsDecodeErrorZ.
+ */
+void CResult_ChannelDetailsDecodeErrorZ_free(struct LDKCResult_ChannelDetailsDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_ChannelDetailsDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_ChannelDetailsDecodeErrorZ CResult_ChannelDetailsDecodeErrorZ_clone(const struct LDKCResult_ChannelDetailsDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_ChannelShutdownStateDecodeErrorZ in the success state.
+ */
+struct LDKCResult_ChannelShutdownStateDecodeErrorZ CResult_ChannelShutdownStateDecodeErrorZ_ok(enum LDKChannelShutdownState o);
+
+/**
+ * Creates a new CResult_ChannelShutdownStateDecodeErrorZ in the error state.
+ */
+struct LDKCResult_ChannelShutdownStateDecodeErrorZ CResult_ChannelShutdownStateDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_ChannelShutdownStateDecodeErrorZ_is_ok(const struct LDKCResult_ChannelShutdownStateDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_ChannelShutdownStateDecodeErrorZ.
+ */
+void CResult_ChannelShutdownStateDecodeErrorZ_free(struct LDKCResult_ChannelShutdownStateDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_ChannelShutdownStateDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_ChannelShutdownStateDecodeErrorZ CResult_ChannelShutdownStateDecodeErrorZ_clone(const struct LDKCResult_ChannelShutdownStateDecodeErrorZ *NONNULL_PTR orig);
+
+/**
  * Frees the buffer pointed to by `data` if `datalen` is non-0.
  */
 void CVec_FutureZ_free(struct LDKCVec_FutureZ _res);
@@ -32971,6 +33489,11 @@ bool Hostname_eq(const struct LDKHostname *NONNULL_PTR a, const struct LDKHostna
 MUST_USE_RES uint8_t Hostname_len(const struct LDKHostname *NONNULL_PTR this_arg);
 
 /**
+ * Get the string representation of a Hostname object
+ */
+struct LDKStr Hostname_to_str(const struct LDKHostname *NONNULL_PTR o);
+
+/**
  * Serialize the Hostname object into a byte array which can be read by Hostname_read
  */
 struct LDKCVec_u8Z Hostname_write(const struct LDKHostname *NONNULL_PTR obj);
@@ -33226,6 +33749,11 @@ struct LDKCVec_u8Z UntrustedString_write(const struct LDKUntrustedString *NONNUL
 struct LDKCResult_UntrustedStringDecodeErrorZ UntrustedString_read(struct LDKu8slice ser);
 
 /**
+ * Get the string representation of a UntrustedString object
+ */
+struct LDKStr UntrustedString_to_str(const struct LDKUntrustedString *NONNULL_PTR o);
+
+/**
  * Frees any resources used by the PrintableString, if is_owned is set and inner is non-NULL.
  */
 void PrintableString_free(struct LDKPrintableString this_obj);
@@ -33238,6 +33766,11 @@ void PrintableString_set_a(struct LDKPrintableString *NONNULL_PTR this_ptr, stru
  * Constructs a new PrintableString given each field
  */
 MUST_USE_RES struct LDKPrintableString PrintableString_new(struct LDKStr a_arg);
+
+/**
+ * Get the string representation of a PrintableString object
+ */
+struct LDKStr PrintableString_to_str(const struct LDKPrintableString *NONNULL_PTR o);
 
 /**
  * Frees any resources used by the TrackedSpendableOutput, if is_owned is set and inner is non-NULL.
@@ -33549,6 +34082,11 @@ bool Level_eq(const enum LDKLevel *NONNULL_PTR a, const enum LDKLevel *NONNULL_P
  * Generates a non-cryptographic 64-bit hash of the Level.
  */
 uint64_t Level_hash(const enum LDKLevel *NONNULL_PTR o);
+
+/**
+ * Get the string representation of a Level object
+ */
+struct LDKStr Level_to_str(const enum LDKLevel *NONNULL_PTR o);
 
 /**
  * Returns the most verbose logging level.
@@ -35912,6 +36450,11 @@ bool OutPoint_eq(const struct LDKOutPoint *NONNULL_PTR a, const struct LDKOutPoi
 uint64_t OutPoint_hash(const struct LDKOutPoint *NONNULL_PTR o);
 
 /**
+ * Get the string representation of a OutPoint object
+ */
+struct LDKStr OutPoint_to_str(const struct LDKOutPoint *NONNULL_PTR o);
+
+/**
  * Serialize the OutPoint object into a byte array which can be read by OutPoint_read
  */
 struct LDKCVec_u8Z OutPoint_write(const struct LDKOutPoint *NONNULL_PTR obj);
@@ -36303,748 +36846,6 @@ MUST_USE_RES struct LDKChainParameters ChainParameters_new(enum LDKNetwork netwo
  * Creates a copy of the ChainParameters
  */
 struct LDKChainParameters ChainParameters_clone(const struct LDKChainParameters *NONNULL_PTR orig);
-
-/**
- * Frees any resources used by the CounterpartyForwardingInfo, if is_owned is set and inner is non-NULL.
- */
-void CounterpartyForwardingInfo_free(struct LDKCounterpartyForwardingInfo this_obj);
-
-/**
- * Base routing fee in millisatoshis.
- */
-uint32_t CounterpartyForwardingInfo_get_fee_base_msat(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr);
-
-/**
- * Base routing fee in millisatoshis.
- */
-void CounterpartyForwardingInfo_set_fee_base_msat(struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr, uint32_t val);
-
-/**
- * Amount in millionths of a satoshi the channel will charge per transferred satoshi.
- */
-uint32_t CounterpartyForwardingInfo_get_fee_proportional_millionths(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr);
-
-/**
- * Amount in millionths of a satoshi the channel will charge per transferred satoshi.
- */
-void CounterpartyForwardingInfo_set_fee_proportional_millionths(struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr, uint32_t val);
-
-/**
- * The minimum difference in cltv_expiry between an ingoing HTLC and its outgoing counterpart,
- * such that the outgoing HTLC is forwardable to this counterparty. See `msgs::ChannelUpdate`'s
- * `cltv_expiry_delta` for more details.
- */
-uint16_t CounterpartyForwardingInfo_get_cltv_expiry_delta(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr);
-
-/**
- * The minimum difference in cltv_expiry between an ingoing HTLC and its outgoing counterpart,
- * such that the outgoing HTLC is forwardable to this counterparty. See `msgs::ChannelUpdate`'s
- * `cltv_expiry_delta` for more details.
- */
-void CounterpartyForwardingInfo_set_cltv_expiry_delta(struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr, uint16_t val);
-
-/**
- * Constructs a new CounterpartyForwardingInfo given each field
- */
-MUST_USE_RES struct LDKCounterpartyForwardingInfo CounterpartyForwardingInfo_new(uint32_t fee_base_msat_arg, uint32_t fee_proportional_millionths_arg, uint16_t cltv_expiry_delta_arg);
-
-/**
- * Creates a copy of the CounterpartyForwardingInfo
- */
-struct LDKCounterpartyForwardingInfo CounterpartyForwardingInfo_clone(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR orig);
-
-/**
- * Frees any resources used by the ChannelCounterparty, if is_owned is set and inner is non-NULL.
- */
-void ChannelCounterparty_free(struct LDKChannelCounterparty this_obj);
-
-/**
- * The node_id of our counterparty
- */
-struct LDKPublicKey ChannelCounterparty_get_node_id(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
-
-/**
- * The node_id of our counterparty
- */
-void ChannelCounterparty_set_node_id(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKPublicKey val);
-
-/**
- * The Features the channel counterparty provided upon last connection.
- * Useful for routing as it is the most up-to-date copy of the counterparty's features and
- * many routing-relevant features are present in the init context.
- */
-struct LDKInitFeatures ChannelCounterparty_get_features(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
-
-/**
- * The Features the channel counterparty provided upon last connection.
- * Useful for routing as it is the most up-to-date copy of the counterparty's features and
- * many routing-relevant features are present in the init context.
- */
-void ChannelCounterparty_set_features(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKInitFeatures val);
-
-/**
- * The value, in satoshis, that must always be held in the channel for our counterparty. This
- * value ensures that if our counterparty broadcasts a revoked state, we can punish them by
- * claiming at least this value on chain.
- *
- * This value is not included in [`inbound_capacity_msat`] as it can never be spent.
- *
- * [`inbound_capacity_msat`]: ChannelDetails::inbound_capacity_msat
- */
-uint64_t ChannelCounterparty_get_unspendable_punishment_reserve(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
-
-/**
- * The value, in satoshis, that must always be held in the channel for our counterparty. This
- * value ensures that if our counterparty broadcasts a revoked state, we can punish them by
- * claiming at least this value on chain.
- *
- * This value is not included in [`inbound_capacity_msat`] as it can never be spent.
- *
- * [`inbound_capacity_msat`]: ChannelDetails::inbound_capacity_msat
- */
-void ChannelCounterparty_set_unspendable_punishment_reserve(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, uint64_t val);
-
-/**
- * Information on the fees and requirements that the counterparty requires when forwarding
- * payments to us through this channel.
- *
- * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-struct LDKCounterpartyForwardingInfo ChannelCounterparty_get_forwarding_info(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
-
-/**
- * Information on the fees and requirements that the counterparty requires when forwarding
- * payments to us through this channel.
- *
- * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-void ChannelCounterparty_set_forwarding_info(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKCounterpartyForwardingInfo val);
-
-/**
- * The smallest value HTLC (in msat) the remote peer will accept, for this channel. This field
- * is only `None` before we have received either the `OpenChannel` or `AcceptChannel` message
- * from the remote peer, or for `ChannelCounterparty` objects serialized prior to LDK 0.0.107.
- */
-struct LDKCOption_u64Z ChannelCounterparty_get_outbound_htlc_minimum_msat(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
-
-/**
- * The smallest value HTLC (in msat) the remote peer will accept, for this channel. This field
- * is only `None` before we have received either the `OpenChannel` or `AcceptChannel` message
- * from the remote peer, or for `ChannelCounterparty` objects serialized prior to LDK 0.0.107.
- */
-void ChannelCounterparty_set_outbound_htlc_minimum_msat(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
-
-/**
- * The largest value HTLC (in msat) the remote peer currently will accept, for this channel.
- */
-struct LDKCOption_u64Z ChannelCounterparty_get_outbound_htlc_maximum_msat(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
-
-/**
- * The largest value HTLC (in msat) the remote peer currently will accept, for this channel.
- */
-void ChannelCounterparty_set_outbound_htlc_maximum_msat(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
-
-/**
- * Constructs a new ChannelCounterparty given each field
- *
- * Note that forwarding_info_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-MUST_USE_RES struct LDKChannelCounterparty ChannelCounterparty_new(struct LDKPublicKey node_id_arg, struct LDKInitFeatures features_arg, uint64_t unspendable_punishment_reserve_arg, struct LDKCounterpartyForwardingInfo forwarding_info_arg, struct LDKCOption_u64Z outbound_htlc_minimum_msat_arg, struct LDKCOption_u64Z outbound_htlc_maximum_msat_arg);
-
-/**
- * Creates a copy of the ChannelCounterparty
- */
-struct LDKChannelCounterparty ChannelCounterparty_clone(const struct LDKChannelCounterparty *NONNULL_PTR orig);
-
-/**
- * Frees any resources used by the ChannelDetails, if is_owned is set and inner is non-NULL.
- */
-void ChannelDetails_free(struct LDKChannelDetails this_obj);
-
-/**
- * The channel's ID (prior to funding transaction generation, this is a random 32 bytes,
- * thereafter this is the txid of the funding transaction xor the funding transaction output).
- * Note that this means this value is *not* persistent - it can change once during the
- * lifetime of the channel.
- */
-struct LDKChannelId ChannelDetails_get_channel_id(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The channel's ID (prior to funding transaction generation, this is a random 32 bytes,
- * thereafter this is the txid of the funding transaction xor the funding transaction output).
- * Note that this means this value is *not* persistent - it can change once during the
- * lifetime of the channel.
- */
-void ChannelDetails_set_channel_id(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKChannelId val);
-
-/**
- * Parameters which apply to our counterparty. See individual fields for more information.
- */
-struct LDKChannelCounterparty ChannelDetails_get_counterparty(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * Parameters which apply to our counterparty. See individual fields for more information.
- */
-void ChannelDetails_set_counterparty(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKChannelCounterparty val);
-
-/**
- * The Channel's funding transaction output, if we've negotiated the funding transaction with
- * our counterparty already.
- *
- * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-struct LDKOutPoint ChannelDetails_get_funding_txo(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The Channel's funding transaction output, if we've negotiated the funding transaction with
- * our counterparty already.
- *
- * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-void ChannelDetails_set_funding_txo(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKOutPoint val);
-
-/**
- * The features which this channel operates with. See individual features for more info.
- *
- * `None` until negotiation completes and the channel type is finalized.
- *
- * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-struct LDKChannelTypeFeatures ChannelDetails_get_channel_type(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The features which this channel operates with. See individual features for more info.
- *
- * `None` until negotiation completes and the channel type is finalized.
- *
- * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-void ChannelDetails_set_channel_type(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKChannelTypeFeatures val);
-
-/**
- * The position of the funding transaction in the chain. None if the funding transaction has
- * not yet been confirmed and the channel fully opened.
- *
- * Note that if [`inbound_scid_alias`] is set, it must be used for invoices and inbound
- * payments instead of this. See [`get_inbound_payment_scid`].
- *
- * For channels with [`confirmations_required`] set to `Some(0)`, [`outbound_scid_alias`] may
- * be used in place of this in outbound routes. See [`get_outbound_payment_scid`].
- *
- * [`inbound_scid_alias`]: Self::inbound_scid_alias
- * [`outbound_scid_alias`]: Self::outbound_scid_alias
- * [`get_inbound_payment_scid`]: Self::get_inbound_payment_scid
- * [`get_outbound_payment_scid`]: Self::get_outbound_payment_scid
- * [`confirmations_required`]: Self::confirmations_required
- */
-struct LDKCOption_u64Z ChannelDetails_get_short_channel_id(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The position of the funding transaction in the chain. None if the funding transaction has
- * not yet been confirmed and the channel fully opened.
- *
- * Note that if [`inbound_scid_alias`] is set, it must be used for invoices and inbound
- * payments instead of this. See [`get_inbound_payment_scid`].
- *
- * For channels with [`confirmations_required`] set to `Some(0)`, [`outbound_scid_alias`] may
- * be used in place of this in outbound routes. See [`get_outbound_payment_scid`].
- *
- * [`inbound_scid_alias`]: Self::inbound_scid_alias
- * [`outbound_scid_alias`]: Self::outbound_scid_alias
- * [`get_inbound_payment_scid`]: Self::get_inbound_payment_scid
- * [`get_outbound_payment_scid`]: Self::get_outbound_payment_scid
- * [`confirmations_required`]: Self::confirmations_required
- */
-void ChannelDetails_set_short_channel_id(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
-
-/**
- * An optional [`short_channel_id`] alias for this channel, randomly generated by us and
- * usable in place of [`short_channel_id`] to reference the channel in outbound routes when
- * the channel has not yet been confirmed (as long as [`confirmations_required`] is
- * `Some(0)`).
- *
- * This will be `None` as long as the channel is not available for routing outbound payments.
- *
- * [`short_channel_id`]: Self::short_channel_id
- * [`confirmations_required`]: Self::confirmations_required
- */
-struct LDKCOption_u64Z ChannelDetails_get_outbound_scid_alias(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * An optional [`short_channel_id`] alias for this channel, randomly generated by us and
- * usable in place of [`short_channel_id`] to reference the channel in outbound routes when
- * the channel has not yet been confirmed (as long as [`confirmations_required`] is
- * `Some(0)`).
- *
- * This will be `None` as long as the channel is not available for routing outbound payments.
- *
- * [`short_channel_id`]: Self::short_channel_id
- * [`confirmations_required`]: Self::confirmations_required
- */
-void ChannelDetails_set_outbound_scid_alias(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
-
-/**
- * An optional [`short_channel_id`] alias for this channel, randomly generated by our
- * counterparty and usable in place of [`short_channel_id`] in invoice route hints. Our
- * counterparty will recognize the alias provided here in place of the [`short_channel_id`]
- * when they see a payment to be routed to us.
- *
- * Our counterparty may choose to rotate this value at any time, though will always recognize
- * previous values for inbound payment forwarding.
- *
- * [`short_channel_id`]: Self::short_channel_id
- */
-struct LDKCOption_u64Z ChannelDetails_get_inbound_scid_alias(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * An optional [`short_channel_id`] alias for this channel, randomly generated by our
- * counterparty and usable in place of [`short_channel_id`] in invoice route hints. Our
- * counterparty will recognize the alias provided here in place of the [`short_channel_id`]
- * when they see a payment to be routed to us.
- *
- * Our counterparty may choose to rotate this value at any time, though will always recognize
- * previous values for inbound payment forwarding.
- *
- * [`short_channel_id`]: Self::short_channel_id
- */
-void ChannelDetails_set_inbound_scid_alias(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
-
-/**
- * The value, in satoshis, of this channel as appears in the funding output
- */
-uint64_t ChannelDetails_get_channel_value_satoshis(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The value, in satoshis, of this channel as appears in the funding output
- */
-void ChannelDetails_set_channel_value_satoshis(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
-
-/**
- * The value, in satoshis, that must always be held in the channel for us. This value ensures
- * that if we broadcast a revoked state, our counterparty can punish us by claiming at least
- * this value on chain.
- *
- * This value is not included in [`outbound_capacity_msat`] as it can never be spent.
- *
- * This value will be `None` for outbound channels until the counterparty accepts the channel.
- *
- * [`outbound_capacity_msat`]: ChannelDetails::outbound_capacity_msat
- */
-struct LDKCOption_u64Z ChannelDetails_get_unspendable_punishment_reserve(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The value, in satoshis, that must always be held in the channel for us. This value ensures
- * that if we broadcast a revoked state, our counterparty can punish us by claiming at least
- * this value on chain.
- *
- * This value is not included in [`outbound_capacity_msat`] as it can never be spent.
- *
- * This value will be `None` for outbound channels until the counterparty accepts the channel.
- *
- * [`outbound_capacity_msat`]: ChannelDetails::outbound_capacity_msat
- */
-void ChannelDetails_set_unspendable_punishment_reserve(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
-
-/**
- * The `user_channel_id` value passed in to [`ChannelManager::create_channel`] for outbound
- * channels, or to [`ChannelManager::accept_inbound_channel`] for inbound channels if
- * [`UserConfig::manually_accept_inbound_channels`] config flag is set to true. Otherwise
- * `user_channel_id` will be randomized for an inbound channel.  This may be zero for objects
- * serialized with LDK versions prior to 0.0.113.
- *
- * [`ChannelManager::create_channel`]: crate::ln::channelmanager::ChannelManager::create_channel
- * [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
- * [`UserConfig::manually_accept_inbound_channels`]: crate::util::config::UserConfig::manually_accept_inbound_channels
- */
-struct LDKU128 ChannelDetails_get_user_channel_id(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The `user_channel_id` value passed in to [`ChannelManager::create_channel`] for outbound
- * channels, or to [`ChannelManager::accept_inbound_channel`] for inbound channels if
- * [`UserConfig::manually_accept_inbound_channels`] config flag is set to true. Otherwise
- * `user_channel_id` will be randomized for an inbound channel.  This may be zero for objects
- * serialized with LDK versions prior to 0.0.113.
- *
- * [`ChannelManager::create_channel`]: crate::ln::channelmanager::ChannelManager::create_channel
- * [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
- * [`UserConfig::manually_accept_inbound_channels`]: crate::util::config::UserConfig::manually_accept_inbound_channels
- */
-void ChannelDetails_set_user_channel_id(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKU128 val);
-
-/**
- * The currently negotiated fee rate denominated in satoshi per 1000 weight units,
- * which is applied to commitment and HTLC transactions.
- *
- * This value will be `None` for objects serialized with LDK versions prior to 0.0.115.
- */
-struct LDKCOption_u32Z ChannelDetails_get_feerate_sat_per_1000_weight(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The currently negotiated fee rate denominated in satoshi per 1000 weight units,
- * which is applied to commitment and HTLC transactions.
- *
- * This value will be `None` for objects serialized with LDK versions prior to 0.0.115.
- */
-void ChannelDetails_set_feerate_sat_per_1000_weight(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u32Z val);
-
-/**
- * Our total balance.  This is the amount we would get if we close the channel.
- * This value is not exact. Due to various in-flight changes and feerate changes, exactly this
- * amount is not likely to be recoverable on close.
- *
- * This does not include any pending HTLCs which are not yet fully resolved (and, thus, whose
- * balance is not available for inclusion in new outbound HTLCs). This further does not include
- * any pending outgoing HTLCs which are awaiting some other resolution to be sent.
- * This does not consider any on-chain fees.
- *
- * See also [`ChannelDetails::outbound_capacity_msat`]
- */
-uint64_t ChannelDetails_get_balance_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * Our total balance.  This is the amount we would get if we close the channel.
- * This value is not exact. Due to various in-flight changes and feerate changes, exactly this
- * amount is not likely to be recoverable on close.
- *
- * This does not include any pending HTLCs which are not yet fully resolved (and, thus, whose
- * balance is not available for inclusion in new outbound HTLCs). This further does not include
- * any pending outgoing HTLCs which are awaiting some other resolution to be sent.
- * This does not consider any on-chain fees.
- *
- * See also [`ChannelDetails::outbound_capacity_msat`]
- */
-void ChannelDetails_set_balance_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
-
-/**
- * The available outbound capacity for sending HTLCs to the remote peer. This does not include
- * any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
- * available for inclusion in new outbound HTLCs). This further does not include any pending
- * outgoing HTLCs which are awaiting some other resolution to be sent.
- *
- * See also [`ChannelDetails::balance_msat`]
- *
- * This value is not exact. Due to various in-flight changes, feerate changes, and our
- * conflict-avoidance policy, exactly this amount is not likely to be spendable. However, we
- * should be able to spend nearly this amount.
- */
-uint64_t ChannelDetails_get_outbound_capacity_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The available outbound capacity for sending HTLCs to the remote peer. This does not include
- * any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
- * available for inclusion in new outbound HTLCs). This further does not include any pending
- * outgoing HTLCs which are awaiting some other resolution to be sent.
- *
- * See also [`ChannelDetails::balance_msat`]
- *
- * This value is not exact. Due to various in-flight changes, feerate changes, and our
- * conflict-avoidance policy, exactly this amount is not likely to be spendable. However, we
- * should be able to spend nearly this amount.
- */
-void ChannelDetails_set_outbound_capacity_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
-
-/**
- * The available outbound capacity for sending a single HTLC to the remote peer. This is
- * similar to [`ChannelDetails::outbound_capacity_msat`] but it may be further restricted by
- * the current state and per-HTLC limit(s). This is intended for use when routing, allowing us
- * to use a limit as close as possible to the HTLC limit we can currently send.
- *
- * See also [`ChannelDetails::next_outbound_htlc_minimum_msat`],
- * [`ChannelDetails::balance_msat`], and [`ChannelDetails::outbound_capacity_msat`].
- */
-uint64_t ChannelDetails_get_next_outbound_htlc_limit_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The available outbound capacity for sending a single HTLC to the remote peer. This is
- * similar to [`ChannelDetails::outbound_capacity_msat`] but it may be further restricted by
- * the current state and per-HTLC limit(s). This is intended for use when routing, allowing us
- * to use a limit as close as possible to the HTLC limit we can currently send.
- *
- * See also [`ChannelDetails::next_outbound_htlc_minimum_msat`],
- * [`ChannelDetails::balance_msat`], and [`ChannelDetails::outbound_capacity_msat`].
- */
-void ChannelDetails_set_next_outbound_htlc_limit_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
-
-/**
- * The minimum value for sending a single HTLC to the remote peer. This is the equivalent of
- * [`ChannelDetails::next_outbound_htlc_limit_msat`] but represents a lower-bound, rather than
- * an upper-bound. This is intended for use when routing, allowing us to ensure we pick a
- * route which is valid.
- */
-uint64_t ChannelDetails_get_next_outbound_htlc_minimum_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The minimum value for sending a single HTLC to the remote peer. This is the equivalent of
- * [`ChannelDetails::next_outbound_htlc_limit_msat`] but represents a lower-bound, rather than
- * an upper-bound. This is intended for use when routing, allowing us to ensure we pick a
- * route which is valid.
- */
-void ChannelDetails_set_next_outbound_htlc_minimum_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
-
-/**
- * The available inbound capacity for the remote peer to send HTLCs to us. This does not
- * include any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
- * available for inclusion in new inbound HTLCs).
- * Note that there are some corner cases not fully handled here, so the actual available
- * inbound capacity may be slightly higher than this.
- *
- * This value is not exact. Due to various in-flight changes, feerate changes, and our
- * counterparty's conflict-avoidance policy, exactly this amount is not likely to be spendable.
- * However, our counterparty should be able to spend nearly this amount.
- */
-uint64_t ChannelDetails_get_inbound_capacity_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The available inbound capacity for the remote peer to send HTLCs to us. This does not
- * include any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
- * available for inclusion in new inbound HTLCs).
- * Note that there are some corner cases not fully handled here, so the actual available
- * inbound capacity may be slightly higher than this.
- *
- * This value is not exact. Due to various in-flight changes, feerate changes, and our
- * counterparty's conflict-avoidance policy, exactly this amount is not likely to be spendable.
- * However, our counterparty should be able to spend nearly this amount.
- */
-void ChannelDetails_set_inbound_capacity_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
-
-/**
- * The number of required confirmations on the funding transaction before the funding will be
- * considered \"locked\". This number is selected by the channel fundee (i.e. us if
- * [`is_outbound`] is *not* set), and can be selected for inbound channels with
- * [`ChannelHandshakeConfig::minimum_depth`] or limited for outbound channels with
- * [`ChannelHandshakeLimits::max_minimum_depth`].
- *
- * This value will be `None` for outbound channels until the counterparty accepts the channel.
- *
- * [`is_outbound`]: ChannelDetails::is_outbound
- * [`ChannelHandshakeConfig::minimum_depth`]: crate::util::config::ChannelHandshakeConfig::minimum_depth
- * [`ChannelHandshakeLimits::max_minimum_depth`]: crate::util::config::ChannelHandshakeLimits::max_minimum_depth
- */
-struct LDKCOption_u32Z ChannelDetails_get_confirmations_required(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The number of required confirmations on the funding transaction before the funding will be
- * considered \"locked\". This number is selected by the channel fundee (i.e. us if
- * [`is_outbound`] is *not* set), and can be selected for inbound channels with
- * [`ChannelHandshakeConfig::minimum_depth`] or limited for outbound channels with
- * [`ChannelHandshakeLimits::max_minimum_depth`].
- *
- * This value will be `None` for outbound channels until the counterparty accepts the channel.
- *
- * [`is_outbound`]: ChannelDetails::is_outbound
- * [`ChannelHandshakeConfig::minimum_depth`]: crate::util::config::ChannelHandshakeConfig::minimum_depth
- * [`ChannelHandshakeLimits::max_minimum_depth`]: crate::util::config::ChannelHandshakeLimits::max_minimum_depth
- */
-void ChannelDetails_set_confirmations_required(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u32Z val);
-
-/**
- * The current number of confirmations on the funding transaction.
- *
- * This value will be `None` for objects serialized with LDK versions prior to 0.0.113.
- */
-struct LDKCOption_u32Z ChannelDetails_get_confirmations(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The current number of confirmations on the funding transaction.
- *
- * This value will be `None` for objects serialized with LDK versions prior to 0.0.113.
- */
-void ChannelDetails_set_confirmations(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u32Z val);
-
-/**
- * The number of blocks (after our commitment transaction confirms) that we will need to wait
- * until we can claim our funds after we force-close the channel. During this time our
- * counterparty is allowed to punish us if we broadcasted a stale state. If our counterparty
- * force-closes the channel and broadcasts a commitment transaction we do not have to wait any
- * time to claim our non-HTLC-encumbered funds.
- *
- * This value will be `None` for outbound channels until the counterparty accepts the channel.
- */
-struct LDKCOption_u16Z ChannelDetails_get_force_close_spend_delay(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The number of blocks (after our commitment transaction confirms) that we will need to wait
- * until we can claim our funds after we force-close the channel. During this time our
- * counterparty is allowed to punish us if we broadcasted a stale state. If our counterparty
- * force-closes the channel and broadcasts a commitment transaction we do not have to wait any
- * time to claim our non-HTLC-encumbered funds.
- *
- * This value will be `None` for outbound channels until the counterparty accepts the channel.
- */
-void ChannelDetails_set_force_close_spend_delay(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u16Z val);
-
-/**
- * True if the channel was initiated (and thus funded) by us.
- */
-bool ChannelDetails_get_is_outbound(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * True if the channel was initiated (and thus funded) by us.
- */
-void ChannelDetails_set_is_outbound(struct LDKChannelDetails *NONNULL_PTR this_ptr, bool val);
-
-/**
- * True if the channel is confirmed, channel_ready messages have been exchanged, and the
- * channel is not currently being shut down. `channel_ready` message exchange implies the
- * required confirmation count has been reached (and we were connected to the peer at some
- * point after the funding transaction received enough confirmations). The required
- * confirmation count is provided in [`confirmations_required`].
- *
- * [`confirmations_required`]: ChannelDetails::confirmations_required
- */
-bool ChannelDetails_get_is_channel_ready(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * True if the channel is confirmed, channel_ready messages have been exchanged, and the
- * channel is not currently being shut down. `channel_ready` message exchange implies the
- * required confirmation count has been reached (and we were connected to the peer at some
- * point after the funding transaction received enough confirmations). The required
- * confirmation count is provided in [`confirmations_required`].
- *
- * [`confirmations_required`]: ChannelDetails::confirmations_required
- */
-void ChannelDetails_set_is_channel_ready(struct LDKChannelDetails *NONNULL_PTR this_ptr, bool val);
-
-/**
- * The stage of the channel's shutdown.
- * `None` for `ChannelDetails` serialized on LDK versions prior to 0.0.116.
- *
- * Returns a copy of the field.
- */
-struct LDKCOption_ChannelShutdownStateZ ChannelDetails_get_channel_shutdown_state(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The stage of the channel's shutdown.
- * `None` for `ChannelDetails` serialized on LDK versions prior to 0.0.116.
- */
-void ChannelDetails_set_channel_shutdown_state(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_ChannelShutdownStateZ val);
-
-/**
- * True if the channel is (a) confirmed and channel_ready messages have been exchanged, (b)
- * the peer is connected, and (c) the channel is not currently negotiating a shutdown.
- *
- * This is a strict superset of `is_channel_ready`.
- */
-bool ChannelDetails_get_is_usable(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * True if the channel is (a) confirmed and channel_ready messages have been exchanged, (b)
- * the peer is connected, and (c) the channel is not currently negotiating a shutdown.
- *
- * This is a strict superset of `is_channel_ready`.
- */
-void ChannelDetails_set_is_usable(struct LDKChannelDetails *NONNULL_PTR this_ptr, bool val);
-
-/**
- * True if this channel is (or will be) publicly-announced.
- */
-bool ChannelDetails_get_is_public(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * True if this channel is (or will be) publicly-announced.
- */
-void ChannelDetails_set_is_public(struct LDKChannelDetails *NONNULL_PTR this_ptr, bool val);
-
-/**
- * The smallest value HTLC (in msat) we will accept, for this channel. This field
- * is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.107
- */
-struct LDKCOption_u64Z ChannelDetails_get_inbound_htlc_minimum_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The smallest value HTLC (in msat) we will accept, for this channel. This field
- * is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.107
- */
-void ChannelDetails_set_inbound_htlc_minimum_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
-
-/**
- * The largest value HTLC (in msat) we currently will accept, for this channel.
- */
-struct LDKCOption_u64Z ChannelDetails_get_inbound_htlc_maximum_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * The largest value HTLC (in msat) we currently will accept, for this channel.
- */
-void ChannelDetails_set_inbound_htlc_maximum_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
-
-/**
- * Set of configurable parameters that affect channel operation.
- *
- * This field is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.109.
- *
- * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-struct LDKChannelConfig ChannelDetails_get_config(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
-
-/**
- * Set of configurable parameters that affect channel operation.
- *
- * This field is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.109.
- *
- * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
- */
-void ChannelDetails_set_config(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKChannelConfig val);
-
-/**
- * Creates a copy of the ChannelDetails
- */
-struct LDKChannelDetails ChannelDetails_clone(const struct LDKChannelDetails *NONNULL_PTR orig);
-
-/**
- * Gets the current SCID which should be used to identify this channel for inbound payments.
- * This should be used for providing invoice hints or in any other context where our
- * counterparty will forward a payment to us.
- *
- * This is either the [`ChannelDetails::inbound_scid_alias`], if set, or the
- * [`ChannelDetails::short_channel_id`]. See those for more information.
- */
-MUST_USE_RES struct LDKCOption_u64Z ChannelDetails_get_inbound_payment_scid(const struct LDKChannelDetails *NONNULL_PTR this_arg);
-
-/**
- * Gets the current SCID which should be used to identify this channel for outbound payments.
- * This should be used in [`Route`]s to describe the first hop or in other contexts where
- * we're sending or forwarding a payment outbound over this channel.
- *
- * This is either the [`ChannelDetails::short_channel_id`], if set, or the
- * [`ChannelDetails::outbound_scid_alias`]. See those for more information.
- */
-MUST_USE_RES struct LDKCOption_u64Z ChannelDetails_get_outbound_payment_scid(const struct LDKChannelDetails *NONNULL_PTR this_arg);
-
-/**
- * Creates a copy of the ChannelShutdownState
- */
-enum LDKChannelShutdownState ChannelShutdownState_clone(const enum LDKChannelShutdownState *NONNULL_PTR orig);
-
-/**
- * Utility method to constructs a new NotShuttingDown-variant ChannelShutdownState
- */
-enum LDKChannelShutdownState ChannelShutdownState_not_shutting_down(void);
-
-/**
- * Utility method to constructs a new ShutdownInitiated-variant ChannelShutdownState
- */
-enum LDKChannelShutdownState ChannelShutdownState_shutdown_initiated(void);
-
-/**
- * Utility method to constructs a new ResolvingHTLCs-variant ChannelShutdownState
- */
-enum LDKChannelShutdownState ChannelShutdownState_resolving_htlcs(void);
-
-/**
- * Utility method to constructs a new NegotiatingClosingFee-variant ChannelShutdownState
- */
-enum LDKChannelShutdownState ChannelShutdownState_negotiating_closing_fee(void);
-
-/**
- * Utility method to constructs a new ShutdownComplete-variant ChannelShutdownState
- */
-enum LDKChannelShutdownState ChannelShutdownState_shutdown_complete(void);
-
-/**
- * Checks if two ChannelShutdownStates contain equal inner contents.
- * This ignores pointers and is_owned flags and looks at the values in fields.
- */
-bool ChannelShutdownState_eq(const enum LDKChannelShutdownState *NONNULL_PTR a, const enum LDKChannelShutdownState *NONNULL_PTR b);
 
 /**
  * Frees any resources used by the RecentPaymentDetails
@@ -38135,36 +37936,6 @@ struct LDKNodeIdLookUp ChannelManager_as_NodeIdLookUp(const struct LDKChannelMan
 struct LDKInitFeatures provided_init_features(const struct LDKUserConfig *NONNULL_PTR config);
 
 /**
- * Serialize the CounterpartyForwardingInfo object into a byte array which can be read by CounterpartyForwardingInfo_read
- */
-struct LDKCVec_u8Z CounterpartyForwardingInfo_write(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR obj);
-
-/**
- * Read a CounterpartyForwardingInfo from a byte array, created by CounterpartyForwardingInfo_write
- */
-struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ CounterpartyForwardingInfo_read(struct LDKu8slice ser);
-
-/**
- * Serialize the ChannelCounterparty object into a byte array which can be read by ChannelCounterparty_read
- */
-struct LDKCVec_u8Z ChannelCounterparty_write(const struct LDKChannelCounterparty *NONNULL_PTR obj);
-
-/**
- * Read a ChannelCounterparty from a byte array, created by ChannelCounterparty_write
- */
-struct LDKCResult_ChannelCounterpartyDecodeErrorZ ChannelCounterparty_read(struct LDKu8slice ser);
-
-/**
- * Serialize the ChannelDetails object into a byte array which can be read by ChannelDetails_read
- */
-struct LDKCVec_u8Z ChannelDetails_write(const struct LDKChannelDetails *NONNULL_PTR obj);
-
-/**
- * Read a ChannelDetails from a byte array, created by ChannelDetails_write
- */
-struct LDKCResult_ChannelDetailsDecodeErrorZ ChannelDetails_read(struct LDKu8slice ser);
-
-/**
  * Serialize the PhantomRouteHints object into a byte array which can be read by PhantomRouteHints_read
  */
 struct LDKCVec_u8Z PhantomRouteHints_write(const struct LDKPhantomRouteHints *NONNULL_PTR obj);
@@ -38218,16 +37989,6 @@ struct LDKCResult_BlindedFailureDecodeErrorZ BlindedFailure_read(struct LDKu8sli
  * Serialize the ChannelManager object into a byte array which can be read by ChannelManager_read
  */
 struct LDKCVec_u8Z ChannelManager_write(const struct LDKChannelManager *NONNULL_PTR obj);
-
-/**
- * Serialize the ChannelShutdownState object into a byte array which can be read by ChannelShutdownState_read
- */
-struct LDKCVec_u8Z ChannelShutdownState_write(const enum LDKChannelShutdownState *NONNULL_PTR obj);
-
-/**
- * Read a ChannelShutdownState from a byte array, created by ChannelShutdownState_write
- */
-struct LDKCResult_ChannelShutdownStateDecodeErrorZ ChannelShutdownState_read(struct LDKu8slice ser);
 
 /**
  * Frees any resources used by the ChannelManagerReadArgs, if is_owned is set and inner is non-NULL.
@@ -38681,6 +38442,1165 @@ struct LDKCVec_u8Z RevocationKey_write(const struct LDKRevocationKey *NONNULL_PT
  * Read a RevocationKey from a byte array, created by RevocationKey_write
  */
 struct LDKCResult_RevocationKeyDecodeErrorZ RevocationKey_read(struct LDKu8slice ser);
+
+/**
+ * Creates a copy of the InboundHTLCStateDetails
+ */
+enum LDKInboundHTLCStateDetails InboundHTLCStateDetails_clone(const enum LDKInboundHTLCStateDetails *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new AwaitingRemoteRevokeToAdd-variant InboundHTLCStateDetails
+ */
+enum LDKInboundHTLCStateDetails InboundHTLCStateDetails_awaiting_remote_revoke_to_add(void);
+
+/**
+ * Utility method to constructs a new Committed-variant InboundHTLCStateDetails
+ */
+enum LDKInboundHTLCStateDetails InboundHTLCStateDetails_committed(void);
+
+/**
+ * Utility method to constructs a new AwaitingRemoteRevokeToRemoveFulfill-variant InboundHTLCStateDetails
+ */
+enum LDKInboundHTLCStateDetails InboundHTLCStateDetails_awaiting_remote_revoke_to_remove_fulfill(void);
+
+/**
+ * Utility method to constructs a new AwaitingRemoteRevokeToRemoveFail-variant InboundHTLCStateDetails
+ */
+enum LDKInboundHTLCStateDetails InboundHTLCStateDetails_awaiting_remote_revoke_to_remove_fail(void);
+
+/**
+ * Serialize the InboundHTLCStateDetails object into a byte array which can be read by InboundHTLCStateDetails_read
+ */
+struct LDKCVec_u8Z InboundHTLCStateDetails_write(const enum LDKInboundHTLCStateDetails *NONNULL_PTR obj);
+
+/**
+ * Read a InboundHTLCStateDetails from a byte array, created by InboundHTLCStateDetails_write
+ */
+struct LDKCResult_COption_InboundHTLCStateDetailsZDecodeErrorZ InboundHTLCStateDetails_read(struct LDKu8slice ser);
+
+/**
+ * Frees any resources used by the InboundHTLCDetails, if is_owned is set and inner is non-NULL.
+ */
+void InboundHTLCDetails_free(struct LDKInboundHTLCDetails this_obj);
+
+/**
+ * The HTLC ID.
+ * The IDs are incremented by 1 starting from 0 for each offered HTLC.
+ * They are unique per channel and inbound/outbound direction, unless an HTLC was only announced
+ * and not part of any commitment transaction.
+ */
+uint64_t InboundHTLCDetails_get_htlc_id(const struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The HTLC ID.
+ * The IDs are incremented by 1 starting from 0 for each offered HTLC.
+ * They are unique per channel and inbound/outbound direction, unless an HTLC was only announced
+ * and not part of any commitment transaction.
+ */
+void InboundHTLCDetails_set_htlc_id(struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The amount in msat.
+ */
+uint64_t InboundHTLCDetails_get_amount_msat(const struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The amount in msat.
+ */
+void InboundHTLCDetails_set_amount_msat(struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The block height at which this HTLC expires.
+ */
+uint32_t InboundHTLCDetails_get_cltv_expiry(const struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The block height at which this HTLC expires.
+ */
+void InboundHTLCDetails_set_cltv_expiry(struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * The payment hash.
+ */
+const uint8_t (*InboundHTLCDetails_get_payment_hash(const struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr))[32];
+
+/**
+ * The payment hash.
+ */
+void InboundHTLCDetails_set_payment_hash(struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr, struct LDKThirtyTwoBytes val);
+
+/**
+ * The state of the HTLC in the state machine.
+ *
+ * Determines on which commitment transactions the HTLC is included and what message the HTLC is
+ * waiting for to advance to the next state.
+ *
+ * See [`InboundHTLCStateDetails`] for information on the specific states.
+ *
+ * LDK will always fill this field in, but when downgrading to prior versions of LDK, new
+ * states may result in `None` here.
+ */
+struct LDKCOption_InboundHTLCStateDetailsZ InboundHTLCDetails_get_state(const struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The state of the HTLC in the state machine.
+ *
+ * Determines on which commitment transactions the HTLC is included and what message the HTLC is
+ * waiting for to advance to the next state.
+ *
+ * See [`InboundHTLCStateDetails`] for information on the specific states.
+ *
+ * LDK will always fill this field in, but when downgrading to prior versions of LDK, new
+ * states may result in `None` here.
+ */
+void InboundHTLCDetails_set_state(struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr, struct LDKCOption_InboundHTLCStateDetailsZ val);
+
+/**
+ * Whether the HTLC has an output below the local dust limit. If so, the output will be trimmed
+ * from the local commitment transaction and added to the commitment transaction fee.
+ * For non-anchor channels, this takes into account the cost of the second-stage HTLC
+ * transactions as well.
+ *
+ * When the local commitment transaction is broadcasted as part of a unilateral closure,
+ * the value of this HTLC will therefore not be claimable but instead burned as a transaction
+ * fee.
+ *
+ * Note that dust limits are specific to each party. An HTLC can be dust for the local
+ * commitment transaction but not for the counterparty's commitment transaction and vice versa.
+ */
+bool InboundHTLCDetails_get_is_dust(const struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * Whether the HTLC has an output below the local dust limit. If so, the output will be trimmed
+ * from the local commitment transaction and added to the commitment transaction fee.
+ * For non-anchor channels, this takes into account the cost of the second-stage HTLC
+ * transactions as well.
+ *
+ * When the local commitment transaction is broadcasted as part of a unilateral closure,
+ * the value of this HTLC will therefore not be claimable but instead burned as a transaction
+ * fee.
+ *
+ * Note that dust limits are specific to each party. An HTLC can be dust for the local
+ * commitment transaction but not for the counterparty's commitment transaction and vice versa.
+ */
+void InboundHTLCDetails_set_is_dust(struct LDKInboundHTLCDetails *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * Constructs a new InboundHTLCDetails given each field
+ */
+MUST_USE_RES struct LDKInboundHTLCDetails InboundHTLCDetails_new(uint64_t htlc_id_arg, uint64_t amount_msat_arg, uint32_t cltv_expiry_arg, struct LDKThirtyTwoBytes payment_hash_arg, struct LDKCOption_InboundHTLCStateDetailsZ state_arg, bool is_dust_arg);
+
+/**
+ * Creates a copy of the InboundHTLCDetails
+ */
+struct LDKInboundHTLCDetails InboundHTLCDetails_clone(const struct LDKInboundHTLCDetails *NONNULL_PTR orig);
+
+/**
+ * Serialize the InboundHTLCDetails object into a byte array which can be read by InboundHTLCDetails_read
+ */
+struct LDKCVec_u8Z InboundHTLCDetails_write(const struct LDKInboundHTLCDetails *NONNULL_PTR obj);
+
+/**
+ * Read a InboundHTLCDetails from a byte array, created by InboundHTLCDetails_write
+ */
+struct LDKCResult_InboundHTLCDetailsDecodeErrorZ InboundHTLCDetails_read(struct LDKu8slice ser);
+
+/**
+ * Creates a copy of the OutboundHTLCStateDetails
+ */
+enum LDKOutboundHTLCStateDetails OutboundHTLCStateDetails_clone(const enum LDKOutboundHTLCStateDetails *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new AwaitingRemoteRevokeToAdd-variant OutboundHTLCStateDetails
+ */
+enum LDKOutboundHTLCStateDetails OutboundHTLCStateDetails_awaiting_remote_revoke_to_add(void);
+
+/**
+ * Utility method to constructs a new Committed-variant OutboundHTLCStateDetails
+ */
+enum LDKOutboundHTLCStateDetails OutboundHTLCStateDetails_committed(void);
+
+/**
+ * Utility method to constructs a new AwaitingRemoteRevokeToRemoveSuccess-variant OutboundHTLCStateDetails
+ */
+enum LDKOutboundHTLCStateDetails OutboundHTLCStateDetails_awaiting_remote_revoke_to_remove_success(void);
+
+/**
+ * Utility method to constructs a new AwaitingRemoteRevokeToRemoveFailure-variant OutboundHTLCStateDetails
+ */
+enum LDKOutboundHTLCStateDetails OutboundHTLCStateDetails_awaiting_remote_revoke_to_remove_failure(void);
+
+/**
+ * Serialize the OutboundHTLCStateDetails object into a byte array which can be read by OutboundHTLCStateDetails_read
+ */
+struct LDKCVec_u8Z OutboundHTLCStateDetails_write(const enum LDKOutboundHTLCStateDetails *NONNULL_PTR obj);
+
+/**
+ * Read a OutboundHTLCStateDetails from a byte array, created by OutboundHTLCStateDetails_write
+ */
+struct LDKCResult_COption_OutboundHTLCStateDetailsZDecodeErrorZ OutboundHTLCStateDetails_read(struct LDKu8slice ser);
+
+/**
+ * Frees any resources used by the OutboundHTLCDetails, if is_owned is set and inner is non-NULL.
+ */
+void OutboundHTLCDetails_free(struct LDKOutboundHTLCDetails this_obj);
+
+/**
+ * The HTLC ID.
+ * The IDs are incremented by 1 starting from 0 for each offered HTLC.
+ * They are unique per channel and inbound/outbound direction, unless an HTLC was only announced
+ * and not part of any commitment transaction.
+ *
+ * Not present when we are awaiting a remote revocation and the HTLC is not added yet.
+ */
+struct LDKCOption_u64Z OutboundHTLCDetails_get_htlc_id(const struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The HTLC ID.
+ * The IDs are incremented by 1 starting from 0 for each offered HTLC.
+ * They are unique per channel and inbound/outbound direction, unless an HTLC was only announced
+ * and not part of any commitment transaction.
+ *
+ * Not present when we are awaiting a remote revocation and the HTLC is not added yet.
+ */
+void OutboundHTLCDetails_set_htlc_id(struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * The amount in msat.
+ */
+uint64_t OutboundHTLCDetails_get_amount_msat(const struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The amount in msat.
+ */
+void OutboundHTLCDetails_set_amount_msat(struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The block height at which this HTLC expires.
+ */
+uint32_t OutboundHTLCDetails_get_cltv_expiry(const struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The block height at which this HTLC expires.
+ */
+void OutboundHTLCDetails_set_cltv_expiry(struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * The payment hash.
+ */
+const uint8_t (*OutboundHTLCDetails_get_payment_hash(const struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr))[32];
+
+/**
+ * The payment hash.
+ */
+void OutboundHTLCDetails_set_payment_hash(struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr, struct LDKThirtyTwoBytes val);
+
+/**
+ * The state of the HTLC in the state machine.
+ *
+ * Determines on which commitment transactions the HTLC is included and what message the HTLC is
+ * waiting for to advance to the next state.
+ *
+ * See [`OutboundHTLCStateDetails`] for information on the specific states.
+ *
+ * LDK will always fill this field in, but when downgrading to prior versions of LDK, new
+ * states may result in `None` here.
+ */
+struct LDKCOption_OutboundHTLCStateDetailsZ OutboundHTLCDetails_get_state(const struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The state of the HTLC in the state machine.
+ *
+ * Determines on which commitment transactions the HTLC is included and what message the HTLC is
+ * waiting for to advance to the next state.
+ *
+ * See [`OutboundHTLCStateDetails`] for information on the specific states.
+ *
+ * LDK will always fill this field in, but when downgrading to prior versions of LDK, new
+ * states may result in `None` here.
+ */
+void OutboundHTLCDetails_set_state(struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr, struct LDKCOption_OutboundHTLCStateDetailsZ val);
+
+/**
+ * The extra fee being skimmed off the top of this HTLC.
+ */
+struct LDKCOption_u64Z OutboundHTLCDetails_get_skimmed_fee_msat(const struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The extra fee being skimmed off the top of this HTLC.
+ */
+void OutboundHTLCDetails_set_skimmed_fee_msat(struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * Whether the HTLC has an output below the local dust limit. If so, the output will be trimmed
+ * from the local commitment transaction and added to the commitment transaction fee.
+ * For non-anchor channels, this takes into account the cost of the second-stage HTLC
+ * transactions as well.
+ *
+ * When the local commitment transaction is broadcasted as part of a unilateral closure,
+ * the value of this HTLC will therefore not be claimable but instead burned as a transaction
+ * fee.
+ *
+ * Note that dust limits are specific to each party. An HTLC can be dust for the local
+ * commitment transaction but not for the counterparty's commitment transaction and vice versa.
+ */
+bool OutboundHTLCDetails_get_is_dust(const struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr);
+
+/**
+ * Whether the HTLC has an output below the local dust limit. If so, the output will be trimmed
+ * from the local commitment transaction and added to the commitment transaction fee.
+ * For non-anchor channels, this takes into account the cost of the second-stage HTLC
+ * transactions as well.
+ *
+ * When the local commitment transaction is broadcasted as part of a unilateral closure,
+ * the value of this HTLC will therefore not be claimable but instead burned as a transaction
+ * fee.
+ *
+ * Note that dust limits are specific to each party. An HTLC can be dust for the local
+ * commitment transaction but not for the counterparty's commitment transaction and vice versa.
+ */
+void OutboundHTLCDetails_set_is_dust(struct LDKOutboundHTLCDetails *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * Constructs a new OutboundHTLCDetails given each field
+ */
+MUST_USE_RES struct LDKOutboundHTLCDetails OutboundHTLCDetails_new(struct LDKCOption_u64Z htlc_id_arg, uint64_t amount_msat_arg, uint32_t cltv_expiry_arg, struct LDKThirtyTwoBytes payment_hash_arg, struct LDKCOption_OutboundHTLCStateDetailsZ state_arg, struct LDKCOption_u64Z skimmed_fee_msat_arg, bool is_dust_arg);
+
+/**
+ * Creates a copy of the OutboundHTLCDetails
+ */
+struct LDKOutboundHTLCDetails OutboundHTLCDetails_clone(const struct LDKOutboundHTLCDetails *NONNULL_PTR orig);
+
+/**
+ * Serialize the OutboundHTLCDetails object into a byte array which can be read by OutboundHTLCDetails_read
+ */
+struct LDKCVec_u8Z OutboundHTLCDetails_write(const struct LDKOutboundHTLCDetails *NONNULL_PTR obj);
+
+/**
+ * Read a OutboundHTLCDetails from a byte array, created by OutboundHTLCDetails_write
+ */
+struct LDKCResult_OutboundHTLCDetailsDecodeErrorZ OutboundHTLCDetails_read(struct LDKu8slice ser);
+
+/**
+ * Frees any resources used by the CounterpartyForwardingInfo, if is_owned is set and inner is non-NULL.
+ */
+void CounterpartyForwardingInfo_free(struct LDKCounterpartyForwardingInfo this_obj);
+
+/**
+ * Base routing fee in millisatoshis.
+ */
+uint32_t CounterpartyForwardingInfo_get_fee_base_msat(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr);
+
+/**
+ * Base routing fee in millisatoshis.
+ */
+void CounterpartyForwardingInfo_set_fee_base_msat(struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * Amount in millionths of a satoshi the channel will charge per transferred satoshi.
+ */
+uint32_t CounterpartyForwardingInfo_get_fee_proportional_millionths(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr);
+
+/**
+ * Amount in millionths of a satoshi the channel will charge per transferred satoshi.
+ */
+void CounterpartyForwardingInfo_set_fee_proportional_millionths(struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * The minimum difference in cltv_expiry between an ingoing HTLC and its outgoing counterpart,
+ * such that the outgoing HTLC is forwardable to this counterparty. See `msgs::ChannelUpdate`'s
+ * `cltv_expiry_delta` for more details.
+ */
+uint16_t CounterpartyForwardingInfo_get_cltv_expiry_delta(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum difference in cltv_expiry between an ingoing HTLC and its outgoing counterpart,
+ * such that the outgoing HTLC is forwardable to this counterparty. See `msgs::ChannelUpdate`'s
+ * `cltv_expiry_delta` for more details.
+ */
+void CounterpartyForwardingInfo_set_cltv_expiry_delta(struct LDKCounterpartyForwardingInfo *NONNULL_PTR this_ptr, uint16_t val);
+
+/**
+ * Constructs a new CounterpartyForwardingInfo given each field
+ */
+MUST_USE_RES struct LDKCounterpartyForwardingInfo CounterpartyForwardingInfo_new(uint32_t fee_base_msat_arg, uint32_t fee_proportional_millionths_arg, uint16_t cltv_expiry_delta_arg);
+
+/**
+ * Creates a copy of the CounterpartyForwardingInfo
+ */
+struct LDKCounterpartyForwardingInfo CounterpartyForwardingInfo_clone(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR orig);
+
+/**
+ * Serialize the CounterpartyForwardingInfo object into a byte array which can be read by CounterpartyForwardingInfo_read
+ */
+struct LDKCVec_u8Z CounterpartyForwardingInfo_write(const struct LDKCounterpartyForwardingInfo *NONNULL_PTR obj);
+
+/**
+ * Read a CounterpartyForwardingInfo from a byte array, created by CounterpartyForwardingInfo_write
+ */
+struct LDKCResult_CounterpartyForwardingInfoDecodeErrorZ CounterpartyForwardingInfo_read(struct LDKu8slice ser);
+
+/**
+ * Frees any resources used by the ChannelCounterparty, if is_owned is set and inner is non-NULL.
+ */
+void ChannelCounterparty_free(struct LDKChannelCounterparty this_obj);
+
+/**
+ * The node_id of our counterparty
+ */
+struct LDKPublicKey ChannelCounterparty_get_node_id(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
+
+/**
+ * The node_id of our counterparty
+ */
+void ChannelCounterparty_set_node_id(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKPublicKey val);
+
+/**
+ * The Features the channel counterparty provided upon last connection.
+ * Useful for routing as it is the most up-to-date copy of the counterparty's features and
+ * many routing-relevant features are present in the init context.
+ */
+struct LDKInitFeatures ChannelCounterparty_get_features(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
+
+/**
+ * The Features the channel counterparty provided upon last connection.
+ * Useful for routing as it is the most up-to-date copy of the counterparty's features and
+ * many routing-relevant features are present in the init context.
+ */
+void ChannelCounterparty_set_features(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKInitFeatures val);
+
+/**
+ * The value, in satoshis, that must always be held in the channel for our counterparty. This
+ * value ensures that if our counterparty broadcasts a revoked state, we can punish them by
+ * claiming at least this value on chain.
+ *
+ * This value is not included in [`inbound_capacity_msat`] as it can never be spent.
+ *
+ * [`inbound_capacity_msat`]: ChannelDetails::inbound_capacity_msat
+ */
+uint64_t ChannelCounterparty_get_unspendable_punishment_reserve(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
+
+/**
+ * The value, in satoshis, that must always be held in the channel for our counterparty. This
+ * value ensures that if our counterparty broadcasts a revoked state, we can punish them by
+ * claiming at least this value on chain.
+ *
+ * This value is not included in [`inbound_capacity_msat`] as it can never be spent.
+ *
+ * [`inbound_capacity_msat`]: ChannelDetails::inbound_capacity_msat
+ */
+void ChannelCounterparty_set_unspendable_punishment_reserve(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * Information on the fees and requirements that the counterparty requires when forwarding
+ * payments to us through this channel.
+ *
+ * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+struct LDKCounterpartyForwardingInfo ChannelCounterparty_get_forwarding_info(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
+
+/**
+ * Information on the fees and requirements that the counterparty requires when forwarding
+ * payments to us through this channel.
+ *
+ * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+void ChannelCounterparty_set_forwarding_info(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKCounterpartyForwardingInfo val);
+
+/**
+ * The smallest value HTLC (in msat) the remote peer will accept, for this channel. This field
+ * is only `None` before we have received either the `OpenChannel` or `AcceptChannel` message
+ * from the remote peer, or for `ChannelCounterparty` objects serialized prior to LDK 0.0.107.
+ */
+struct LDKCOption_u64Z ChannelCounterparty_get_outbound_htlc_minimum_msat(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
+
+/**
+ * The smallest value HTLC (in msat) the remote peer will accept, for this channel. This field
+ * is only `None` before we have received either the `OpenChannel` or `AcceptChannel` message
+ * from the remote peer, or for `ChannelCounterparty` objects serialized prior to LDK 0.0.107.
+ */
+void ChannelCounterparty_set_outbound_htlc_minimum_msat(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * The largest value HTLC (in msat) the remote peer currently will accept, for this channel.
+ */
+struct LDKCOption_u64Z ChannelCounterparty_get_outbound_htlc_maximum_msat(const struct LDKChannelCounterparty *NONNULL_PTR this_ptr);
+
+/**
+ * The largest value HTLC (in msat) the remote peer currently will accept, for this channel.
+ */
+void ChannelCounterparty_set_outbound_htlc_maximum_msat(struct LDKChannelCounterparty *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * Constructs a new ChannelCounterparty given each field
+ *
+ * Note that forwarding_info_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+MUST_USE_RES struct LDKChannelCounterparty ChannelCounterparty_new(struct LDKPublicKey node_id_arg, struct LDKInitFeatures features_arg, uint64_t unspendable_punishment_reserve_arg, struct LDKCounterpartyForwardingInfo forwarding_info_arg, struct LDKCOption_u64Z outbound_htlc_minimum_msat_arg, struct LDKCOption_u64Z outbound_htlc_maximum_msat_arg);
+
+/**
+ * Creates a copy of the ChannelCounterparty
+ */
+struct LDKChannelCounterparty ChannelCounterparty_clone(const struct LDKChannelCounterparty *NONNULL_PTR orig);
+
+/**
+ * Serialize the ChannelCounterparty object into a byte array which can be read by ChannelCounterparty_read
+ */
+struct LDKCVec_u8Z ChannelCounterparty_write(const struct LDKChannelCounterparty *NONNULL_PTR obj);
+
+/**
+ * Read a ChannelCounterparty from a byte array, created by ChannelCounterparty_write
+ */
+struct LDKCResult_ChannelCounterpartyDecodeErrorZ ChannelCounterparty_read(struct LDKu8slice ser);
+
+/**
+ * Frees any resources used by the ChannelDetails, if is_owned is set and inner is non-NULL.
+ */
+void ChannelDetails_free(struct LDKChannelDetails this_obj);
+
+/**
+ * The channel's ID (prior to funding transaction generation, this is a random 32 bytes,
+ * thereafter this is the txid of the funding transaction xor the funding transaction output).
+ * Note that this means this value is *not* persistent - it can change once during the
+ * lifetime of the channel.
+ */
+struct LDKChannelId ChannelDetails_get_channel_id(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The channel's ID (prior to funding transaction generation, this is a random 32 bytes,
+ * thereafter this is the txid of the funding transaction xor the funding transaction output).
+ * Note that this means this value is *not* persistent - it can change once during the
+ * lifetime of the channel.
+ */
+void ChannelDetails_set_channel_id(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKChannelId val);
+
+/**
+ * Parameters which apply to our counterparty. See individual fields for more information.
+ */
+struct LDKChannelCounterparty ChannelDetails_get_counterparty(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * Parameters which apply to our counterparty. See individual fields for more information.
+ */
+void ChannelDetails_set_counterparty(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKChannelCounterparty val);
+
+/**
+ * The Channel's funding transaction output, if we've negotiated the funding transaction with
+ * our counterparty already.
+ *
+ * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+struct LDKOutPoint ChannelDetails_get_funding_txo(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The Channel's funding transaction output, if we've negotiated the funding transaction with
+ * our counterparty already.
+ *
+ * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+void ChannelDetails_set_funding_txo(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKOutPoint val);
+
+/**
+ * The features which this channel operates with. See individual features for more info.
+ *
+ * `None` until negotiation completes and the channel type is finalized.
+ *
+ * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+struct LDKChannelTypeFeatures ChannelDetails_get_channel_type(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The features which this channel operates with. See individual features for more info.
+ *
+ * `None` until negotiation completes and the channel type is finalized.
+ *
+ * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+void ChannelDetails_set_channel_type(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKChannelTypeFeatures val);
+
+/**
+ * The position of the funding transaction in the chain. None if the funding transaction has
+ * not yet been confirmed and the channel fully opened.
+ *
+ * Note that if [`inbound_scid_alias`] is set, it must be used for invoices and inbound
+ * payments instead of this. See [`get_inbound_payment_scid`].
+ *
+ * For channels with [`confirmations_required`] set to `Some(0)`, [`outbound_scid_alias`] may
+ * be used in place of this in outbound routes. See [`get_outbound_payment_scid`].
+ *
+ * [`inbound_scid_alias`]: Self::inbound_scid_alias
+ * [`outbound_scid_alias`]: Self::outbound_scid_alias
+ * [`get_inbound_payment_scid`]: Self::get_inbound_payment_scid
+ * [`get_outbound_payment_scid`]: Self::get_outbound_payment_scid
+ * [`confirmations_required`]: Self::confirmations_required
+ */
+struct LDKCOption_u64Z ChannelDetails_get_short_channel_id(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The position of the funding transaction in the chain. None if the funding transaction has
+ * not yet been confirmed and the channel fully opened.
+ *
+ * Note that if [`inbound_scid_alias`] is set, it must be used for invoices and inbound
+ * payments instead of this. See [`get_inbound_payment_scid`].
+ *
+ * For channels with [`confirmations_required`] set to `Some(0)`, [`outbound_scid_alias`] may
+ * be used in place of this in outbound routes. See [`get_outbound_payment_scid`].
+ *
+ * [`inbound_scid_alias`]: Self::inbound_scid_alias
+ * [`outbound_scid_alias`]: Self::outbound_scid_alias
+ * [`get_inbound_payment_scid`]: Self::get_inbound_payment_scid
+ * [`get_outbound_payment_scid`]: Self::get_outbound_payment_scid
+ * [`confirmations_required`]: Self::confirmations_required
+ */
+void ChannelDetails_set_short_channel_id(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * An optional [`short_channel_id`] alias for this channel, randomly generated by us and
+ * usable in place of [`short_channel_id`] to reference the channel in outbound routes when
+ * the channel has not yet been confirmed (as long as [`confirmations_required`] is
+ * `Some(0)`).
+ *
+ * This will be `None` as long as the channel is not available for routing outbound payments.
+ *
+ * [`short_channel_id`]: Self::short_channel_id
+ * [`confirmations_required`]: Self::confirmations_required
+ */
+struct LDKCOption_u64Z ChannelDetails_get_outbound_scid_alias(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * An optional [`short_channel_id`] alias for this channel, randomly generated by us and
+ * usable in place of [`short_channel_id`] to reference the channel in outbound routes when
+ * the channel has not yet been confirmed (as long as [`confirmations_required`] is
+ * `Some(0)`).
+ *
+ * This will be `None` as long as the channel is not available for routing outbound payments.
+ *
+ * [`short_channel_id`]: Self::short_channel_id
+ * [`confirmations_required`]: Self::confirmations_required
+ */
+void ChannelDetails_set_outbound_scid_alias(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * An optional [`short_channel_id`] alias for this channel, randomly generated by our
+ * counterparty and usable in place of [`short_channel_id`] in invoice route hints. Our
+ * counterparty will recognize the alias provided here in place of the [`short_channel_id`]
+ * when they see a payment to be routed to us.
+ *
+ * Our counterparty may choose to rotate this value at any time, though will always recognize
+ * previous values for inbound payment forwarding.
+ *
+ * [`short_channel_id`]: Self::short_channel_id
+ */
+struct LDKCOption_u64Z ChannelDetails_get_inbound_scid_alias(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * An optional [`short_channel_id`] alias for this channel, randomly generated by our
+ * counterparty and usable in place of [`short_channel_id`] in invoice route hints. Our
+ * counterparty will recognize the alias provided here in place of the [`short_channel_id`]
+ * when they see a payment to be routed to us.
+ *
+ * Our counterparty may choose to rotate this value at any time, though will always recognize
+ * previous values for inbound payment forwarding.
+ *
+ * [`short_channel_id`]: Self::short_channel_id
+ */
+void ChannelDetails_set_inbound_scid_alias(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * The value, in satoshis, of this channel as appears in the funding output
+ */
+uint64_t ChannelDetails_get_channel_value_satoshis(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The value, in satoshis, of this channel as appears in the funding output
+ */
+void ChannelDetails_set_channel_value_satoshis(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The value, in satoshis, that must always be held in the channel for us. This value ensures
+ * that if we broadcast a revoked state, our counterparty can punish us by claiming at least
+ * this value on chain.
+ *
+ * This value is not included in [`outbound_capacity_msat`] as it can never be spent.
+ *
+ * This value will be `None` for outbound channels until the counterparty accepts the channel.
+ *
+ * [`outbound_capacity_msat`]: ChannelDetails::outbound_capacity_msat
+ */
+struct LDKCOption_u64Z ChannelDetails_get_unspendable_punishment_reserve(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The value, in satoshis, that must always be held in the channel for us. This value ensures
+ * that if we broadcast a revoked state, our counterparty can punish us by claiming at least
+ * this value on chain.
+ *
+ * This value is not included in [`outbound_capacity_msat`] as it can never be spent.
+ *
+ * This value will be `None` for outbound channels until the counterparty accepts the channel.
+ *
+ * [`outbound_capacity_msat`]: ChannelDetails::outbound_capacity_msat
+ */
+void ChannelDetails_set_unspendable_punishment_reserve(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * The `user_channel_id` value passed in to [`ChannelManager::create_channel`] for outbound
+ * channels, or to [`ChannelManager::accept_inbound_channel`] for inbound channels if
+ * [`UserConfig::manually_accept_inbound_channels`] config flag is set to true. Otherwise
+ * `user_channel_id` will be randomized for an inbound channel.  This may be zero for objects
+ * serialized with LDK versions prior to 0.0.113.
+ *
+ * [`ChannelManager::create_channel`]: crate::ln::channelmanager::ChannelManager::create_channel
+ * [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
+ * [`UserConfig::manually_accept_inbound_channels`]: crate::util::config::UserConfig::manually_accept_inbound_channels
+ */
+struct LDKU128 ChannelDetails_get_user_channel_id(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The `user_channel_id` value passed in to [`ChannelManager::create_channel`] for outbound
+ * channels, or to [`ChannelManager::accept_inbound_channel`] for inbound channels if
+ * [`UserConfig::manually_accept_inbound_channels`] config flag is set to true. Otherwise
+ * `user_channel_id` will be randomized for an inbound channel.  This may be zero for objects
+ * serialized with LDK versions prior to 0.0.113.
+ *
+ * [`ChannelManager::create_channel`]: crate::ln::channelmanager::ChannelManager::create_channel
+ * [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
+ * [`UserConfig::manually_accept_inbound_channels`]: crate::util::config::UserConfig::manually_accept_inbound_channels
+ */
+void ChannelDetails_set_user_channel_id(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKU128 val);
+
+/**
+ * The currently negotiated fee rate denominated in satoshi per 1000 weight units,
+ * which is applied to commitment and HTLC transactions.
+ *
+ * This value will be `None` for objects serialized with LDK versions prior to 0.0.115.
+ */
+struct LDKCOption_u32Z ChannelDetails_get_feerate_sat_per_1000_weight(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The currently negotiated fee rate denominated in satoshi per 1000 weight units,
+ * which is applied to commitment and HTLC transactions.
+ *
+ * This value will be `None` for objects serialized with LDK versions prior to 0.0.115.
+ */
+void ChannelDetails_set_feerate_sat_per_1000_weight(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u32Z val);
+
+/**
+ * Our total balance.  This is the amount we would get if we close the channel.
+ * This value is not exact. Due to various in-flight changes and feerate changes, exactly this
+ * amount is not likely to be recoverable on close.
+ *
+ * This does not include any pending HTLCs which are not yet fully resolved (and, thus, whose
+ * balance is not available for inclusion in new outbound HTLCs). This further does not include
+ * any pending outgoing HTLCs which are awaiting some other resolution to be sent.
+ * This does not consider any on-chain fees.
+ *
+ * See also [`ChannelDetails::outbound_capacity_msat`]
+ */
+uint64_t ChannelDetails_get_balance_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * Our total balance.  This is the amount we would get if we close the channel.
+ * This value is not exact. Due to various in-flight changes and feerate changes, exactly this
+ * amount is not likely to be recoverable on close.
+ *
+ * This does not include any pending HTLCs which are not yet fully resolved (and, thus, whose
+ * balance is not available for inclusion in new outbound HTLCs). This further does not include
+ * any pending outgoing HTLCs which are awaiting some other resolution to be sent.
+ * This does not consider any on-chain fees.
+ *
+ * See also [`ChannelDetails::outbound_capacity_msat`]
+ */
+void ChannelDetails_set_balance_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The available outbound capacity for sending HTLCs to the remote peer. This does not include
+ * any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
+ * available for inclusion in new outbound HTLCs). This further does not include any pending
+ * outgoing HTLCs which are awaiting some other resolution to be sent.
+ *
+ * See also [`ChannelDetails::balance_msat`]
+ *
+ * This value is not exact. Due to various in-flight changes, feerate changes, and our
+ * conflict-avoidance policy, exactly this amount is not likely to be spendable. However, we
+ * should be able to spend nearly this amount.
+ */
+uint64_t ChannelDetails_get_outbound_capacity_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The available outbound capacity for sending HTLCs to the remote peer. This does not include
+ * any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
+ * available for inclusion in new outbound HTLCs). This further does not include any pending
+ * outgoing HTLCs which are awaiting some other resolution to be sent.
+ *
+ * See also [`ChannelDetails::balance_msat`]
+ *
+ * This value is not exact. Due to various in-flight changes, feerate changes, and our
+ * conflict-avoidance policy, exactly this amount is not likely to be spendable. However, we
+ * should be able to spend nearly this amount.
+ */
+void ChannelDetails_set_outbound_capacity_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The available outbound capacity for sending a single HTLC to the remote peer. This is
+ * similar to [`ChannelDetails::outbound_capacity_msat`] but it may be further restricted by
+ * the current state and per-HTLC limit(s). This is intended for use when routing, allowing us
+ * to use a limit as close as possible to the HTLC limit we can currently send.
+ *
+ * See also [`ChannelDetails::next_outbound_htlc_minimum_msat`],
+ * [`ChannelDetails::balance_msat`], and [`ChannelDetails::outbound_capacity_msat`].
+ */
+uint64_t ChannelDetails_get_next_outbound_htlc_limit_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The available outbound capacity for sending a single HTLC to the remote peer. This is
+ * similar to [`ChannelDetails::outbound_capacity_msat`] but it may be further restricted by
+ * the current state and per-HTLC limit(s). This is intended for use when routing, allowing us
+ * to use a limit as close as possible to the HTLC limit we can currently send.
+ *
+ * See also [`ChannelDetails::next_outbound_htlc_minimum_msat`],
+ * [`ChannelDetails::balance_msat`], and [`ChannelDetails::outbound_capacity_msat`].
+ */
+void ChannelDetails_set_next_outbound_htlc_limit_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The minimum value for sending a single HTLC to the remote peer. This is the equivalent of
+ * [`ChannelDetails::next_outbound_htlc_limit_msat`] but represents a lower-bound, rather than
+ * an upper-bound. This is intended for use when routing, allowing us to ensure we pick a
+ * route which is valid.
+ */
+uint64_t ChannelDetails_get_next_outbound_htlc_minimum_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum value for sending a single HTLC to the remote peer. This is the equivalent of
+ * [`ChannelDetails::next_outbound_htlc_limit_msat`] but represents a lower-bound, rather than
+ * an upper-bound. This is intended for use when routing, allowing us to ensure we pick a
+ * route which is valid.
+ */
+void ChannelDetails_set_next_outbound_htlc_minimum_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The available inbound capacity for the remote peer to send HTLCs to us. This does not
+ * include any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
+ * available for inclusion in new inbound HTLCs).
+ * Note that there are some corner cases not fully handled here, so the actual available
+ * inbound capacity may be slightly higher than this.
+ *
+ * This value is not exact. Due to various in-flight changes, feerate changes, and our
+ * counterparty's conflict-avoidance policy, exactly this amount is not likely to be spendable.
+ * However, our counterparty should be able to spend nearly this amount.
+ */
+uint64_t ChannelDetails_get_inbound_capacity_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The available inbound capacity for the remote peer to send HTLCs to us. This does not
+ * include any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
+ * available for inclusion in new inbound HTLCs).
+ * Note that there are some corner cases not fully handled here, so the actual available
+ * inbound capacity may be slightly higher than this.
+ *
+ * This value is not exact. Due to various in-flight changes, feerate changes, and our
+ * counterparty's conflict-avoidance policy, exactly this amount is not likely to be spendable.
+ * However, our counterparty should be able to spend nearly this amount.
+ */
+void ChannelDetails_set_inbound_capacity_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The number of required confirmations on the funding transaction before the funding will be
+ * considered \"locked\". This number is selected by the channel fundee (i.e. us if
+ * [`is_outbound`] is *not* set), and can be selected for inbound channels with
+ * [`ChannelHandshakeConfig::minimum_depth`] or limited for outbound channels with
+ * [`ChannelHandshakeLimits::max_minimum_depth`].
+ *
+ * This value will be `None` for outbound channels until the counterparty accepts the channel.
+ *
+ * [`is_outbound`]: ChannelDetails::is_outbound
+ * [`ChannelHandshakeConfig::minimum_depth`]: crate::util::config::ChannelHandshakeConfig::minimum_depth
+ * [`ChannelHandshakeLimits::max_minimum_depth`]: crate::util::config::ChannelHandshakeLimits::max_minimum_depth
+ */
+struct LDKCOption_u32Z ChannelDetails_get_confirmations_required(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The number of required confirmations on the funding transaction before the funding will be
+ * considered \"locked\". This number is selected by the channel fundee (i.e. us if
+ * [`is_outbound`] is *not* set), and can be selected for inbound channels with
+ * [`ChannelHandshakeConfig::minimum_depth`] or limited for outbound channels with
+ * [`ChannelHandshakeLimits::max_minimum_depth`].
+ *
+ * This value will be `None` for outbound channels until the counterparty accepts the channel.
+ *
+ * [`is_outbound`]: ChannelDetails::is_outbound
+ * [`ChannelHandshakeConfig::minimum_depth`]: crate::util::config::ChannelHandshakeConfig::minimum_depth
+ * [`ChannelHandshakeLimits::max_minimum_depth`]: crate::util::config::ChannelHandshakeLimits::max_minimum_depth
+ */
+void ChannelDetails_set_confirmations_required(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u32Z val);
+
+/**
+ * The current number of confirmations on the funding transaction.
+ *
+ * This value will be `None` for objects serialized with LDK versions prior to 0.0.113.
+ */
+struct LDKCOption_u32Z ChannelDetails_get_confirmations(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The current number of confirmations on the funding transaction.
+ *
+ * This value will be `None` for objects serialized with LDK versions prior to 0.0.113.
+ */
+void ChannelDetails_set_confirmations(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u32Z val);
+
+/**
+ * The number of blocks (after our commitment transaction confirms) that we will need to wait
+ * until we can claim our funds after we force-close the channel. During this time our
+ * counterparty is allowed to punish us if we broadcasted a stale state. If our counterparty
+ * force-closes the channel and broadcasts a commitment transaction we do not have to wait any
+ * time to claim our non-HTLC-encumbered funds.
+ *
+ * This value will be `None` for outbound channels until the counterparty accepts the channel.
+ */
+struct LDKCOption_u16Z ChannelDetails_get_force_close_spend_delay(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The number of blocks (after our commitment transaction confirms) that we will need to wait
+ * until we can claim our funds after we force-close the channel. During this time our
+ * counterparty is allowed to punish us if we broadcasted a stale state. If our counterparty
+ * force-closes the channel and broadcasts a commitment transaction we do not have to wait any
+ * time to claim our non-HTLC-encumbered funds.
+ *
+ * This value will be `None` for outbound channels until the counterparty accepts the channel.
+ */
+void ChannelDetails_set_force_close_spend_delay(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u16Z val);
+
+/**
+ * True if the channel was initiated (and thus funded) by us.
+ */
+bool ChannelDetails_get_is_outbound(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * True if the channel was initiated (and thus funded) by us.
+ */
+void ChannelDetails_set_is_outbound(struct LDKChannelDetails *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * True if the channel is confirmed, channel_ready messages have been exchanged, and the
+ * channel is not currently being shut down. `channel_ready` message exchange implies the
+ * required confirmation count has been reached (and we were connected to the peer at some
+ * point after the funding transaction received enough confirmations). The required
+ * confirmation count is provided in [`confirmations_required`].
+ *
+ * [`confirmations_required`]: ChannelDetails::confirmations_required
+ */
+bool ChannelDetails_get_is_channel_ready(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * True if the channel is confirmed, channel_ready messages have been exchanged, and the
+ * channel is not currently being shut down. `channel_ready` message exchange implies the
+ * required confirmation count has been reached (and we were connected to the peer at some
+ * point after the funding transaction received enough confirmations). The required
+ * confirmation count is provided in [`confirmations_required`].
+ *
+ * [`confirmations_required`]: ChannelDetails::confirmations_required
+ */
+void ChannelDetails_set_is_channel_ready(struct LDKChannelDetails *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * The stage of the channel's shutdown.
+ * `None` for `ChannelDetails` serialized on LDK versions prior to 0.0.116.
+ *
+ * Returns a copy of the field.
+ */
+struct LDKCOption_ChannelShutdownStateZ ChannelDetails_get_channel_shutdown_state(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The stage of the channel's shutdown.
+ * `None` for `ChannelDetails` serialized on LDK versions prior to 0.0.116.
+ */
+void ChannelDetails_set_channel_shutdown_state(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_ChannelShutdownStateZ val);
+
+/**
+ * True if the channel is (a) confirmed and channel_ready messages have been exchanged, (b)
+ * the peer is connected, and (c) the channel is not currently negotiating a shutdown.
+ *
+ * This is a strict superset of `is_channel_ready`.
+ */
+bool ChannelDetails_get_is_usable(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * True if the channel is (a) confirmed and channel_ready messages have been exchanged, (b)
+ * the peer is connected, and (c) the channel is not currently negotiating a shutdown.
+ *
+ * This is a strict superset of `is_channel_ready`.
+ */
+void ChannelDetails_set_is_usable(struct LDKChannelDetails *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * True if this channel is (or will be) publicly-announced.
+ */
+bool ChannelDetails_get_is_public(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * True if this channel is (or will be) publicly-announced.
+ */
+void ChannelDetails_set_is_public(struct LDKChannelDetails *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * The smallest value HTLC (in msat) we will accept, for this channel. This field
+ * is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.107
+ */
+struct LDKCOption_u64Z ChannelDetails_get_inbound_htlc_minimum_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The smallest value HTLC (in msat) we will accept, for this channel. This field
+ * is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.107
+ */
+void ChannelDetails_set_inbound_htlc_minimum_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * The largest value HTLC (in msat) we currently will accept, for this channel.
+ */
+struct LDKCOption_u64Z ChannelDetails_get_inbound_htlc_maximum_msat(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * The largest value HTLC (in msat) we currently will accept, for this channel.
+ */
+void ChannelDetails_set_inbound_htlc_maximum_msat(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * Set of configurable parameters that affect channel operation.
+ *
+ * This field is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.109.
+ *
+ * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+struct LDKChannelConfig ChannelDetails_get_config(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * Set of configurable parameters that affect channel operation.
+ *
+ * This field is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.109.
+ *
+ * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+void ChannelDetails_set_config(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKChannelConfig val);
+
+/**
+ * Pending inbound HTLCs.
+ *
+ * This field is empty for objects serialized with LDK versions prior to 0.0.122.
+ */
+struct LDKCVec_InboundHTLCDetailsZ ChannelDetails_get_pending_inbound_htlcs(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * Pending inbound HTLCs.
+ *
+ * This field is empty for objects serialized with LDK versions prior to 0.0.122.
+ */
+void ChannelDetails_set_pending_inbound_htlcs(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCVec_InboundHTLCDetailsZ val);
+
+/**
+ * Pending outbound HTLCs.
+ *
+ * This field is empty for objects serialized with LDK versions prior to 0.0.122.
+ */
+struct LDKCVec_OutboundHTLCDetailsZ ChannelDetails_get_pending_outbound_htlcs(const struct LDKChannelDetails *NONNULL_PTR this_ptr);
+
+/**
+ * Pending outbound HTLCs.
+ *
+ * This field is empty for objects serialized with LDK versions prior to 0.0.122.
+ */
+void ChannelDetails_set_pending_outbound_htlcs(struct LDKChannelDetails *NONNULL_PTR this_ptr, struct LDKCVec_OutboundHTLCDetailsZ val);
+
+/**
+ * Constructs a new ChannelDetails given each field
+ *
+ * Note that funding_txo_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+ * Note that channel_type_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+ * Note that config_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+MUST_USE_RES struct LDKChannelDetails ChannelDetails_new(struct LDKChannelId channel_id_arg, struct LDKChannelCounterparty counterparty_arg, struct LDKOutPoint funding_txo_arg, struct LDKChannelTypeFeatures channel_type_arg, struct LDKCOption_u64Z short_channel_id_arg, struct LDKCOption_u64Z outbound_scid_alias_arg, struct LDKCOption_u64Z inbound_scid_alias_arg, uint64_t channel_value_satoshis_arg, struct LDKCOption_u64Z unspendable_punishment_reserve_arg, struct LDKU128 user_channel_id_arg, struct LDKCOption_u32Z feerate_sat_per_1000_weight_arg, uint64_t balance_msat_arg, uint64_t outbound_capacity_msat_arg, uint64_t next_outbound_htlc_limit_msat_arg, uint64_t next_outbound_htlc_minimum_msat_arg, uint64_t inbound_capacity_msat_arg, struct LDKCOption_u32Z confirmations_required_arg, struct LDKCOption_u32Z confirmations_arg, struct LDKCOption_u16Z force_close_spend_delay_arg, bool is_outbound_arg, bool is_channel_ready_arg, struct LDKCOption_ChannelShutdownStateZ channel_shutdown_state_arg, bool is_usable_arg, bool is_public_arg, struct LDKCOption_u64Z inbound_htlc_minimum_msat_arg, struct LDKCOption_u64Z inbound_htlc_maximum_msat_arg, struct LDKChannelConfig config_arg, struct LDKCVec_InboundHTLCDetailsZ pending_inbound_htlcs_arg, struct LDKCVec_OutboundHTLCDetailsZ pending_outbound_htlcs_arg);
+
+/**
+ * Creates a copy of the ChannelDetails
+ */
+struct LDKChannelDetails ChannelDetails_clone(const struct LDKChannelDetails *NONNULL_PTR orig);
+
+/**
+ * Gets the current SCID which should be used to identify this channel for inbound payments.
+ * This should be used for providing invoice hints or in any other context where our
+ * counterparty will forward a payment to us.
+ *
+ * This is either the [`ChannelDetails::inbound_scid_alias`], if set, or the
+ * [`ChannelDetails::short_channel_id`]. See those for more information.
+ */
+MUST_USE_RES struct LDKCOption_u64Z ChannelDetails_get_inbound_payment_scid(const struct LDKChannelDetails *NONNULL_PTR this_arg);
+
+/**
+ * Gets the current SCID which should be used to identify this channel for outbound payments.
+ * This should be used in [`Route`]s to describe the first hop or in other contexts where
+ * we're sending or forwarding a payment outbound over this channel.
+ *
+ * This is either the [`ChannelDetails::short_channel_id`], if set, or the
+ * [`ChannelDetails::outbound_scid_alias`]. See those for more information.
+ *
+ * [`Route`]: crate::routing::router::Route
+ */
+MUST_USE_RES struct LDKCOption_u64Z ChannelDetails_get_outbound_payment_scid(const struct LDKChannelDetails *NONNULL_PTR this_arg);
+
+/**
+ * Serialize the ChannelDetails object into a byte array which can be read by ChannelDetails_read
+ */
+struct LDKCVec_u8Z ChannelDetails_write(const struct LDKChannelDetails *NONNULL_PTR obj);
+
+/**
+ * Read a ChannelDetails from a byte array, created by ChannelDetails_write
+ */
+struct LDKCResult_ChannelDetailsDecodeErrorZ ChannelDetails_read(struct LDKu8slice ser);
+
+/**
+ * Creates a copy of the ChannelShutdownState
+ */
+enum LDKChannelShutdownState ChannelShutdownState_clone(const enum LDKChannelShutdownState *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new NotShuttingDown-variant ChannelShutdownState
+ */
+enum LDKChannelShutdownState ChannelShutdownState_not_shutting_down(void);
+
+/**
+ * Utility method to constructs a new ShutdownInitiated-variant ChannelShutdownState
+ */
+enum LDKChannelShutdownState ChannelShutdownState_shutdown_initiated(void);
+
+/**
+ * Utility method to constructs a new ResolvingHTLCs-variant ChannelShutdownState
+ */
+enum LDKChannelShutdownState ChannelShutdownState_resolving_htlcs(void);
+
+/**
+ * Utility method to constructs a new NegotiatingClosingFee-variant ChannelShutdownState
+ */
+enum LDKChannelShutdownState ChannelShutdownState_negotiating_closing_fee(void);
+
+/**
+ * Utility method to constructs a new ShutdownComplete-variant ChannelShutdownState
+ */
+enum LDKChannelShutdownState ChannelShutdownState_shutdown_complete(void);
+
+/**
+ * Checks if two ChannelShutdownStates contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool ChannelShutdownState_eq(const enum LDKChannelShutdownState *NONNULL_PTR a, const enum LDKChannelShutdownState *NONNULL_PTR b);
+
+/**
+ * Serialize the ChannelShutdownState object into a byte array which can be read by ChannelShutdownState_read
+ */
+struct LDKCVec_u8Z ChannelShutdownState_write(const enum LDKChannelShutdownState *NONNULL_PTR obj);
+
+/**
+ * Read a ChannelShutdownState from a byte array, created by ChannelShutdownState_write
+ */
+struct LDKCResult_ChannelShutdownStateDecodeErrorZ ChannelShutdownState_read(struct LDKu8slice ser);
 
 /**
  * Frees any resources used by the ExpandedKey, if is_owned is set and inner is non-NULL.
@@ -41581,6 +42501,11 @@ uint64_t SocketAddressParseError_hash(const enum LDKSocketAddressParseError *NON
 bool SocketAddressParseError_eq(const enum LDKSocketAddressParseError *NONNULL_PTR a, const enum LDKSocketAddressParseError *NONNULL_PTR b);
 
 /**
+ * Get the string representation of a SocketAddressParseError object
+ */
+struct LDKStr SocketAddressParseError_to_str(const enum LDKSocketAddressParseError *NONNULL_PTR o);
+
+/**
  * Parses an OnionV3 host and port into a [`SocketAddress::OnionV3`].
  *
  * The host part must end with \".onion\".
@@ -42861,6 +43786,11 @@ bool TrampolineOnionPacket_eq(const struct LDKTrampolineOnionPacket *NONNULL_PTR
 struct LDKCVec_u8Z TrampolineOnionPacket_write(const struct LDKTrampolineOnionPacket *NONNULL_PTR obj);
 
 /**
+ * Get the string representation of a DecodeError object
+ */
+struct LDKStr DecodeError_to_str(const struct LDKDecodeError *NONNULL_PTR o);
+
+/**
  * Serialize the AcceptChannel object into a byte array which can be read by AcceptChannel_read
  */
 struct LDKCVec_u8Z AcceptChannel_write(const struct LDKAcceptChannel *NONNULL_PTR obj);
@@ -43624,6 +44554,11 @@ MUST_USE_RES struct LDKPeerHandleError PeerHandleError_new(void);
  * Creates a copy of the PeerHandleError
  */
 struct LDKPeerHandleError PeerHandleError_clone(const struct LDKPeerHandleError *NONNULL_PTR orig);
+
+/**
+ * Get the string representation of a PeerHandleError object
+ */
+struct LDKStr PeerHandleError_to_str(const struct LDKPeerHandleError *NONNULL_PTR o);
 
 /**
  * Frees any resources used by the PeerManager, if is_owned is set and inner is non-NULL.
@@ -46766,6 +47701,11 @@ MUST_USE_RES struct LDKPublicKey ShutdownScript_as_legacy_pubkey(const struct LD
 MUST_USE_RES bool ShutdownScript_is_compatible(const struct LDKShutdownScript *NONNULL_PTR this_arg, const struct LDKInitFeatures *NONNULL_PTR features);
 
 /**
+ * Get the string representation of a ShutdownScript object
+ */
+struct LDKStr ShutdownScript_to_str(const struct LDKShutdownScript *NONNULL_PTR o);
+
+/**
  * Frees any resources used by the ChannelId, if is_owned is set and inner is non-NULL.
  */
 void ChannelId_free(struct LDKChannelId this_obj);
@@ -46849,6 +47789,11 @@ struct LDKCVec_u8Z ChannelId_write(const struct LDKChannelId *NONNULL_PTR obj);
  * Read a ChannelId from a byte array, created by ChannelId_write
  */
 struct LDKCResult_ChannelIdDecodeErrorZ ChannelId_read(struct LDKu8slice ser);
+
+/**
+ * Get the string representation of a ChannelId object
+ */
+struct LDKStr ChannelId_to_str(const struct LDKChannelId *NONNULL_PTR o);
 
 /**
  * Frees any resources used by the Retry
@@ -47563,6 +48508,11 @@ struct LDKQuantity Quantity_one(void);
  * Read a Offer object from a string
  */
 struct LDKCResult_OfferBolt12ParseErrorZ Offer_from_str(struct LDKStr s);
+
+/**
+ * Get the string representation of a Offer object
+ */
+struct LDKStr Offer_to_str(const struct LDKOffer *NONNULL_PTR o);
 
 /**
  * Frees any resources used by the InvoiceWithExplicitSigningPubkeyBuilder, if is_owned is set and inner is non-NULL.
@@ -48281,6 +49231,11 @@ struct LDKErroneousField ErroneousField_clone(const struct LDKErroneousField *NO
  * Creates an [`InvoiceError`] with the given message.
  */
 MUST_USE_RES struct LDKInvoiceError InvoiceError_from_string(struct LDKStr s);
+
+/**
+ * Get the string representation of a InvoiceError object
+ */
+struct LDKStr InvoiceError_to_str(const struct LDKInvoiceError *NONNULL_PTR o);
 
 /**
  * Serialize the InvoiceError object into a byte array which can be read by InvoiceError_read
@@ -49389,6 +50344,11 @@ struct LDKCVec_u8Z Refund_write(const struct LDKRefund *NONNULL_PTR obj);
 struct LDKCResult_RefundBolt12ParseErrorZ Refund_from_str(struct LDKStr s);
 
 /**
+ * Get the string representation of a Refund object
+ */
+struct LDKStr Refund_to_str(const struct LDKRefund *NONNULL_PTR o);
+
+/**
  * Creates a copy of the UtxoLookupError
  */
 enum LDKUtxoLookupError UtxoLookupError_clone(const enum LDKUtxoLookupError *NONNULL_PTR orig);
@@ -49507,6 +50467,11 @@ MUST_USE_RES const uint8_t (*NodeId_as_array(const struct LDKNodeId *NONNULL_PTR
  * Get the public key from this NodeId
  */
 MUST_USE_RES struct LDKCResult_PublicKeySecp256k1ErrorZ NodeId_as_pubkey(const struct LDKNodeId *NONNULL_PTR this_arg);
+
+/**
+ * Get the string representation of a NodeId object
+ */
+struct LDKStr NodeId_to_str(const struct LDKNodeId *NONNULL_PTR o);
 
 /**
  * Generates a non-cryptographic 64-bit hash of the NodeId.
@@ -49741,6 +50706,11 @@ struct LDKChannelUpdateInfo ChannelUpdateInfo_clone(const struct LDKChannelUpdat
 bool ChannelUpdateInfo_eq(const struct LDKChannelUpdateInfo *NONNULL_PTR a, const struct LDKChannelUpdateInfo *NONNULL_PTR b);
 
 /**
+ * Get the string representation of a ChannelUpdateInfo object
+ */
+struct LDKStr ChannelUpdateInfo_to_str(const struct LDKChannelUpdateInfo *NONNULL_PTR o);
+
+/**
  * Serialize the ChannelUpdateInfo object into a byte array which can be read by ChannelUpdateInfo_read
  */
 struct LDKCVec_u8Z ChannelUpdateInfo_write(const struct LDKChannelUpdateInfo *NONNULL_PTR obj);
@@ -49861,6 +50831,11 @@ bool ChannelInfo_eq(const struct LDKChannelInfo *NONNULL_PTR a, const struct LDK
  * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
  */
 MUST_USE_RES struct LDKChannelUpdateInfo ChannelInfo_get_directional_info(const struct LDKChannelInfo *NONNULL_PTR this_arg, uint8_t channel_flags);
+
+/**
+ * Get the string representation of a ChannelInfo object
+ */
+struct LDKStr ChannelInfo_to_str(const struct LDKChannelInfo *NONNULL_PTR o);
 
 /**
  * Serialize the ChannelInfo object into a byte array which can be read by ChannelInfo_read
@@ -50151,6 +51126,11 @@ uint64_t NodeAlias_hash(const struct LDKNodeAlias *NONNULL_PTR o);
 bool NodeAlias_eq(const struct LDKNodeAlias *NONNULL_PTR a, const struct LDKNodeAlias *NONNULL_PTR b);
 
 /**
+ * Get the string representation of a NodeAlias object
+ */
+struct LDKStr NodeAlias_to_str(const struct LDKNodeAlias *NONNULL_PTR o);
+
+/**
  * Serialize the NodeAlias object into a byte array which can be read by NodeAlias_read
  */
 struct LDKCVec_u8Z NodeAlias_write(const struct LDKNodeAlias *NONNULL_PTR obj);
@@ -50220,6 +51200,11 @@ bool NodeInfo_eq(const struct LDKNodeInfo *NONNULL_PTR a, const struct LDKNodeIn
 MUST_USE_RES bool NodeInfo_is_tor_only(const struct LDKNodeInfo *NONNULL_PTR this_arg);
 
 /**
+ * Get the string representation of a NodeInfo object
+ */
+struct LDKStr NodeInfo_to_str(const struct LDKNodeInfo *NONNULL_PTR o);
+
+/**
  * Serialize the NodeInfo object into a byte array which can be read by NodeInfo_read
  */
 struct LDKCVec_u8Z NodeInfo_write(const struct LDKNodeInfo *NONNULL_PTR obj);
@@ -50238,6 +51223,11 @@ struct LDKCVec_u8Z NetworkGraph_write(const struct LDKNetworkGraph *NONNULL_PTR 
  * Read a NetworkGraph from a byte array, created by NetworkGraph_write
  */
 struct LDKCResult_NetworkGraphDecodeErrorZ NetworkGraph_read(struct LDKu8slice ser, struct LDKLogger arg);
+
+/**
+ * Get the string representation of a NetworkGraph object
+ */
+struct LDKStr NetworkGraph_to_str(const struct LDKNetworkGraph *NONNULL_PTR o);
 
 /**
  * Creates a new, empty, network graph.
@@ -50906,6 +51896,11 @@ MUST_USE_RES uint64_t Route_get_total_fees(const struct LDKRoute *NONNULL_PTR th
  * [`htlc_minimum_msat`]: https://github.com/lightning/bolts/blob/master/07-routing-gossip.md#the-channel_update-message
  */
 MUST_USE_RES uint64_t Route_get_total_amount(const struct LDKRoute *NONNULL_PTR this_arg);
+
+/**
+ * Get the string representation of a Route object
+ */
+struct LDKStr Route_to_str(const struct LDKRoute *NONNULL_PTR o);
 
 /**
  * Serialize the Route object into a byte array which can be read by Route_read
@@ -54704,6 +55699,11 @@ struct LDKClosureReason ClosureReason_htlcs_timed_out(void);
  * This ignores pointers and is_owned flags and looks at the values in fields.
  */
 bool ClosureReason_eq(const struct LDKClosureReason *NONNULL_PTR a, const struct LDKClosureReason *NONNULL_PTR b);
+
+/**
+ * Get the string representation of a ClosureReason object
+ */
+struct LDKStr ClosureReason_to_str(const struct LDKClosureReason *NONNULL_PTR o);
 
 /**
  * Serialize the ClosureReason object into a byte array which can be read by ClosureReason_read

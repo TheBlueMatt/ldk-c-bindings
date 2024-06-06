@@ -147,6 +147,11 @@ pub extern "C" fn Level_hash(o: &Level) -> u64 {
 	core::hash::Hash::hash(&o.to_native(), &mut hasher);
 	core::hash::Hasher::finish(&hasher)
 }
+#[no_mangle]
+/// Get the string representation of a Level object
+pub extern "C" fn Level_to_str(o: &crate::lightning::util::logger::Level) -> Str {
+	alloc::format!("{}", &o.to_native()).into()
+}
 /// Returns the most verbose logging level.
 #[must_use]
 #[no_mangle]

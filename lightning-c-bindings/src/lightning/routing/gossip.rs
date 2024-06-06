@@ -133,6 +133,11 @@ pub extern "C" fn NodeId_as_pubkey(this_arg: &crate::lightning::routing::gossip:
 /// Get a string which allows debug introspection of a NodeId object
 pub extern "C" fn NodeId_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::routing::gossip::NodeId }).into()}
+#[no_mangle]
+/// Get the string representation of a NodeId object
+pub extern "C" fn NodeId_to_str(o: &crate::lightning::routing::gossip::NodeId) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
 /// Generates a non-cryptographic 64-bit hash of the NodeId.
 #[no_mangle]
 pub extern "C" fn NodeId_hash(o: &NodeId) -> u64 {
@@ -912,6 +917,11 @@ pub extern "C" fn ChannelUpdateInfo_eq(a: &ChannelUpdateInfo, b: &ChannelUpdateI
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
 #[no_mangle]
+/// Get the string representation of a ChannelUpdateInfo object
+pub extern "C" fn ChannelUpdateInfo_to_str(o: &crate::lightning::routing::gossip::ChannelUpdateInfo) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
+#[no_mangle]
 /// Serialize the ChannelUpdateInfo object into a byte array which can be read by ChannelUpdateInfo_read
 pub extern "C" fn ChannelUpdateInfo_write(obj: &crate::lightning::routing::gossip::ChannelUpdateInfo) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
@@ -1124,6 +1134,11 @@ pub extern "C" fn ChannelInfo_get_directional_info(this_arg: &crate::lightning::
 	local_ret
 }
 
+#[no_mangle]
+/// Get the string representation of a ChannelInfo object
+pub extern "C" fn ChannelInfo_to_str(o: &crate::lightning::routing::gossip::ChannelInfo) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
 #[no_mangle]
 /// Serialize the ChannelInfo object into a byte array which can be read by ChannelInfo_read
 pub extern "C" fn ChannelInfo_write(obj: &crate::lightning::routing::gossip::ChannelInfo) -> crate::c_types::derived::CVec_u8Z {
@@ -1941,6 +1956,11 @@ pub extern "C" fn NodeAlias_eq(a: &NodeAlias, b: &NodeAlias) -> bool {
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
 #[no_mangle]
+/// Get the string representation of a NodeAlias object
+pub extern "C" fn NodeAlias_to_str(o: &crate::lightning::routing::gossip::NodeAlias) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
+#[no_mangle]
 /// Serialize the NodeAlias object into a byte array which can be read by NodeAlias_read
 pub extern "C" fn NodeAlias_write(obj: &crate::lightning::routing::gossip::NodeAlias) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
@@ -2096,6 +2116,11 @@ pub extern "C" fn NodeInfo_is_tor_only(this_arg: &crate::lightning::routing::gos
 }
 
 #[no_mangle]
+/// Get the string representation of a NodeInfo object
+pub extern "C" fn NodeInfo_to_str(o: &crate::lightning::routing::gossip::NodeInfo) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
+#[no_mangle]
 /// Serialize the NodeInfo object into a byte array which can be read by NodeInfo_read
 pub extern "C" fn NodeInfo_write(obj: &crate::lightning::routing::gossip::NodeInfo) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
@@ -2127,6 +2152,11 @@ pub extern "C" fn NetworkGraph_read(ser: crate::c_types::u8slice, arg: crate::li
 	let res: Result<lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj_arg(ser, arg_conv);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::gossip::NetworkGraph { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
+}
+#[no_mangle]
+/// Get the string representation of a NetworkGraph object
+pub extern "C" fn NetworkGraph_to_str(o: &crate::lightning::routing::gossip::NetworkGraph) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
 }
 /// Creates a new, empty, network graph.
 #[must_use]

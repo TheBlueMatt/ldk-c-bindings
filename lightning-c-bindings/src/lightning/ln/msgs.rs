@@ -6614,6 +6614,11 @@ pub extern "C" fn SocketAddressParseError_hash(o: &SocketAddressParseError) -> u
 pub extern "C" fn SocketAddressParseError_eq(a: &SocketAddressParseError, b: &SocketAddressParseError) -> bool {
 	if &a.to_native() == &b.to_native() { true } else { false }
 }
+#[no_mangle]
+/// Get the string representation of a SocketAddressParseError object
+pub extern "C" fn SocketAddressParseError_to_str(o: &crate::lightning::ln::msgs::SocketAddressParseError) -> Str {
+	alloc::format!("{}", &o.to_native()).into()
+}
 /// Parses an OnionV3 host and port into a [`SocketAddress::OnionV3`].
 ///
 /// The host part must end with \".onion\".
@@ -10210,6 +10215,11 @@ pub(crate) extern "C" fn TrampolineOnionPacket_write_void(obj: *const c_void) ->
 /// Get a string which allows debug introspection of a TrampolineOnionPacket object
 pub extern "C" fn TrampolineOnionPacket_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::msgs::TrampolineOnionPacket }).into()}
+#[no_mangle]
+/// Get the string representation of a DecodeError object
+pub extern "C" fn DecodeError_to_str(o: &crate::lightning::ln::msgs::DecodeError) -> Str {
+	alloc::format!("{}", &o.to_native()).into()
+}
 #[no_mangle]
 /// Serialize the AcceptChannel object into a byte array which can be read by AcceptChannel_read
 pub extern "C" fn AcceptChannel_write(obj: &crate::lightning::ln::msgs::AcceptChannel) -> crate::c_types::derived::CVec_u8Z {

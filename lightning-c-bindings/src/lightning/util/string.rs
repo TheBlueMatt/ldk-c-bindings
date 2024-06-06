@@ -142,6 +142,11 @@ pub extern "C" fn UntrustedString_read(ser: crate::c_types::u8slice) -> crate::c
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::string::UntrustedString { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
+#[no_mangle]
+/// Get the string representation of a UntrustedString object
+pub extern "C" fn UntrustedString_to_str(o: &crate::lightning::util::string::UntrustedString) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
 
 use lightning::util::string::PrintableString as nativePrintableStringImport;
 pub(crate) type nativePrintableString = nativePrintableStringImport<'static, >;
@@ -214,3 +219,8 @@ pub extern "C" fn PrintableString_new(mut a_arg: crate::c_types::Str) -> Printab
 /// Get a string which allows debug introspection of a PrintableString object
 pub extern "C" fn PrintableString_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::util::string::PrintableString }).into()}
+#[no_mangle]
+/// Get the string representation of a PrintableString object
+pub extern "C" fn PrintableString_to_str(o: &crate::lightning::util::string::PrintableString) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}

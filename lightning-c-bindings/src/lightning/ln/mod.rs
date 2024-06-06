@@ -20,6 +20,7 @@ use alloc::{vec::Vec, boxed::Box};
 pub mod onion_payment;
 pub mod channelmanager;
 pub mod channel_keys;
+pub mod channel_state;
 pub mod inbound_payment;
 pub mod msgs;
 pub mod peer_handler;

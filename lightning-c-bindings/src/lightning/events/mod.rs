@@ -963,6 +963,11 @@ pub extern "C" fn ClosureReason_eq(a: &ClosureReason, b: &ClosureReason) -> bool
 	if &a.to_native() == &b.to_native() { true } else { false }
 }
 #[no_mangle]
+/// Get the string representation of a ClosureReason object
+pub extern "C" fn ClosureReason_to_str(o: &crate::lightning::events::ClosureReason) -> Str {
+	alloc::format!("{}", &o.to_native()).into()
+}
+#[no_mangle]
 /// Serialize the ClosureReason object into a byte array which can be read by ClosureReason_read
 pub extern "C" fn ClosureReason_write(obj: &crate::lightning::events::ClosureReason) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(&unsafe { &*obj }.to_native())
