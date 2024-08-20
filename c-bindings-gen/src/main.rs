@@ -646,12 +646,22 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 		writeln!(w, " for {} {{", trait_name).unwrap();
 		impl_trait_for_c!(t, "", types, &syn::PathArguments::None);
 		writeln!(w, "}}\n").unwrap();
+
+		writeln!(w, "struct {}Ref({});", trait_name, trait_name).unwrap();
+		write!(w, "impl").unwrap();
+		maybe_write_lifetime_generics(w, &t.generics, types);
+		write!(w, " rust{}", t.ident).unwrap();
+		maybe_write_generics(w, &t.generics, &syn::PathArguments::None, types, false);
+		writeln!(w, " for {}Ref {{", trait_name).unwrap();
+		impl_trait_for_c!(t, ".0", types, &syn::PathArguments::None);
+		writeln!(w, "}}\n").unwrap();
+
 		writeln!(w, "// We're essentially a pointer already, or at least a set of pointers, so allow us to be used").unwrap();
 		writeln!(w, "// directly as a Deref trait in higher-level structs:").unwrap();
-		writeln!(w, "impl core::ops::Deref for {} {{\n\ttype Target = Self;", trait_name).unwrap();
-		writeln!(w, "\tfn deref(&self) -> &Self {{\n\t\tself\n\t}}\n}}").unwrap();
+		writeln!(w, "impl core::ops::Deref for {} {{\n\ttype Target = {}Ref;", trait_name, trait_name).unwrap();
+		writeln!(w, "\tfn deref(&self) -> &Self::Target {{\n\t\tunsafe {{ &*(self as *const _ as *const {}Ref) }}\n\t}}\n}}", trait_name).unwrap();
 		writeln!(w, "impl core::ops::DerefMut for {} {{", trait_name).unwrap();
-		writeln!(w, "\tfn deref_mut(&mut self) -> &mut Self {{\n\t\tself\n\t}}\n}}").unwrap();
+		writeln!(w, "\tfn deref_mut(&mut self) -> &mut {}Ref {{\n\t\tunsafe {{ &mut *(self as *mut _ as *mut {}Ref) }}\n\t}}\n}}", trait_name, trait_name).unwrap();
 	}
 
 	writeln!(w, "/// Calls the free function if one is set").unwrap();
