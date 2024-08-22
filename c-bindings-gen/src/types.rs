@@ -3127,9 +3127,8 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 					// If this is a no-export'd crate and there's only one implementation in the
 					// whole crate, just treat it as a reference to whatever the implementor is.
 					if with_ref_lifetime {
-						// Hope we're being printed in function generics and let rustc derive the
-						// type.
-						write!(w, "_").unwrap();
+						// Hope that we're bound on a `Deref` and that the non-ref type works.
+						write!(w, "crate::{}", trait_impls[0]).unwrap();
 					} else {
 						write!(w, "&crate::{}", trait_impls[0]).unwrap();
 					}
