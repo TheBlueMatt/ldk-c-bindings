@@ -1983,11 +1983,19 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 					// the original crate.
 					write!(w, "{}", self.real_rust_type_mapping(&resolved)).unwrap();
 				} else {
+					if let Some(trait_impls) = self.crate_types.traits_impld.get(&resolved) {
+						if self.crate_types.traits.get(&resolved).is_none() && trait_impls.len() == 1 {
+							write!(w, "crate::{}", trait_impls[0]).unwrap();
+							return;
+						}
+					}
 					write!(w, "crate::{}", resolved).unwrap();
 				}
 			}
-			if let syn::PathArguments::AngleBracketed(args) = &path.segments.iter().last().unwrap().arguments {
-				self.write_rust_generic_arg(w, generics_resolver, args.args.iter(), with_ref_lifetime);
+			if !generated_crate_ref {
+				if let syn::PathArguments::AngleBracketed(args) = &path.segments.iter().last().unwrap().arguments {
+					self.write_rust_generic_arg(w, generics_resolver, args.args.iter(), with_ref_lifetime);
+				}
 			}
 		} else {
 			if path.leading_colon.is_some() {
@@ -2051,7 +2059,11 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 				}
 				if let Some(resolved_ty) = self.maybe_resolve_path(&p.path, generics) {
 					generate_crate_ref |= self.maybe_resolve_path(&p.path, None).as_ref() != Some(&resolved_ty);
-					if self.crate_types.traits.get(&resolved_ty).is_none() { generate_crate_ref = false; }
+					let mut is_trait = self.crate_types.traits.get(&resolved_ty).is_some();
+					is_trait |= self.crate_types.traits_impld.get(&resolved_ty).is_some();
+					if !is_trait {
+						generate_crate_ref = false;
+					}
 				}
 				self.write_rust_path(w, generics, &p.path, with_ref_lifetime, generate_crate_ref);
 			},
