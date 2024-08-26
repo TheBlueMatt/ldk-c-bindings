@@ -774,15 +774,26 @@ fn writeln_opaque<W: std::io::Write>(w: &mut W, ident: &syn::Ident, struct_name:
 	writeln!(w, "\t/// this to be true and invalidate the object pointed to by inner.").unwrap();
 	writeln!(w, "\tpub is_owned: bool,").unwrap();
 	writeln!(w, "}}\n").unwrap();
+
+	writeln!(w, "impl core::ops::Deref for {} {{", struct_name).unwrap();
+	writeln!(w, "\ttype Target = native{};", struct_name).unwrap();
+	writeln!(w, "\tfn deref(&self) -> &Self::Target {{ unsafe {{ &*ObjOps::untweak_ptr(self.inner) }} }}").unwrap();
+	writeln!(w, "}}").unwrap();
+
+	writeln!(w, "unsafe impl core::marker::Send for {} {{ }}", struct_name).unwrap();
+	writeln!(w, "unsafe impl core::marker::Sync for {} {{ }}", struct_name).unwrap();
+
 	writeln!(w, "impl Drop for {} {{\n\tfn drop(&mut self) {{", struct_name).unwrap();
 	writeln!(w, "\t\tif self.is_owned && !<*mut native{}>::is_null(self.inner) {{", ident).unwrap();
 	writeln!(w, "\t\t\tlet _ = unsafe {{ Box::from_raw(ObjOps::untweak_ptr(self.inner)) }};\n\t\t}}\n\t}}\n}}").unwrap();
+
 	writeln!(w, "/// Frees any resources used by the {}, if is_owned is set and inner is non-NULL.", struct_name).unwrap();
 	writeln!(w, "#[no_mangle]\npub extern \"C\" fn {}_free(this_obj: {}) {{ }}", struct_name, struct_name).unwrap();
 	writeln!(w, "#[allow(unused)]").unwrap();
 	writeln!(w, "/// Used only if an object of this type is returned as a trait impl by a method").unwrap();
 	writeln!(w, "pub(crate) extern \"C\" fn {}_free_void(this_ptr: *mut c_void) {{", struct_name).unwrap();
 	writeln!(w, "\tlet _ = unsafe {{ Box::from_raw(this_ptr as *mut native{}) }};\n}}", struct_name).unwrap();
+
 	writeln!(w, "#[allow(unused)]").unwrap();
 	writeln!(w, "impl {} {{", struct_name).unwrap();
 	writeln!(w, "\tpub(crate) fn get_native_ref(&self) -> &'static native{} {{", struct_name).unwrap();
@@ -797,6 +808,9 @@ fn writeln_opaque<W: std::io::Write>(w: &mut W, ident: &syn::Ident, struct_name:
 	writeln!(w, "\t\tlet ret = ObjOps::untweak_ptr(self.inner);").unwrap();
 	writeln!(w, "\t\tself.inner = core::ptr::null_mut();").unwrap();
 	writeln!(w, "\t\tret").unwrap();
+	writeln!(w, "\t}}").unwrap();
+	writeln!(w, "\tpub(crate) fn as_ref_to(&self) -> Self {{").unwrap();
+	writeln!(w, "\t\tSelf {{ inner: self.inner, is_owned: false }}").unwrap();
 	writeln!(w, "\t}}\n}}").unwrap();
 
 	write_cpp_wrapper(cpp_headers, &format!("{}", ident), true, None);
