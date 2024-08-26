@@ -62,18 +62,22 @@ fn maybe_convert_trait_impl<W: std::io::Write>(w: &mut W, trait_path: &syn::Path
 	if let Some(t) = types.maybe_resolve_path(&trait_path, Some(generics)) {
 		let for_obj;
 		let full_obj_path;
+		let native_path;
 		let mut has_inner = false;
 		if let syn::Type::Path(ref p) = for_ty {
 			let resolved_path = types.resolve_path(&p.path, Some(generics));
 			for_obj = format!("{}", p.path.segments.last().unwrap().ident);
 			full_obj_path = format!("crate::{}", resolved_path);
 			has_inner = types.c_type_has_inner_from_path(&resolved_path);
+			let (path, name) = full_obj_path.rsplit_once("::").unwrap();
+			native_path = path.to_string() + "::native" + name;
 		} else {
 			// We assume that anything that isn't a Path is somehow a generic that ends up in our
 			// derived-types module.
 			let mut for_obj_vec = Vec::new();
 			types.write_c_type(&mut for_obj_vec, for_ty, Some(generics), false);
 			full_obj_path = String::from_utf8(for_obj_vec).unwrap();
+			native_path = full_obj_path.clone();
 			if !full_obj_path.starts_with(TypeResolver::generated_container_path()) { return; }
 			for_obj = full_obj_path[TypeResolver::generated_container_path().len() + 2..].into();
 		}
@@ -98,7 +102,7 @@ fn maybe_convert_trait_impl<W: std::io::Write>(w: &mut W, trait_path: &syn::Path
 				writeln!(w, "#[allow(unused)]").unwrap();
 				writeln!(w, "pub(crate) extern \"C\" fn {}_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {{", for_obj).unwrap();
 				if has_inner {
-					writeln!(w, "\tcrate::c_types::serialize_obj(unsafe {{ &*(obj as *const native{}) }})", for_obj).unwrap();
+					writeln!(w, "\tcrate::c_types::serialize_obj(unsafe {{ &*(obj as *const {}) }})", native_path).unwrap();
 				} else {
 					writeln!(w, "\t{}_write(unsafe {{ &*(obj as *const {}) }})", for_obj, for_obj).unwrap();
 				}
