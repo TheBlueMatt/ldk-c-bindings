@@ -2483,19 +2483,19 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 	// Note that compared to the above conversion functions, the following two are generally
 	// significantly undertested:
 	pub fn write_from_c_conversion_to_ref_prefix<W: std::io::Write>(&self, w: &mut W, t: &syn::Type, generics: Option<&GenericTypes>) {
-		self.write_conversion_inline_intern(w, t, generics, false, false, false, "() /*", true, |_, _| "&local_".to_owned(),
+		self.write_conversion_inline_intern(w, t, generics, true, false, false, "() /*", true, |_, _| "&local_".to_owned(),
 				|a, b, _c| {
 					if let Some(conv) = self.from_c_conversion_prefix_from_path(a, b) {
 						Some(format!("&{}", conv))
 					} else { None }
 				},
-				|w, decl_type, _full_path, is_ref, _is_mut, _is_trait_alias| match decl_type {
-					DeclType::StructImported {..} if !is_ref => write!(w, "").unwrap(),
+				|w, decl_type, _full_path, _is_ref, _is_mut, _is_trait_alias| match decl_type {
+					DeclType::StructImported {..} => write!(w, "").unwrap(),
 					_ => unimplemented!(),
 				});
 	}
 	pub fn write_from_c_conversion_to_ref_suffix<W: std::io::Write>(&self, w: &mut W, t: &syn::Type, generics: Option<&GenericTypes>) {
-		self.write_conversion_inline_intern(w, t, generics, false, false, false, "*/", false,
+		self.write_conversion_inline_intern(w, t, generics, true, false, false, "*/", false,
 				|has_inner, map_str_opt| match (has_inner, map_str_opt) {
 					(false, Some(map_str)) => format!(".iter(){}.collect::<Vec<_>>()[..]", map_str),
 					(false, None) => ".iter().collect::<Vec<_>>()[..]".to_owned(),
@@ -2503,8 +2503,8 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 					(true, Some(_)) => unreachable!(),
 				},
 				|a, b, _c| self.from_c_conversion_suffix_from_path(a, b),
-				|w, decl_type, _full_path, is_ref, _is_mut, _is_trait_alias| match decl_type {
-					DeclType::StructImported {..} if !is_ref => write!(w, ".get_native_ref()").unwrap(),
+				|w, decl_type, _full_path, _is_ref, _is_mut, _is_trait_alias| match decl_type {
+					DeclType::StructImported {..} => write!(w, ".get_native_ref()").unwrap(),
 					_ => unimplemented!(),
 				});
 	}
