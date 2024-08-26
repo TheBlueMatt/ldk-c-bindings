@@ -1326,13 +1326,13 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 								if let syn::ReturnType::Type(_, rtype) = &$m.sig.output {
 									if let syn::Type::Reference(r) = &**rtype {
 										assert_eq!($m.sig.inputs.len(), 1); // Must only take self
-										writeln!(w, "extern \"C\" fn {}_{}_set_{}(trait_self_arg: &{}) {{", ident, $trait.ident, $m.sig.ident, $trait.ident).unwrap();
+										writeln!(w, "extern \"C\" fn {}_{}_set_{}(trait_self_arg: &crate::{}) {{", ident, $trait.ident, $m.sig.ident, $trait_path).unwrap();
 										writeln!(w, "\t// This is a bit race-y in the general case, but for our specific use-cases today, we're safe").unwrap();
 										writeln!(w, "\t// Specifically, we must ensure that the first time we're called it can never be in parallel").unwrap();
 										write!(w, "\tif ").unwrap();
 										$types.write_empty_rust_val_check(Some(&meth_gen_types), w, &*r.elem, &format!("unsafe {{ &*trait_self_arg.{}.get() }}", $m.sig.ident));
 										writeln!(w, " {{").unwrap();
-										writeln!(w, "\t\t*unsafe {{ &mut *(&*(trait_self_arg as *const {})).{}.get() }} = {}_{}_{}(trait_self_arg.this_arg).into();", $trait.ident, $m.sig.ident, ident, $trait.ident, $m.sig.ident).unwrap();
+										writeln!(w, "\t\t*unsafe {{ &mut *(&*(trait_self_arg as *const crate::{})).{}.get() }} = {}_{}_{}(trait_self_arg.this_arg).into();", $trait_path, $m.sig.ident, ident, $trait.ident, $m.sig.ident).unwrap();
 										writeln!(w, "\t}}").unwrap();
 										writeln!(w, "}}").unwrap();
 									}
