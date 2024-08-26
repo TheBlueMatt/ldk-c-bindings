@@ -3210,7 +3210,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 						true
 					} else {
 						let mut inner_c_ty = Vec::new();
-						assert!(self.write_c_path_intern(&mut inner_c_ty, &p.path, generics, true, false, ptr_for_ref, with_ref_lifetime, c_ty));
+						assert!(self.write_c_path_intern(&mut inner_c_ty, &p.path, generics, false, false, ptr_for_ref, with_ref_lifetime, c_ty));
 						let inner_ty_str = String::from_utf8(inner_c_ty).unwrap();
 						if self.is_clonable(&inner_ty_str) {
 							let inner_ty_ident = inner_ty_str.rsplitn(2, "::").next().unwrap();
