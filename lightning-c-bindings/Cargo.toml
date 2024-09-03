@@ -23,12 +23,12 @@ bitcoin = { version = "0.32", default-features = false }
 bech32 = { version = "0.9", default-features = false }
 secp256k1 = { version = "0.29", features = ["global-context", "recovery"] }
 # Note that the following line is matched by genbindings to update the path
-lightning = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
-lightning-types = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
-lightning-persister = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
-lightning-invoice = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
-lightning-background-processor = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
-lightning-rapid-gossip-sync = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.123-bindings", default-features = false }
+lightning = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.124-bindings", default-features = false }
+lightning-types = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.124-bindings", default-features = false }
+lightning-persister = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.124-bindings", default-features = false }
+lightning-invoice = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.124-bindings", default-features = false }
+lightning-background-processor = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.124-bindings", default-features = false }
+lightning-rapid-gossip-sync = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.0.124-bindings", default-features = false }
 
 # Always force panic=abort, further options are set in the genbindings.sh build script
 [profile.dev]
