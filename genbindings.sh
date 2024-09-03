@@ -622,8 +622,10 @@ if [ "$CLANGPP" != "" -a "$LLD" != "" ]; then
 		for ARG in $CFLAGS_aarch64_apple_darwin; do
 			MANUAL_LINK_CFLAGS="$MANUAL_LINK_CFLAGS -C link-arg=$ARG"
 		done
+		# While there's no reason LTO should fail here (and it didn't use to), it now fails with errors like
+		# ld64.lld: error: undefined symbol: core::fmt::Formatter::debug_lower_hex::hf8e8a79f43d62b68
 		export CFLAGS_aarch64_apple_darwin="$CFLAGS_aarch64_apple_darwin -O3 -fPIC -fembed-bitcode"
-		RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=apple-a14 -C embed-bitcode=yes -C linker-plugin-lto -C lto -C linker=$CLANG $MANUAL_LINK_CFLAGS $LINK_ARG_FLAGS -C link-arg=-mcpu=apple-a14" CARGO_PROFILE_RELEASE_LTO=true cargo build $CARGO_BUILD_ARGS --offline -v --release --target aarch64-apple-darwin -Zbuild-std=std,panic_abort
+		RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=apple-a14 -C embed-bitcode=yes -C linker-plugin-lto -C linker=$CLANG $MANUAL_LINK_CFLAGS $LINK_ARG_FLAGS -C link-arg=-mcpu=apple-a14" cargo build $CARGO_BUILD_ARGS --offline -v --release --target aarch64-apple-darwin -Zbuild-std=std,panic_abort
 		if [ "$HOST_OSX" != "true" ]; then
 			# If we're not on OSX but can build OSX binaries, build the x86_64 OSX release now
 			MANUAL_LINK_CFLAGS=""
@@ -631,7 +633,7 @@ if [ "$CLANGPP" != "" -a "$LLD" != "" ]; then
 				MANUAL_LINK_CFLAGS="$MANUAL_LINK_CFLAGS -C link-arg=$ARG"
 			done
 			export CFLAGS_x86_64_apple_darwin="$CFLAGS_x86_64_apple_darwin -O3 -fPIC -fembed-bitcode"
-			RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=sandybridge -C embed-bitcode=yes -C linker-plugin-lto -C lto -C linker=$CLANG $MANUAL_LINK_CFLAGS $LINK_ARG_FLAGS -C link-arg=-march=sandybridge -C link-arg=-mtune=sandybridge" CARGO_PROFILE_RELEASE_LTO=true cargo build $CARGO_BUILD_ARGS --offline -v --release --target x86_64-apple-darwin -Zbuild-std=std,panic_abort
+			RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=sandybridge -C embed-bitcode=yes -C linker-plugin-lto -C linker=$CLANG $MANUAL_LINK_CFLAGS $LINK_ARG_FLAGS -C link-arg=-march=sandybridge -C link-arg=-mtune=sandybridge" cargo build $CARGO_BUILD_ARGS --offline -v --release --target x86_64-apple-darwin -Zbuild-std=std,panic_abort
 		fi
 	fi
 	# If we're on an M1 don't bother building X86 binaries
