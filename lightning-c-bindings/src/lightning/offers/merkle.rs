@@ -41,6 +41,12 @@ pub struct TaggedHash {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TaggedHash {
+	type Target = nativeTaggedHash;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TaggedHash { }
+unsafe impl core::marker::Sync for TaggedHash { }
 impl Drop for TaggedHash {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTaggedHash>::is_null(self.inner) {
@@ -70,6 +76,9 @@ impl TaggedHash {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for TaggedHash {

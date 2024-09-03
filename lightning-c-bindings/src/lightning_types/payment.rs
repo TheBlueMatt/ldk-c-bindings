@@ -6,7 +6,7 @@
 // license as that which applies to the original source files from which this
 // source was automatically generated.
 
-//! Utilities to wrap untrusted strings and handle them (more) safely
+//! Types which describe payments in lightning.
 
 use alloc::str::FromStr;
 use alloc::string::String;

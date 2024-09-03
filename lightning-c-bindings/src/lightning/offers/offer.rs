@@ -23,22 +23,22 @@
 //! use core::num::NonZeroU64;
 //! use core::time::Duration;
 //!
-//! use bitcoin::secp256k1::{KeyPair, PublicKey, Secp256k1, SecretKey};
+//! use bitcoin::secp256k1::{Keypair, PublicKey, Secp256k1, SecretKey};
 //! use lightning::offers::offer::{Offer, OfferBuilder, Quantity};
 //! use lightning::offers::parse::Bolt12ParseError;
 //! use lightning::util::ser::{Readable, Writeable};
 //!
-//! # use lightning::blinded_path::BlindedPath;
+//! # use lightning::blinded_path::message::BlindedMessagePath;
 //! # #[cfg(feature = \"std\")]
 //! # use std::time::SystemTime;
 //! #
-//! # fn create_blinded_path() -> BlindedPath { unimplemented!() }
-//! # fn create_another_blinded_path() -> BlindedPath { unimplemented!() }
+//! # fn create_blinded_path() -> BlindedMessagePath { unimplemented!() }
+//! # fn create_another_blinded_path() -> BlindedMessagePath { unimplemented!() }
 //! #
 //! # #[cfg(feature = \"std\")]
 //! # fn build() -> Result<(), Bolt12ParseError> {
 //! let secp_ctx = Secp256k1::new();
-//! let keys = KeyPair::from_secret_key(&secp_ctx, &SecretKey::from_slice(&[42; 32]).unwrap());
+//! let keys = Keypair::from_secret_key(&secp_ctx, &SecretKey::from_slice(&[42; 32]).unwrap());
 //! let pubkey = PublicKey::from(keys);
 //!
 //! let expiration = SystemTime::now() + Duration::from_secs(24 * 60 * 60);
@@ -105,6 +105,12 @@ pub struct OfferId {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OfferId {
+	type Target = nativeOfferId;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OfferId { }
+unsafe impl core::marker::Sync for OfferId { }
 impl Drop for OfferId {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOfferId>::is_null(self.inner) {
@@ -134,6 +140,9 @@ impl OfferId {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -191,7 +200,7 @@ pub extern "C" fn OfferId_write(obj: &crate::lightning::offers::offer::OfferId) 
 }
 #[allow(unused)]
 pub(crate) extern "C" fn OfferId_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeOfferId) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::offers::offer::nativeOfferId) })
 }
 #[no_mangle]
 /// Read a OfferId from a byte array, created by OfferId_write
@@ -224,6 +233,12 @@ pub struct OfferWithExplicitMetadataBuilder {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OfferWithExplicitMetadataBuilder {
+	type Target = nativeOfferWithExplicitMetadataBuilder;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OfferWithExplicitMetadataBuilder { }
+unsafe impl core::marker::Sync for OfferWithExplicitMetadataBuilder { }
 impl Drop for OfferWithExplicitMetadataBuilder {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOfferWithExplicitMetadataBuilder>::is_null(self.inner) {
@@ -253,6 +268,9 @@ impl OfferWithExplicitMetadataBuilder {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for OfferWithExplicitMetadataBuilder {
@@ -298,6 +316,12 @@ pub struct OfferWithDerivedMetadataBuilder {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OfferWithDerivedMetadataBuilder {
+	type Target = nativeOfferWithDerivedMetadataBuilder;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OfferWithDerivedMetadataBuilder { }
+unsafe impl core::marker::Sync for OfferWithDerivedMetadataBuilder { }
 impl Drop for OfferWithDerivedMetadataBuilder {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOfferWithDerivedMetadataBuilder>::is_null(self.inner) {
@@ -327,6 +351,9 @@ impl OfferWithDerivedMetadataBuilder {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for OfferWithDerivedMetadataBuilder {
@@ -440,7 +467,7 @@ pub extern "C" fn OfferWithExplicitMetadataBuilder_issuer(mut this_arg: crate::l
 /// adding duplicate paths.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn OfferWithExplicitMetadataBuilder_path(mut this_arg: crate::lightning::offers::offer::OfferWithExplicitMetadataBuilder, mut path: crate::lightning::blinded_path::BlindedPath) {
+pub extern "C" fn OfferWithExplicitMetadataBuilder_path(mut this_arg: crate::lightning::offers::offer::OfferWithExplicitMetadataBuilder, mut path: crate::lightning::blinded_path::message::BlindedMessagePath) {
 	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).path(*unsafe { Box::from_raw(path.take_inner()) });
 	() /*ret*/
 }
@@ -466,20 +493,23 @@ pub extern "C" fn OfferWithExplicitMetadataBuilder_build(mut this_arg: crate::li
 }
 
 /// Similar to [`OfferBuilder::new`] except, if [`OfferBuilder::path`] is called, the signing
-/// pubkey is derived from the given [`ExpandedKey`] and [`EntropySource`]. This provides
-/// recipient privacy by using a different signing pubkey for each offer. Otherwise, the
-/// provided `node_id` is used for the signing pubkey.
+/// pubkey is derived from the given [`ExpandedKey`] and [`Nonce`]. This provides recipient
+/// privacy by using a different signing pubkey for each offer. Otherwise, the provided
+/// `node_id` is used for the signing pubkey.
 ///
 /// Also, sets the metadata when [`OfferBuilder::build`] is called such that it can be used by
-/// [`InvoiceRequest::verify`] to determine if the request was produced for the offer given an
-/// [`ExpandedKey`].
+/// [`InvoiceRequest::verify_using_metadata`] to determine if the request was produced for the
+/// offer given an [`ExpandedKey`]. However, if [`OfferBuilder::path`] is called, then the
+/// metadata will not be set and must be included in each [`BlindedMessagePath`] instead. In this case,
+/// use [`InvoiceRequest::verify_using_recipient_data`].
 ///
-/// [`InvoiceRequest::verify`]: crate::offers::invoice_request::InvoiceRequest::verify
+/// [`InvoiceRequest::verify_using_metadata`]: crate::offers::invoice_request::InvoiceRequest::verify_using_metadata
+/// [`InvoiceRequest::verify_using_recipient_data`]: crate::offers::invoice_request::InvoiceRequest::verify_using_recipient_data
 /// [`ExpandedKey`]: crate::ln::inbound_payment::ExpandedKey
 #[must_use]
 #[no_mangle]
-pub extern "C" fn OfferWithDerivedMetadataBuilder_deriving_signing_pubkey(mut node_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut entropy_source: crate::lightning::sign::EntropySource) -> crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder {
-	let mut ret = lightning::offers::offer::OfferWithDerivedMetadataBuilder::deriving_signing_pubkey(node_id.into_rust(), expanded_key.get_native_ref(), entropy_source, secp256k1::global::SECP256K1);
+pub extern "C" fn OfferWithDerivedMetadataBuilder_deriving_signing_pubkey(mut node_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce) -> crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder {
+	let mut ret = lightning::offers::offer::OfferWithDerivedMetadataBuilder::deriving_signing_pubkey(node_id.into_rust(), expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, secp256k1::global::SECP256K1);
 	crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
@@ -544,7 +574,7 @@ pub extern "C" fn OfferWithDerivedMetadataBuilder_issuer(mut this_arg: crate::li
 /// adding duplicate paths.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn OfferWithDerivedMetadataBuilder_path(mut this_arg: crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder, mut path: crate::lightning::blinded_path::BlindedPath) {
+pub extern "C" fn OfferWithDerivedMetadataBuilder_path(mut this_arg: crate::lightning::offers::offer::OfferWithDerivedMetadataBuilder, mut path: crate::lightning::blinded_path::message::BlindedMessagePath) {
 	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).path(*unsafe { Box::from_raw(path.take_inner()) });
 	() /*ret*/
 }
@@ -582,7 +612,7 @@ pub(crate) type nativeOffer = nativeOfferImport;
 /// Offers may be denominated in currency other than bitcoin but are ultimately paid using the
 /// latter.
 ///
-/// Through the use of [`BlindedPath`]s, offers provide recipient privacy.
+/// Through the use of [`BlindedMessagePath`]s, offers provide recipient privacy.
 ///
 /// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
 /// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
@@ -601,6 +631,12 @@ pub struct Offer {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Offer {
+	type Target = nativeOffer;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Offer { }
+unsafe impl core::marker::Sync for Offer { }
 impl Drop for Offer {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOffer>::is_null(self.inner) {
@@ -630,6 +666,9 @@ impl Offer {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for Offer {
@@ -690,18 +729,18 @@ pub extern "C" fn Offer_amount(this_arg: &crate::lightning::offers::offer::Offer
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Offer_description(this_arg: &crate::lightning::offers::offer::Offer) -> crate::lightning::util::string::PrintableString {
+pub extern "C" fn Offer_description(this_arg: &crate::lightning::offers::offer::Offer) -> crate::lightning_types::string::PrintableString {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.description();
-	let mut local_ret = crate::lightning::util::string::PrintableString { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
+	let mut local_ret = crate::lightning_types::string::PrintableString { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
 	local_ret
 }
 
 /// Features pertaining to the offer.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Offer_offer_features(this_arg: &crate::lightning::offers::offer::Offer) -> crate::lightning::ln::features::OfferFeatures {
+pub extern "C" fn Offer_offer_features(this_arg: &crate::lightning::offers::offer::Offer) -> crate::lightning_types::features::OfferFeatures {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.offer_features();
-	crate::lightning::ln::features::OfferFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning::ln::features::OfferFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::OfferFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning_types::features::OfferFeatures<>) as *mut _) }, is_owned: false }
 }
 
 /// Duration since the Unix epoch when an invoice should no longer be requested.
@@ -721,9 +760,9 @@ pub extern "C" fn Offer_absolute_expiry(this_arg: &crate::lightning::offers::off
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Offer_issuer(this_arg: &crate::lightning::offers::offer::Offer) -> crate::lightning::util::string::PrintableString {
+pub extern "C" fn Offer_issuer(this_arg: &crate::lightning::offers::offer::Offer) -> crate::lightning_types::string::PrintableString {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.issuer();
-	let mut local_ret = crate::lightning::util::string::PrintableString { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
+	let mut local_ret = crate::lightning_types::string::PrintableString { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
 	local_ret
 }
 
@@ -731,9 +770,9 @@ pub extern "C" fn Offer_issuer(this_arg: &crate::lightning::offers::offer::Offer
 /// recipient privacy by obfuscating its node id.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Offer_paths(this_arg: &crate::lightning::offers::offer::Offer) -> crate::c_types::derived::CVec_BlindedPathZ {
+pub extern "C" fn Offer_paths(this_arg: &crate::lightning::offers::offer::Offer) -> crate::c_types::derived::CVec_BlindedMessagePathZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.paths();
-	let mut local_ret_clone = Vec::new(); local_ret_clone.extend_from_slice(ret); let mut ret = local_ret_clone; let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::blinded_path::BlindedPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+	let mut local_ret_clone = Vec::new(); local_ret_clone.extend_from_slice(ret); let mut ret = local_ret_clone; let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 	local_ret.into()
 }
 
@@ -768,7 +807,7 @@ pub extern "C" fn Offer_id(this_arg: &crate::lightning::offers::offer::Offer) ->
 #[must_use]
 #[no_mangle]
 pub extern "C" fn Offer_supports_chain(this_arg: &crate::lightning::offers::offer::Offer, mut chain: crate::c_types::ThirtyTwoBytes) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_chain(::bitcoin::blockdata::constants::ChainHash::from(&chain.data));
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_chain(::bitcoin::constants::ChainHash::from(&chain.data));
 	ret
 }
 
@@ -810,8 +849,9 @@ pub extern "C" fn Offer_expects_quantity(this_arg: &crate::lightning::offers::of
 /// - derives the [`InvoiceRequest::payer_id`] such that a different key can be used for each
 ///   request,
 /// - sets [`InvoiceRequest::payer_metadata`] when [`InvoiceRequestBuilder::build`] is called
-///   such that it can be used by [`Bolt12Invoice::verify`] to determine if the invoice was
-///   requested using a base [`ExpandedKey`] from which the payer id was derived, and
+///   such that it can be used by [`Bolt12Invoice::verify_using_metadata`] to determine if the
+///   invoice was requested using a base [`ExpandedKey`] from which the payer id was derived,
+///   and
 /// - includes the [`PaymentId`] encrypted in [`InvoiceRequest::payer_metadata`] so that it can
 ///   be used when sending the payment for the requested invoice.
 ///
@@ -819,12 +859,12 @@ pub extern "C" fn Offer_expects_quantity(this_arg: &crate::lightning::offers::of
 ///
 /// [`InvoiceRequest::payer_id`]: crate::offers::invoice_request::InvoiceRequest::payer_id
 /// [`InvoiceRequest::payer_metadata`]: crate::offers::invoice_request::InvoiceRequest::payer_metadata
-/// [`Bolt12Invoice::verify`]: crate::offers::invoice::Bolt12Invoice::verify
+/// [`Bolt12Invoice::verify_using_metadata`]: crate::offers::invoice::Bolt12Invoice::verify_using_metadata
 /// [`ExpandedKey`]: crate::ln::inbound_payment::ExpandedKey
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Offer_request_invoice_deriving_payer_id(this_arg: &crate::lightning::offers::offer::Offer, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut entropy_source: crate::lightning::sign::EntropySource, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice_deriving_payer_id(expanded_key.get_native_ref(), entropy_source, secp256k1::global::SECP256K1, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
+pub extern "C" fn Offer_request_invoice_deriving_payer_id(this_arg: &crate::lightning::offers::offer::Offer, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice_deriving_payer_id(expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, secp256k1::global::SECP256K1, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerIdBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
 	local_ret
 }
@@ -837,8 +877,8 @@ pub extern "C" fn Offer_request_invoice_deriving_payer_id(this_arg: &crate::ligh
 /// [`InvoiceRequest::payer_id`]: crate::offers::invoice_request::InvoiceRequest::payer_id
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Offer_request_invoice_deriving_metadata(this_arg: &crate::lightning::offers::offer::Offer, mut payer_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut entropy_source: crate::lightning::sign::EntropySource, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice_deriving_metadata(payer_id.into_rust(), expanded_key.get_native_ref(), entropy_source, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
+pub extern "C" fn Offer_request_invoice_deriving_metadata(this_arg: &crate::lightning::offers::offer::Offer, mut payer_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice_deriving_metadata(payer_id.into_rust(), expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::invoice_request::InvoiceRequestWithExplicitPayerIdBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
 	local_ret
 }
@@ -876,13 +916,20 @@ pub extern "C" fn Offer_hash(o: &Offer) -> u64 {
 	core::hash::Hasher::finish(&hasher)
 }
 #[no_mangle]
+/// Read a Offer from a byte array, created by Offer_write
+pub extern "C" fn Offer_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_OfferDecodeErrorZ {
+	let res: Result<lightning::offers::offer::Offer, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::offer::Offer { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
 /// Serialize the Offer object into a byte array which can be read by Offer_read
 pub extern "C" fn Offer_write(obj: &crate::lightning::offers::offer::Offer) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Offer_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeOffer) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::offers::offer::nativeOffer) })
 }
 /// The minimum amount required for an item in an [`Offer`], denominated in either bitcoin or
 /// another currency.

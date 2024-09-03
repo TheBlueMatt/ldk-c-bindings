@@ -129,17 +129,42 @@ impl rustKVStore for KVStore {
 	}
 }
 
+pub struct KVStoreRef(KVStore);
+impl rustKVStore for KVStoreRef {
+	fn read(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str) -> Result<Vec<u8>, lightning::io::Error> {
+		let mut ret = (self.0.read)(self.0.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { item }); }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn write(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str, mut buf: &[u8]) -> Result<(), lightning::io::Error> {
+		let mut local_buf = crate::c_types::u8slice::from_slice(buf);
+		let mut ret = (self.0.write)(self.0.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into(), local_buf);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn remove(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str, mut lazy: bool) -> Result<(), lightning::io::Error> {
+		let mut ret = (self.0.remove)(self.0.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into(), lazy);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn list(&self, mut primary_namespace: &str, mut secondary_namespace: &str) -> Result<Vec<String>, lightning::io::Error> {
+		let mut ret = (self.0.list)(self.0.this_arg, primary_namespace.into(), secondary_namespace.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { item.into_string() }); }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for KVStore {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = KVStoreRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const KVStoreRef) }
 	}
 }
 impl core::ops::DerefMut for KVStore {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut KVStoreRef {
+		unsafe { &mut *(self as *mut _ as *mut KVStoreRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -186,9 +211,9 @@ pub(crate) fn Persister_clone_fields(orig: &Persister) -> Persister {
 }
 
 use lightning::util::persist::Persister as rustPersister;
-impl<'a> rustPersister<'a, crate::lightning::chain::Watch, crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::sign::EntropySource, crate::lightning::sign::NodeSigner, crate::lightning::sign::SignerProvider, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::routing::router::Router, crate::lightning::util::logger::Logger, crate::lightning::routing::scoring::WriteableScore, > for Persister {
-	fn persist_manager(&self, mut channel_manager: &lightning::ln::channelmanager::ChannelManager<crate::lightning::chain::Watch, crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::sign::EntropySource, crate::lightning::sign::NodeSigner, crate::lightning::sign::SignerProvider, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::routing::router::Router, crate::lightning::util::logger::Logger>) -> Result<(), lightning::io::Error> {
-		let mut ret = (self.persist_manager)(self.this_arg, &crate::lightning::ln::channelmanager::ChannelManager { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_manager as *const lightning::ln::channelmanager::ChannelManager<_, _, _, _, _, _, _, _, >) as *mut _) }, is_owned: false });
+impl<'a> rustPersister<'a, crate::lightning::ln::channelmanager::ChannelManager, crate::lightning::util::logger::Logger, crate::lightning::routing::scoring::WriteableScore, > for Persister {
+	fn persist_manager(&self, mut channel_manager: &crate::lightning::ln::channelmanager::ChannelManager) -> Result<(), lightning::io::Error> {
+		let mut ret = (self.persist_manager)(self.this_arg, &channel_manager.as_ref_to());
 		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
 		local_ret
 	}
@@ -204,17 +229,36 @@ impl<'a> rustPersister<'a, crate::lightning::chain::Watch, crate::lightning::cha
 	}
 }
 
+pub struct PersisterRef(Persister);
+impl<'a> rustPersister<'a, crate::lightning::ln::channelmanager::ChannelManager, crate::lightning::util::logger::Logger, crate::lightning::routing::scoring::WriteableScore, > for PersisterRef {
+	fn persist_manager(&self, mut channel_manager: &crate::lightning::ln::channelmanager::ChannelManager) -> Result<(), lightning::io::Error> {
+		let mut ret = (self.0.persist_manager)(self.0.this_arg, &channel_manager.as_ref_to());
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn persist_graph(&self, mut network_graph: &lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>) -> Result<(), lightning::io::Error> {
+		let mut ret = (self.0.persist_graph)(self.0.this_arg, &crate::lightning::routing::gossip::NetworkGraph { inner: unsafe { ObjOps::nonnull_ptr_to_inner((network_graph as *const lightning::routing::gossip::NetworkGraph<_, >) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn persist_scorer(&self, mut scorer: &crate::lightning::routing::scoring::WriteableScore) -> Result<(), lightning::io::Error> {
+		let mut ret = (self.0.persist_scorer)(self.0.this_arg, scorer);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Persister {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = PersisterRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const PersisterRef) }
 	}
 }
 impl core::ops::DerefMut for Persister {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut PersisterRef {
+		unsafe { &mut *(self as *mut _ as *mut PersisterRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -231,13 +275,13 @@ impl Drop for Persister {
 #[no_mangle]
 pub extern "C" fn read_channel_monitors(mut kv_store: crate::lightning::util::persist::KVStore, mut entropy_source: crate::lightning::sign::EntropySource, mut signer_provider: crate::lightning::sign::SignerProvider) -> crate::c_types::derived::CResult_CVec_C2Tuple_ThirtyTwoBytesChannelMonitorZZIOErrorZ {
 	let mut ret = lightning::util::persist::read_channel_monitors::<crate::lightning::util::persist::KVStore, crate::lightning::sign::EntropySource, crate::lightning::sign::SignerProvider, >(kv_store, entropy_source, signer_provider);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1) = item; let mut local_ret_0_0 = (crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_0_0.as_ref() }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(orig_ret_0_0_1), is_owned: true }).into(); local_ret_0_0 }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_rust(e) }).into() };
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1) = item; let mut local_ret_0_0 = (crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_0_0.as_ref() }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(orig_ret_0_0_1), is_owned: true }).into(); local_ret_0_0 }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
 }
 
 
 use lightning::util::persist::MonitorUpdatingPersister as nativeMonitorUpdatingPersisterImport;
-pub(crate) type nativeMonitorUpdatingPersister = nativeMonitorUpdatingPersisterImport<crate::lightning::util::persist::KVStore, crate::lightning::util::logger::Logger, crate::lightning::sign::EntropySource, crate::lightning::sign::SignerProvider, >;
+pub(crate) type nativeMonitorUpdatingPersister = nativeMonitorUpdatingPersisterImport<crate::lightning::util::persist::KVStore, crate::lightning::util::logger::Logger, crate::lightning::sign::EntropySource, crate::lightning::sign::SignerProvider, crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::chain::chaininterface::FeeEstimator, >;
 
 /// Implements [`Persist`] in a way that writes and reads both [`ChannelMonitor`]s and
 /// [`ChannelMonitorUpdate`]s.
@@ -337,6 +381,12 @@ pub struct MonitorUpdatingPersister {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for MonitorUpdatingPersister {
+	type Target = nativeMonitorUpdatingPersister;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for MonitorUpdatingPersister { }
+unsafe impl core::marker::Sync for MonitorUpdatingPersister { }
 impl Drop for MonitorUpdatingPersister {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeMonitorUpdatingPersister>::is_null(self.inner) {
@@ -367,6 +417,9 @@ impl MonitorUpdatingPersister {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Constructs a new [`MonitorUpdatingPersister`].
 ///
@@ -386,8 +439,8 @@ impl MonitorUpdatingPersister {
 /// [`MonitorUpdatingPersister::cleanup_stale_updates`].
 #[must_use]
 #[no_mangle]
-pub extern "C" fn MonitorUpdatingPersister_new(mut kv_store: crate::lightning::util::persist::KVStore, mut logger: crate::lightning::util::logger::Logger, mut maximum_pending_updates: u64, mut entropy_source: crate::lightning::sign::EntropySource, mut signer_provider: crate::lightning::sign::SignerProvider) -> crate::lightning::util::persist::MonitorUpdatingPersister {
-	let mut ret = lightning::util::persist::MonitorUpdatingPersister::new(kv_store, logger, maximum_pending_updates, entropy_source, signer_provider);
+pub extern "C" fn MonitorUpdatingPersister_new(mut kv_store: crate::lightning::util::persist::KVStore, mut logger: crate::lightning::util::logger::Logger, mut maximum_pending_updates: u64, mut entropy_source: crate::lightning::sign::EntropySource, mut signer_provider: crate::lightning::sign::SignerProvider, mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut fee_estimator: crate::lightning::chain::chaininterface::FeeEstimator) -> crate::lightning::util::persist::MonitorUpdatingPersister {
+	let mut ret = lightning::util::persist::MonitorUpdatingPersister::new(kv_store, logger, maximum_pending_updates, entropy_source, signer_provider, broadcaster, fee_estimator);
 	crate::lightning::util::persist::MonitorUpdatingPersister { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
@@ -398,9 +451,9 @@ pub extern "C" fn MonitorUpdatingPersister_new(mut kv_store: crate::lightning::u
 /// documentation for [`MonitorUpdatingPersister`].
 #[must_use]
 #[no_mangle]
-pub extern "C" fn MonitorUpdatingPersister_read_all_channel_monitors_with_updates(this_arg: &crate::lightning::util::persist::MonitorUpdatingPersister, broadcaster: &crate::lightning::chain::chaininterface::BroadcasterInterface, fee_estimator: &crate::lightning::chain::chaininterface::FeeEstimator) -> crate::c_types::derived::CResult_CVec_C2Tuple_ThirtyTwoBytesChannelMonitorZZIOErrorZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.read_all_channel_monitors_with_updates(broadcaster, fee_estimator);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1) = item; let mut local_ret_0_0 = (crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_0_0.as_ref() }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(orig_ret_0_0_1), is_owned: true }).into(); local_ret_0_0 }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_rust(e) }).into() };
+pub extern "C" fn MonitorUpdatingPersister_read_all_channel_monitors_with_updates(this_arg: &crate::lightning::util::persist::MonitorUpdatingPersister) -> crate::c_types::derived::CResult_CVec_C2Tuple_ThirtyTwoBytesChannelMonitorZZIOErrorZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.read_all_channel_monitors_with_updates();
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1) = item; let mut local_ret_0_0 = (crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_0_0.as_ref() }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(orig_ret_0_0_1), is_owned: true }).into(); local_ret_0_0 }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
 }
 
@@ -423,9 +476,9 @@ pub extern "C" fn MonitorUpdatingPersister_read_all_channel_monitors_with_update
 /// function to accomplish this. Take care to limit the number of parallel readers.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn MonitorUpdatingPersister_read_channel_monitor_with_updates(this_arg: &crate::lightning::util::persist::MonitorUpdatingPersister, broadcaster: &crate::lightning::chain::chaininterface::BroadcasterInterface, fee_estimator: &crate::lightning::chain::chaininterface::FeeEstimator, mut monitor_key: crate::c_types::Str) -> crate::c_types::derived::CResult_C2Tuple_ThirtyTwoBytesChannelMonitorZIOErrorZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.read_channel_monitor_with_updates(broadcaster, fee_estimator, monitor_key.into_string());
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let (mut orig_ret_0_0, mut orig_ret_0_1) = o; let mut local_ret_0 = (crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_0.as_ref() }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(orig_ret_0_1), is_owned: true }).into(); local_ret_0 }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_rust(e) }).into() };
+pub extern "C" fn MonitorUpdatingPersister_read_channel_monitor_with_updates(this_arg: &crate::lightning::util::persist::MonitorUpdatingPersister, mut monitor_key: crate::c_types::Str) -> crate::c_types::derived::CResult_C2Tuple_ThirtyTwoBytesChannelMonitorZIOErrorZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.read_channel_monitor_with_updates(monitor_key.into_string());
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let (mut orig_ret_0_0, mut orig_ret_0_1) = o; let mut local_ret_0 = (crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_0.as_ref() }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(orig_ret_0_1), is_owned: true }).into(); local_ret_0 }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
 }
 
@@ -439,7 +492,7 @@ pub extern "C" fn MonitorUpdatingPersister_read_channel_monitor_with_updates(thi
 #[no_mangle]
 pub extern "C" fn MonitorUpdatingPersister_cleanup_stale_updates(this_arg: &crate::lightning::util::persist::MonitorUpdatingPersister, mut lazy: bool) -> crate::c_types::derived::CResult_NoneIOErrorZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.cleanup_stale_updates(lazy);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_rust(e) }).into() };
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
 }
 
@@ -467,17 +520,17 @@ pub extern "C" fn MonitorUpdatingPersister_as_Persist(this_arg: &MonitorUpdating
 }
 
 #[must_use]
-extern "C" fn MonitorUpdatingPersister_Persist_persist_new_channel(this_arg: *const c_void, mut channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint, data: &crate::lightning::chain::channelmonitor::ChannelMonitor, mut update_id: crate::lightning::chain::chainmonitor::MonitorUpdateId) -> crate::lightning::chain::ChannelMonitorUpdateStatus {
-	let mut ret = <nativeMonitorUpdatingPersister as lightning::chain::chainmonitor::Persist<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner, >>::persist_new_channel(unsafe { &mut *(this_arg as *mut nativeMonitorUpdatingPersister) }, *unsafe { Box::from_raw(channel_funding_outpoint.take_inner()) }, data.get_native_ref(), *unsafe { Box::from_raw(update_id.take_inner()) });
+extern "C" fn MonitorUpdatingPersister_Persist_persist_new_channel(this_arg: *const c_void, mut channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint, monitor: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::chain::ChannelMonitorUpdateStatus {
+	let mut ret = <nativeMonitorUpdatingPersister as lightning::chain::chainmonitor::Persist<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::persist_new_channel(unsafe { &mut *(this_arg as *mut nativeMonitorUpdatingPersister) }, *unsafe { Box::from_raw(channel_funding_outpoint.take_inner()) }, monitor.get_native_ref());
 	crate::lightning::chain::ChannelMonitorUpdateStatus::native_into(ret)
 }
 #[must_use]
-extern "C" fn MonitorUpdatingPersister_Persist_update_persisted_channel(this_arg: *const c_void, mut channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint, mut update: crate::lightning::chain::channelmonitor::ChannelMonitorUpdate, data: &crate::lightning::chain::channelmonitor::ChannelMonitor, mut update_id: crate::lightning::chain::chainmonitor::MonitorUpdateId) -> crate::lightning::chain::ChannelMonitorUpdateStatus {
-	let mut local_update = if update.inner.is_null() { None } else { Some( { update.get_native_ref() }) };
-	let mut ret = <nativeMonitorUpdatingPersister as lightning::chain::chainmonitor::Persist<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner, >>::update_persisted_channel(unsafe { &mut *(this_arg as *mut nativeMonitorUpdatingPersister) }, *unsafe { Box::from_raw(channel_funding_outpoint.take_inner()) }, local_update, data.get_native_ref(), *unsafe { Box::from_raw(update_id.take_inner()) });
+extern "C" fn MonitorUpdatingPersister_Persist_update_persisted_channel(this_arg: *const c_void, mut channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint, mut monitor_update: crate::lightning::chain::channelmonitor::ChannelMonitorUpdate, monitor: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::chain::ChannelMonitorUpdateStatus {
+	let mut local_monitor_update = if monitor_update.inner.is_null() { None } else { Some( { monitor_update.get_native_ref() }) };
+	let mut ret = <nativeMonitorUpdatingPersister as lightning::chain::chainmonitor::Persist<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::update_persisted_channel(unsafe { &mut *(this_arg as *mut nativeMonitorUpdatingPersister) }, *unsafe { Box::from_raw(channel_funding_outpoint.take_inner()) }, local_monitor_update, monitor.get_native_ref());
 	crate::lightning::chain::ChannelMonitorUpdateStatus::native_into(ret)
 }
 extern "C" fn MonitorUpdatingPersister_Persist_archive_persisted_channel(this_arg: *const c_void, mut channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint) {
-	<nativeMonitorUpdatingPersister as lightning::chain::chainmonitor::Persist<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner, >>::archive_persisted_channel(unsafe { &mut *(this_arg as *mut nativeMonitorUpdatingPersister) }, *unsafe { Box::from_raw(channel_funding_outpoint.take_inner()) })
+	<nativeMonitorUpdatingPersister as lightning::chain::chainmonitor::Persist<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::archive_persisted_channel(unsafe { &mut *(this_arg as *mut nativeMonitorUpdatingPersister) }, *unsafe { Box::from_raw(channel_funding_outpoint.take_inner()) })
 }
 

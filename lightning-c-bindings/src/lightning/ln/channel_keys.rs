@@ -42,6 +42,12 @@ pub struct DelayedPaymentBasepoint {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for DelayedPaymentBasepoint {
+	type Target = nativeDelayedPaymentBasepoint;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for DelayedPaymentBasepoint { }
+unsafe impl core::marker::Sync for DelayedPaymentBasepoint { }
 impl Drop for DelayedPaymentBasepoint {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeDelayedPaymentBasepoint>::is_null(self.inner) {
@@ -71,6 +77,9 @@ impl DelayedPaymentBasepoint {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -154,7 +163,7 @@ pub extern "C" fn DelayedPaymentBasepoint_write(obj: &crate::lightning::ln::chan
 }
 #[allow(unused)]
 pub(crate) extern "C" fn DelayedPaymentBasepoint_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeDelayedPaymentBasepoint) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_keys::nativeDelayedPaymentBasepoint) })
 }
 #[no_mangle]
 /// Read a DelayedPaymentBasepoint from a byte array, created by DelayedPaymentBasepoint_write
@@ -174,7 +183,7 @@ pub(crate) type nativeDelayedPaymentKey = nativeDelayedPaymentKeyImport;
 /// punish and claim all the channel funds if the state broadcasted was previously revoked.
 ///
 /// [See the BOLT specs]
-/// (https://github.com/lightning/bolts/blob/master/03-transactions.md#localpubkey-local_htlcpubkey-remote_htlcpubkey-local_delayedpubkey-and-remote_delayedpubkey-derivation)
+/// <https://github.com/lightning/bolts/blob/master/03-transactions.md#localpubkey-local_htlcpubkey-remote_htlcpubkey-local_delayedpubkey-and-remote_delayedpubkey-derivation>
 /// for more information on key derivation details.
 #[must_use]
 #[repr(C)]
@@ -191,6 +200,12 @@ pub struct DelayedPaymentKey {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for DelayedPaymentKey {
+	type Target = nativeDelayedPaymentKey;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for DelayedPaymentKey { }
+unsafe impl core::marker::Sync for DelayedPaymentKey { }
 impl Drop for DelayedPaymentKey {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeDelayedPaymentKey>::is_null(self.inner) {
@@ -220,6 +235,9 @@ impl DelayedPaymentKey {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -301,7 +319,7 @@ pub extern "C" fn DelayedPaymentKey_write(obj: &crate::lightning::ln::channel_ke
 }
 #[allow(unused)]
 pub(crate) extern "C" fn DelayedPaymentKey_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeDelayedPaymentKey) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_keys::nativeDelayedPaymentKey) })
 }
 #[no_mangle]
 /// Read a DelayedPaymentKey from a byte array, created by DelayedPaymentKey_write
@@ -334,6 +352,12 @@ pub struct HtlcBasepoint {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for HtlcBasepoint {
+	type Target = nativeHtlcBasepoint;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for HtlcBasepoint { }
+unsafe impl core::marker::Sync for HtlcBasepoint { }
 impl Drop for HtlcBasepoint {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeHtlcBasepoint>::is_null(self.inner) {
@@ -363,6 +387,9 @@ impl HtlcBasepoint {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -446,7 +473,7 @@ pub extern "C" fn HtlcBasepoint_write(obj: &crate::lightning::ln::channel_keys::
 }
 #[allow(unused)]
 pub(crate) extern "C" fn HtlcBasepoint_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeHtlcBasepoint) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_keys::nativeHtlcBasepoint) })
 }
 #[no_mangle]
 /// Read a HtlcBasepoint from a byte array, created by HtlcBasepoint_write
@@ -466,7 +493,7 @@ pub(crate) type nativeHtlcKey = nativeHtlcKeyImport;
 /// Thus, both channel counterparties' HTLC keys will appears in each HTLC output's script.
 ///
 /// [See the BOLT specs]
-/// (https://github.com/lightning/bolts/blob/master/03-transactions.md#localpubkey-local_htlcpubkey-remote_htlcpubkey-local_delayedpubkey-and-remote_delayedpubkey-derivation)
+/// <https://github.com/lightning/bolts/blob/master/03-transactions.md#localpubkey-local_htlcpubkey-remote_htlcpubkey-local_delayedpubkey-and-remote_delayedpubkey-derivation>
 /// for more information on key derivation details.
 #[must_use]
 #[repr(C)]
@@ -483,6 +510,12 @@ pub struct HtlcKey {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for HtlcKey {
+	type Target = nativeHtlcKey;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for HtlcKey { }
+unsafe impl core::marker::Sync for HtlcKey { }
 impl Drop for HtlcKey {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeHtlcKey>::is_null(self.inner) {
@@ -512,6 +545,9 @@ impl HtlcKey {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -593,7 +629,7 @@ pub extern "C" fn HtlcKey_write(obj: &crate::lightning::ln::channel_keys::HtlcKe
 }
 #[allow(unused)]
 pub(crate) extern "C" fn HtlcKey_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeHtlcKey) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_keys::nativeHtlcKey) })
 }
 #[no_mangle]
 /// Read a HtlcKey from a byte array, created by HtlcKey_write
@@ -632,6 +668,12 @@ pub struct RevocationBasepoint {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RevocationBasepoint {
+	type Target = nativeRevocationBasepoint;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RevocationBasepoint { }
+unsafe impl core::marker::Sync for RevocationBasepoint { }
 impl Drop for RevocationBasepoint {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRevocationBasepoint>::is_null(self.inner) {
@@ -661,6 +703,9 @@ impl RevocationBasepoint {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -736,7 +781,7 @@ pub extern "C" fn RevocationBasepoint_write(obj: &crate::lightning::ln::channel_
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RevocationBasepoint_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRevocationBasepoint) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_keys::nativeRevocationBasepoint) })
 }
 #[no_mangle]
 /// Read a RevocationBasepoint from a byte array, created by RevocationBasepoint_write
@@ -756,7 +801,7 @@ pub(crate) type nativeRevocationKey = nativeRevocationKeyImport;
 /// per_commitment_point which is used in both commitment and HTLC transactions.
 ///
 /// See [the BOLT spec for derivation details]
-/// (https://github.com/lightning/bolts/blob/master/03-transactions.md#revocationpubkey-derivation)
+/// <https://github.com/lightning/bolts/blob/master/03-transactions.md#revocationpubkey-derivation>
 #[must_use]
 #[repr(C)]
 pub struct RevocationKey {
@@ -772,6 +817,12 @@ pub struct RevocationKey {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RevocationKey {
+	type Target = nativeRevocationKey;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RevocationKey { }
+unsafe impl core::marker::Sync for RevocationKey { }
 impl Drop for RevocationKey {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRevocationKey>::is_null(self.inner) {
@@ -801,6 +852,9 @@ impl RevocationKey {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -892,7 +946,7 @@ pub extern "C" fn RevocationKey_write(obj: &crate::lightning::ln::channel_keys::
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RevocationKey_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRevocationKey) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_keys::nativeRevocationKey) })
 }
 #[no_mangle]
 /// Read a RevocationKey from a byte array, created by RevocationKey_write

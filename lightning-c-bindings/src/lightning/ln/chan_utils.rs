@@ -52,14 +52,14 @@ pub static HTLC_TIMEOUT_INPUT_ANCHOR_WITNESS_WEIGHT: u64 = lightning::ln::chan_u
 pub static HTLC_SUCCESS_INPUT_ANCHOR_WITNESS_WEIGHT: u64 = lightning::ln::chan_utils::HTLC_SUCCESS_INPUT_ANCHOR_WITNESS_WEIGHT;
 /// Gets the weight for an HTLC-Success transaction.
 #[no_mangle]
-pub extern "C" fn htlc_success_tx_weight(channel_type_features: &crate::lightning::ln::features::ChannelTypeFeatures) -> u64 {
+pub extern "C" fn htlc_success_tx_weight(channel_type_features: &crate::lightning_types::features::ChannelTypeFeatures) -> u64 {
 	let mut ret = lightning::ln::chan_utils::htlc_success_tx_weight(channel_type_features.get_native_ref());
 	ret
 }
 
 /// Gets the weight for an HTLC-Timeout transaction.
 #[no_mangle]
-pub extern "C" fn htlc_timeout_tx_weight(channel_type_features: &crate::lightning::ln::features::ChannelTypeFeatures) -> u64 {
+pub extern "C" fn htlc_timeout_tx_weight(channel_type_features: &crate::lightning_types::features::ChannelTypeFeatures) -> u64 {
 	let mut ret = lightning::ln::chan_utils::htlc_timeout_tx_weight(channel_type_features.get_native_ref());
 	ret
 }
@@ -186,7 +186,7 @@ pub extern "C" fn build_commitment_secret(commitment_seed: *const [u8; 32], mut 
 /// Build a closing transaction
 #[no_mangle]
 pub extern "C" fn build_closing_transaction(mut to_holder_value_sat: u64, mut to_counterparty_value_sat: u64, mut to_holder_script: crate::c_types::derived::CVec_u8Z, mut to_counterparty_script: crate::c_types::derived::CVec_u8Z, mut funding_outpoint: crate::lightning::chain::transaction::OutPoint) -> crate::c_types::Transaction {
-	let mut ret = lightning::ln::chan_utils::build_closing_transaction(to_holder_value_sat, to_counterparty_value_sat, ::bitcoin::blockdata::script::ScriptBuf::from(to_holder_script.into_rust()), ::bitcoin::blockdata::script::ScriptBuf::from(to_counterparty_script.into_rust()), crate::c_types::C_to_bitcoin_outpoint(funding_outpoint));
+	let mut ret = lightning::ln::chan_utils::build_closing_transaction(::bitcoin::amount::Amount::from_sat(to_holder_value_sat), ::bitcoin::amount::Amount::from_sat(to_counterparty_value_sat), ::bitcoin::script::ScriptBuf::from(to_holder_script.into_rust()), ::bitcoin::script::ScriptBuf::from(to_counterparty_script.into_rust()), crate::c_types::C_to_bitcoin_outpoint(funding_outpoint));
 	crate::c_types::Transaction::from_bitcoin(&ret)
 }
 
@@ -214,6 +214,12 @@ pub struct CounterpartyCommitmentSecrets {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for CounterpartyCommitmentSecrets {
+	type Target = nativeCounterpartyCommitmentSecrets;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CounterpartyCommitmentSecrets { }
+unsafe impl core::marker::Sync for CounterpartyCommitmentSecrets { }
 impl Drop for CounterpartyCommitmentSecrets {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeCounterpartyCommitmentSecrets>::is_null(self.inner) {
@@ -243,6 +249,9 @@ impl CounterpartyCommitmentSecrets {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for CounterpartyCommitmentSecrets {
@@ -310,7 +319,7 @@ pub extern "C" fn CounterpartyCommitmentSecrets_write(obj: &crate::lightning::ln
 }
 #[allow(unused)]
 pub(crate) extern "C" fn CounterpartyCommitmentSecrets_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeCounterpartyCommitmentSecrets) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeCounterpartyCommitmentSecrets) })
 }
 #[no_mangle]
 /// Read a CounterpartyCommitmentSecrets from a byte array, created by CounterpartyCommitmentSecrets_write
@@ -369,6 +378,12 @@ pub struct TxCreationKeys {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxCreationKeys {
+	type Target = nativeTxCreationKeys;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxCreationKeys { }
+unsafe impl core::marker::Sync for TxCreationKeys { }
 impl Drop for TxCreationKeys {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxCreationKeys>::is_null(self.inner) {
@@ -398,6 +413,9 @@ impl TxCreationKeys {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The broadcaster's per-commitment public key which was used to derive the other keys.
@@ -509,7 +527,7 @@ pub extern "C" fn TxCreationKeys_write(obj: &crate::lightning::ln::chan_utils::T
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxCreationKeys_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxCreationKeys) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeTxCreationKeys) })
 }
 #[no_mangle]
 /// Read a TxCreationKeys from a byte array, created by TxCreationKeys_write
@@ -538,6 +556,12 @@ pub struct ChannelPublicKeys {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelPublicKeys {
+	type Target = nativeChannelPublicKeys;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelPublicKeys { }
+unsafe impl core::marker::Sync for ChannelPublicKeys { }
 impl Drop for ChannelPublicKeys {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelPublicKeys>::is_null(self.inner) {
@@ -568,6 +592,9 @@ impl ChannelPublicKeys {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The public key which is used to sign all commitment transactions, as it appears in the
 /// on-chain channel lock-in 2-of-2 multisig output.
@@ -582,7 +609,7 @@ pub extern "C" fn ChannelPublicKeys_get_funding_pubkey(this_ptr: &ChannelPublicK
 pub extern "C" fn ChannelPublicKeys_set_funding_pubkey(this_ptr: &mut ChannelPublicKeys, mut val: crate::c_types::PublicKey) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_pubkey = val.into_rust();
 }
-/// The base point which is used (with derive_public_revocation_key) to derive per-commitment
+/// The base point which is used (with [`RevocationKey::from_basepoint`]) to derive per-commitment
 /// revocation keys. This is combined with the per-commitment-secret generated by the
 /// counterparty to create a secret which the counterparty can reveal to revoke previous
 /// states.
@@ -591,7 +618,7 @@ pub extern "C" fn ChannelPublicKeys_get_revocation_basepoint(this_ptr: &ChannelP
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().revocation_basepoint;
 	crate::lightning::ln::channel_keys::RevocationBasepoint { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::channel_keys::RevocationBasepoint<>) as *mut _) }, is_owned: false }
 }
-/// The base point which is used (with derive_public_revocation_key) to derive per-commitment
+/// The base point which is used (with [`RevocationKey::from_basepoint`]) to derive per-commitment
 /// revocation keys. This is combined with the per-commitment-secret generated by the
 /// counterparty to create a secret which the counterparty can reveal to revoke previous
 /// states.
@@ -702,7 +729,7 @@ pub extern "C" fn ChannelPublicKeys_write(obj: &crate::lightning::ln::chan_utils
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelPublicKeys_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelPublicKeys) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeChannelPublicKeys) })
 }
 #[no_mangle]
 /// Read a ChannelPublicKeys from a byte array, created by ChannelPublicKeys_write
@@ -745,7 +772,7 @@ pub extern "C" fn get_revokeable_redeemscript(revocation_key: &crate::lightning:
 /// Returns the script for the counterparty's output on a holder's commitment transaction based on
 /// the channel type.
 #[no_mangle]
-pub extern "C" fn get_counterparty_payment_script(channel_type_features: &crate::lightning::ln::features::ChannelTypeFeatures, mut payment_key: crate::c_types::PublicKey) -> crate::c_types::derived::CVec_u8Z {
+pub extern "C" fn get_counterparty_payment_script(channel_type_features: &crate::lightning_types::features::ChannelTypeFeatures, mut payment_key: crate::c_types::PublicKey) -> crate::c_types::derived::CVec_u8Z {
 	let mut ret = lightning::ln::chan_utils::get_counterparty_payment_script(channel_type_features.get_native_ref(), &payment_key.into_rust());
 	ret.to_bytes().into()
 }
@@ -770,6 +797,12 @@ pub struct HTLCOutputInCommitment {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for HTLCOutputInCommitment {
+	type Target = nativeHTLCOutputInCommitment;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for HTLCOutputInCommitment { }
+unsafe impl core::marker::Sync for HTLCOutputInCommitment { }
 impl Drop for HTLCOutputInCommitment {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeHTLCOutputInCommitment>::is_null(self.inner) {
@@ -799,6 +832,9 @@ impl HTLCOutputInCommitment {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Whether the HTLC was \"offered\" (ie outbound in relation to this commitment transaction).
@@ -914,6 +950,16 @@ pub extern "C" fn HTLCOutputInCommitment_eq(a: &HTLCOutputInCommitment, b: &HTLC
 	if a.inner.is_null() || b.inner.is_null() { return false; }
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
+/// Converts HTLC's value with millisatoshi precision into [bitcoin::Amount] with satoshi precision.
+/// Typically this conversion is needed when transitioning from LN into base-layer Bitcoin,
+/// e. g. in commitment transactions.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn HTLCOutputInCommitment_to_bitcoin_amount(this_arg: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment) -> u64 {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.to_bitcoin_amount();
+	ret.to_sat()
+}
+
 #[no_mangle]
 /// Serialize the HTLCOutputInCommitment object into a byte array which can be read by HTLCOutputInCommitment_read
 pub extern "C" fn HTLCOutputInCommitment_write(obj: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment) -> crate::c_types::derived::CVec_u8Z {
@@ -921,7 +967,7 @@ pub extern "C" fn HTLCOutputInCommitment_write(obj: &crate::lightning::ln::chan_
 }
 #[allow(unused)]
 pub(crate) extern "C" fn HTLCOutputInCommitment_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeHTLCOutputInCommitment) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeHTLCOutputInCommitment) })
 }
 #[no_mangle]
 /// Read a HTLCOutputInCommitment from a byte array, created by HTLCOutputInCommitment_write
@@ -933,7 +979,7 @@ pub extern "C" fn HTLCOutputInCommitment_read(ser: crate::c_types::u8slice) -> c
 /// Gets the witness redeemscript for an HTLC output in a commitment transaction. Note that htlc
 /// does not need to have its previous_output_index filled.
 #[no_mangle]
-pub extern "C" fn get_htlc_redeemscript(htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment, channel_type_features: &crate::lightning::ln::features::ChannelTypeFeatures, keys: &crate::lightning::ln::chan_utils::TxCreationKeys) -> crate::c_types::derived::CVec_u8Z {
+pub extern "C" fn get_htlc_redeemscript(htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment, channel_type_features: &crate::lightning_types::features::ChannelTypeFeatures, keys: &crate::lightning::ln::chan_utils::TxCreationKeys) -> crate::c_types::derived::CVec_u8Z {
 	let mut ret = lightning::ln::chan_utils::get_htlc_redeemscript(htlc.get_native_ref(), channel_type_features.get_native_ref(), keys.get_native_ref());
 	ret.to_bytes().into()
 }
@@ -954,16 +1000,16 @@ pub extern "C" fn make_funding_redeemscript(mut broadcaster: crate::c_types::Pub
 /// Panics if htlc.transaction_output_index.is_none() (as such HTLCs do not appear in the
 /// commitment transaction).
 #[no_mangle]
-pub extern "C" fn build_htlc_transaction(commitment_txid: *const [u8; 32], mut feerate_per_kw: u32, mut contest_delay: u16, htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment, channel_type_features: &crate::lightning::ln::features::ChannelTypeFeatures, broadcaster_delayed_payment_key: &crate::lightning::ln::channel_keys::DelayedPaymentKey, revocation_key: &crate::lightning::ln::channel_keys::RevocationKey) -> crate::c_types::Transaction {
+pub extern "C" fn build_htlc_transaction(commitment_txid: *const [u8; 32], mut feerate_per_kw: u32, mut contest_delay: u16, htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment, channel_type_features: &crate::lightning_types::features::ChannelTypeFeatures, broadcaster_delayed_payment_key: &crate::lightning::ln::channel_keys::DelayedPaymentKey, revocation_key: &crate::lightning::ln::channel_keys::RevocationKey) -> crate::c_types::Transaction {
 	let mut ret = lightning::ln::chan_utils::build_htlc_transaction(&::bitcoin::hash_types::Txid::from_slice(&unsafe { &*commitment_txid }[..]).unwrap(), feerate_per_kw, contest_delay, htlc.get_native_ref(), channel_type_features.get_native_ref(), broadcaster_delayed_payment_key.get_native_ref(), revocation_key.get_native_ref());
 	crate::c_types::Transaction::from_bitcoin(&ret)
 }
 
 /// Returns the witness required to satisfy and spend a HTLC input.
 #[no_mangle]
-pub extern "C" fn build_htlc_input_witness(mut local_sig: crate::c_types::ECDSASignature, mut remote_sig: crate::c_types::ECDSASignature, mut preimage: crate::c_types::derived::COption_ThirtyTwoBytesZ, mut redeem_script: crate::c_types::u8slice, channel_type_features: &crate::lightning::ln::features::ChannelTypeFeatures) -> crate::c_types::Witness {
+pub extern "C" fn build_htlc_input_witness(mut local_sig: crate::c_types::ECDSASignature, mut remote_sig: crate::c_types::ECDSASignature, mut preimage: crate::c_types::derived::COption_ThirtyTwoBytesZ, mut redeem_script: crate::c_types::u8slice, channel_type_features: &crate::lightning_types::features::ChannelTypeFeatures) -> crate::c_types::Witness {
 	let mut local_preimage = { /*preimage*/ let preimage_opt = preimage; if preimage_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentPreimage({ preimage_opt.take() }.data) }})} };
-	let mut ret = lightning::ln::chan_utils::build_htlc_input_witness(&local_sig.into_rust(), &remote_sig.into_rust(), &local_preimage, ::bitcoin::blockdata::script::Script::from_bytes(redeem_script.to_slice()), channel_type_features.get_native_ref());
+	let mut ret = lightning::ln::chan_utils::build_htlc_input_witness(&local_sig.into_rust(), &remote_sig.into_rust(), &local_preimage, ::bitcoin::script::Script::from_bytes(redeem_script.to_slice()), channel_type_features.get_native_ref());
 	crate::c_types::Witness::from_bitcoin(&ret)
 }
 
@@ -1017,6 +1063,12 @@ pub struct ChannelTransactionParameters {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelTransactionParameters {
+	type Target = nativeChannelTransactionParameters;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelTransactionParameters { }
+unsafe impl core::marker::Sync for ChannelTransactionParameters { }
 impl Drop for ChannelTransactionParameters {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelTransactionParameters>::is_null(self.inner) {
@@ -1046,6 +1098,9 @@ impl ChannelTransactionParameters {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Holder public keys
@@ -1122,14 +1177,14 @@ pub extern "C" fn ChannelTransactionParameters_set_funding_outpoint(this_ptr: &m
 /// This channel's type, as negotiated during channel open. For old objects where this field
 /// wasn't serialized, it will default to static_remote_key at deserialization.
 #[no_mangle]
-pub extern "C" fn ChannelTransactionParameters_get_channel_type_features(this_ptr: &ChannelTransactionParameters) -> crate::lightning::ln::features::ChannelTypeFeatures {
+pub extern "C" fn ChannelTransactionParameters_get_channel_type_features(this_ptr: &ChannelTransactionParameters) -> crate::lightning_types::features::ChannelTypeFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_type_features;
-	crate::lightning::ln::features::ChannelTypeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::ChannelTypeFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::ChannelTypeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::ChannelTypeFeatures<>) as *mut _) }, is_owned: false }
 }
 /// This channel's type, as negotiated during channel open. For old objects where this field
 /// wasn't serialized, it will default to static_remote_key at deserialization.
 #[no_mangle]
-pub extern "C" fn ChannelTransactionParameters_set_channel_type_features(this_ptr: &mut ChannelTransactionParameters, mut val: crate::lightning::ln::features::ChannelTypeFeatures) {
+pub extern "C" fn ChannelTransactionParameters_set_channel_type_features(this_ptr: &mut ChannelTransactionParameters, mut val: crate::lightning_types::features::ChannelTypeFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_type_features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// Constructs a new ChannelTransactionParameters given each field
@@ -1138,7 +1193,7 @@ pub extern "C" fn ChannelTransactionParameters_set_channel_type_features(this_pt
 /// Note that funding_outpoint_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelTransactionParameters_new(mut holder_pubkeys_arg: crate::lightning::ln::chan_utils::ChannelPublicKeys, mut holder_selected_contest_delay_arg: u16, mut is_outbound_from_holder_arg: bool, mut counterparty_parameters_arg: crate::lightning::ln::chan_utils::CounterpartyChannelTransactionParameters, mut funding_outpoint_arg: crate::lightning::chain::transaction::OutPoint, mut channel_type_features_arg: crate::lightning::ln::features::ChannelTypeFeatures) -> ChannelTransactionParameters {
+pub extern "C" fn ChannelTransactionParameters_new(mut holder_pubkeys_arg: crate::lightning::ln::chan_utils::ChannelPublicKeys, mut holder_selected_contest_delay_arg: u16, mut is_outbound_from_holder_arg: bool, mut counterparty_parameters_arg: crate::lightning::ln::chan_utils::CounterpartyChannelTransactionParameters, mut funding_outpoint_arg: crate::lightning::chain::transaction::OutPoint, mut channel_type_features_arg: crate::lightning_types::features::ChannelTypeFeatures) -> ChannelTransactionParameters {
 	let mut local_counterparty_parameters_arg = if counterparty_parameters_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(counterparty_parameters_arg.take_inner()) } }) };
 	let mut local_funding_outpoint_arg = if funding_outpoint_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(funding_outpoint_arg.take_inner()) } }) };
 	ChannelTransactionParameters { inner: ObjOps::heap_alloc(nativeChannelTransactionParameters {
@@ -1211,6 +1266,12 @@ pub struct CounterpartyChannelTransactionParameters {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for CounterpartyChannelTransactionParameters {
+	type Target = nativeCounterpartyChannelTransactionParameters;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CounterpartyChannelTransactionParameters { }
+unsafe impl core::marker::Sync for CounterpartyChannelTransactionParameters { }
 impl Drop for CounterpartyChannelTransactionParameters {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeCounterpartyChannelTransactionParameters>::is_null(self.inner) {
@@ -1240,6 +1301,9 @@ impl CounterpartyChannelTransactionParameters {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Counter-party public keys
@@ -1351,7 +1415,7 @@ pub extern "C" fn CounterpartyChannelTransactionParameters_write(obj: &crate::li
 }
 #[allow(unused)]
 pub(crate) extern "C" fn CounterpartyChannelTransactionParameters_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeCounterpartyChannelTransactionParameters) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeCounterpartyChannelTransactionParameters) })
 }
 #[no_mangle]
 /// Read a CounterpartyChannelTransactionParameters from a byte array, created by CounterpartyChannelTransactionParameters_write
@@ -1367,7 +1431,7 @@ pub extern "C" fn ChannelTransactionParameters_write(obj: &crate::lightning::ln:
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelTransactionParameters_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelTransactionParameters) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeChannelTransactionParameters) })
 }
 #[no_mangle]
 /// Read a ChannelTransactionParameters from a byte array, created by ChannelTransactionParameters_write
@@ -1400,6 +1464,12 @@ pub struct DirectedChannelTransactionParameters {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for DirectedChannelTransactionParameters {
+	type Target = nativeDirectedChannelTransactionParameters;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for DirectedChannelTransactionParameters { }
+unsafe impl core::marker::Sync for DirectedChannelTransactionParameters { }
 impl Drop for DirectedChannelTransactionParameters {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeDirectedChannelTransactionParameters>::is_null(self.inner) {
@@ -1429,6 +1499,9 @@ impl DirectedChannelTransactionParameters {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Get the channel pubkeys for the broadcaster
@@ -1478,9 +1551,9 @@ pub extern "C" fn DirectedChannelTransactionParameters_funding_outpoint(this_arg
 /// Whether to use anchors for this channel
 #[must_use]
 #[no_mangle]
-pub extern "C" fn DirectedChannelTransactionParameters_channel_type_features(this_arg: &crate::lightning::ln::chan_utils::DirectedChannelTransactionParameters) -> crate::lightning::ln::features::ChannelTypeFeatures {
+pub extern "C" fn DirectedChannelTransactionParameters_channel_type_features(this_arg: &crate::lightning::ln::chan_utils::DirectedChannelTransactionParameters) -> crate::lightning_types::features::ChannelTypeFeatures {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.channel_type_features();
-	crate::lightning::ln::features::ChannelTypeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning::ln::features::ChannelTypeFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::ChannelTypeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning_types::features::ChannelTypeFeatures<>) as *mut _) }, is_owned: false }
 }
 
 
@@ -1505,6 +1578,12 @@ pub struct HolderCommitmentTransaction {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for HolderCommitmentTransaction {
+	type Target = nativeHolderCommitmentTransaction;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for HolderCommitmentTransaction { }
+unsafe impl core::marker::Sync for HolderCommitmentTransaction { }
 impl Drop for HolderCommitmentTransaction {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeHolderCommitmentTransaction>::is_null(self.inner) {
@@ -1534,6 +1613,9 @@ impl HolderCommitmentTransaction {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Our counterparty's signature for the transaction
@@ -1591,7 +1673,7 @@ pub extern "C" fn HolderCommitmentTransaction_write(obj: &crate::lightning::ln::
 }
 #[allow(unused)]
 pub(crate) extern "C" fn HolderCommitmentTransaction_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeHolderCommitmentTransaction) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeHolderCommitmentTransaction) })
 }
 #[no_mangle]
 /// Read a HolderCommitmentTransaction from a byte array, created by HolderCommitmentTransaction_write
@@ -1630,6 +1712,12 @@ pub struct BuiltCommitmentTransaction {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for BuiltCommitmentTransaction {
+	type Target = nativeBuiltCommitmentTransaction;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for BuiltCommitmentTransaction { }
+unsafe impl core::marker::Sync for BuiltCommitmentTransaction { }
 impl Drop for BuiltCommitmentTransaction {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBuiltCommitmentTransaction>::is_null(self.inner) {
@@ -1659,6 +1747,9 @@ impl BuiltCommitmentTransaction {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The commitment transaction
@@ -1727,7 +1818,7 @@ pub extern "C" fn BuiltCommitmentTransaction_write(obj: &crate::lightning::ln::c
 }
 #[allow(unused)]
 pub(crate) extern "C" fn BuiltCommitmentTransaction_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeBuiltCommitmentTransaction) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeBuiltCommitmentTransaction) })
 }
 #[no_mangle]
 /// Read a BuiltCommitmentTransaction from a byte array, created by BuiltCommitmentTransaction_write
@@ -1742,7 +1833,7 @@ pub extern "C" fn BuiltCommitmentTransaction_read(ser: crate::c_types::u8slice) 
 #[must_use]
 #[no_mangle]
 pub extern "C" fn BuiltCommitmentTransaction_get_sighash_all(this_arg: &crate::lightning::ln::chan_utils::BuiltCommitmentTransaction, mut funding_redeemscript: crate::c_types::u8slice, mut channel_value_satoshis: u64) -> crate::c_types::ThirtyTwoBytes {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_sighash_all(::bitcoin::blockdata::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis);
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_sighash_all(::bitcoin::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis);
 	crate::c_types::ThirtyTwoBytes { data: ret.as_ref().clone() }
 }
 
@@ -1750,7 +1841,7 @@ pub extern "C" fn BuiltCommitmentTransaction_get_sighash_all(this_arg: &crate::l
 #[must_use]
 #[no_mangle]
 pub extern "C" fn BuiltCommitmentTransaction_sign_counterparty_commitment(this_arg: &crate::lightning::ln::chan_utils::BuiltCommitmentTransaction, funding_key: *const [u8; 32], mut funding_redeemscript: crate::c_types::u8slice, mut channel_value_satoshis: u64) -> crate::c_types::ECDSASignature {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.sign_counterparty_commitment(&::bitcoin::secp256k1::SecretKey::from_slice(&unsafe { *funding_key}[..]).unwrap(), ::bitcoin::blockdata::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis, secp256k1::global::SECP256K1);
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.sign_counterparty_commitment(&::bitcoin::secp256k1::SecretKey::from_slice(&unsafe { *funding_key}[..]).unwrap(), ::bitcoin::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis, secp256k1::global::SECP256K1);
 	crate::c_types::ECDSASignature::from_rust(&ret)
 }
 
@@ -1758,7 +1849,7 @@ pub extern "C" fn BuiltCommitmentTransaction_sign_counterparty_commitment(this_a
 #[must_use]
 #[no_mangle]
 pub extern "C" fn BuiltCommitmentTransaction_sign_holder_commitment(this_arg: &crate::lightning::ln::chan_utils::BuiltCommitmentTransaction, funding_key: *const [u8; 32], mut funding_redeemscript: crate::c_types::u8slice, mut channel_value_satoshis: u64, entropy_source: &crate::lightning::sign::EntropySource) -> crate::c_types::ECDSASignature {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.sign_holder_commitment(&::bitcoin::secp256k1::SecretKey::from_slice(&unsafe { *funding_key}[..]).unwrap(), ::bitcoin::blockdata::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis, entropy_source, secp256k1::global::SECP256K1);
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.sign_holder_commitment(&::bitcoin::secp256k1::SecretKey::from_slice(&unsafe { *funding_key}[..]).unwrap(), ::bitcoin::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis, entropy_source, secp256k1::global::SECP256K1);
 	crate::c_types::ECDSASignature::from_rust(&ret)
 }
 
@@ -1786,6 +1877,12 @@ pub struct ClosingTransaction {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ClosingTransaction {
+	type Target = nativeClosingTransaction;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ClosingTransaction { }
+unsafe impl core::marker::Sync for ClosingTransaction { }
 impl Drop for ClosingTransaction {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeClosingTransaction>::is_null(self.inner) {
@@ -1815,6 +1912,9 @@ impl ClosingTransaction {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for ClosingTransaction {
@@ -1859,7 +1959,7 @@ pub extern "C" fn ClosingTransaction_eq(a: &ClosingTransaction, b: &ClosingTrans
 #[must_use]
 #[no_mangle]
 pub extern "C" fn ClosingTransaction_new(mut to_holder_value_sat: u64, mut to_counterparty_value_sat: u64, mut to_holder_script: crate::c_types::derived::CVec_u8Z, mut to_counterparty_script: crate::c_types::derived::CVec_u8Z, mut funding_outpoint: crate::lightning::chain::transaction::OutPoint) -> crate::lightning::ln::chan_utils::ClosingTransaction {
-	let mut ret = lightning::ln::chan_utils::ClosingTransaction::new(to_holder_value_sat, to_counterparty_value_sat, ::bitcoin::blockdata::script::ScriptBuf::from(to_holder_script.into_rust()), ::bitcoin::blockdata::script::ScriptBuf::from(to_counterparty_script.into_rust()), crate::c_types::C_to_bitcoin_outpoint(funding_outpoint));
+	let mut ret = lightning::ln::chan_utils::ClosingTransaction::new(to_holder_value_sat, to_counterparty_value_sat, ::bitcoin::script::ScriptBuf::from(to_holder_script.into_rust()), ::bitcoin::script::ScriptBuf::from(to_counterparty_script.into_rust()), crate::c_types::C_to_bitcoin_outpoint(funding_outpoint));
 	crate::lightning::ln::chan_utils::ClosingTransaction { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
@@ -1947,6 +2047,12 @@ pub struct TrustedClosingTransaction {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TrustedClosingTransaction {
+	type Target = nativeTrustedClosingTransaction;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TrustedClosingTransaction { }
+unsafe impl core::marker::Sync for TrustedClosingTransaction { }
 impl Drop for TrustedClosingTransaction {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTrustedClosingTransaction>::is_null(self.inner) {
@@ -1977,6 +2083,9 @@ impl TrustedClosingTransaction {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The pre-built Bitcoin commitment transaction
 #[must_use]
@@ -1992,7 +2101,7 @@ pub extern "C" fn TrustedClosingTransaction_built_transaction(this_arg: &crate::
 #[must_use]
 #[no_mangle]
 pub extern "C" fn TrustedClosingTransaction_get_sighash_all(this_arg: &crate::lightning::ln::chan_utils::TrustedClosingTransaction, mut funding_redeemscript: crate::c_types::u8slice, mut channel_value_satoshis: u64) -> crate::c_types::ThirtyTwoBytes {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_sighash_all(::bitcoin::blockdata::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis);
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_sighash_all(::bitcoin::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis);
 	crate::c_types::ThirtyTwoBytes { data: ret.as_ref().clone() }
 }
 
@@ -2001,7 +2110,7 @@ pub extern "C" fn TrustedClosingTransaction_get_sighash_all(this_arg: &crate::li
 #[must_use]
 #[no_mangle]
 pub extern "C" fn TrustedClosingTransaction_sign(this_arg: &crate::lightning::ln::chan_utils::TrustedClosingTransaction, funding_key: *const [u8; 32], mut funding_redeemscript: crate::c_types::u8slice, mut channel_value_satoshis: u64) -> crate::c_types::ECDSASignature {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.sign(&::bitcoin::secp256k1::SecretKey::from_slice(&unsafe { *funding_key}[..]).unwrap(), ::bitcoin::blockdata::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis, secp256k1::global::SECP256K1);
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.sign(&::bitcoin::secp256k1::SecretKey::from_slice(&unsafe { *funding_key}[..]).unwrap(), ::bitcoin::script::Script::from_bytes(funding_redeemscript.to_slice()), channel_value_satoshis, secp256k1::global::SECP256K1);
 	crate::c_types::ECDSASignature::from_rust(&ret)
 }
 
@@ -2030,6 +2139,12 @@ pub struct CommitmentTransaction {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for CommitmentTransaction {
+	type Target = nativeCommitmentTransaction;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CommitmentTransaction { }
+unsafe impl core::marker::Sync for CommitmentTransaction { }
 impl Drop for CommitmentTransaction {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeCommitmentTransaction>::is_null(self.inner) {
@@ -2059,6 +2174,9 @@ impl CommitmentTransaction {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for CommitmentTransaction {
@@ -2090,7 +2208,7 @@ pub extern "C" fn CommitmentTransaction_write(obj: &crate::lightning::ln::chan_u
 }
 #[allow(unused)]
 pub(crate) extern "C" fn CommitmentTransaction_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeCommitmentTransaction) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::chan_utils::nativeCommitmentTransaction) })
 }
 #[no_mangle]
 /// Read a CommitmentTransaction from a byte array, created by CommitmentTransaction_write
@@ -2191,6 +2309,12 @@ pub struct TrustedCommitmentTransaction {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TrustedCommitmentTransaction {
+	type Target = nativeTrustedCommitmentTransaction;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TrustedCommitmentTransaction { }
+unsafe impl core::marker::Sync for TrustedCommitmentTransaction { }
 impl Drop for TrustedCommitmentTransaction {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTrustedCommitmentTransaction>::is_null(self.inner) {
@@ -2221,6 +2345,9 @@ impl TrustedCommitmentTransaction {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The transaction ID of the built Bitcoin transaction
 #[must_use]
@@ -2249,9 +2376,9 @@ pub extern "C" fn TrustedCommitmentTransaction_keys(this_arg: &crate::lightning:
 /// Should anchors be used.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn TrustedCommitmentTransaction_channel_type_features(this_arg: &crate::lightning::ln::chan_utils::TrustedCommitmentTransaction) -> crate::lightning::ln::features::ChannelTypeFeatures {
+pub extern "C" fn TrustedCommitmentTransaction_channel_type_features(this_arg: &crate::lightning::ln::chan_utils::TrustedCommitmentTransaction) -> crate::lightning_types::features::ChannelTypeFeatures {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.channel_type_features();
-	crate::lightning::ln::features::ChannelTypeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning::ln::features::ChannelTypeFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::ChannelTypeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning_types::features::ChannelTypeFeatures<>) as *mut _) }, is_owned: false }
 }
 
 /// Get a signature for each HTLC which was included in the commitment transaction (ie for
@@ -2299,7 +2426,7 @@ pub extern "C" fn TrustedCommitmentTransaction_revokeable_output_index(this_arg:
 #[must_use]
 #[no_mangle]
 pub extern "C" fn TrustedCommitmentTransaction_build_to_local_justice_tx(this_arg: &crate::lightning::ln::chan_utils::TrustedCommitmentTransaction, mut feerate_per_kw: u64, mut destination_script: crate::c_types::derived::CVec_u8Z) -> crate::c_types::derived::CResult_TransactionNoneZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.build_to_local_justice_tx(feerate_per_kw, ::bitcoin::blockdata::script::ScriptBuf::from(destination_script.into_rust()));
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.build_to_local_justice_tx(feerate_per_kw, ::bitcoin::script::ScriptBuf::from(destination_script.into_rust()));
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::Transaction::from_bitcoin(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }

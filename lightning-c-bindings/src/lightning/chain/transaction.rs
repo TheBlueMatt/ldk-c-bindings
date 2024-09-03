@@ -23,7 +23,7 @@ pub(crate) type nativeOutPoint = nativeOutPointImport;
 
 /// A reference to a transaction output.
 ///
-/// Differs from bitcoin::blockdata::transaction::OutPoint as the index is a u16 instead of u32
+/// Differs from bitcoin::transaction::OutPoint as the index is a u16 instead of u32
 /// due to LN's restrictions on index values. Should reduce (possibly) unsafe conversions this way.
 #[must_use]
 #[repr(C)]
@@ -40,6 +40,12 @@ pub struct OutPoint {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OutPoint {
+	type Target = nativeOutPoint;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OutPoint { }
+unsafe impl core::marker::Sync for OutPoint { }
 impl Drop for OutPoint {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOutPoint>::is_null(self.inner) {
@@ -69,6 +75,9 @@ impl OutPoint {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The referenced transaction's txid.
@@ -155,7 +164,7 @@ pub extern "C" fn OutPoint_write(obj: &crate::lightning::chain::transaction::Out
 }
 #[allow(unused)]
 pub(crate) extern "C" fn OutPoint_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeOutPoint) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::chain::transaction::nativeOutPoint) })
 }
 #[no_mangle]
 /// Read a OutPoint from a byte array, created by OutPoint_write

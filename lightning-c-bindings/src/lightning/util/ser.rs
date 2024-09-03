@@ -51,6 +51,12 @@ pub struct BigSize {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for BigSize {
+	type Target = nativeBigSize;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for BigSize { }
+unsafe impl core::marker::Sync for BigSize { }
 impl Drop for BigSize {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBigSize>::is_null(self.inner) {
@@ -80,6 +86,9 @@ impl BigSize {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -147,13 +156,29 @@ pub extern "C" fn BigSize_write(obj: &crate::lightning::util::ser::BigSize) -> c
 }
 #[allow(unused)]
 pub(crate) extern "C" fn BigSize_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeBigSize) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::util::ser::nativeBigSize) })
 }
 #[no_mangle]
 /// Read a BigSize from a byte array, created by BigSize_write
 pub extern "C" fn BigSize_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_BigSizeDecodeErrorZ {
 	let res: Result<lightning::util::ser::BigSize, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::ser::BigSize { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
+/// Serialize the UntrustedString object into a byte array which can be read by UntrustedString_read
+pub extern "C" fn UntrustedString_write(obj: &crate::lightning_types::string::UntrustedString) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn UntrustedString_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning_types::string::nativeUntrustedString) })
+}
+#[no_mangle]
+/// Read a UntrustedString from a byte array, created by UntrustedString_write
+pub extern "C" fn UntrustedString_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_UntrustedStringDecodeErrorZ {
+	let res: Result<lightning_types::string::UntrustedString, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning_types::string::UntrustedString { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
 
@@ -182,6 +207,12 @@ pub struct Hostname {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Hostname {
+	type Target = nativeHostname;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Hostname { }
+unsafe impl core::marker::Sync for Hostname { }
 impl Drop for Hostname {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeHostname>::is_null(self.inner) {
@@ -211,6 +242,9 @@ impl Hostname {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for Hostname {
@@ -274,7 +308,7 @@ pub extern "C" fn Hostname_write(obj: &crate::lightning::util::ser::Hostname) ->
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Hostname_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeHostname) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::util::ser::nativeHostname) })
 }
 #[no_mangle]
 /// Read a Hostname from a byte array, created by Hostname_write
@@ -306,6 +340,12 @@ pub struct TransactionU16LenLimited {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TransactionU16LenLimited {
+	type Target = nativeTransactionU16LenLimited;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TransactionU16LenLimited { }
+unsafe impl core::marker::Sync for TransactionU16LenLimited { }
 impl Drop for TransactionU16LenLimited {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTransactionU16LenLimited>::is_null(self.inner) {
@@ -335,6 +375,9 @@ impl TransactionU16LenLimited {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for TransactionU16LenLimited {
@@ -411,7 +454,7 @@ pub extern "C" fn TransactionU16LenLimited_write(obj: &crate::lightning::util::s
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TransactionU16LenLimited_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTransactionU16LenLimited) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::util::ser::nativeTransactionU16LenLimited) })
 }
 #[no_mangle]
 /// Read a TransactionU16LenLimited from a byte array, created by TransactionU16LenLimited_write

@@ -37,7 +37,7 @@
 //! from disk, which we do by calling [`RapidGossipSync::update_network_graph`]:
 //!
 //! ```
-//! use bitcoin::blockdata::constants::genesis_block;
+//! use bitcoin::constants::genesis_block;
 //! use bitcoin::Network;
 //! use lightning::routing::gossip::NetworkGraph;
 //! use lightning_rapid_gossip_sync::RapidGossipSync;
@@ -218,6 +218,12 @@ pub struct RapidGossipSync {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RapidGossipSync {
+	type Target = nativeRapidGossipSync;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RapidGossipSync { }
+unsafe impl core::marker::Sync for RapidGossipSync { }
 impl Drop for RapidGossipSync {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRapidGossipSync>::is_null(self.inner) {
@@ -247,6 +253,9 @@ impl RapidGossipSync {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Instantiate a new [`RapidGossipSync`] instance.

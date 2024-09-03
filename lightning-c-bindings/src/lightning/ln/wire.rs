@@ -57,17 +57,27 @@ impl rustCustomMessageReader for CustomMessageReader {
 	}
 }
 
+pub struct CustomMessageReaderRef(CustomMessageReader);
+impl rustCustomMessageReader for CustomMessageReaderRef {
+	type CustomMessage = crate::lightning::ln::wire::Type;
+	fn read<R:crate::c_types::io::Read>(&self, mut message_type: u16, mut buffer: &mut R) -> Result<Option<crate::lightning::ln::wire::Type>, lightning::ln::msgs::DecodeError> {
+		let mut ret = (self.0.read)(self.0.this_arg, message_type, crate::c_types::u8slice::from_vec(&crate::c_types::reader_to_vec(buffer)));
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = { /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ let ret_0_opt = (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }); if ret_0_opt.is_none() { None } else { Some({ { { ret_0_opt.take() } }})} }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).into_native() })};
+		local_ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for CustomMessageReader {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = CustomMessageReaderRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const CustomMessageReaderRef) }
 	}
 }
 impl core::ops::DerefMut for CustomMessageReader {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut CustomMessageReaderRef {
+		unsafe { &mut *(self as *mut _ as *mut CustomMessageReaderRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -132,9 +142,20 @@ impl core::fmt::Debug for Type {
 		f.write_str((self.debug_str)(self.this_arg).into_str())
 	}
 }
+impl core::fmt::Debug for TypeRef {
+	fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
+		f.write_str((self.0.debug_str)(self.0.this_arg).into_str())
+	}
+}
 impl lightning::util::ser::Writeable for Type {
 	fn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {
 		let vec = (self.write)(self.this_arg);
+		w.write_all(vec.as_slice())
+	}
+}
+impl lightning::util::ser::Writeable for TypeRef {
+	fn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {
+		let vec = (self.0.write)(self.0.this_arg);
 		w.write_all(vec.as_slice())
 	}
 }
@@ -150,6 +171,11 @@ impl Clone for Type {
 		Type_clone(self)
 	}
 }
+impl Clone for TypeRef {
+	fn clone(&self) -> Self {
+		Self(Type_clone(&self.0))
+	}
+}
 
 use lightning::ln::wire::Type as rustType;
 impl rustType for Type {
@@ -159,17 +185,25 @@ impl rustType for Type {
 	}
 }
 
+pub struct TypeRef(Type);
+impl rustType for TypeRef {
+	fn type_id(&self) -> u16 {
+		let mut ret = (self.0.type_id)(self.0.this_arg);
+		ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Type {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = TypeRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const TypeRef) }
 	}
 }
 impl core::ops::DerefMut for Type {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut TypeRef {
+		unsafe { &mut *(self as *mut _ as *mut TypeRef) }
 	}
 }
 /// Calls the free function if one is set

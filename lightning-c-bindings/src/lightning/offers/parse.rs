@@ -49,6 +49,12 @@ pub struct Bolt12ParseError {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Bolt12ParseError {
+	type Target = nativeBolt12ParseError;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Bolt12ParseError { }
+unsafe impl core::marker::Sync for Bolt12ParseError { }
 impl Drop for Bolt12ParseError {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBolt12ParseError>::is_null(self.inner) {
@@ -78,6 +84,9 @@ impl Bolt12ParseError {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for Bolt12ParseError {
@@ -161,6 +170,8 @@ pub enum Bolt12SemanticError {
 	MissingCreationTime,
 	/// An invoice payment hash was expected but was missing.
 	MissingPaymentHash,
+	/// An invoice payment hash was provided but was not expected.
+	UnexpectedPaymentHash,
 	/// A signature was expected but was missing.
 	MissingSignature,
 }
@@ -198,6 +209,7 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::InvalidPayInfo => nativeBolt12SemanticError::InvalidPayInfo,
 			Bolt12SemanticError::MissingCreationTime => nativeBolt12SemanticError::MissingCreationTime,
 			Bolt12SemanticError::MissingPaymentHash => nativeBolt12SemanticError::MissingPaymentHash,
+			Bolt12SemanticError::UnexpectedPaymentHash => nativeBolt12SemanticError::UnexpectedPaymentHash,
 			Bolt12SemanticError::MissingSignature => nativeBolt12SemanticError::MissingSignature,
 		}
 	}
@@ -231,6 +243,7 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::InvalidPayInfo => nativeBolt12SemanticError::InvalidPayInfo,
 			Bolt12SemanticError::MissingCreationTime => nativeBolt12SemanticError::MissingCreationTime,
 			Bolt12SemanticError::MissingPaymentHash => nativeBolt12SemanticError::MissingPaymentHash,
+			Bolt12SemanticError::UnexpectedPaymentHash => nativeBolt12SemanticError::UnexpectedPaymentHash,
 			Bolt12SemanticError::MissingSignature => nativeBolt12SemanticError::MissingSignature,
 		}
 	}
@@ -265,6 +278,7 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::InvalidPayInfo => Bolt12SemanticError::InvalidPayInfo,
 			nativeBolt12SemanticError::MissingCreationTime => Bolt12SemanticError::MissingCreationTime,
 			nativeBolt12SemanticError::MissingPaymentHash => Bolt12SemanticError::MissingPaymentHash,
+			nativeBolt12SemanticError::UnexpectedPaymentHash => Bolt12SemanticError::UnexpectedPaymentHash,
 			nativeBolt12SemanticError::MissingSignature => Bolt12SemanticError::MissingSignature,
 		}
 	}
@@ -298,6 +312,7 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::InvalidPayInfo => Bolt12SemanticError::InvalidPayInfo,
 			nativeBolt12SemanticError::MissingCreationTime => Bolt12SemanticError::MissingCreationTime,
 			nativeBolt12SemanticError::MissingPaymentHash => Bolt12SemanticError::MissingPaymentHash,
+			nativeBolt12SemanticError::UnexpectedPaymentHash => Bolt12SemanticError::UnexpectedPaymentHash,
 			nativeBolt12SemanticError::MissingSignature => Bolt12SemanticError::MissingSignature,
 		}
 	}
@@ -425,6 +440,10 @@ pub extern "C" fn Bolt12SemanticError_missing_creation_time() -> Bolt12SemanticE
 /// Utility method to constructs a new MissingPaymentHash-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_missing_payment_hash() -> Bolt12SemanticError {
 	Bolt12SemanticError::MissingPaymentHash}
+#[no_mangle]
+/// Utility method to constructs a new UnexpectedPaymentHash-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_unexpected_payment_hash() -> Bolt12SemanticError {
+	Bolt12SemanticError::UnexpectedPaymentHash}
 #[no_mangle]
 /// Utility method to constructs a new MissingSignature-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_missing_signature() -> Bolt12SemanticError {

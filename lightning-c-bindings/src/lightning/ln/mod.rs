@@ -7,6 +7,12 @@
 // source was automatically generated.
 
 //! Implementations of various parts of the Lightning protocol are in this module.
+//!
+//! Note that the re-exports of [`PaymentHash`], [`PaymentPreimage`], and [`PaymentSecret`] here
+//! are deprecated and will be removed in a future version. Instead, use them via
+//! [`lightning::types::payment`].
+//!
+//! [`lightning::types::payment`]: crate::types::payment
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -28,6 +34,8 @@ pub mod chan_utils;
 pub mod features;
 pub mod script;
 pub mod types;
+pub mod invoice_utils;
+pub mod bolt11_payment;
 pub mod outbound_payment;
 pub mod wire;
 mod peer_channel_encryptor {

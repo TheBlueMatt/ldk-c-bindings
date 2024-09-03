@@ -243,8 +243,16 @@ pub(crate) fn UtxoLookup_clone_fields(orig: &UtxoLookup) -> UtxoLookup {
 
 use lightning::routing::utxo::UtxoLookup as rustUtxoLookup;
 impl rustUtxoLookup for UtxoLookup {
-	fn get_utxo(&self, mut chain_hash: &bitcoin::blockdata::constants::ChainHash, mut short_channel_id: u64) -> lightning::routing::utxo::UtxoResult {
+	fn get_utxo(&self, mut chain_hash: &bitcoin::constants::ChainHash, mut short_channel_id: u64) -> lightning::routing::utxo::UtxoResult {
 		let mut ret = (self.get_utxo)(self.this_arg, chain_hash.as_ref(), short_channel_id);
+		ret.into_native()
+	}
+}
+
+pub struct UtxoLookupRef(UtxoLookup);
+impl rustUtxoLookup for UtxoLookupRef {
+	fn get_utxo(&self, mut chain_hash: &bitcoin::constants::ChainHash, mut short_channel_id: u64) -> lightning::routing::utxo::UtxoResult {
+		let mut ret = (self.0.get_utxo)(self.0.this_arg, chain_hash.as_ref(), short_channel_id);
 		ret.into_native()
 	}
 }
@@ -252,14 +260,14 @@ impl rustUtxoLookup for UtxoLookup {
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for UtxoLookup {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = UtxoLookupRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const UtxoLookupRef) }
 	}
 }
 impl core::ops::DerefMut for UtxoLookup {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut UtxoLookupRef {
+		unsafe { &mut *(self as *mut _ as *mut UtxoLookupRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -294,6 +302,12 @@ pub struct UtxoFuture {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UtxoFuture {
+	type Target = nativeUtxoFuture;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UtxoFuture { }
+unsafe impl core::marker::Sync for UtxoFuture { }
 impl Drop for UtxoFuture {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUtxoFuture>::is_null(self.inner) {
@@ -323,6 +337,9 @@ impl UtxoFuture {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for UtxoFuture {

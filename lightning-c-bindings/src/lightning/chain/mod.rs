@@ -65,6 +65,12 @@ pub struct BestBlock {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for BestBlock {
+	type Target = nativeBestBlock;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for BestBlock { }
+unsafe impl core::marker::Sync for BestBlock { }
 impl Drop for BestBlock {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBestBlock>::is_null(self.inner) {
@@ -94,6 +100,9 @@ impl BestBlock {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The block's hash
@@ -184,7 +193,7 @@ pub extern "C" fn BestBlock_write(obj: &crate::lightning::chain::BestBlock) -> c
 }
 #[allow(unused)]
 pub(crate) extern "C" fn BestBlock_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeBestBlock) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::chain::nativeBestBlock) })
 }
 #[no_mangle]
 /// Read a BestBlock from a byte array, created by BestBlock_write
@@ -235,32 +244,49 @@ pub(crate) fn Listen_clone_fields(orig: &Listen) -> Listen {
 
 use lightning::chain::Listen as rustListen;
 impl rustListen for Listen {
-	fn filtered_block_connected(&self, mut header: &bitcoin::blockdata::block::Header, mut txdata: &lightning::chain::transaction::TransactionData, mut height: u32) {
+	fn filtered_block_connected(&self, mut header: &bitcoin::block::Header, mut txdata: &lightning::chain::transaction::TransactionData, mut height: u32) {
 		let mut local_header = { let mut s = [0u8; 80]; s[..].copy_from_slice(&::bitcoin::consensus::encode::serialize(header)); s };
 		let mut local_txdata = Vec::new(); for item in txdata.iter() { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item; let mut local_txdata_0 = (orig_txdata_0_0, crate::c_types::Transaction::from_bitcoin(&orig_txdata_0_1)).into(); local_txdata_0 }); };
 		(self.filtered_block_connected)(self.this_arg, &local_header, local_txdata.into(), height)
 	}
-	fn block_connected(&self, mut block: &bitcoin::blockdata::block::Block, mut height: u32) {
+	fn block_connected(&self, mut block: &bitcoin::block::Block, mut height: u32) {
 		let mut local_block = ::bitcoin::consensus::encode::serialize(block);
 		(self.block_connected)(self.this_arg, crate::c_types::u8slice::from_slice(&local_block), height)
 	}
-	fn block_disconnected(&self, mut header: &bitcoin::blockdata::block::Header, mut height: u32) {
+	fn block_disconnected(&self, mut header: &bitcoin::block::Header, mut height: u32) {
 		let mut local_header = { let mut s = [0u8; 80]; s[..].copy_from_slice(&::bitcoin::consensus::encode::serialize(header)); s };
 		(self.block_disconnected)(self.this_arg, &local_header, height)
+	}
+}
+
+pub struct ListenRef(Listen);
+impl rustListen for ListenRef {
+	fn filtered_block_connected(&self, mut header: &bitcoin::block::Header, mut txdata: &lightning::chain::transaction::TransactionData, mut height: u32) {
+		let mut local_header = { let mut s = [0u8; 80]; s[..].copy_from_slice(&::bitcoin::consensus::encode::serialize(header)); s };
+		let mut local_txdata = Vec::new(); for item in txdata.iter() { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item; let mut local_txdata_0 = (orig_txdata_0_0, crate::c_types::Transaction::from_bitcoin(&orig_txdata_0_1)).into(); local_txdata_0 }); };
+		(self.0.filtered_block_connected)(self.0.this_arg, &local_header, local_txdata.into(), height)
+	}
+	fn block_connected(&self, mut block: &bitcoin::block::Block, mut height: u32) {
+		let mut local_block = ::bitcoin::consensus::encode::serialize(block);
+		(self.0.block_connected)(self.0.this_arg, crate::c_types::u8slice::from_slice(&local_block), height)
+	}
+	fn block_disconnected(&self, mut header: &bitcoin::block::Header, mut height: u32) {
+		let mut local_header = { let mut s = [0u8; 80]; s[..].copy_from_slice(&::bitcoin::consensus::encode::serialize(header)); s };
+		(self.0.block_disconnected)(self.0.this_arg, &local_header, height)
 	}
 }
 
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Listen {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = ListenRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const ListenRef) }
 	}
 }
 impl core::ops::DerefMut for Listen {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut ListenRef {
+		unsafe { &mut *(self as *mut _ as *mut ListenRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -385,7 +411,7 @@ pub(crate) fn Confirm_clone_fields(orig: &Confirm) -> Confirm {
 
 use lightning::chain::Confirm as rustConfirm;
 impl rustConfirm for Confirm {
-	fn transactions_confirmed(&self, mut header: &bitcoin::blockdata::block::Header, mut txdata: &lightning::chain::transaction::TransactionData, mut height: u32) {
+	fn transactions_confirmed(&self, mut header: &bitcoin::block::Header, mut txdata: &lightning::chain::transaction::TransactionData, mut height: u32) {
 		let mut local_header = { let mut s = [0u8; 80]; s[..].copy_from_slice(&::bitcoin::consensus::encode::serialize(header)); s };
 		let mut local_txdata = Vec::new(); for item in txdata.iter() { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item; let mut local_txdata_0 = (orig_txdata_0_0, crate::c_types::Transaction::from_bitcoin(&orig_txdata_0_1)).into(); local_txdata_0 }); };
 		(self.transactions_confirmed)(self.this_arg, &local_header, local_txdata.into(), height)
@@ -393,7 +419,7 @@ impl rustConfirm for Confirm {
 	fn transaction_unconfirmed(&self, mut txid: &bitcoin::hash_types::Txid) {
 		(self.transaction_unconfirmed)(self.this_arg, txid.as_ref())
 	}
-	fn best_block_updated(&self, mut header: &bitcoin::blockdata::block::Header, mut height: u32) {
+	fn best_block_updated(&self, mut header: &bitcoin::block::Header, mut height: u32) {
 		let mut local_header = { let mut s = [0u8; 80]; s[..].copy_from_slice(&::bitcoin::consensus::encode::serialize(header)); s };
 		(self.best_block_updated)(self.this_arg, &local_header, height)
 	}
@@ -404,17 +430,38 @@ impl rustConfirm for Confirm {
 	}
 }
 
+pub struct ConfirmRef(Confirm);
+impl rustConfirm for ConfirmRef {
+	fn transactions_confirmed(&self, mut header: &bitcoin::block::Header, mut txdata: &lightning::chain::transaction::TransactionData, mut height: u32) {
+		let mut local_header = { let mut s = [0u8; 80]; s[..].copy_from_slice(&::bitcoin::consensus::encode::serialize(header)); s };
+		let mut local_txdata = Vec::new(); for item in txdata.iter() { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item; let mut local_txdata_0 = (orig_txdata_0_0, crate::c_types::Transaction::from_bitcoin(&orig_txdata_0_1)).into(); local_txdata_0 }); };
+		(self.0.transactions_confirmed)(self.0.this_arg, &local_header, local_txdata.into(), height)
+	}
+	fn transaction_unconfirmed(&self, mut txid: &bitcoin::hash_types::Txid) {
+		(self.0.transaction_unconfirmed)(self.0.this_arg, txid.as_ref())
+	}
+	fn best_block_updated(&self, mut header: &bitcoin::block::Header, mut height: u32) {
+		let mut local_header = { let mut s = [0u8; 80]; s[..].copy_from_slice(&::bitcoin::consensus::encode::serialize(header)); s };
+		(self.0.best_block_updated)(self.0.this_arg, &local_header, height)
+	}
+	fn get_relevant_txids(&self) -> Vec<(bitcoin::hash_types::Txid, u32, Option<bitcoin::hash_types::BlockHash>)> {
+		let mut ret = (self.0.get_relevant_txids)(self.0.this_arg);
+		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2) = item.to_rust(); let mut local_orig_ret_0_2 = { /*orig_ret_0_2*/ let orig_ret_0_2_opt = orig_ret_0_2; if orig_ret_0_2_opt.is_none() { None } else { Some({ { ::bitcoin::hash_types::BlockHash::from_slice(&{ orig_ret_0_2_opt.take() }.data[..]).unwrap() }})} }; let mut local_ret_0 = (::bitcoin::hash_types::Txid::from_slice(&orig_ret_0_0.data[..]).unwrap(), orig_ret_0_1, local_orig_ret_0_2); local_ret_0 }); };
+		local_ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Confirm {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = ConfirmRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const ConfirmRef) }
 	}
 }
 impl core::ops::DerefMut for Confirm {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut ConfirmRef {
+		unsafe { &mut *(self as *mut _ as *mut ConfirmRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -645,8 +692,8 @@ pub(crate) fn Watch_clone_fields(orig: &Watch) -> Watch {
 }
 
 use lightning::chain::Watch as rustWatch;
-impl rustWatch<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner, > for Watch {
-	fn watch_channel(&self, mut funding_txo: lightning::chain::transaction::OutPoint, mut monitor: lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner>) -> Result<lightning::chain::ChannelMonitorUpdateStatus, ()> {
+impl rustWatch<crate::lightning::sign::ecdsa::EcdsaChannelSigner, > for Watch {
+	fn watch_channel(&self, mut funding_txo: lightning::chain::transaction::OutPoint, mut monitor: lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> Result<lightning::chain::ChannelMonitorUpdateStatus, ()> {
 		let mut ret = (self.watch_channel)(self.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(funding_txo), is_owned: true }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(monitor), is_owned: true });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_native() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
@@ -662,17 +709,35 @@ impl rustWatch<crate::lightning::sign::ecdsa::WriteableEcdsaChannelSigner, > for
 	}
 }
 
+pub struct WatchRef(Watch);
+impl rustWatch<crate::lightning::sign::ecdsa::EcdsaChannelSigner, > for WatchRef {
+	fn watch_channel(&self, mut funding_txo: lightning::chain::transaction::OutPoint, mut monitor: lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> Result<lightning::chain::ChannelMonitorUpdateStatus, ()> {
+		let mut ret = (self.0.watch_channel)(self.0.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(funding_txo), is_owned: true }, crate::lightning::chain::channelmonitor::ChannelMonitor { inner: ObjOps::heap_alloc(monitor), is_owned: true });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_native() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn update_channel(&self, mut funding_txo: lightning::chain::transaction::OutPoint, mut update: &lightning::chain::channelmonitor::ChannelMonitorUpdate) -> lightning::chain::ChannelMonitorUpdateStatus {
+		let mut ret = (self.0.update_channel)(self.0.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(funding_txo), is_owned: true }, &crate::lightning::chain::channelmonitor::ChannelMonitorUpdate { inner: unsafe { ObjOps::nonnull_ptr_to_inner((update as *const lightning::chain::channelmonitor::ChannelMonitorUpdate<>) as *mut _) }, is_owned: false });
+		ret.into_native()
+	}
+	fn release_pending_monitor_events(&self) -> Vec<(lightning::chain::transaction::OutPoint, lightning::ln::types::ChannelId, Vec<lightning::chain::channelmonitor::MonitorEvent>, Option<bitcoin::secp256k1::PublicKey>)> {
+		let mut ret = (self.0.release_pending_monitor_events)(self.0.this_arg);
+		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2, mut orig_ret_0_3) = item.to_rust(); let mut local_orig_ret_0_2 = Vec::new(); for mut item in orig_ret_0_2.into_rust().drain(..) { local_orig_ret_0_2.push( { item.into_native() }); }; let mut local_orig_ret_0_3 = if orig_ret_0_3.is_null() { None } else { Some( { orig_ret_0_3.into_rust() }) }; let mut local_ret_0 = (*unsafe { Box::from_raw(orig_ret_0_0.take_inner()) }, *unsafe { Box::from_raw(orig_ret_0_1.take_inner()) }, local_orig_ret_0_2, local_orig_ret_0_3); local_ret_0 }); };
+		local_ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Watch {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = WatchRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const WatchRef) }
 	}
 }
 impl core::ops::DerefMut for Watch {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut WatchRef {
+		unsafe { &mut *(self as *mut _ as *mut WatchRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -712,6 +777,11 @@ pub struct Filter {
 	pub this_arg: *mut c_void,
 	/// Registers interest in a transaction with `txid` and having an output with `script_pubkey` as
 	/// a spending condition.
+	///
+	/// This may be used, for example, to monitor for when a funding transaction confirms.
+	///
+	/// The `script_pubkey` is provided for informational purposes and may be useful for block
+	/// sources which only support filtering on scripts.
 	pub register_tx: extern "C" fn (this_arg: *const c_void, txid: *const [u8; 32], script_pubkey: crate::c_types::u8slice),
 	/// Registers interest in spends of a transaction output.
 	///
@@ -719,6 +789,9 @@ pub struct Filter {
 	/// to ensure that also dependent output spents within an already connected block are correctly
 	/// handled, e.g., by re-scanning the block in question whenever new outputs have been
 	/// registered mid-processing.
+	///
+	/// This may be used, for example, to monitor for when a funding output is spent (by any
+	/// transaction).
 	pub register_output: extern "C" fn (this_arg: *const c_void, output: crate::lightning::chain::WatchedOutput),
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
@@ -738,7 +811,7 @@ pub(crate) fn Filter_clone_fields(orig: &Filter) -> Filter {
 
 use lightning::chain::Filter as rustFilter;
 impl rustFilter for Filter {
-	fn register_tx(&self, mut txid: &bitcoin::hash_types::Txid, mut script_pubkey: &bitcoin::blockdata::script::Script) {
+	fn register_tx(&self, mut txid: &bitcoin::hash_types::Txid, mut script_pubkey: &bitcoin::script::Script) {
 		(self.register_tx)(self.this_arg, txid.as_ref(), crate::c_types::u8slice::from_slice(script_pubkey.as_ref()))
 	}
 	fn register_output(&self, mut output: lightning::chain::WatchedOutput) {
@@ -746,17 +819,27 @@ impl rustFilter for Filter {
 	}
 }
 
+pub struct FilterRef(Filter);
+impl rustFilter for FilterRef {
+	fn register_tx(&self, mut txid: &bitcoin::hash_types::Txid, mut script_pubkey: &bitcoin::script::Script) {
+		(self.0.register_tx)(self.0.this_arg, txid.as_ref(), crate::c_types::u8slice::from_slice(script_pubkey.as_ref()))
+	}
+	fn register_output(&self, mut output: lightning::chain::WatchedOutput) {
+		(self.0.register_output)(self.0.this_arg, crate::lightning::chain::WatchedOutput { inner: ObjOps::heap_alloc(output), is_owned: true })
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Filter {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = FilterRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const FilterRef) }
 	}
 }
 impl core::ops::DerefMut for Filter {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut FilterRef {
+		unsafe { &mut *(self as *mut _ as *mut FilterRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -782,6 +865,9 @@ pub(crate) type nativeWatchedOutput = nativeWatchedOutputImport;
 /// If `block_hash` is `Some`, this indicates the output was created in the corresponding block and
 /// may have been spent there. See [`Filter::register_output`] for details.
 ///
+/// Depending on your block source, you may need one or both of either [`Self::outpoint`] or
+/// [`Self::script_pubkey`].
+///
 /// [`ChannelMonitor`]: channelmonitor::ChannelMonitor
 /// [`ChannelMonitor::block_connected`]: channelmonitor::ChannelMonitor::block_connected
 #[must_use]
@@ -799,6 +885,12 @@ pub struct WatchedOutput {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for WatchedOutput {
+	type Target = nativeWatchedOutput;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for WatchedOutput { }
+unsafe impl core::marker::Sync for WatchedOutput { }
 impl Drop for WatchedOutput {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeWatchedOutput>::is_null(self.inner) {
@@ -828,6 +920,9 @@ impl WatchedOutput {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// First block where the transaction output may have been spent.
@@ -863,7 +958,7 @@ pub extern "C" fn WatchedOutput_get_script_pubkey(this_ptr: &WatchedOutput) -> c
 /// Spending condition of the transaction output.
 #[no_mangle]
 pub extern "C" fn WatchedOutput_set_script_pubkey(this_ptr: &mut WatchedOutput, mut val: crate::c_types::derived::CVec_u8Z) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.script_pubkey = ::bitcoin::blockdata::script::ScriptBuf::from(val.into_rust());
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.script_pubkey = ::bitcoin::script::ScriptBuf::from(val.into_rust());
 }
 /// Constructs a new WatchedOutput given each field
 #[must_use]
@@ -873,7 +968,7 @@ pub extern "C" fn WatchedOutput_new(mut block_hash_arg: crate::c_types::derived:
 	WatchedOutput { inner: ObjOps::heap_alloc(nativeWatchedOutput {
 		block_hash: local_block_hash_arg,
 		outpoint: *unsafe { Box::from_raw(outpoint_arg.take_inner()) },
-		script_pubkey: ::bitcoin::blockdata::script::ScriptBuf::from(script_pubkey_arg.into_rust()),
+		script_pubkey: ::bitcoin::script::ScriptBuf::from(script_pubkey_arg.into_rust()),
 	}), is_owned: true }
 }
 impl Clone for WatchedOutput {

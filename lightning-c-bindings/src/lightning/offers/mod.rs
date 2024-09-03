@@ -25,8 +25,21 @@ pub mod invoice;
 pub mod invoice_error;
 pub mod invoice_request;
 pub mod merkle;
+pub mod nonce;
 pub mod parse;
 pub mod refund;
+mod invoice_macros {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}
 mod payer {
 
 use alloc::str::FromStr;

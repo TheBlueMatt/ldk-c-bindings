@@ -26,8 +26,6 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
-pub mod payment;
-pub mod utils;
 pub mod constants;
 mod de {
 
@@ -626,11 +624,9 @@ pub static MAX_TIMESTAMP: u64 = lightning_invoice::MAX_TIMESTAMP;
 pub static DEFAULT_EXPIRY_TIME: u64 = lightning_invoice::DEFAULT_EXPIRY_TIME;
 /// Default minimum final CLTV expiry as defined by [BOLT 11].
 ///
-/// Note that this is *not* the same value as rust-lightning's minimum CLTV expiry, which is
-/// provided in [`MIN_FINAL_CLTV_EXPIRY_DELTA`].
+/// Note that this is *not* the same value as rust-lightning's minimum CLTV expiry.
 ///
 /// [BOLT 11]: https://github.com/lightning/bolts/blob/master/11-payment-encoding.md
-/// [`MIN_FINAL_CLTV_EXPIRY_DELTA`]: lightning::ln::channelmanager::MIN_FINAL_CLTV_EXPIRY_DELTA
 
 #[no_mangle]
 pub static DEFAULT_MIN_FINAL_CLTV_EXPIRY_DELTA: u64 = lightning_invoice::DEFAULT_MIN_FINAL_CLTV_EXPIRY_DELTA;
@@ -661,6 +657,12 @@ pub struct Bolt11Invoice {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Bolt11Invoice {
+	type Target = nativeBolt11Invoice;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Bolt11Invoice { }
+unsafe impl core::marker::Sync for Bolt11Invoice { }
 impl Drop for Bolt11Invoice {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBolt11Invoice>::is_null(self.inner) {
@@ -690,6 +692,9 @@ impl Bolt11Invoice {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Checks if two Bolt11Invoices contain equal inner contents.
@@ -757,6 +762,12 @@ pub struct SignedRawBolt11Invoice {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for SignedRawBolt11Invoice {
+	type Target = nativeSignedRawBolt11Invoice;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for SignedRawBolt11Invoice { }
+unsafe impl core::marker::Sync for SignedRawBolt11Invoice { }
 impl Drop for SignedRawBolt11Invoice {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeSignedRawBolt11Invoice>::is_null(self.inner) {
@@ -786,6 +797,9 @@ impl SignedRawBolt11Invoice {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Checks if two SignedRawBolt11Invoices contain equal inner contents.
@@ -853,6 +867,12 @@ pub struct RawBolt11Invoice {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RawBolt11Invoice {
+	type Target = nativeRawBolt11Invoice;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RawBolt11Invoice { }
+unsafe impl core::marker::Sync for RawBolt11Invoice { }
 impl Drop for RawBolt11Invoice {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRawBolt11Invoice>::is_null(self.inner) {
@@ -882,6 +902,9 @@ impl RawBolt11Invoice {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// data part
@@ -956,6 +979,12 @@ pub struct RawDataPart {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RawDataPart {
+	type Target = nativeRawDataPart;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RawDataPart { }
+unsafe impl core::marker::Sync for RawDataPart { }
 impl Drop for RawDataPart {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRawDataPart>::is_null(self.inner) {
@@ -985,6 +1014,9 @@ impl RawDataPart {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// generation time of the invoice
@@ -1064,6 +1096,12 @@ pub struct PositiveTimestamp {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for PositiveTimestamp {
+	type Target = nativePositiveTimestamp;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for PositiveTimestamp { }
+unsafe impl core::marker::Sync for PositiveTimestamp { }
 impl Drop for PositiveTimestamp {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePositiveTimestamp>::is_null(self.inner) {
@@ -1093,6 +1131,9 @@ impl PositiveTimestamp {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Checks if two PositiveTimestamps contain equal inner contents.
@@ -1385,6 +1426,12 @@ pub struct Sha256 {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Sha256 {
+	type Target = nativeSha256;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Sha256 { }
+unsafe impl core::marker::Sync for Sha256 { }
 impl Drop for Sha256 {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeSha256>::is_null(self.inner) {
@@ -1414,6 +1461,9 @@ impl Sha256 {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for Sha256 {
@@ -1489,6 +1539,12 @@ pub struct Description {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Description {
+	type Target = nativeDescription;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Description { }
+unsafe impl core::marker::Sync for Description { }
 impl Drop for Description {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeDescription>::is_null(self.inner) {
@@ -1518,6 +1574,9 @@ impl Description {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for Description {
@@ -1581,6 +1640,12 @@ pub struct PayeePubKey {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for PayeePubKey {
+	type Target = nativePayeePubKey;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for PayeePubKey { }
+unsafe impl core::marker::Sync for PayeePubKey { }
 impl Drop for PayeePubKey {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePayeePubKey>::is_null(self.inner) {
@@ -1610,6 +1675,9 @@ impl PayeePubKey {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -1691,6 +1759,12 @@ pub struct ExpiryTime {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ExpiryTime {
+	type Target = nativeExpiryTime;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ExpiryTime { }
+unsafe impl core::marker::Sync for ExpiryTime { }
 impl Drop for ExpiryTime {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeExpiryTime>::is_null(self.inner) {
@@ -1720,6 +1794,9 @@ impl ExpiryTime {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for ExpiryTime {
@@ -1783,6 +1860,12 @@ pub struct MinFinalCltvExpiryDelta {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for MinFinalCltvExpiryDelta {
+	type Target = nativeMinFinalCltvExpiryDelta;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for MinFinalCltvExpiryDelta { }
+unsafe impl core::marker::Sync for MinFinalCltvExpiryDelta { }
 impl Drop for MinFinalCltvExpiryDelta {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeMinFinalCltvExpiryDelta>::is_null(self.inner) {
@@ -1812,6 +1895,9 @@ impl MinFinalCltvExpiryDelta {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -1905,13 +1991,13 @@ impl Fallback {
 			Fallback::PubKeyHash (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				nativeFallback::PubKeyHash (
-					bitcoin::hash_types::PubkeyHash::from_raw_hash(bitcoin::hashes::Hash::from_byte_array(a_nonref.data)),
+					bitcoin::PubkeyHash::from_raw_hash(bitcoin::hashes::Hash::from_byte_array(a_nonref.data)),
 				)
 			},
 			Fallback::ScriptHash (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				nativeFallback::ScriptHash (
-					bitcoin::hash_types::ScriptHash::from_raw_hash(bitcoin::hashes::Hash::from_byte_array(a_nonref.data)),
+					bitcoin::ScriptHash::from_raw_hash(bitcoin::hashes::Hash::from_byte_array(a_nonref.data)),
 				)
 			},
 		}
@@ -1928,12 +2014,12 @@ impl Fallback {
 			},
 			Fallback::PubKeyHash (mut a, ) => {
 				nativeFallback::PubKeyHash (
-					bitcoin::hash_types::PubkeyHash::from_raw_hash(bitcoin::hashes::Hash::from_byte_array(a.data)),
+					bitcoin::PubkeyHash::from_raw_hash(bitcoin::hashes::Hash::from_byte_array(a.data)),
 				)
 			},
 			Fallback::ScriptHash (mut a, ) => {
 				nativeFallback::ScriptHash (
-					bitcoin::hash_types::ScriptHash::from_raw_hash(bitcoin::hashes::Hash::from_byte_array(a.data)),
+					bitcoin::ScriptHash::from_raw_hash(bitcoin::hashes::Hash::from_byte_array(a.data)),
 				)
 			},
 		}
@@ -2062,6 +2148,12 @@ pub struct Bolt11InvoiceSignature {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Bolt11InvoiceSignature {
+	type Target = nativeBolt11InvoiceSignature;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Bolt11InvoiceSignature { }
+unsafe impl core::marker::Sync for Bolt11InvoiceSignature { }
 impl Drop for Bolt11InvoiceSignature {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBolt11InvoiceSignature>::is_null(self.inner) {
@@ -2092,6 +2184,26 @@ impl Bolt11InvoiceSignature {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceSignature_get_a(this_ptr: &Bolt11InvoiceSignature) -> crate::c_types::RecoverableSignature {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	crate::c_types::RecoverableSignature::from_rust(&inner_val)
+}
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceSignature_set_a(this_ptr: &mut Bolt11InvoiceSignature, mut val: crate::c_types::RecoverableSignature) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.0 = val.into_rust();
+}
+/// Constructs a new Bolt11InvoiceSignature given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceSignature_new(mut a_arg: crate::c_types::RecoverableSignature) -> Bolt11InvoiceSignature {
+	Bolt11InvoiceSignature { inner: ObjOps::heap_alloc(lightning_invoice::Bolt11InvoiceSignature (
+		a_arg.into_rust(),
+	)), is_owned: true }
 }
 impl Clone for Bolt11InvoiceSignature {
 	fn clone(&self) -> Self {
@@ -2158,6 +2270,12 @@ pub struct PrivateRoute {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for PrivateRoute {
+	type Target = nativePrivateRoute;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for PrivateRoute { }
+unsafe impl core::marker::Sync for PrivateRoute { }
 impl Drop for PrivateRoute {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePrivateRoute>::is_null(self.inner) {
@@ -2187,6 +2305,9 @@ impl PrivateRoute {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for PrivateRoute {
@@ -2372,9 +2493,9 @@ pub extern "C" fn RawBolt11Invoice_payment_metadata(this_arg: &crate::lightning_
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn RawBolt11Invoice_features(this_arg: &crate::lightning_invoice::RawBolt11Invoice) -> crate::lightning::ln::features::Bolt11InvoiceFeatures {
+pub extern "C" fn RawBolt11Invoice_features(this_arg: &crate::lightning_invoice::RawBolt11Invoice) -> crate::lightning_types::features::Bolt11InvoiceFeatures {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.features();
-	let mut local_ret = crate::lightning::ln::features::Bolt11InvoiceFeatures { inner: unsafe { (if ret.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (ret.unwrap()) }) } as *const lightning::ln::features::Bolt11InvoiceFeatures<>) as *mut _ }, is_owned: false };
+	let mut local_ret = crate::lightning_types::features::Bolt11InvoiceFeatures { inner: unsafe { (if ret.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (ret.unwrap()) }) } as *const lightning_types::features::Bolt11InvoiceFeatures<>) as *mut _ }, is_owned: false };
 	local_ret
 }
 
@@ -2575,9 +2696,9 @@ pub extern "C" fn Bolt11Invoice_payment_metadata(this_arg: &crate::lightning_inv
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Bolt11Invoice_features(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::lightning::ln::features::Bolt11InvoiceFeatures {
+pub extern "C" fn Bolt11Invoice_features(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::lightning_types::features::Bolt11InvoiceFeatures {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.features();
-	let mut local_ret = crate::lightning::ln::features::Bolt11InvoiceFeatures { inner: unsafe { (if ret.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (ret.unwrap()) }) } as *const lightning::ln::features::Bolt11InvoiceFeatures<>) as *mut _ }, is_owned: false };
+	let mut local_ret = crate::lightning_types::features::Bolt11InvoiceFeatures { inner: unsafe { (if ret.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (ret.unwrap()) }) } as *const lightning_types::features::Bolt11InvoiceFeatures<>) as *mut _ }, is_owned: false };
 	local_ret
 }
 
@@ -2682,7 +2803,7 @@ pub extern "C" fn Bolt11Invoice_private_routes(this_arg: &crate::lightning_invoi
 #[no_mangle]
 pub extern "C" fn Bolt11Invoice_route_hints(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::c_types::derived::CVec_RouteHintZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.route_hints();
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::routing::router::RouteHint { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning_types::routing::RouteHint { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 	local_ret.into()
 }
 
@@ -2703,8 +2824,8 @@ pub extern "C" fn Bolt11Invoice_amount_milli_satoshis(this_arg: &crate::lightnin
 	local_ret
 }
 
-/// Creates a new `Description` if `description` is at most 1023 __bytes__ long,
-/// returns [`CreationError::DescriptionTooLong`] otherwise
+/// Creates a new `Description` if `description` is at most 1023 * 5 bits (i.e., 639 bytes)
+/// long, and returns [`CreationError::DescriptionTooLong`] otherwise.
 ///
 /// Please note that single characters may use more than one byte due to UTF8 encoding.
 #[must_use]
@@ -2718,9 +2839,17 @@ pub extern "C" fn Description_new(mut description: crate::c_types::Str) -> crate
 /// Returns the underlying description [`UntrustedString`]
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Description_into_inner(mut this_arg: crate::lightning_invoice::Description) -> crate::lightning::util::string::UntrustedString {
+pub extern "C" fn Description_into_inner(mut this_arg: crate::lightning_invoice::Description) -> crate::lightning_types::string::UntrustedString {
 	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).into_inner();
-	crate::lightning::util::string::UntrustedString { inner: ObjOps::heap_alloc(ret), is_owned: true }
+	crate::lightning_types::string::UntrustedString { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Get a reference to the underlying description [`UntrustedString`]
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Description_as_inner(this_arg: &crate::lightning_invoice::Description) -> crate::lightning_types::string::UntrustedString {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.as_inner();
+	crate::lightning_types::string::UntrustedString { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning_types::string::UntrustedString<>) as *mut _) }, is_owned: false }
 }
 
 #[no_mangle]
@@ -2763,7 +2892,7 @@ pub extern "C" fn ExpiryTime_as_duration(this_arg: &crate::lightning_invoice::Ex
 /// Creates a new (partial) route from a list of hops
 #[must_use]
 #[no_mangle]
-pub extern "C" fn PrivateRoute_new(mut hops: crate::lightning::routing::router::RouteHint) -> crate::c_types::derived::CResult_PrivateRouteCreationErrorZ {
+pub extern "C" fn PrivateRoute_new(mut hops: crate::lightning_types::routing::RouteHint) -> crate::c_types::derived::CResult_PrivateRouteCreationErrorZ {
 	let mut ret = lightning_invoice::PrivateRoute::new(*unsafe { Box::from_raw(hops.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning_invoice::PrivateRoute { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning_invoice::CreationError::native_into(e) }).into() };
 	local_ret
@@ -2772,9 +2901,9 @@ pub extern "C" fn PrivateRoute_new(mut hops: crate::lightning::routing::router::
 /// Returns the underlying list of hops
 #[must_use]
 #[no_mangle]
-pub extern "C" fn PrivateRoute_into_inner(mut this_arg: crate::lightning_invoice::PrivateRoute) -> crate::lightning::routing::router::RouteHint {
+pub extern "C" fn PrivateRoute_into_inner(mut this_arg: crate::lightning_invoice::PrivateRoute) -> crate::lightning_types::routing::RouteHint {
 	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).into_inner();
-	crate::lightning::routing::router::RouteHint { inner: ObjOps::heap_alloc(ret), is_owned: true }
+	crate::lightning_types::routing::RouteHint { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// Errors that may occur when constructing a new [`RawBolt11Invoice`] or [`Bolt11Invoice`]
@@ -2790,14 +2919,9 @@ pub enum CreationError {
 	TimestampOutOfBounds,
 	/// The supplied millisatoshi amount was greater than the total bitcoin supply.
 	InvalidAmount,
-	/// Route hints were required for this invoice and were missing. Applies to
-	/// [phantom invoices].
-	///
-	/// [phantom invoices]: crate::utils::create_phantom_invoice
+	/// Route hints were required for this invoice and were missing.
 	MissingRouteHints,
-	/// The provided `min_final_cltv_expiry_delta` was less than [`MIN_FINAL_CLTV_EXPIRY_DELTA`].
-	///
-	/// [`MIN_FINAL_CLTV_EXPIRY_DELTA`]: lightning::ln::channelmanager::MIN_FINAL_CLTV_EXPIRY_DELTA
+	/// The provided `min_final_cltv_expiry_delta` was less than rust-lightning's minimum.
 	MinFinalCltvExpiryDeltaTooShort,
 }
 use lightning_invoice::CreationError as CreationErrorImport;

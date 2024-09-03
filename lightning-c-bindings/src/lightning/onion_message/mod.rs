@@ -17,7 +17,7 @@
 //! information on its usage.
 //!
 //! [offers]: <https://github.com/lightning/bolts/pull/798>
-//! [blinded paths]: crate::blinded_path::BlindedPath
+//! [blinded paths]: crate::blinded_path::message::BlindedMessagePath
 //! [`OnionMessenger`]: self::messenger::OnionMessenger
 
 use alloc::str::FromStr;
@@ -29,6 +29,7 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
+pub mod async_payments;
 pub mod messenger;
 pub mod offers;
 pub mod packet;

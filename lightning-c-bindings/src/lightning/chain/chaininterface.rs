@@ -58,23 +58,31 @@ pub(crate) fn BroadcasterInterface_clone_fields(orig: &BroadcasterInterface) -> 
 
 use lightning::chain::chaininterface::BroadcasterInterface as rustBroadcasterInterface;
 impl rustBroadcasterInterface for BroadcasterInterface {
-	fn broadcast_transactions(&self, mut txs: &[&bitcoin::blockdata::transaction::Transaction]) {
+	fn broadcast_transactions(&self, mut txs: &[&bitcoin::transaction::Transaction]) {
 		let mut local_txs = Vec::new(); for item in txs.iter() { local_txs.push( { crate::c_types::Transaction::from_bitcoin((*item)) }); };
 		(self.broadcast_transactions)(self.this_arg, local_txs.into())
+	}
+}
+
+pub struct BroadcasterInterfaceRef(BroadcasterInterface);
+impl rustBroadcasterInterface for BroadcasterInterfaceRef {
+	fn broadcast_transactions(&self, mut txs: &[&bitcoin::transaction::Transaction]) {
+		let mut local_txs = Vec::new(); for item in txs.iter() { local_txs.push( { crate::c_types::Transaction::from_bitcoin((*item)) }); };
+		(self.0.broadcast_transactions)(self.0.this_arg, local_txs.into())
 	}
 }
 
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for BroadcasterInterface {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = BroadcasterInterfaceRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const BroadcasterInterfaceRef) }
 	}
 }
 impl core::ops::DerefMut for BroadcasterInterface {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut BroadcasterInterfaceRef {
+		unsafe { &mut *(self as *mut _ as *mut BroadcasterInterfaceRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -93,11 +101,19 @@ impl Drop for BroadcasterInterface {
 #[must_use]
 #[repr(C)]
 pub enum ConfirmationTarget {
+	/// The most aggressive (i.e. highest) feerate estimate available.
+	///
+	/// This is used to sanity-check our counterparty's feerates and should be as conservative as
+	/// possible to ensure that we don't confuse a peer using a very conservative estimator for one
+	/// trying to burn channel balance to dust.
+	MaximumFeeEstimate,
 	/// We have some funds available on chain which we need to spend prior to some expiry time at
-	/// which point our counterparty may be able to steal them. Generally we have in the high tens
-	/// to low hundreds of blocks to get our transaction on-chain, but we shouldn't risk too low a
-	/// fee - this should be a relatively high priority feerate.
-	OnChainSweep,
+	/// which point our counterparty may be able to steal them.
+	///
+	/// Generally we have in the high tens to low hundreds of blocks to get our transaction
+	/// on-chain (it doesn't have to happen in the next few blocks!), but we shouldn't risk too low
+	/// a fee - this should be a relatively high priority feerate.
+	UrgentOnChainSweep,
 	/// This is the lowest feerate we will allow our channel counterparty to have in an anchor
 	/// channel in order to close the channel if a channel party goes away.
 	///
@@ -168,14 +184,18 @@ pub enum ConfirmationTarget {
 	///
 	/// [`ChannelManager::close_channel_with_feerate_and_script`]: crate::ln::channelmanager::ChannelManager::close_channel_with_feerate_and_script
 	ChannelCloseMinimum,
-	/// The feerate [`OutputSweeper`] will use on transactions spending
-	/// [`SpendableOutputDescriptor`]s after a channel closure.
+	/// The feerate used to claim on-chain funds when there is no particular urgency to do so.
+	///
+	/// It is used to get commitment transactions without any HTLCs confirmed in [`ChannelMonitor`]
+	/// and by  [`OutputSweeper`] on transactions spending [`SpendableOutputDescriptor`]s after a
+	/// channel closure.
 	///
 	/// Generally spending these outputs is safe as long as they eventually confirm, so a value
 	/// (slightly above) the mempool minimum should suffice. However, as this value will influence
 	/// how long funds will be unavailable after channel closure, [`FeeEstimator`] implementors
 	/// might want to choose a higher feerate to regain control over funds faster.
 	///
+	/// [`ChannelMonitor`]: crate::chain::channelmonitor::ChannelMonitor
 	/// [`OutputSweeper`]: crate::util::sweep::OutputSweeper
 	/// [`SpendableOutputDescriptor`]: crate::sign::SpendableOutputDescriptor
 	OutputSpendingFee,
@@ -187,7 +207,8 @@ impl ConfirmationTarget {
 	#[allow(unused)]
 	pub(crate) fn to_native(&self) -> nativeConfirmationTarget {
 		match self {
-			ConfirmationTarget::OnChainSweep => nativeConfirmationTarget::OnChainSweep,
+			ConfirmationTarget::MaximumFeeEstimate => nativeConfirmationTarget::MaximumFeeEstimate,
+			ConfirmationTarget::UrgentOnChainSweep => nativeConfirmationTarget::UrgentOnChainSweep,
 			ConfirmationTarget::MinAllowedAnchorChannelRemoteFee => nativeConfirmationTarget::MinAllowedAnchorChannelRemoteFee,
 			ConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee => nativeConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee,
 			ConfirmationTarget::AnchorChannelFee => nativeConfirmationTarget::AnchorChannelFee,
@@ -199,7 +220,8 @@ impl ConfirmationTarget {
 	#[allow(unused)]
 	pub(crate) fn into_native(self) -> nativeConfirmationTarget {
 		match self {
-			ConfirmationTarget::OnChainSweep => nativeConfirmationTarget::OnChainSweep,
+			ConfirmationTarget::MaximumFeeEstimate => nativeConfirmationTarget::MaximumFeeEstimate,
+			ConfirmationTarget::UrgentOnChainSweep => nativeConfirmationTarget::UrgentOnChainSweep,
 			ConfirmationTarget::MinAllowedAnchorChannelRemoteFee => nativeConfirmationTarget::MinAllowedAnchorChannelRemoteFee,
 			ConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee => nativeConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee,
 			ConfirmationTarget::AnchorChannelFee => nativeConfirmationTarget::AnchorChannelFee,
@@ -212,7 +234,8 @@ impl ConfirmationTarget {
 	pub(crate) fn from_native(native: &ConfirmationTargetImport) -> Self {
 		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeConfirmationTarget) };
 		match native {
-			nativeConfirmationTarget::OnChainSweep => ConfirmationTarget::OnChainSweep,
+			nativeConfirmationTarget::MaximumFeeEstimate => ConfirmationTarget::MaximumFeeEstimate,
+			nativeConfirmationTarget::UrgentOnChainSweep => ConfirmationTarget::UrgentOnChainSweep,
 			nativeConfirmationTarget::MinAllowedAnchorChannelRemoteFee => ConfirmationTarget::MinAllowedAnchorChannelRemoteFee,
 			nativeConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee => ConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee,
 			nativeConfirmationTarget::AnchorChannelFee => ConfirmationTarget::AnchorChannelFee,
@@ -224,7 +247,8 @@ impl ConfirmationTarget {
 	#[allow(unused)]
 	pub(crate) fn native_into(native: nativeConfirmationTarget) -> Self {
 		match native {
-			nativeConfirmationTarget::OnChainSweep => ConfirmationTarget::OnChainSweep,
+			nativeConfirmationTarget::MaximumFeeEstimate => ConfirmationTarget::MaximumFeeEstimate,
+			nativeConfirmationTarget::UrgentOnChainSweep => ConfirmationTarget::UrgentOnChainSweep,
 			nativeConfirmationTarget::MinAllowedAnchorChannelRemoteFee => ConfirmationTarget::MinAllowedAnchorChannelRemoteFee,
 			nativeConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee => ConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee,
 			nativeConfirmationTarget::AnchorChannelFee => ConfirmationTarget::AnchorChannelFee,
@@ -250,9 +274,13 @@ pub(crate) extern "C" fn ConfirmationTarget_free_void(this_ptr: *mut c_void) {
 	let _ = unsafe { Box::from_raw(this_ptr as *mut ConfirmationTarget) };
 }
 #[no_mangle]
-/// Utility method to constructs a new OnChainSweep-variant ConfirmationTarget
-pub extern "C" fn ConfirmationTarget_on_chain_sweep() -> ConfirmationTarget {
-	ConfirmationTarget::OnChainSweep}
+/// Utility method to constructs a new MaximumFeeEstimate-variant ConfirmationTarget
+pub extern "C" fn ConfirmationTarget_maximum_fee_estimate() -> ConfirmationTarget {
+	ConfirmationTarget::MaximumFeeEstimate}
+#[no_mangle]
+/// Utility method to constructs a new UrgentOnChainSweep-variant ConfirmationTarget
+pub extern "C" fn ConfirmationTarget_urgent_on_chain_sweep() -> ConfirmationTarget {
+	ConfirmationTarget::UrgentOnChainSweep}
 #[no_mangle]
 /// Utility method to constructs a new MinAllowedAnchorChannelRemoteFee-variant ConfirmationTarget
 pub extern "C" fn ConfirmationTarget_min_allowed_anchor_channel_remote_fee() -> ConfirmationTarget {
@@ -346,17 +374,25 @@ impl rustFeeEstimator for FeeEstimator {
 	}
 }
 
+pub struct FeeEstimatorRef(FeeEstimator);
+impl rustFeeEstimator for FeeEstimatorRef {
+	fn get_est_sat_per_1000_weight(&self, mut confirmation_target: lightning::chain::chaininterface::ConfirmationTarget) -> u32 {
+		let mut ret = (self.0.get_est_sat_per_1000_weight)(self.0.this_arg, crate::lightning::chain::chaininterface::ConfirmationTarget::native_into(confirmation_target));
+		ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for FeeEstimator {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = FeeEstimatorRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const FeeEstimatorRef) }
 	}
 }
 impl core::ops::DerefMut for FeeEstimator {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut FeeEstimatorRef {
+		unsafe { &mut *(self as *mut _ as *mut FeeEstimatorRef) }
 	}
 }
 /// Calls the free function if one is set

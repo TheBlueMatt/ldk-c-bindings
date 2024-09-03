@@ -37,6 +37,12 @@ pub struct Packet {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Packet {
+	type Target = nativePacket;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Packet { }
+unsafe impl core::marker::Sync for Packet { }
 impl Drop for Packet {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePacket>::is_null(self.inner) {
@@ -66,6 +72,9 @@ impl Packet {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Bolt 04 version number
@@ -147,9 +156,6 @@ pub(crate) extern "C" fn Packet_clone_void(this_ptr: *const c_void) -> *mut c_vo
 pub extern "C" fn Packet_clone(orig: &Packet) -> Packet {
 	orig.clone()
 }
-/// Get a string which allows debug introspection of a Packet object
-pub extern "C" fn Packet_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::onion_message::packet::Packet }).into()}
 /// Generates a non-cryptographic 64-bit hash of the Packet.
 #[no_mangle]
 pub extern "C" fn Packet_hash(o: &Packet) -> u64 {
@@ -169,6 +175,9 @@ pub extern "C" fn Packet_eq(a: &Packet, b: &Packet) -> bool {
 	if a.inner.is_null() || b.inner.is_null() { return false; }
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
+/// Get a string which allows debug introspection of a Packet object
+pub extern "C" fn Packet_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::onion_message::packet::Packet }).into()}
 #[no_mangle]
 /// Serialize the Packet object into a byte array which can be read by Packet_read
 pub extern "C" fn Packet_write(obj: &crate::lightning::onion_message::packet::Packet) -> crate::c_types::derived::CVec_u8Z {
@@ -176,7 +185,7 @@ pub extern "C" fn Packet_write(obj: &crate::lightning::onion_message::packet::Pa
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Packet_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativePacket) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::onion_message::packet::nativePacket) })
 }
 /// The contents of an [`OnionMessage`] as read from the wire.
 ///
@@ -311,6 +320,7 @@ pub extern "C" fn ParsedOnionMessageContents_as_OnionMessageContents(this_arg: &
 		this_arg: unsafe { ObjOps::untweak_ptr(this_arg as *const ParsedOnionMessageContents as *mut ParsedOnionMessageContents) as *mut c_void },
 		free: None,
 		tlv_type: ParsedOnionMessageContents_OnionMessageContents_tlv_type,
+		msg_type: ParsedOnionMessageContents_OnionMessageContents_msg_type,
 		write: ParsedOnionMessageContents_write_void,
 		debug_str: ParsedOnionMessageContents_debug_str_void,
 		cloned: Some(OnionMessageContents_ParsedOnionMessageContents_cloned),
@@ -321,6 +331,11 @@ pub extern "C" fn ParsedOnionMessageContents_as_OnionMessageContents(this_arg: &
 extern "C" fn ParsedOnionMessageContents_OnionMessageContents_tlv_type(this_arg: *const c_void) -> u64 {
 	let mut ret = <nativeParsedOnionMessageContents as lightning::onion_message::packet::OnionMessageContents>::tlv_type(unsafe { &mut *(this_arg as *mut nativeParsedOnionMessageContents) }, );
 	ret
+}
+#[must_use]
+extern "C" fn ParsedOnionMessageContents_OnionMessageContents_msg_type(this_arg: *const c_void) -> crate::c_types::Str {
+	let mut ret = <nativeParsedOnionMessageContents as lightning::onion_message::packet::OnionMessageContents>::msg_type(unsafe { &mut *(this_arg as *mut nativeParsedOnionMessageContents) }, );
+	ret.into()
 }
 extern "C" fn OnionMessageContents_ParsedOnionMessageContents_cloned(new_obj: &mut crate::lightning::onion_message::packet::OnionMessageContents) {
 	new_obj.this_arg = ParsedOnionMessageContents_clone_void(new_obj.this_arg);
@@ -344,6 +359,8 @@ pub struct OnionMessageContents {
 	pub this_arg: *mut c_void,
 	/// Returns the TLV type identifying the message contents. MUST be >= 64.
 	pub tlv_type: extern "C" fn (this_arg: *const c_void) -> u64,
+	/// Returns the message type
+	pub msg_type: extern "C" fn (this_arg: *const c_void) -> crate::c_types::Str,
 	/// Serialize the object into a byte array
 	pub write: extern "C" fn (this_arg: *const c_void) -> crate::c_types::derived::CVec_u8Z,
 	/// Return a human-readable "debug" string describing this object
@@ -363,6 +380,7 @@ pub(crate) fn OnionMessageContents_clone_fields(orig: &OnionMessageContents) -> 
 	OnionMessageContents {
 		this_arg: orig.this_arg,
 		tlv_type: Clone::clone(&orig.tlv_type),
+		msg_type: Clone::clone(&orig.msg_type),
 		write: Clone::clone(&orig.write),
 		debug_str: Clone::clone(&orig.debug_str),
 		cloned: Clone::clone(&orig.cloned),
@@ -375,9 +393,20 @@ impl lightning::util::ser::Writeable for OnionMessageContents {
 		w.write_all(vec.as_slice())
 	}
 }
+impl lightning::util::ser::Writeable for OnionMessageContentsRef {
+	fn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {
+		let vec = (self.0.write)(self.0.this_arg);
+		w.write_all(vec.as_slice())
+	}
+}
 impl core::fmt::Debug for OnionMessageContents {
 	fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
 		f.write_str((self.debug_str)(self.this_arg).into_str())
+	}
+}
+impl core::fmt::Debug for OnionMessageContentsRef {
+	fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
+		f.write_str((self.0.debug_str)(self.0.this_arg).into_str())
 	}
 }
 #[no_mangle]
@@ -392,6 +421,11 @@ impl Clone for OnionMessageContents {
 		OnionMessageContents_clone(self)
 	}
 }
+impl Clone for OnionMessageContentsRef {
+	fn clone(&self) -> Self {
+		Self(OnionMessageContents_clone(&self.0))
+	}
+}
 
 use lightning::onion_message::packet::OnionMessageContents as rustOnionMessageContents;
 impl rustOnionMessageContents for OnionMessageContents {
@@ -399,19 +433,35 @@ impl rustOnionMessageContents for OnionMessageContents {
 		let mut ret = (self.tlv_type)(self.this_arg);
 		ret
 	}
+	fn msg_type(&self) -> String {
+		let mut ret = (self.msg_type)(self.this_arg);
+		ret.into_string()
+	}
+}
+
+pub struct OnionMessageContentsRef(OnionMessageContents);
+impl rustOnionMessageContents for OnionMessageContentsRef {
+	fn tlv_type(&self) -> u64 {
+		let mut ret = (self.0.tlv_type)(self.0.this_arg);
+		ret
+	}
+	fn msg_type(&self) -> String {
+		let mut ret = (self.0.msg_type)(self.0.this_arg);
+		ret.into_string()
+	}
 }
 
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for OnionMessageContents {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = OnionMessageContentsRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const OnionMessageContentsRef) }
 	}
 }
 impl core::ops::DerefMut for OnionMessageContents {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut OnionMessageContentsRef {
+		unsafe { &mut *(self as *mut _ as *mut OnionMessageContentsRef) }
 	}
 }
 /// Calls the free function if one is set

@@ -24,7 +24,7 @@ pub(crate) type nativeChannelHandshakeConfig = nativeChannelHandshakeConfigImpor
 
 /// Configuration we set when applicable.
 ///
-/// Default::default() provides sane defaults.
+/// `Default::default()` provides sane defaults.
 #[must_use]
 #[repr(C)]
 pub struct ChannelHandshakeConfig {
@@ -40,6 +40,12 @@ pub struct ChannelHandshakeConfig {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelHandshakeConfig {
+	type Target = nativeChannelHandshakeConfig;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelHandshakeConfig { }
+unsafe impl core::marker::Sync for ChannelHandshakeConfig { }
 impl Drop for ChannelHandshakeConfig {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelHandshakeConfig>::is_null(self.inner) {
@@ -70,17 +76,20 @@ impl ChannelHandshakeConfig {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Confirmations we will wait for before considering the channel locked in.
-/// Applied only for inbound channels (see ChannelHandshakeLimits::max_minimum_depth for the
+/// Applied only for inbound channels (see [`ChannelHandshakeLimits::max_minimum_depth`] for the
 /// equivalent limit applied to outbound channels).
 ///
-/// A lower-bound of 1 is applied, requiring all channels to have a confirmed commitment
+/// A lower-bound of `1` is applied, requiring all channels to have a confirmed commitment
 /// transaction before operation. If you wish to accept channels with zero confirmations, see
 /// [`UserConfig::manually_accept_inbound_channels`] and
 /// [`ChannelManager::accept_inbound_channel_from_trusted_peer_0conf`].
 ///
-/// Default value: 6.
+/// Default value: `6`
 ///
 /// [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
 /// [`ChannelManager::accept_inbound_channel_from_trusted_peer_0conf`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel_from_trusted_peer_0conf
@@ -90,15 +99,15 @@ pub extern "C" fn ChannelHandshakeConfig_get_minimum_depth(this_ptr: &ChannelHan
 	*inner_val
 }
 /// Confirmations we will wait for before considering the channel locked in.
-/// Applied only for inbound channels (see ChannelHandshakeLimits::max_minimum_depth for the
+/// Applied only for inbound channels (see [`ChannelHandshakeLimits::max_minimum_depth`] for the
 /// equivalent limit applied to outbound channels).
 ///
-/// A lower-bound of 1 is applied, requiring all channels to have a confirmed commitment
+/// A lower-bound of `1` is applied, requiring all channels to have a confirmed commitment
 /// transaction before operation. If you wish to accept channels with zero confirmations, see
 /// [`UserConfig::manually_accept_inbound_channels`] and
 /// [`ChannelManager::accept_inbound_channel_from_trusted_peer_0conf`].
 ///
-/// Default value: 6.
+/// Default value: `6`
 ///
 /// [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
 /// [`ChannelManager::accept_inbound_channel_from_trusted_peer_0conf`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel_from_trusted_peer_0conf
@@ -119,8 +128,8 @@ pub extern "C" fn ChannelHandshakeConfig_set_minimum_depth(this_ptr: &mut Channe
 /// case of an honest unilateral channel close, which implicitly decrease the economic value of
 /// our channel.
 ///
-/// Default value: [`BREAKDOWN_TIMEOUT`], we enforce it as a minimum at channel opening so you
-/// can tweak config to ask for more security, not less.
+/// Default value: [`BREAKDOWN_TIMEOUT`] (We enforce it as a minimum at channel opening so you
+/// can tweak config to ask for more security, not less.)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_get_our_to_self_delay(this_ptr: &ChannelHandshakeConfig) -> u16 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().our_to_self_delay;
@@ -139,8 +148,8 @@ pub extern "C" fn ChannelHandshakeConfig_get_our_to_self_delay(this_ptr: &Channe
 /// case of an honest unilateral channel close, which implicitly decrease the economic value of
 /// our channel.
 ///
-/// Default value: [`BREAKDOWN_TIMEOUT`], we enforce it as a minimum at channel opening so you
-/// can tweak config to ask for more security, not less.
+/// Default value: [`BREAKDOWN_TIMEOUT`] (We enforce it as a minimum at channel opening so you
+/// can tweak config to ask for more security, not less.)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_set_our_to_self_delay(this_ptr: &mut ChannelHandshakeConfig, mut val: u16) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.our_to_self_delay = val;
@@ -150,8 +159,8 @@ pub extern "C" fn ChannelHandshakeConfig_set_our_to_self_delay(this_ptr: &mut Ch
 /// This value is sent to our counterparty on channel-open and we close the channel any time
 /// our counterparty misbehaves by sending us an HTLC with a value smaller than this.
 ///
-/// Default value: 1. If the value is less than 1, it is ignored and set to 1, as is required
-/// by the protocol.
+/// Default value: `1` (If the value is less than `1`, it is ignored and set to `1`, as is
+/// required by the protocol.
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_get_our_htlc_minimum_msat(this_ptr: &ChannelHandshakeConfig) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().our_htlc_minimum_msat;
@@ -162,8 +171,8 @@ pub extern "C" fn ChannelHandshakeConfig_get_our_htlc_minimum_msat(this_ptr: &Ch
 /// This value is sent to our counterparty on channel-open and we close the channel any time
 /// our counterparty misbehaves by sending us an HTLC with a value smaller than this.
 ///
-/// Default value: 1. If the value is less than 1, it is ignored and set to 1, as is required
-/// by the protocol.
+/// Default value: `1` (If the value is less than `1`, it is ignored and set to `1`, as is
+/// required by the protocol.
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_set_our_htlc_minimum_msat(this_ptr: &mut ChannelHandshakeConfig, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.our_htlc_minimum_msat = val;
@@ -175,22 +184,24 @@ pub extern "C" fn ChannelHandshakeConfig_set_our_htlc_minimum_msat(this_ptr: &mu
 /// channel value in whole percentages.
 ///
 /// Note that:
-/// * If configured to another value than the default value 10, any new channels created with
-/// the non default value will cause versions of LDK prior to 0.0.104 to refuse to read the
-/// `ChannelManager`.
+/// * If configured to another value than the default value `10`, any new channels created with
+///   the non default value will cause versions of LDK prior to 0.0.104 to refuse to read the
+///   `ChannelManager`.
 ///
 /// * This caps the total value for inbound HTLCs in-flight only, and there's currently
-/// no way to configure the cap for the total value of outbound HTLCs in-flight.
+///   no way to configure the cap for the total value of outbound HTLCs in-flight.
 ///
 /// * The requirements for your node being online to ensure the safety of HTLC-encumbered funds
-/// are different from the non-HTLC-encumbered funds. This makes this an important knob to
-/// restrict exposure to loss due to being offline for too long.
-/// See [`ChannelHandshakeConfig::our_to_self_delay`] and [`ChannelConfig::cltv_expiry_delta`]
-/// for more information.
+///   are different from the non-HTLC-encumbered funds. This makes this an important knob to
+///   restrict exposure to loss due to being offline for too long.
+///   See [`ChannelHandshakeConfig::our_to_self_delay`] and [`ChannelConfig::cltv_expiry_delta`]
+///   for more information.
 ///
-/// Default value: 10.
-/// Minimum value: 1, any values less than 1 will be treated as 1 instead.
-/// Maximum value: 100, any values larger than 100 will be treated as 100 instead.
+/// Default value: `10`
+///
+/// Minimum value: `1` (Any values less will be treated as `1` instead.)
+///
+/// Maximum value: `100` (Any values larger will be treated as `100` instead.)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_get_max_inbound_htlc_value_in_flight_percent_of_channel(this_ptr: &ChannelHandshakeConfig) -> u8 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_inbound_htlc_value_in_flight_percent_of_channel;
@@ -203,22 +214,24 @@ pub extern "C" fn ChannelHandshakeConfig_get_max_inbound_htlc_value_in_flight_pe
 /// channel value in whole percentages.
 ///
 /// Note that:
-/// * If configured to another value than the default value 10, any new channels created with
-/// the non default value will cause versions of LDK prior to 0.0.104 to refuse to read the
-/// `ChannelManager`.
+/// * If configured to another value than the default value `10`, any new channels created with
+///   the non default value will cause versions of LDK prior to 0.0.104 to refuse to read the
+///   `ChannelManager`.
 ///
 /// * This caps the total value for inbound HTLCs in-flight only, and there's currently
-/// no way to configure the cap for the total value of outbound HTLCs in-flight.
+///   no way to configure the cap for the total value of outbound HTLCs in-flight.
 ///
 /// * The requirements for your node being online to ensure the safety of HTLC-encumbered funds
-/// are different from the non-HTLC-encumbered funds. This makes this an important knob to
-/// restrict exposure to loss due to being offline for too long.
-/// See [`ChannelHandshakeConfig::our_to_self_delay`] and [`ChannelConfig::cltv_expiry_delta`]
-/// for more information.
+///   are different from the non-HTLC-encumbered funds. This makes this an important knob to
+///   restrict exposure to loss due to being offline for too long.
+///   See [`ChannelHandshakeConfig::our_to_self_delay`] and [`ChannelConfig::cltv_expiry_delta`]
+///   for more information.
 ///
-/// Default value: 10.
-/// Minimum value: 1, any values less than 1 will be treated as 1 instead.
-/// Maximum value: 100, any values larger than 100 will be treated as 100 instead.
+/// Default value: `10`
+///
+/// Minimum value: `1` (Any values less will be treated as `1` instead.)
+///
+/// Maximum value: `100` (Any values larger will be treated as `100` instead.)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_set_max_inbound_htlc_value_in_flight_percent_of_channel(this_ptr: &mut ChannelHandshakeConfig, mut val: u8) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_inbound_htlc_value_in_flight_percent_of_channel = val;
@@ -237,10 +250,10 @@ pub extern "C" fn ChannelHandshakeConfig_set_max_inbound_htlc_value_in_flight_pe
 /// private channel without that option.
 ///
 /// Ignored if the channel is negotiated to be announced, see
-/// [`ChannelHandshakeConfig::announced_channel`] and
+/// [`ChannelHandshakeConfig::announce_for_forwarding`] and
 /// [`ChannelHandshakeLimits::force_announced_channel_preference`] for more.
 ///
-/// Default value: false. This value is likely to change to true in the future.
+/// Default value: `false` (This value is likely to change to `true` in the future.)
 ///
 /// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 /// [`DecodeError::InvalidValue`]: crate::ln::msgs::DecodeError::InvalidValue
@@ -263,10 +276,10 @@ pub extern "C" fn ChannelHandshakeConfig_get_negotiate_scid_privacy(this_ptr: &C
 /// private channel without that option.
 ///
 /// Ignored if the channel is negotiated to be announced, see
-/// [`ChannelHandshakeConfig::announced_channel`] and
+/// [`ChannelHandshakeConfig::announce_for_forwarding`] and
 /// [`ChannelHandshakeLimits::force_announced_channel_preference`] for more.
 ///
-/// Default value: false. This value is likely to change to true in the future.
+/// Default value: `false` (This value is likely to change to `true` in the future.)
 ///
 /// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 /// [`DecodeError::InvalidValue`]: crate::ln::msgs::DecodeError::InvalidValue
@@ -282,10 +295,10 @@ pub extern "C" fn ChannelHandshakeConfig_set_negotiate_scid_privacy(this_ptr: &m
 /// As the node which funds a channel picks this value this will only apply for new outbound
 /// channels unless [`ChannelHandshakeLimits::force_announced_channel_preference`] is set.
 ///
-/// Default value: false.
+/// Default value: `false`
 #[no_mangle]
-pub extern "C" fn ChannelHandshakeConfig_get_announced_channel(this_ptr: &ChannelHandshakeConfig) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().announced_channel;
+pub extern "C" fn ChannelHandshakeConfig_get_announce_for_forwarding(this_ptr: &ChannelHandshakeConfig) -> bool {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().announce_for_forwarding;
 	*inner_val
 }
 /// Set to announce the channel publicly and notify all nodes that they can route via this
@@ -296,10 +309,10 @@ pub extern "C" fn ChannelHandshakeConfig_get_announced_channel(this_ptr: &Channe
 /// As the node which funds a channel picks this value this will only apply for new outbound
 /// channels unless [`ChannelHandshakeLimits::force_announced_channel_preference`] is set.
 ///
-/// Default value: false.
+/// Default value: `false`
 #[no_mangle]
-pub extern "C" fn ChannelHandshakeConfig_set_announced_channel(this_ptr: &mut ChannelHandshakeConfig, mut val: bool) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.announced_channel = val;
+pub extern "C" fn ChannelHandshakeConfig_set_announce_for_forwarding(this_ptr: &mut ChannelHandshakeConfig, mut val: bool) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.announce_for_forwarding = val;
 }
 /// When set, we commit to an upfront shutdown_pubkey at channel open. If our counterparty
 /// supports it, they will then enforce the mutual-close output to us matches what we provided
@@ -311,7 +324,7 @@ pub extern "C" fn ChannelHandshakeConfig_set_announced_channel(this_ptr: &mut Ch
 ///
 /// The upfront key committed is provided from [`SignerProvider::get_shutdown_scriptpubkey`].
 ///
-/// Default value: true.
+/// Default value: `true`
 ///
 /// [`SignerProvider::get_shutdown_scriptpubkey`]: crate::sign::SignerProvider::get_shutdown_scriptpubkey
 #[no_mangle]
@@ -329,7 +342,7 @@ pub extern "C" fn ChannelHandshakeConfig_get_commit_upfront_shutdown_pubkey(this
 ///
 /// The upfront key committed is provided from [`SignerProvider::get_shutdown_scriptpubkey`].
 ///
-/// Default value: true.
+/// Default value: `true`
 ///
 /// [`SignerProvider::get_shutdown_scriptpubkey`]: crate::sign::SignerProvider::get_shutdown_scriptpubkey
 #[no_mangle]
@@ -353,11 +366,15 @@ pub extern "C" fn ChannelHandshakeConfig_set_commit_upfront_shutdown_pubkey(this
 /// Note: Versions of LDK earlier than v0.0.104 will fail to read channels with any channel reserve
 /// other than the default value.
 ///
-/// Default value: 1% of channel value, i.e., configured as 10,000 millionths.
-/// Minimum value: If the calculated proportional value is less than 1000 sats, it will be treated
-///                as 1000 sats instead, which is a safe implementation-specific lower bound.
-/// Maximum value: 1,000,000, any values larger than 1 Million will be treated as 1 Million (or 100%)
-///                instead, although channel negotiations will fail in that case.
+/// Default value: `10_000` millionths (i.e., 1% of channel value)
+///
+/// Minimum value: If the calculated proportional value is less than `1000` sats, it will be
+///                treated as `1000` sats instead, which is a safe implementation-specific lower
+///                bound.
+///
+/// Maximum value: `1_000_000` (i.e., 100% of channel value. Any values larger than one million
+///                will be treated as one million instead, although channel negotiations will
+///                fail in that case.)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_get_their_channel_reserve_proportional_millionths(this_ptr: &ChannelHandshakeConfig) -> u32 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().their_channel_reserve_proportional_millionths;
@@ -380,11 +397,15 @@ pub extern "C" fn ChannelHandshakeConfig_get_their_channel_reserve_proportional_
 /// Note: Versions of LDK earlier than v0.0.104 will fail to read channels with any channel reserve
 /// other than the default value.
 ///
-/// Default value: 1% of channel value, i.e., configured as 10,000 millionths.
-/// Minimum value: If the calculated proportional value is less than 1000 sats, it will be treated
-///                as 1000 sats instead, which is a safe implementation-specific lower bound.
-/// Maximum value: 1,000,000, any values larger than 1 Million will be treated as 1 Million (or 100%)
-///                instead, although channel negotiations will fail in that case.
+/// Default value: `10_000` millionths (i.e., 1% of channel value)
+///
+/// Minimum value: If the calculated proportional value is less than `1000` sats, it will be
+///                treated as `1000` sats instead, which is a safe implementation-specific lower
+///                bound.
+///
+/// Maximum value: `1_000_000` (i.e., 100% of channel value. Any values larger than one million
+///                will be treated as one million instead, although channel negotiations will
+///                fail in that case.)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_set_their_channel_reserve_proportional_millionths(this_ptr: &mut ChannelHandshakeConfig, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.their_channel_reserve_proportional_millionths = val;
@@ -411,7 +432,7 @@ pub extern "C" fn ChannelHandshakeConfig_set_their_channel_reserve_proportional_
 /// vulnerability after its deployment. For more context, see the [`SIGHASH_SINGLE + update_fee
 /// Considered Harmful`] mailing list post.
 ///
-/// Default value: false. This value is likely to change to true in the future.
+/// Default value: `false` (This value is likely to change to `true` in the future.)
 ///
 /// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 /// [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
@@ -444,7 +465,7 @@ pub extern "C" fn ChannelHandshakeConfig_get_negotiate_anchors_zero_fee_htlc_tx(
 /// vulnerability after its deployment. For more context, see the [`SIGHASH_SINGLE + update_fee
 /// Considered Harmful`] mailing list post.
 ///
-/// Default value: false. This value is likely to change to true in the future.
+/// Default value: `false` (This value is likely to change to `true` in the future.)
 ///
 /// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 /// [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
@@ -462,9 +483,10 @@ pub extern "C" fn ChannelHandshakeConfig_set_negotiate_anchors_zero_fee_htlc_tx(
 /// Note: Versions of LDK earlier than v0.0.115 will fail to read channels with a configuration
 /// other than the default value.
 ///
-/// Default value: 50
-/// Maximum value: 483, any values larger will be treated as 483.
-///                     This is the BOLT #2 spec limit on `max_accepted_htlcs`.
+/// Default value: `50`
+///
+/// Maximum value: `483` (Any values larger will be treated as `483`. This is the BOLT #2 spec
+/// limit on `max_accepted_htlcs`.)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_get_our_max_accepted_htlcs(this_ptr: &ChannelHandshakeConfig) -> u16 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().our_max_accepted_htlcs;
@@ -478,9 +500,10 @@ pub extern "C" fn ChannelHandshakeConfig_get_our_max_accepted_htlcs(this_ptr: &C
 /// Note: Versions of LDK earlier than v0.0.115 will fail to read channels with a configuration
 /// other than the default value.
 ///
-/// Default value: 50
-/// Maximum value: 483, any values larger will be treated as 483.
-///                     This is the BOLT #2 spec limit on `max_accepted_htlcs`.
+/// Default value: `50`
+///
+/// Maximum value: `483` (Any values larger will be treated as `483`. This is the BOLT #2 spec
+/// limit on `max_accepted_htlcs`.)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeConfig_set_our_max_accepted_htlcs(this_ptr: &mut ChannelHandshakeConfig, mut val: u16) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.our_max_accepted_htlcs = val;
@@ -488,14 +511,14 @@ pub extern "C" fn ChannelHandshakeConfig_set_our_max_accepted_htlcs(this_ptr: &m
 /// Constructs a new ChannelHandshakeConfig given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelHandshakeConfig_new(mut minimum_depth_arg: u32, mut our_to_self_delay_arg: u16, mut our_htlc_minimum_msat_arg: u64, mut max_inbound_htlc_value_in_flight_percent_of_channel_arg: u8, mut negotiate_scid_privacy_arg: bool, mut announced_channel_arg: bool, mut commit_upfront_shutdown_pubkey_arg: bool, mut their_channel_reserve_proportional_millionths_arg: u32, mut negotiate_anchors_zero_fee_htlc_tx_arg: bool, mut our_max_accepted_htlcs_arg: u16) -> ChannelHandshakeConfig {
+pub extern "C" fn ChannelHandshakeConfig_new(mut minimum_depth_arg: u32, mut our_to_self_delay_arg: u16, mut our_htlc_minimum_msat_arg: u64, mut max_inbound_htlc_value_in_flight_percent_of_channel_arg: u8, mut negotiate_scid_privacy_arg: bool, mut announce_for_forwarding_arg: bool, mut commit_upfront_shutdown_pubkey_arg: bool, mut their_channel_reserve_proportional_millionths_arg: u32, mut negotiate_anchors_zero_fee_htlc_tx_arg: bool, mut our_max_accepted_htlcs_arg: u16) -> ChannelHandshakeConfig {
 	ChannelHandshakeConfig { inner: ObjOps::heap_alloc(nativeChannelHandshakeConfig {
 		minimum_depth: minimum_depth_arg,
 		our_to_self_delay: our_to_self_delay_arg,
 		our_htlc_minimum_msat: our_htlc_minimum_msat_arg,
 		max_inbound_htlc_value_in_flight_percent_of_channel: max_inbound_htlc_value_in_flight_percent_of_channel_arg,
 		negotiate_scid_privacy: negotiate_scid_privacy_arg,
-		announced_channel: announced_channel_arg,
+		announce_for_forwarding: announce_for_forwarding_arg,
 		commit_upfront_shutdown_pubkey: commit_upfront_shutdown_pubkey_arg,
 		their_channel_reserve_proportional_millionths: their_channel_reserve_proportional_millionths_arg,
 		negotiate_anchors_zero_fee_htlc_tx: negotiate_anchors_zero_fee_htlc_tx_arg,
@@ -538,7 +561,7 @@ pub(crate) type nativeChannelHandshakeLimits = nativeChannelHandshakeLimitsImpor
 ///
 /// These limits are only applied to our counterparty's limits, not our own.
 ///
-/// Use 0/`<type>::max_value()` as appropriate to skip checking.
+/// Use `0` or `<type>::max_value()` as appropriate to skip checking.
 ///
 /// Provides sane defaults for most configurations.
 ///
@@ -560,6 +583,12 @@ pub struct ChannelHandshakeLimits {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelHandshakeLimits {
+	type Target = nativeChannelHandshakeLimits;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelHandshakeLimits { }
+unsafe impl core::marker::Sync for ChannelHandshakeLimits { }
 impl Drop for ChannelHandshakeLimits {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelHandshakeLimits>::is_null(self.inner) {
@@ -590,11 +619,15 @@ impl ChannelHandshakeLimits {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Minimum allowed satoshis when a channel is funded. This is supplied by the sender and so
 /// only applies to inbound channels.
 ///
-/// Default value: 0.
+/// Default value: `1000`
+/// (Minimum of [`ChannelHandshakeConfig::their_channel_reserve_proportional_millionths`])
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_min_funding_satoshis(this_ptr: &ChannelHandshakeLimits) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().min_funding_satoshis;
@@ -603,7 +636,8 @@ pub extern "C" fn ChannelHandshakeLimits_get_min_funding_satoshis(this_ptr: &Cha
 /// Minimum allowed satoshis when a channel is funded. This is supplied by the sender and so
 /// only applies to inbound channels.
 ///
-/// Default value: 0.
+/// Default value: `1000`
+/// (Minimum of [`ChannelHandshakeConfig::their_channel_reserve_proportional_millionths`])
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_min_funding_satoshis(this_ptr: &mut ChannelHandshakeLimits, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.min_funding_satoshis = val;
@@ -611,7 +645,7 @@ pub extern "C" fn ChannelHandshakeLimits_set_min_funding_satoshis(this_ptr: &mut
 /// Maximum allowed satoshis when a channel is funded. This is supplied by the sender and so
 /// only applies to inbound channels.
 ///
-/// Default value: 2^24 - 1.
+/// Default value: `2^24 - 1`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_max_funding_satoshis(this_ptr: &ChannelHandshakeLimits) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_funding_satoshis;
@@ -620,7 +654,7 @@ pub extern "C" fn ChannelHandshakeLimits_get_max_funding_satoshis(this_ptr: &Cha
 /// Maximum allowed satoshis when a channel is funded. This is supplied by the sender and so
 /// only applies to inbound channels.
 ///
-/// Default value: 2^24 - 1.
+/// Default value: `2^24 - 1`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_max_funding_satoshis(this_ptr: &mut ChannelHandshakeLimits, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_funding_satoshis = val;
@@ -628,7 +662,7 @@ pub extern "C" fn ChannelHandshakeLimits_set_max_funding_satoshis(this_ptr: &mut
 /// The remote node sets a limit on the minimum size of HTLCs we can send to them. This allows
 /// you to limit the maximum minimum-size they can require.
 ///
-/// Default value: u64::max_value.
+/// Default value: `u64::max_value`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_max_htlc_minimum_msat(this_ptr: &ChannelHandshakeLimits) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_htlc_minimum_msat;
@@ -637,7 +671,7 @@ pub extern "C" fn ChannelHandshakeLimits_get_max_htlc_minimum_msat(this_ptr: &Ch
 /// The remote node sets a limit on the minimum size of HTLCs we can send to them. This allows
 /// you to limit the maximum minimum-size they can require.
 ///
-/// Default value: u64::max_value.
+/// Default value: `u64::max_value`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_max_htlc_minimum_msat(this_ptr: &mut ChannelHandshakeLimits, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_htlc_minimum_msat = val;
@@ -645,7 +679,7 @@ pub extern "C" fn ChannelHandshakeLimits_set_max_htlc_minimum_msat(this_ptr: &mu
 /// The remote node sets a limit on the maximum value of pending HTLCs to them at any given
 /// time to limit their funds exposure to HTLCs. This allows you to set a minimum such value.
 ///
-/// Default value: 0.
+/// Default value: `0`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_min_max_htlc_value_in_flight_msat(this_ptr: &ChannelHandshakeLimits) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().min_max_htlc_value_in_flight_msat;
@@ -654,7 +688,7 @@ pub extern "C" fn ChannelHandshakeLimits_get_min_max_htlc_value_in_flight_msat(t
 /// The remote node sets a limit on the maximum value of pending HTLCs to them at any given
 /// time to limit their funds exposure to HTLCs. This allows you to set a minimum such value.
 ///
-/// Default value: 0.
+/// Default value: `0`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_min_max_htlc_value_in_flight_msat(this_ptr: &mut ChannelHandshakeLimits, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.min_max_htlc_value_in_flight_msat = val;
@@ -663,7 +697,7 @@ pub extern "C" fn ChannelHandshakeLimits_set_min_max_htlc_value_in_flight_msat(t
 /// time, ensuring that we are able to be punished if we broadcast an old state. This allows to
 /// you limit the amount which we will have to keep to ourselves (and cannot use for HTLCs).
 ///
-/// Default value: u64::max_value.
+/// Default value: `u64::max_value`.
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_max_channel_reserve_satoshis(this_ptr: &ChannelHandshakeLimits) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_channel_reserve_satoshis;
@@ -673,7 +707,7 @@ pub extern "C" fn ChannelHandshakeLimits_get_max_channel_reserve_satoshis(this_p
 /// time, ensuring that we are able to be punished if we broadcast an old state. This allows to
 /// you limit the amount which we will have to keep to ourselves (and cannot use for HTLCs).
 ///
-/// Default value: u64::max_value.
+/// Default value: `u64::max_value`.
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_max_channel_reserve_satoshis(this_ptr: &mut ChannelHandshakeLimits, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_channel_reserve_satoshis = val;
@@ -681,7 +715,7 @@ pub extern "C" fn ChannelHandshakeLimits_set_max_channel_reserve_satoshis(this_p
 /// The remote node sets a limit on the maximum number of pending HTLCs to them at any given
 /// time. This allows you to set a minimum such value.
 ///
-/// Default value: 0.
+/// Default value: `0`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_min_max_accepted_htlcs(this_ptr: &ChannelHandshakeLimits) -> u16 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().min_max_accepted_htlcs;
@@ -690,7 +724,7 @@ pub extern "C" fn ChannelHandshakeLimits_get_min_max_accepted_htlcs(this_ptr: &C
 /// The remote node sets a limit on the maximum number of pending HTLCs to them at any given
 /// time. This allows you to set a minimum such value.
 ///
-/// Default value: 0.
+/// Default value: `0`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_min_max_accepted_htlcs(this_ptr: &mut ChannelHandshakeLimits, mut val: u16) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.min_max_accepted_htlcs = val;
@@ -700,7 +734,7 @@ pub extern "C" fn ChannelHandshakeLimits_set_min_max_accepted_htlcs(this_ptr: &m
 /// assume they aren't going to double-spend themselves).
 /// This config allows you to set a limit on the maximum amount of time to wait.
 ///
-/// Default value: 144, or roughly one day and only applies to outbound channels.
+/// Default value: `144`, or roughly one day and only applies to outbound channels
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_max_minimum_depth(this_ptr: &ChannelHandshakeLimits) -> u32 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_minimum_depth;
@@ -711,7 +745,7 @@ pub extern "C" fn ChannelHandshakeLimits_get_max_minimum_depth(this_ptr: &Channe
 /// assume they aren't going to double-spend themselves).
 /// This config allows you to set a limit on the maximum amount of time to wait.
 ///
-/// Default value: 144, or roughly one day and only applies to outbound channels.
+/// Default value: `144`, or roughly one day and only applies to outbound channels
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_max_minimum_depth(this_ptr: &mut ChannelHandshakeLimits, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_minimum_depth = val;
@@ -727,12 +761,12 @@ pub extern "C" fn ChannelHandshakeLimits_set_max_minimum_depth(this_ptr: &mut Ch
 /// You may wish to un-set this if you allow the user to (or do in an automated fashion)
 /// double-spend the funding transaction to RBF with an alternative channel open.
 ///
-/// This only applies if our counterparty set their confirmations-required value to 0, and we
-/// always trust our own funding transaction at 1 confirmation irrespective of this value.
+/// This only applies if our counterparty set their confirmations-required value to `0`, and we
+/// always trust our own funding transaction at `1` confirmation irrespective of this value.
 /// Thus, this effectively acts as a `min_minimum_depth`, with the only possible values being
-/// `true` (0) and `false` (1).
+/// `true` (`0`) and `false` (`1`).
 ///
-/// Default value: true
+/// Default value: `true`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_trust_own_funding_0conf(this_ptr: &ChannelHandshakeLimits) -> bool {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().trust_own_funding_0conf;
@@ -749,37 +783,37 @@ pub extern "C" fn ChannelHandshakeLimits_get_trust_own_funding_0conf(this_ptr: &
 /// You may wish to un-set this if you allow the user to (or do in an automated fashion)
 /// double-spend the funding transaction to RBF with an alternative channel open.
 ///
-/// This only applies if our counterparty set their confirmations-required value to 0, and we
-/// always trust our own funding transaction at 1 confirmation irrespective of this value.
+/// This only applies if our counterparty set their confirmations-required value to `0`, and we
+/// always trust our own funding transaction at `1` confirmation irrespective of this value.
 /// Thus, this effectively acts as a `min_minimum_depth`, with the only possible values being
-/// `true` (0) and `false` (1).
+/// `true` (`0`) and `false` (`1`).
 ///
-/// Default value: true
+/// Default value: `true`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_trust_own_funding_0conf(this_ptr: &mut ChannelHandshakeLimits, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.trust_own_funding_0conf = val;
 }
 /// Set to force an incoming channel to match our announced channel preference in
-/// [`ChannelHandshakeConfig::announced_channel`].
+/// [`ChannelHandshakeConfig::announce_for_forwarding`].
 ///
 /// For a node which is not online reliably, this should be set to true and
-/// [`ChannelHandshakeConfig::announced_channel`] set to false, ensuring that no announced (aka public)
+/// [`ChannelHandshakeConfig::announce_for_forwarding`] set to false, ensuring that no announced (aka public)
 /// channels will ever be opened.
 ///
-/// Default value: true.
+/// Default value: `true`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_force_announced_channel_preference(this_ptr: &ChannelHandshakeLimits) -> bool {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().force_announced_channel_preference;
 	*inner_val
 }
 /// Set to force an incoming channel to match our announced channel preference in
-/// [`ChannelHandshakeConfig::announced_channel`].
+/// [`ChannelHandshakeConfig::announce_for_forwarding`].
 ///
 /// For a node which is not online reliably, this should be set to true and
-/// [`ChannelHandshakeConfig::announced_channel`] set to false, ensuring that no announced (aka public)
+/// [`ChannelHandshakeConfig::announce_for_forwarding`] set to false, ensuring that no announced (aka public)
 /// channels will ever be opened.
 ///
-/// Default value: true.
+/// Default value: `true`
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_force_announced_channel_preference(this_ptr: &mut ChannelHandshakeLimits, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.force_announced_channel_preference = val;
@@ -789,7 +823,7 @@ pub extern "C" fn ChannelHandshakeLimits_set_force_announced_channel_preference(
 /// Not checking this value would be a security issue, as our peer would be able to set it to
 /// max relative lock-time (a year) and we would \"lose\" money as it would be locked for a long time.
 ///
-/// Default value: 2016, which we also enforce as a maximum value so you can tweak config to
+/// Default value: `2016`, which we also enforce as a maximum value so you can tweak config to
 /// reduce the loss of having useless locked funds (if your peer accepts)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_get_their_to_self_delay(this_ptr: &ChannelHandshakeLimits) -> u16 {
@@ -801,7 +835,7 @@ pub extern "C" fn ChannelHandshakeLimits_get_their_to_self_delay(this_ptr: &Chan
 /// Not checking this value would be a security issue, as our peer would be able to set it to
 /// max relative lock-time (a year) and we would \"lose\" money as it would be locked for a long time.
 ///
-/// Default value: 2016, which we also enforce as a maximum value so you can tweak config to
+/// Default value: `2016`, which we also enforce as a maximum value so you can tweak config to
 /// reduce the loss of having useless locked funds (if your peer accepts)
 #[no_mangle]
 pub extern "C" fn ChannelHandshakeLimits_set_their_to_self_delay(this_ptr: &mut ChannelHandshakeLimits, mut val: u16) {
@@ -869,17 +903,17 @@ pub enum MaxDustHTLCExposure {
 	/// exposure and the new minimum value for HTLCs to be economically viable to claim.
 	FixedLimitMsat(
 		u64),
-	/// This sets a multiplier on the [`ConfirmationTarget::OnChainSweep`] feerate (in sats/KW) to
-	/// determine the maximum allowed dust exposure. If this variant is used then the maximum dust
-	/// exposure in millisatoshis is calculated as:
+	/// This sets a multiplier on the [`ConfirmationTarget::MaximumFeeEstimate`] feerate (in
+	/// sats/KW) to determine the maximum allowed dust exposure. If this variant is used then the
+	/// maximum dust exposure in millisatoshis is calculated as:
 	/// `feerate_per_kw * value`. For example, with our default value
 	/// `FeeRateMultiplier(10_000)`:
 	///
 	/// - For the minimum fee rate of 1 sat/vByte (250 sat/KW, although the minimum
-	/// defaults to 253 sats/KW for rounding, see [`FeeEstimator`]), the max dust exposure would
-	/// be 253 * 10_000 = 2,530,000 msats.
+	///   defaults to 253 sats/KW for rounding, see [`FeeEstimator`]), the max dust exposure would
+	///   be 253 * 10_000 = 2,530,000 msats.
 	/// - For a fee rate of 30 sat/vByte (7500 sat/KW), the max dust exposure would be
-	/// 7500 * 50_000 = 75,000,000 msats (0.00075 BTC).
+	///   7500 * 50_000 = 75,000,000 msats (0.00075 BTC).
 	///
 	/// Note, if you're using a third-party fee estimator, this may leave you more exposed to a
 	/// fee griefing attack, where your fee estimator may purposely overestimate the fee rate,
@@ -894,7 +928,7 @@ pub enum MaxDustHTLCExposure {
 	/// by default this will be set to a [`Self::FixedLimitMsat`] of 5,000,000 msat.
 	///
 	/// [`FeeEstimator`]: crate::chain::chaininterface::FeeEstimator
-	/// [`ConfirmationTarget::OnChainSweep`]: crate::chain::chaininterface::ConfirmationTarget::OnChainSweep
+	/// [`ConfirmationTarget::MaximumFeeEstimate`]: crate::chain::chaininterface::ConfirmationTarget::MaximumFeeEstimate
 	FeeRateMultiplier(
 		u64),
 }
@@ -1042,6 +1076,12 @@ pub struct ChannelConfig {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelConfig {
+	type Target = nativeChannelConfig;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelConfig { }
+unsafe impl core::marker::Sync for ChannelConfig { }
 impl Drop for ChannelConfig {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelConfig>::is_null(self.inner) {
@@ -1072,13 +1112,16 @@ impl ChannelConfig {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Amount (in millionths of a satoshi) charged per satoshi for payments forwarded outbound
 /// over the channel.
 /// This may be allowed to change at runtime in a later update, however doing so must result in
 /// update messages sent to notify all nodes of our updated relay fee.
 ///
-/// Default value: 0.
+/// Default value: `0`
 #[no_mangle]
 pub extern "C" fn ChannelConfig_get_forwarding_fee_proportional_millionths(this_ptr: &ChannelConfig) -> u32 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().forwarding_fee_proportional_millionths;
@@ -1089,7 +1132,7 @@ pub extern "C" fn ChannelConfig_get_forwarding_fee_proportional_millionths(this_
 /// This may be allowed to change at runtime in a later update, however doing so must result in
 /// update messages sent to notify all nodes of our updated relay fee.
 ///
-/// Default value: 0.
+/// Default value: `0`
 #[no_mangle]
 pub extern "C" fn ChannelConfig_set_forwarding_fee_proportional_millionths(this_ptr: &mut ChannelConfig, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.forwarding_fee_proportional_millionths = val;
@@ -1103,7 +1146,7 @@ pub extern "C" fn ChannelConfig_set_forwarding_fee_proportional_millionths(this_
 /// as of July 2021. Adjusting it upwards or downwards may change whether nodes route through
 /// this node.
 ///
-/// Default value: 1000.
+/// Default value: `1000`
 ///
 /// [`forwarding_fee_proportional_millionths`]: ChannelConfig::forwarding_fee_proportional_millionths
 #[no_mangle]
@@ -1120,7 +1163,7 @@ pub extern "C" fn ChannelConfig_get_forwarding_fee_base_msat(this_ptr: &ChannelC
 /// as of July 2021. Adjusting it upwards or downwards may change whether nodes route through
 /// this node.
 ///
-/// Default value: 1000.
+/// Default value: `1000`
 ///
 /// [`forwarding_fee_proportional_millionths`]: ChannelConfig::forwarding_fee_proportional_millionths
 #[no_mangle]
@@ -1141,9 +1184,10 @@ pub extern "C" fn ChannelConfig_set_forwarding_fee_base_msat(this_ptr: &mut Chan
 /// enough time to broadcast and confirm a transaction, possibly with time in between to RBF
 /// the spending transaction).
 ///
-/// Default value: 72 (12 hours at an average of 6 blocks/hour).
-/// Minimum value: [`MIN_CLTV_EXPIRY_DELTA`], any values less than this will be treated as
-///                [`MIN_CLTV_EXPIRY_DELTA`] instead.
+/// Default value: `72` (12 hours at an average of 6 blocks/hour)
+///
+/// Minimum value: [`MIN_CLTV_EXPIRY_DELTA`] (Any values less than this will be treated as
+///                [`MIN_CLTV_EXPIRY_DELTA`] instead.)
 ///
 /// [`MIN_CLTV_EXPIRY_DELTA`]: crate::ln::channelmanager::MIN_CLTV_EXPIRY_DELTA
 #[no_mangle]
@@ -1165,9 +1209,10 @@ pub extern "C" fn ChannelConfig_get_cltv_expiry_delta(this_ptr: &ChannelConfig) 
 /// enough time to broadcast and confirm a transaction, possibly with time in between to RBF
 /// the spending transaction).
 ///
-/// Default value: 72 (12 hours at an average of 6 blocks/hour).
-/// Minimum value: [`MIN_CLTV_EXPIRY_DELTA`], any values less than this will be treated as
-///                [`MIN_CLTV_EXPIRY_DELTA`] instead.
+/// Default value: `72` (12 hours at an average of 6 blocks/hour)
+///
+/// Minimum value: [`MIN_CLTV_EXPIRY_DELTA`] (Any values less than this will be treated as
+///                [`MIN_CLTV_EXPIRY_DELTA`] instead.)
 ///
 /// [`MIN_CLTV_EXPIRY_DELTA`]: crate::ln::channelmanager::MIN_CLTV_EXPIRY_DELTA
 #[no_mangle]
@@ -1222,12 +1267,12 @@ pub extern "C" fn ChannelConfig_set_cltv_expiry_delta(this_ptr: &mut ChannelConf
 /// Note that when using [`MaxDustHTLCExposure::FeeRateMultiplier`] this maximum disagreement
 /// will scale linearly with increases (or decreases) in the our feerate estimates. Further,
 /// for anchor channels we expect our counterparty to use a relatively low feerate estimate
-/// while we use [`ConfirmationTarget::OnChainSweep`] (which should be relatively high) and
-/// feerate disagreement force-closures should only occur when theirs is higher than ours.
+/// while we use [`ConfirmationTarget::MaximumFeeEstimate`] (which should be relatively high)
+/// and feerate disagreement force-closures should only occur when theirs is higher than ours.
 ///
-/// Default value: [`MaxDustHTLCExposure::FeeRateMultiplier`] with a multiplier of 10_000.
+/// Default value: [`MaxDustHTLCExposure::FeeRateMultiplier`] with a multiplier of `10_000`
 ///
-/// [`ConfirmationTarget::OnChainSweep`]: crate::chain::chaininterface::ConfirmationTarget::OnChainSweep
+/// [`ConfirmationTarget::MaximumFeeEstimate`]: crate::chain::chaininterface::ConfirmationTarget::MaximumFeeEstimate
 #[no_mangle]
 pub extern "C" fn ChannelConfig_get_max_dust_htlc_exposure(this_ptr: &ChannelConfig) -> crate::lightning::util::config::MaxDustHTLCExposure {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_dust_htlc_exposure;
@@ -1281,12 +1326,12 @@ pub extern "C" fn ChannelConfig_get_max_dust_htlc_exposure(this_ptr: &ChannelCon
 /// Note that when using [`MaxDustHTLCExposure::FeeRateMultiplier`] this maximum disagreement
 /// will scale linearly with increases (or decreases) in the our feerate estimates. Further,
 /// for anchor channels we expect our counterparty to use a relatively low feerate estimate
-/// while we use [`ConfirmationTarget::OnChainSweep`] (which should be relatively high) and
-/// feerate disagreement force-closures should only occur when theirs is higher than ours.
+/// while we use [`ConfirmationTarget::MaximumFeeEstimate`] (which should be relatively high)
+/// and feerate disagreement force-closures should only occur when theirs is higher than ours.
 ///
-/// Default value: [`MaxDustHTLCExposure::FeeRateMultiplier`] with a multiplier of 10_000.
+/// Default value: [`MaxDustHTLCExposure::FeeRateMultiplier`] with a multiplier of `10_000`
 ///
-/// [`ConfirmationTarget::OnChainSweep`]: crate::chain::chaininterface::ConfirmationTarget::OnChainSweep
+/// [`ConfirmationTarget::MaximumFeeEstimate`]: crate::chain::chaininterface::ConfirmationTarget::MaximumFeeEstimate
 #[no_mangle]
 pub extern "C" fn ChannelConfig_set_max_dust_htlc_exposure(this_ptr: &mut ChannelConfig, mut val: crate::lightning::util::config::MaxDustHTLCExposure) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_dust_htlc_exposure = val.into_native();
@@ -1309,7 +1354,7 @@ pub extern "C" fn ChannelConfig_set_max_dust_htlc_exposure(this_ptr: &mut Channe
 /// [`ChannelCloseMinimum`] fee estimate, but allow our counterparty to pay as much fee as they like.
 /// Thus, this value is ignored when we are not the funder.
 ///
-/// Default value: 1000 satoshis.
+/// Default value: `1000`
 ///
 /// [`NonAnchorChannelFee`]: crate::chain::chaininterface::ConfirmationTarget::NonAnchorChannelFee
 /// [`ChannelCloseMinimum`]: crate::chain::chaininterface::ConfirmationTarget::ChannelCloseMinimum
@@ -1336,7 +1381,7 @@ pub extern "C" fn ChannelConfig_get_force_close_avoidance_max_fee_satoshis(this_
 /// [`ChannelCloseMinimum`] fee estimate, but allow our counterparty to pay as much fee as they like.
 /// Thus, this value is ignored when we are not the funder.
 ///
-/// Default value: 1000 satoshis.
+/// Default value: `1000`
 ///
 /// [`NonAnchorChannelFee`]: crate::chain::chaininterface::ConfirmationTarget::NonAnchorChannelFee
 /// [`ChannelCloseMinimum`]: crate::chain::chaininterface::ConfirmationTarget::ChannelCloseMinimum
@@ -1367,7 +1412,7 @@ pub extern "C" fn ChannelConfig_set_force_close_avoidance_max_fee_satoshis(this_
 /// Switching this config flag on may break compatibility with versions of LDK prior to 0.0.116.
 /// Unsetting this flag between restarts may lead to payment receive failures.
 ///
-/// Default value: false.
+/// Default value: `false`
 ///
 /// [intercept scids]: crate::ln::channelmanager::ChannelManager::get_intercept_scid
 /// [`forward_intercepted_htlc`]: crate::ln::channelmanager::ChannelManager::forward_intercepted_htlc
@@ -1403,7 +1448,7 @@ pub extern "C" fn ChannelConfig_get_accept_underpaying_htlcs(this_ptr: &ChannelC
 /// Switching this config flag on may break compatibility with versions of LDK prior to 0.0.116.
 /// Unsetting this flag between restarts may lead to payment receive failures.
 ///
-/// Default value: false.
+/// Default value: `false`
 ///
 /// [intercept scids]: crate::ln::channelmanager::ChannelManager::get_intercept_scid
 /// [`forward_intercepted_htlc`]: crate::ln::channelmanager::ChannelManager::forward_intercepted_htlc
@@ -1478,7 +1523,7 @@ pub extern "C" fn ChannelConfig_write(obj: &crate::lightning::util::config::Chan
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelConfig_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelConfig) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::util::config::nativeChannelConfig) })
 }
 #[no_mangle]
 /// Read a ChannelConfig from a byte array, created by ChannelConfig_write
@@ -1507,6 +1552,12 @@ pub struct ChannelConfigUpdate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelConfigUpdate {
+	type Target = nativeChannelConfigUpdate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelConfigUpdate { }
+unsafe impl core::marker::Sync for ChannelConfigUpdate { }
 impl Drop for ChannelConfigUpdate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelConfigUpdate>::is_null(self.inner) {
@@ -1536,6 +1587,9 @@ impl ChannelConfigUpdate {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -1612,20 +1666,14 @@ pub extern "C" fn ChannelConfigUpdate_new(mut forwarding_fee_proportional_millio
 		force_close_avoidance_max_fee_satoshis: local_force_close_avoidance_max_fee_satoshis_arg,
 	}), is_owned: true }
 }
-/// Creates a "default" ChannelConfigUpdate. See struct and individual field documentaiton for details on which values are used.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn ChannelConfigUpdate_default() -> ChannelConfigUpdate {
-	ChannelConfigUpdate { inner: ObjOps::heap_alloc(Default::default()), is_owned: true }
-}
 
 use lightning::util::config::UserConfig as nativeUserConfigImport;
 pub(crate) type nativeUserConfig = nativeUserConfigImport;
 
 /// Top-level config which holds ChannelHandshakeLimits and ChannelConfig.
 ///
-/// Default::default() provides sane defaults for most configurations
-/// (but currently with 0 relay fees!)
+/// `Default::default()` provides sane defaults for most configurations
+/// (but currently with zero relay fees!)
 #[must_use]
 #[repr(C)]
 pub struct UserConfig {
@@ -1641,6 +1689,12 @@ pub struct UserConfig {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UserConfig {
+	type Target = nativeUserConfig;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UserConfig { }
+unsafe impl core::marker::Sync for UserConfig { }
 impl Drop for UserConfig {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUserConfig>::is_null(self.inner) {
@@ -1670,6 +1724,9 @@ impl UserConfig {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Channel handshake config that we propose to our counterparty.
@@ -1705,13 +1762,13 @@ pub extern "C" fn UserConfig_get_channel_config(this_ptr: &UserConfig) -> crate:
 pub extern "C" fn UserConfig_set_channel_config(this_ptr: &mut UserConfig, mut val: crate::lightning::util::config::ChannelConfig) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_config = *unsafe { Box::from_raw(val.take_inner()) };
 }
-/// If this is set to false, we will reject any HTLCs which were to be forwarded over private
+/// If this is set to `false`, we will reject any HTLCs which were to be forwarded over private
 /// channels. This prevents us from taking on HTLC-forwarding risk when we intend to run as a
 /// node which is not online reliably.
 ///
 /// For nodes which are not online reliably, you should set all channels to *not* be announced
-/// (using [`ChannelHandshakeConfig::announced_channel`] and
-/// [`ChannelHandshakeLimits::force_announced_channel_preference`]) and set this to false to
+/// (using [`ChannelHandshakeConfig::announce_for_forwarding`] and
+/// [`ChannelHandshakeLimits::force_announced_channel_preference`]) and set this to `false` to
 /// ensure you are not exposed to any forwarding risk.
 ///
 /// Note that because you cannot change a channel's announced state after creation, there is no
@@ -1720,19 +1777,19 @@ pub extern "C" fn UserConfig_set_channel_config(this_ptr: &mut UserConfig, mut v
 /// all your channels and open new ones. For privacy, you should also change your node_id
 /// (swapping all private and public key material for new ones) at that time.
 ///
-/// Default value: false.
+/// Default value: `false`
 #[no_mangle]
 pub extern "C" fn UserConfig_get_accept_forwards_to_priv_channels(this_ptr: &UserConfig) -> bool {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().accept_forwards_to_priv_channels;
 	*inner_val
 }
-/// If this is set to false, we will reject any HTLCs which were to be forwarded over private
+/// If this is set to `false`, we will reject any HTLCs which were to be forwarded over private
 /// channels. This prevents us from taking on HTLC-forwarding risk when we intend to run as a
 /// node which is not online reliably.
 ///
 /// For nodes which are not online reliably, you should set all channels to *not* be announced
-/// (using [`ChannelHandshakeConfig::announced_channel`] and
-/// [`ChannelHandshakeLimits::force_announced_channel_preference`]) and set this to false to
+/// (using [`ChannelHandshakeConfig::announce_for_forwarding`] and
+/// [`ChannelHandshakeLimits::force_announced_channel_preference`]) and set this to `false` to
 /// ensure you are not exposed to any forwarding risk.
 ///
 /// Note that because you cannot change a channel's announced state after creation, there is no
@@ -1741,33 +1798,35 @@ pub extern "C" fn UserConfig_get_accept_forwards_to_priv_channels(this_ptr: &Use
 /// all your channels and open new ones. For privacy, you should also change your node_id
 /// (swapping all private and public key material for new ones) at that time.
 ///
-/// Default value: false.
+/// Default value: `false`
 #[no_mangle]
 pub extern "C" fn UserConfig_set_accept_forwards_to_priv_channels(this_ptr: &mut UserConfig, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.accept_forwards_to_priv_channels = val;
 }
-/// If this is set to false, we do not accept inbound requests to open a new channel.
-/// Default value: true.
+/// If this is set to `false`, we do not accept inbound requests to open a new channel.
+///
+/// Default value: `true`
 #[no_mangle]
 pub extern "C" fn UserConfig_get_accept_inbound_channels(this_ptr: &UserConfig) -> bool {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().accept_inbound_channels;
 	*inner_val
 }
-/// If this is set to false, we do not accept inbound requests to open a new channel.
-/// Default value: true.
+/// If this is set to `false`, we do not accept inbound requests to open a new channel.
+///
+/// Default value: `true`
 #[no_mangle]
 pub extern "C" fn UserConfig_set_accept_inbound_channels(this_ptr: &mut UserConfig, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.accept_inbound_channels = val;
 }
-/// If this is set to true, the user needs to manually accept inbound requests to open a new
+/// If this is set to `true`, the user needs to manually accept inbound requests to open a new
 /// channel.
 ///
-/// When set to true, [`Event::OpenChannelRequest`] will be triggered once a request to open a
+/// When set to `true`, [`Event::OpenChannelRequest`] will be triggered once a request to open a
 /// new inbound channel is received through a [`msgs::OpenChannel`] message. In that case, a
 /// [`msgs::AcceptChannel`] message will not be sent back to the counterparty node unless the
 /// user explicitly chooses to accept the request.
 ///
-/// Default value: false.
+/// Default value: `false`
 ///
 /// [`Event::OpenChannelRequest`]: crate::events::Event::OpenChannelRequest
 /// [`msgs::OpenChannel`]: crate::ln::msgs::OpenChannel
@@ -1777,15 +1836,15 @@ pub extern "C" fn UserConfig_get_manually_accept_inbound_channels(this_ptr: &Use
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().manually_accept_inbound_channels;
 	*inner_val
 }
-/// If this is set to true, the user needs to manually accept inbound requests to open a new
+/// If this is set to `true`, the user needs to manually accept inbound requests to open a new
 /// channel.
 ///
-/// When set to true, [`Event::OpenChannelRequest`] will be triggered once a request to open a
+/// When set to `true`, [`Event::OpenChannelRequest`] will be triggered once a request to open a
 /// new inbound channel is received through a [`msgs::OpenChannel`] message. In that case, a
 /// [`msgs::AcceptChannel`] message will not be sent back to the counterparty node unless the
 /// user explicitly chooses to accept the request.
 ///
-/// Default value: false.
+/// Default value: `false`
 ///
 /// [`Event::OpenChannelRequest`]: crate::events::Event::OpenChannelRequest
 /// [`msgs::OpenChannel`]: crate::ln::msgs::OpenChannel
@@ -1794,13 +1853,13 @@ pub extern "C" fn UserConfig_get_manually_accept_inbound_channels(this_ptr: &Use
 pub extern "C" fn UserConfig_set_manually_accept_inbound_channels(this_ptr: &mut UserConfig, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.manually_accept_inbound_channels = val;
 }
-///  If this is set to true, LDK will intercept HTLCs that are attempting to be forwarded over
+///  If this is set to `true`, LDK will intercept HTLCs that are attempting to be forwarded over
 ///  fake short channel ids generated via [`ChannelManager::get_intercept_scid`]. Upon HTLC
 ///  intercept, LDK will generate an [`Event::HTLCIntercepted`] which MUST be handled by the user.
 ///
-///  Setting this to true may break backwards compatibility with LDK versions < 0.0.113.
+///  Setting this to `true` may break backwards compatibility with LDK versions < 0.0.113.
 ///
-///  Default value: false.
+///  Default value: `false`
 ///
 /// [`ChannelManager::get_intercept_scid`]: crate::ln::channelmanager::ChannelManager::get_intercept_scid
 /// [`Event::HTLCIntercepted`]: crate::events::Event::HTLCIntercepted
@@ -1809,13 +1868,13 @@ pub extern "C" fn UserConfig_get_accept_intercept_htlcs(this_ptr: &UserConfig) -
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().accept_intercept_htlcs;
 	*inner_val
 }
-///  If this is set to true, LDK will intercept HTLCs that are attempting to be forwarded over
+///  If this is set to `true`, LDK will intercept HTLCs that are attempting to be forwarded over
 ///  fake short channel ids generated via [`ChannelManager::get_intercept_scid`]. Upon HTLC
 ///  intercept, LDK will generate an [`Event::HTLCIntercepted`] which MUST be handled by the user.
 ///
-///  Setting this to true may break backwards compatibility with LDK versions < 0.0.113.
+///  Setting this to `true` may break backwards compatibility with LDK versions < 0.0.113.
 ///
-///  Default value: false.
+///  Default value: `false`
 ///
 /// [`ChannelManager::get_intercept_scid`]: crate::ln::channelmanager::ChannelManager::get_intercept_scid
 /// [`Event::HTLCIntercepted`]: crate::events::Event::HTLCIntercepted
@@ -1823,14 +1882,14 @@ pub extern "C" fn UserConfig_get_accept_intercept_htlcs(this_ptr: &UserConfig) -
 pub extern "C" fn UserConfig_set_accept_intercept_htlcs(this_ptr: &mut UserConfig, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.accept_intercept_htlcs = val;
 }
-/// If this is set to false, when receiving a keysend payment we'll fail it if it has multiple
-/// parts. If this is set to true, we'll accept the payment.
+/// If this is set to `false`, when receiving a keysend payment we'll fail it if it has multiple
+/// parts. If this is set to `true`, we'll accept the payment.
 ///
-/// Setting this to true will break backwards compatibility upon downgrading to an LDK
-/// version < 0.0.116 while receiving an MPP keysend. If we have already received an MPP
+/// Setting this to `true` will break backwards compatibility upon downgrading to an LDK
+/// version prior to 0.0.116 while receiving an MPP keysend. If we have already received an MPP
 /// keysend, downgrading will cause us to fail to deserialize [`ChannelManager`].
 ///
-/// Default value: false.
+/// Default value: `false`
 ///
 /// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 #[no_mangle]
@@ -1838,24 +1897,59 @@ pub extern "C" fn UserConfig_get_accept_mpp_keysend(this_ptr: &UserConfig) -> bo
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().accept_mpp_keysend;
 	*inner_val
 }
-/// If this is set to false, when receiving a keysend payment we'll fail it if it has multiple
-/// parts. If this is set to true, we'll accept the payment.
+/// If this is set to `false`, when receiving a keysend payment we'll fail it if it has multiple
+/// parts. If this is set to `true`, we'll accept the payment.
 ///
-/// Setting this to true will break backwards compatibility upon downgrading to an LDK
-/// version < 0.0.116 while receiving an MPP keysend. If we have already received an MPP
+/// Setting this to `true` will break backwards compatibility upon downgrading to an LDK
+/// version prior to 0.0.116 while receiving an MPP keysend. If we have already received an MPP
 /// keysend, downgrading will cause us to fail to deserialize [`ChannelManager`].
 ///
-/// Default value: false.
+/// Default value: `false`
 ///
 /// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 #[no_mangle]
 pub extern "C" fn UserConfig_set_accept_mpp_keysend(this_ptr: &mut UserConfig, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.accept_mpp_keysend = val;
 }
+/// If this is set to `true`, the user needs to manually pay [`Bolt12Invoice`]s when received.
+///
+/// When set to `true`, [`Event::InvoiceReceived`] will be generated for each received
+/// [`Bolt12Invoice`] instead of being automatically paid after verification. Use
+/// [`ChannelManager::send_payment_for_bolt12_invoice`] to pay the invoice or
+/// [`ChannelManager::abandon_payment`] to abandon the associated payment.
+///
+/// Default value: `false`
+///
+/// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
+/// [`Event::InvoiceReceived`]: crate::events::Event::InvoiceReceived
+/// [`ChannelManager::send_payment_for_bolt12_invoice`]: crate::ln::channelmanager::ChannelManager::send_payment_for_bolt12_invoice
+/// [`ChannelManager::abandon_payment`]: crate::ln::channelmanager::ChannelManager::abandon_payment
+#[no_mangle]
+pub extern "C" fn UserConfig_get_manually_handle_bolt12_invoices(this_ptr: &UserConfig) -> bool {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().manually_handle_bolt12_invoices;
+	*inner_val
+}
+/// If this is set to `true`, the user needs to manually pay [`Bolt12Invoice`]s when received.
+///
+/// When set to `true`, [`Event::InvoiceReceived`] will be generated for each received
+/// [`Bolt12Invoice`] instead of being automatically paid after verification. Use
+/// [`ChannelManager::send_payment_for_bolt12_invoice`] to pay the invoice or
+/// [`ChannelManager::abandon_payment`] to abandon the associated payment.
+///
+/// Default value: `false`
+///
+/// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
+/// [`Event::InvoiceReceived`]: crate::events::Event::InvoiceReceived
+/// [`ChannelManager::send_payment_for_bolt12_invoice`]: crate::ln::channelmanager::ChannelManager::send_payment_for_bolt12_invoice
+/// [`ChannelManager::abandon_payment`]: crate::ln::channelmanager::ChannelManager::abandon_payment
+#[no_mangle]
+pub extern "C" fn UserConfig_set_manually_handle_bolt12_invoices(this_ptr: &mut UserConfig, mut val: bool) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.manually_handle_bolt12_invoices = val;
+}
 /// Constructs a new UserConfig given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn UserConfig_new(mut channel_handshake_config_arg: crate::lightning::util::config::ChannelHandshakeConfig, mut channel_handshake_limits_arg: crate::lightning::util::config::ChannelHandshakeLimits, mut channel_config_arg: crate::lightning::util::config::ChannelConfig, mut accept_forwards_to_priv_channels_arg: bool, mut accept_inbound_channels_arg: bool, mut manually_accept_inbound_channels_arg: bool, mut accept_intercept_htlcs_arg: bool, mut accept_mpp_keysend_arg: bool) -> UserConfig {
+pub extern "C" fn UserConfig_new(mut channel_handshake_config_arg: crate::lightning::util::config::ChannelHandshakeConfig, mut channel_handshake_limits_arg: crate::lightning::util::config::ChannelHandshakeLimits, mut channel_config_arg: crate::lightning::util::config::ChannelConfig, mut accept_forwards_to_priv_channels_arg: bool, mut accept_inbound_channels_arg: bool, mut manually_accept_inbound_channels_arg: bool, mut accept_intercept_htlcs_arg: bool, mut accept_mpp_keysend_arg: bool, mut manually_handle_bolt12_invoices_arg: bool) -> UserConfig {
 	UserConfig { inner: ObjOps::heap_alloc(nativeUserConfig {
 		channel_handshake_config: *unsafe { Box::from_raw(channel_handshake_config_arg.take_inner()) },
 		channel_handshake_limits: *unsafe { Box::from_raw(channel_handshake_limits_arg.take_inner()) },
@@ -1865,6 +1959,7 @@ pub extern "C" fn UserConfig_new(mut channel_handshake_config_arg: crate::lightn
 		manually_accept_inbound_channels: manually_accept_inbound_channels_arg,
 		accept_intercept_htlcs: accept_intercept_htlcs_arg,
 		accept_mpp_keysend: accept_mpp_keysend_arg,
+		manually_handle_bolt12_invoices: manually_handle_bolt12_invoices_arg,
 	}), is_owned: true }
 }
 impl Clone for UserConfig {
