@@ -181,6 +181,12 @@ pub struct Record {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Record {
+	type Target = nativeRecord;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Record { }
+unsafe impl core::marker::Sync for Record { }
 impl Drop for Record {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRecord>::is_null(self.inner) {
@@ -210,6 +216,9 @@ impl Record {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The verbosity level of the message.
@@ -311,15 +320,35 @@ pub extern "C" fn Record_get_line(this_ptr: &Record) -> u32 {
 pub extern "C" fn Record_set_line(this_ptr: &mut Record, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.line = val;
 }
+/// The payment hash.
+///
+/// Note that this is only filled in for logs pertaining to a specific payment, and will be
+/// `None` for logs which are not directly related to a payment.
+#[no_mangle]
+pub extern "C" fn Record_get_payment_hash(this_ptr: &Record) -> crate::c_types::derived::COption_ThirtyTwoBytesZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_hash;
+	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::c_types::ThirtyTwoBytes { data: (*inner_val.as_ref().unwrap()).clone().0 } }) };
+	local_inner_val
+}
+/// The payment hash.
+///
+/// Note that this is only filled in for logs pertaining to a specific payment, and will be
+/// `None` for logs which are not directly related to a payment.
+#[no_mangle]
+pub extern "C" fn Record_set_payment_hash(this_ptr: &mut Record, mut val: crate::c_types::derived::COption_ThirtyTwoBytesZ) {
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentHash({ val_opt.take() }.data) }})} };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_hash = local_val;
+}
 /// Constructs a new Record given each field
 ///
 /// Note that peer_id_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 /// Note that channel_id_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Record_new(mut level_arg: crate::lightning::util::logger::Level, mut peer_id_arg: crate::c_types::PublicKey, mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut args_arg: crate::c_types::Str, mut module_path_arg: crate::c_types::Str, mut file_arg: crate::c_types::Str, mut line_arg: u32) -> Record {
+pub extern "C" fn Record_new(mut level_arg: crate::lightning::util::logger::Level, mut peer_id_arg: crate::c_types::PublicKey, mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut args_arg: crate::c_types::Str, mut module_path_arg: crate::c_types::Str, mut file_arg: crate::c_types::Str, mut line_arg: u32, mut payment_hash_arg: crate::c_types::derived::COption_ThirtyTwoBytesZ) -> Record {
 	let mut local_peer_id_arg = if peer_id_arg.is_null() { None } else { Some( { peer_id_arg.into_rust() }) };
 	let mut local_channel_id_arg = if channel_id_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_id_arg.take_inner()) } }) };
+	let mut local_payment_hash_arg = { /*payment_hash_arg*/ let payment_hash_arg_opt = payment_hash_arg; if payment_hash_arg_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentHash({ payment_hash_arg_opt.take() }.data) }})} };
 	Record { inner: ObjOps::heap_alloc(nativeRecord {
 		level: level_arg.into_native(),
 		peer_id: local_peer_id_arg,
@@ -328,6 +357,7 @@ pub extern "C" fn Record_new(mut level_arg: crate::lightning::util::logger::Leve
 		module_path: module_path_arg.into_str(),
 		file: file_arg.into_str(),
 		line: line_arg,
+		payment_hash: local_payment_hash_arg,
 	}), is_owned: true }
 }
 impl Clone for Record {
@@ -382,17 +412,24 @@ impl rustLogger for Logger {
 	}
 }
 
+pub struct LoggerRef(Logger);
+impl rustLogger for LoggerRef {
+	fn log(&self, mut record: lightning::util::logger::Record) {
+		(self.0.log)(self.0.this_arg, crate::lightning::util::logger::Record { inner: ObjOps::heap_alloc(record), is_owned: true })
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Logger {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = LoggerRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const LoggerRef) }
 	}
 }
 impl core::ops::DerefMut for Logger {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut LoggerRef {
+		unsafe { &mut *(self as *mut _ as *mut LoggerRef) }
 	}
 }
 /// Calls the free function if one is set

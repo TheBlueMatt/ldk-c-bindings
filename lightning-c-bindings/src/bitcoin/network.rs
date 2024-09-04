@@ -1,6 +1,6 @@
 //! A C-mapped version fo bitcoin::network::constants::Network
 
-use bitcoin::network::constants::Network as BitcoinNetwork;
+use bitcoin::Network as BitcoinNetwork;
 
 #[repr(C)]
 /// An enum representing the possible Bitcoin or test networks which we can run on

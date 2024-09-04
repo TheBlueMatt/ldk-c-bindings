@@ -169,6 +169,12 @@ pub struct InboundHTLCDetails {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for InboundHTLCDetails {
+	type Target = nativeInboundHTLCDetails;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for InboundHTLCDetails { }
+unsafe impl core::marker::Sync for InboundHTLCDetails { }
 impl Drop for InboundHTLCDetails {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeInboundHTLCDetails>::is_null(self.inner) {
@@ -198,6 +204,9 @@ impl InboundHTLCDetails {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The HTLC ID.
@@ -353,7 +362,7 @@ pub extern "C" fn InboundHTLCDetails_write(obj: &crate::lightning::ln::channel_s
 }
 #[allow(unused)]
 pub(crate) extern "C" fn InboundHTLCDetails_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeInboundHTLCDetails) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_state::nativeInboundHTLCDetails) })
 }
 #[no_mangle]
 /// Read a InboundHTLCDetails from a byte array, created by InboundHTLCDetails_write
@@ -511,6 +520,12 @@ pub struct OutboundHTLCDetails {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OutboundHTLCDetails {
+	type Target = nativeOutboundHTLCDetails;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OutboundHTLCDetails { }
+unsafe impl core::marker::Sync for OutboundHTLCDetails { }
 impl Drop for OutboundHTLCDetails {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOutboundHTLCDetails>::is_null(self.inner) {
@@ -540,6 +555,9 @@ impl OutboundHTLCDetails {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The HTLC ID.
@@ -717,7 +735,7 @@ pub extern "C" fn OutboundHTLCDetails_write(obj: &crate::lightning::ln::channel_
 }
 #[allow(unused)]
 pub(crate) extern "C" fn OutboundHTLCDetails_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeOutboundHTLCDetails) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_state::nativeOutboundHTLCDetails) })
 }
 #[no_mangle]
 /// Read a OutboundHTLCDetails from a byte array, created by OutboundHTLCDetails_write
@@ -746,6 +764,12 @@ pub struct CounterpartyForwardingInfo {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for CounterpartyForwardingInfo {
+	type Target = nativeCounterpartyForwardingInfo;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CounterpartyForwardingInfo { }
+unsafe impl core::marker::Sync for CounterpartyForwardingInfo { }
 impl Drop for CounterpartyForwardingInfo {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeCounterpartyForwardingInfo>::is_null(self.inner) {
@@ -775,6 +799,9 @@ impl CounterpartyForwardingInfo {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Base routing fee in millisatoshis.
@@ -853,7 +880,7 @@ pub extern "C" fn CounterpartyForwardingInfo_write(obj: &crate::lightning::ln::c
 }
 #[allow(unused)]
 pub(crate) extern "C" fn CounterpartyForwardingInfo_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeCounterpartyForwardingInfo) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_state::nativeCounterpartyForwardingInfo) })
 }
 #[no_mangle]
 /// Read a CounterpartyForwardingInfo from a byte array, created by CounterpartyForwardingInfo_write
@@ -883,6 +910,12 @@ pub struct ChannelCounterparty {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelCounterparty {
+	type Target = nativeChannelCounterparty;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelCounterparty { }
+unsafe impl core::marker::Sync for ChannelCounterparty { }
 impl Drop for ChannelCounterparty {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelCounterparty>::is_null(self.inner) {
@@ -913,6 +946,9 @@ impl ChannelCounterparty {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The node_id of our counterparty
 #[no_mangle]
@@ -929,15 +965,15 @@ pub extern "C" fn ChannelCounterparty_set_node_id(this_ptr: &mut ChannelCounterp
 /// Useful for routing as it is the most up-to-date copy of the counterparty's features and
 /// many routing-relevant features are present in the init context.
 #[no_mangle]
-pub extern "C" fn ChannelCounterparty_get_features(this_ptr: &ChannelCounterparty) -> crate::lightning::ln::features::InitFeatures {
+pub extern "C" fn ChannelCounterparty_get_features(this_ptr: &ChannelCounterparty) -> crate::lightning_types::features::InitFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
-	crate::lightning::ln::features::InitFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::InitFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::InitFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::InitFeatures<>) as *mut _) }, is_owned: false }
 }
 /// The Features the channel counterparty provided upon last connection.
 /// Useful for routing as it is the most up-to-date copy of the counterparty's features and
 /// many routing-relevant features are present in the init context.
 #[no_mangle]
-pub extern "C" fn ChannelCounterparty_set_features(this_ptr: &mut ChannelCounterparty, mut val: crate::lightning::ln::features::InitFeatures) {
+pub extern "C" fn ChannelCounterparty_set_features(this_ptr: &mut ChannelCounterparty, mut val: crate::lightning_types::features::InitFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// The value, in satoshis, that must always be held in the channel for our counterparty. This
@@ -1017,7 +1053,7 @@ pub extern "C" fn ChannelCounterparty_set_outbound_htlc_maximum_msat(this_ptr: &
 /// Note that forwarding_info_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelCounterparty_new(mut node_id_arg: crate::c_types::PublicKey, mut features_arg: crate::lightning::ln::features::InitFeatures, mut unspendable_punishment_reserve_arg: u64, mut forwarding_info_arg: crate::lightning::ln::channel_state::CounterpartyForwardingInfo, mut outbound_htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut outbound_htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z) -> ChannelCounterparty {
+pub extern "C" fn ChannelCounterparty_new(mut node_id_arg: crate::c_types::PublicKey, mut features_arg: crate::lightning_types::features::InitFeatures, mut unspendable_punishment_reserve_arg: u64, mut forwarding_info_arg: crate::lightning::ln::channel_state::CounterpartyForwardingInfo, mut outbound_htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut outbound_htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z) -> ChannelCounterparty {
 	let mut local_forwarding_info_arg = if forwarding_info_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(forwarding_info_arg.take_inner()) } }) };
 	let mut local_outbound_htlc_minimum_msat_arg = if outbound_htlc_minimum_msat_arg.is_some() { Some( { outbound_htlc_minimum_msat_arg.take() }) } else { None };
 	let mut local_outbound_htlc_maximum_msat_arg = if outbound_htlc_maximum_msat_arg.is_some() { Some( { outbound_htlc_maximum_msat_arg.take() }) } else { None };
@@ -1059,7 +1095,7 @@ pub extern "C" fn ChannelCounterparty_write(obj: &crate::lightning::ln::channel_
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelCounterparty_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelCounterparty) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_state::nativeChannelCounterparty) })
 }
 #[no_mangle]
 /// Read a ChannelCounterparty from a byte array, created by ChannelCounterparty_write
@@ -1074,8 +1110,14 @@ pub(crate) type nativeChannelDetails = nativeChannelDetailsImport;
 
 /// Details of a channel, as returned by [`ChannelManager::list_channels`] and [`ChannelManager::list_usable_channels`]
 ///
+/// Balances of a channel are available through [`ChainMonitor::get_claimable_balances`] and
+/// [`ChannelMonitor::get_claimable_balances`], calculated with respect to the corresponding on-chain
+/// transactions.
+///
 /// [`ChannelManager::list_channels`]: crate::ln::channelmanager::ChannelManager::list_channels
 /// [`ChannelManager::list_usable_channels`]: crate::ln::channelmanager::ChannelManager::list_usable_channels
+/// [`ChainMonitor::get_claimable_balances`]: crate::chain::chainmonitor::ChainMonitor::get_claimable_balances
+/// [`ChannelMonitor::get_claimable_balances`]: crate::chain::channelmonitor::ChannelMonitor::get_claimable_balances
 #[must_use]
 #[repr(C)]
 pub struct ChannelDetails {
@@ -1091,6 +1133,12 @@ pub struct ChannelDetails {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelDetails {
+	type Target = nativeChannelDetails;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelDetails { }
+unsafe impl core::marker::Sync for ChannelDetails { }
 impl Drop for ChannelDetails {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelDetails>::is_null(self.inner) {
@@ -1120,6 +1168,9 @@ impl ChannelDetails {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel's ID (prior to funding transaction generation, this is a random 32 bytes,
@@ -1175,9 +1226,9 @@ pub extern "C" fn ChannelDetails_set_funding_txo(this_ptr: &mut ChannelDetails, 
 ///
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn ChannelDetails_get_channel_type(this_ptr: &ChannelDetails) -> crate::lightning::ln::features::ChannelTypeFeatures {
+pub extern "C" fn ChannelDetails_get_channel_type(this_ptr: &ChannelDetails) -> crate::lightning_types::features::ChannelTypeFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_type;
-	let mut local_inner_val = crate::lightning::ln::features::ChannelTypeFeatures { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::features::ChannelTypeFeatures<>) as *mut _ }, is_owned: false };
+	let mut local_inner_val = crate::lightning_types::features::ChannelTypeFeatures { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning_types::features::ChannelTypeFeatures<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
 /// The features which this channel operates with. See individual features for more info.
@@ -1186,7 +1237,7 @@ pub extern "C" fn ChannelDetails_get_channel_type(this_ptr: &ChannelDetails) -> 
 ///
 /// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn ChannelDetails_set_channel_type(this_ptr: &mut ChannelDetails, mut val: crate::lightning::ln::features::ChannelTypeFeatures) {
+pub extern "C" fn ChannelDetails_set_channel_type(this_ptr: &mut ChannelDetails, mut val: crate::lightning_types::features::ChannelTypeFeatures) {
 	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_type = local_val;
 }
@@ -1643,14 +1694,14 @@ pub extern "C" fn ChannelDetails_set_is_usable(this_ptr: &mut ChannelDetails, mu
 }
 /// True if this channel is (or will be) publicly-announced.
 #[no_mangle]
-pub extern "C" fn ChannelDetails_get_is_public(this_ptr: &ChannelDetails) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().is_public;
+pub extern "C" fn ChannelDetails_get_is_announced(this_ptr: &ChannelDetails) -> bool {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().is_announced;
 	*inner_val
 }
 /// True if this channel is (or will be) publicly-announced.
 #[no_mangle]
-pub extern "C" fn ChannelDetails_set_is_public(this_ptr: &mut ChannelDetails, mut val: bool) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.is_public = val;
+pub extern "C" fn ChannelDetails_set_is_announced(this_ptr: &mut ChannelDetails, mut val: bool) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.is_announced = val;
 }
 /// The smallest value HTLC (in msat) we will accept, for this channel. This field
 /// is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.107
@@ -1742,7 +1793,7 @@ pub extern "C" fn ChannelDetails_set_pending_outbound_htlcs(this_ptr: &mut Chann
 /// Note that config_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut counterparty_arg: crate::lightning::ln::channel_state::ChannelCounterparty, mut funding_txo_arg: crate::lightning::chain::transaction::OutPoint, mut channel_type_arg: crate::lightning::ln::features::ChannelTypeFeatures, mut short_channel_id_arg: crate::c_types::derived::COption_u64Z, mut outbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut inbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut channel_value_satoshis_arg: u64, mut unspendable_punishment_reserve_arg: crate::c_types::derived::COption_u64Z, mut user_channel_id_arg: crate::c_types::U128, mut feerate_sat_per_1000_weight_arg: crate::c_types::derived::COption_u32Z, mut balance_msat_arg: u64, mut outbound_capacity_msat_arg: u64, mut next_outbound_htlc_limit_msat_arg: u64, mut next_outbound_htlc_minimum_msat_arg: u64, mut inbound_capacity_msat_arg: u64, mut confirmations_required_arg: crate::c_types::derived::COption_u32Z, mut confirmations_arg: crate::c_types::derived::COption_u32Z, mut force_close_spend_delay_arg: crate::c_types::derived::COption_u16Z, mut is_outbound_arg: bool, mut is_channel_ready_arg: bool, mut channel_shutdown_state_arg: crate::c_types::derived::COption_ChannelShutdownStateZ, mut is_usable_arg: bool, mut is_public_arg: bool, mut inbound_htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut inbound_htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z, mut config_arg: crate::lightning::util::config::ChannelConfig, mut pending_inbound_htlcs_arg: crate::c_types::derived::CVec_InboundHTLCDetailsZ, mut pending_outbound_htlcs_arg: crate::c_types::derived::CVec_OutboundHTLCDetailsZ) -> ChannelDetails {
+pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut counterparty_arg: crate::lightning::ln::channel_state::ChannelCounterparty, mut funding_txo_arg: crate::lightning::chain::transaction::OutPoint, mut channel_type_arg: crate::lightning_types::features::ChannelTypeFeatures, mut short_channel_id_arg: crate::c_types::derived::COption_u64Z, mut outbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut inbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut channel_value_satoshis_arg: u64, mut unspendable_punishment_reserve_arg: crate::c_types::derived::COption_u64Z, mut user_channel_id_arg: crate::c_types::U128, mut feerate_sat_per_1000_weight_arg: crate::c_types::derived::COption_u32Z, mut balance_msat_arg: u64, mut outbound_capacity_msat_arg: u64, mut next_outbound_htlc_limit_msat_arg: u64, mut next_outbound_htlc_minimum_msat_arg: u64, mut inbound_capacity_msat_arg: u64, mut confirmations_required_arg: crate::c_types::derived::COption_u32Z, mut confirmations_arg: crate::c_types::derived::COption_u32Z, mut force_close_spend_delay_arg: crate::c_types::derived::COption_u16Z, mut is_outbound_arg: bool, mut is_channel_ready_arg: bool, mut channel_shutdown_state_arg: crate::c_types::derived::COption_ChannelShutdownStateZ, mut is_usable_arg: bool, mut is_announced_arg: bool, mut inbound_htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut inbound_htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z, mut config_arg: crate::lightning::util::config::ChannelConfig, mut pending_inbound_htlcs_arg: crate::c_types::derived::CVec_InboundHTLCDetailsZ, mut pending_outbound_htlcs_arg: crate::c_types::derived::CVec_OutboundHTLCDetailsZ) -> ChannelDetails {
 	let mut local_funding_txo_arg = if funding_txo_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(funding_txo_arg.take_inner()) } }) };
 	let mut local_channel_type_arg = if channel_type_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_type_arg.take_inner()) } }) };
 	let mut local_short_channel_id_arg = if short_channel_id_arg.is_some() { Some( { short_channel_id_arg.take() }) } else { None };
@@ -1783,7 +1834,7 @@ pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::t
 		is_channel_ready: is_channel_ready_arg,
 		channel_shutdown_state: local_channel_shutdown_state_arg,
 		is_usable: is_usable_arg,
-		is_public: is_public_arg,
+		is_announced: is_announced_arg,
 		inbound_htlc_minimum_msat: local_inbound_htlc_minimum_msat_arg,
 		inbound_htlc_maximum_msat: local_inbound_htlc_maximum_msat_arg,
 		config: local_config_arg,
@@ -1850,7 +1901,7 @@ pub extern "C" fn ChannelDetails_write(obj: &crate::lightning::ln::channel_state
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelDetails_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelDetails) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::channel_state::nativeChannelDetails) })
 }
 #[no_mangle]
 /// Read a ChannelDetails from a byte array, created by ChannelDetails_write

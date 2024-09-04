@@ -58,17 +58,24 @@ impl rustFutureCallback for FutureCallback {
 	}
 }
 
+pub struct FutureCallbackRef(FutureCallback);
+impl rustFutureCallback for FutureCallbackRef {
+	fn call(&self) {
+		(self.0.call)(self.0.this_arg)
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for FutureCallback {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = FutureCallbackRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const FutureCallbackRef) }
 	}
 }
 impl core::ops::DerefMut for FutureCallback {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut FutureCallbackRef {
+		unsafe { &mut *(self as *mut _ as *mut FutureCallbackRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -101,6 +108,12 @@ pub struct Future {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Future {
+	type Target = nativeFuture;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Future { }
+unsafe impl core::marker::Sync for Future { }
 impl Drop for Future {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeFuture>::is_null(self.inner) {
@@ -130,6 +143,9 @@ impl Future {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Registers a callback to be called upon completion of this future. If the future has already
@@ -176,6 +192,12 @@ pub struct Sleeper {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Sleeper {
+	type Target = nativeSleeper;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Sleeper { }
+unsafe impl core::marker::Sync for Sleeper { }
 impl Drop for Sleeper {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeSleeper>::is_null(self.inner) {
@@ -206,6 +228,9 @@ impl Sleeper {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Constructs a new sleeper from one future, allowing blocking on it.
 #[must_use]
@@ -220,6 +245,15 @@ pub extern "C" fn Sleeper_from_single_future(future: &crate::lightning::util::wa
 #[no_mangle]
 pub extern "C" fn Sleeper_from_two_futures(fut_a: &crate::lightning::util::wakers::Future, fut_b: &crate::lightning::util::wakers::Future) -> crate::lightning::util::wakers::Sleeper {
 	let mut ret = lightning::util::wakers::Sleeper::from_two_futures(fut_a.get_native_ref(), fut_b.get_native_ref());
+	crate::lightning::util::wakers::Sleeper { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Constructs a new sleeper from three futures, allowing blocking on all three at once.
+///
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Sleeper_from_three_futures(fut_a: &crate::lightning::util::wakers::Future, fut_b: &crate::lightning::util::wakers::Future, fut_c: &crate::lightning::util::wakers::Future) -> crate::lightning::util::wakers::Sleeper {
+	let mut ret = lightning::util::wakers::Sleeper::from_three_futures(fut_a.get_native_ref(), fut_b.get_native_ref(), fut_c.get_native_ref());
 	crate::lightning::util::wakers::Sleeper { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 

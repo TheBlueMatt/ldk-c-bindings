@@ -23,6 +23,156 @@ use crate::c_types::*;
 use alloc::{vec::Vec, boxed::Box};
 
 pub mod bump_transaction;
+/// `FundingInfo` holds information about a channel's funding transaction.
+///
+/// When LDK is set to manual propagation of the funding transaction
+/// (via [`ChannelManager::unsafe_manual_funding_transaction_generated`),
+/// LDK does not have the full transaction data. Instead, the `OutPoint`
+/// for the funding is provided here.
+///
+/// [`ChannelManager::unsafe_manual_funding_transaction_generated`]: crate::ln::channelmanager::ChannelManager::unsafe_manual_funding_transaction_generated
+#[derive(Clone)]
+#[must_use]
+#[repr(C)]
+pub enum FundingInfo {
+	/// The full funding `Transaction`.
+	Tx {
+		/// The funding transaction
+		transaction: crate::c_types::Transaction,
+	},
+	/// The `OutPoint` of the funding.
+	OutPoint {
+		/// The outpoint of the funding
+		outpoint: crate::lightning::chain::transaction::OutPoint,
+	},
+}
+use lightning::events::FundingInfo as FundingInfoImport;
+pub(crate) type nativeFundingInfo = FundingInfoImport;
+
+impl FundingInfo {
+	#[allow(unused)]
+	pub(crate) fn to_native(&self) -> nativeFundingInfo {
+		match self {
+			FundingInfo::Tx {ref transaction, } => {
+				let mut transaction_nonref = Clone::clone(transaction);
+				nativeFundingInfo::Tx {
+					transaction: transaction_nonref.into_bitcoin(),
+				}
+			},
+			FundingInfo::OutPoint {ref outpoint, } => {
+				let mut outpoint_nonref = Clone::clone(outpoint);
+				nativeFundingInfo::OutPoint {
+					outpoint: *unsafe { Box::from_raw(outpoint_nonref.take_inner()) },
+				}
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn into_native(self) -> nativeFundingInfo {
+		match self {
+			FundingInfo::Tx {mut transaction, } => {
+				nativeFundingInfo::Tx {
+					transaction: transaction.into_bitcoin(),
+				}
+			},
+			FundingInfo::OutPoint {mut outpoint, } => {
+				nativeFundingInfo::OutPoint {
+					outpoint: *unsafe { Box::from_raw(outpoint.take_inner()) },
+				}
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn from_native(native: &FundingInfoImport) -> Self {
+		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeFundingInfo) };
+		match native {
+			nativeFundingInfo::Tx {ref transaction, } => {
+				let mut transaction_nonref = Clone::clone(transaction);
+				FundingInfo::Tx {
+					transaction: crate::c_types::Transaction::from_bitcoin(&transaction_nonref),
+				}
+			},
+			nativeFundingInfo::OutPoint {ref outpoint, } => {
+				let mut outpoint_nonref = Clone::clone(outpoint);
+				FundingInfo::OutPoint {
+					outpoint: crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(outpoint_nonref), is_owned: true },
+				}
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn native_into(native: nativeFundingInfo) -> Self {
+		match native {
+			nativeFundingInfo::Tx {mut transaction, } => {
+				FundingInfo::Tx {
+					transaction: crate::c_types::Transaction::from_bitcoin(&transaction),
+				}
+			},
+			nativeFundingInfo::OutPoint {mut outpoint, } => {
+				FundingInfo::OutPoint {
+					outpoint: crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(outpoint), is_owned: true },
+				}
+			},
+		}
+	}
+}
+/// Frees any resources used by the FundingInfo
+#[no_mangle]
+pub extern "C" fn FundingInfo_free(this_ptr: FundingInfo) { }
+/// Creates a copy of the FundingInfo
+#[no_mangle]
+pub extern "C" fn FundingInfo_clone(orig: &FundingInfo) -> FundingInfo {
+	orig.clone()
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn FundingInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const FundingInfo)).clone() })) as *mut c_void
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn FundingInfo_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut FundingInfo) };
+}
+#[no_mangle]
+/// Utility method to constructs a new Tx-variant FundingInfo
+pub extern "C" fn FundingInfo_tx(transaction: crate::c_types::Transaction) -> FundingInfo {
+	FundingInfo::Tx {
+		transaction,
+	}
+}
+#[no_mangle]
+/// Utility method to constructs a new OutPoint-variant FundingInfo
+pub extern "C" fn FundingInfo_out_point(outpoint: crate::lightning::chain::transaction::OutPoint) -> FundingInfo {
+	FundingInfo::OutPoint {
+		outpoint,
+	}
+}
+/// Get a string which allows debug introspection of a FundingInfo object
+pub extern "C" fn FundingInfo_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::events::FundingInfo }).into()}
+/// Checks if two FundingInfos contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+#[no_mangle]
+pub extern "C" fn FundingInfo_eq(a: &FundingInfo, b: &FundingInfo) -> bool {
+	if &a.to_native() == &b.to_native() { true } else { false }
+}
+#[no_mangle]
+/// Serialize the FundingInfo object into a byte array which can be read by FundingInfo_read
+pub extern "C" fn FundingInfo_write(obj: &crate::lightning::events::FundingInfo) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(&unsafe { &*obj }.to_native())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn FundingInfo_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	FundingInfo_write(unsafe { &*(obj as *const FundingInfo) })
+}
+#[no_mangle]
+/// Read a FundingInfo from a byte array, created by FundingInfo_write
+pub extern "C" fn FundingInfo_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_FundingInfoDecodeErrorZ {
+	let res: Result<lightning::events::FundingInfo, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::events::FundingInfo::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
 /// Some information provided on receipt of payment depends on whether the payment received is a
 /// spontaneous payment or a \"conventional\" lightning payment that's paying an invoice.
 #[derive(Clone)]
@@ -357,6 +507,12 @@ pub struct ClaimedHTLC {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ClaimedHTLC {
+	type Target = nativeClaimedHTLC;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ClaimedHTLC { }
+unsafe impl core::marker::Sync for ClaimedHTLC { }
 impl Drop for ClaimedHTLC {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeClaimedHTLC>::is_null(self.inner) {
@@ -386,6 +542,9 @@ impl ClaimedHTLC {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The `channel_id` of the channel over which the HTLC was received.
@@ -523,7 +682,7 @@ pub extern "C" fn ClaimedHTLC_write(obj: &crate::lightning::events::ClaimedHTLC)
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ClaimedHTLC_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeClaimedHTLC) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::events::nativeClaimedHTLC) })
 }
 #[no_mangle]
 /// Read a ClaimedHTLC from a byte array, created by ClaimedHTLC_write
@@ -705,12 +864,26 @@ pub enum ClosureReason {
 		/// To be safe, use `Display` on `UntrustedString`
 		///
 		/// [`UntrustedString`]: crate::util::string::UntrustedString
-		peer_msg: crate::lightning::util::string::UntrustedString,
+		peer_msg: crate::lightning_types::string::UntrustedString,
 	},
 	/// Closure generated from [`ChannelManager::force_close_channel`], called by the user.
 	///
 	/// [`ChannelManager::force_close_channel`]: crate::ln::channelmanager::ChannelManager::force_close_channel.
-	HolderForceClosed,
+	HolderForceClosed {
+		/// Whether or not the latest transaction was broadcasted when the channel was force
+		/// closed.
+		///
+		/// Channels closed using [`ChannelManager::force_close_broadcasting_latest_txn`] will have
+		/// this field set to true, whereas channels closed using [`ChannelManager::force_close_without_broadcasting_txn`]
+		/// or force-closed prior to being funded will have this field set to false.
+		///
+		/// This will be `None` for objects generated or written by LDK 0.0.123 and
+		/// earlier.
+		///
+		/// [`ChannelManager::force_close_broadcasting_latest_txn`]: crate::ln::channelmanager::ChannelManager::force_close_broadcasting_latest_txn.
+		/// [`ChannelManager::force_close_without_broadcasting_txn`]: crate::ln::channelmanager::ChannelManager::force_close_without_broadcasting_txn.
+		broadcasted_latest_txn: crate::c_types::derived::COption_boolZ,
+	},
 	/// The channel was closed after negotiating a cooperative close and we've now broadcasted
 	/// the cooperative close transaction. Note the shutdown may have been initiated by us.
 	///
@@ -762,6 +935,21 @@ pub enum ClosureReason {
 	FundingBatchClosure,
 	/// One of our HTLCs timed out in a channel, causing us to force close the channel.
 	HTLCsTimedOut,
+	/// Our peer provided a feerate which violated our required minimum (fetched from our
+	/// [`FeeEstimator`] either as [`ConfirmationTarget::MinAllowedAnchorChannelRemoteFee`] or
+	/// [`ConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee`]).
+	///
+	/// [`FeeEstimator`]: crate::chain::chaininterface::FeeEstimator
+	/// [`ConfirmationTarget::MinAllowedAnchorChannelRemoteFee`]: crate::chain::chaininterface::ConfirmationTarget::MinAllowedAnchorChannelRemoteFee
+	/// [`ConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee`]: crate::chain::chaininterface::ConfirmationTarget::MinAllowedNonAnchorChannelRemoteFee
+	PeerFeerateTooLow {
+		/// The feerate on our channel set by our peer.
+		peer_feerate_sat_per_kw: u32,
+		/// The required feerate we enforce, from our [`FeeEstimator`].
+		///
+		/// [`FeeEstimator`]: crate::chain::chaininterface::FeeEstimator
+		required_feerate_sat_per_kw: u32,
+	},
 }
 use lightning::events::ClosureReason as ClosureReasonImport;
 pub(crate) type nativeClosureReason = ClosureReasonImport;
@@ -776,7 +964,13 @@ impl ClosureReason {
 					peer_msg: *unsafe { Box::from_raw(peer_msg_nonref.take_inner()) },
 				}
 			},
-			ClosureReason::HolderForceClosed => nativeClosureReason::HolderForceClosed,
+			ClosureReason::HolderForceClosed {ref broadcasted_latest_txn, } => {
+				let mut broadcasted_latest_txn_nonref = Clone::clone(broadcasted_latest_txn);
+				let mut local_broadcasted_latest_txn_nonref = if broadcasted_latest_txn_nonref.is_some() { Some( { broadcasted_latest_txn_nonref.take() }) } else { None };
+				nativeClosureReason::HolderForceClosed {
+					broadcasted_latest_txn: local_broadcasted_latest_txn_nonref,
+				}
+			},
 			ClosureReason::LegacyCooperativeClosure => nativeClosureReason::LegacyCooperativeClosure,
 			ClosureReason::CounterpartyInitiatedCooperativeClosure => nativeClosureReason::CounterpartyInitiatedCooperativeClosure,
 			ClosureReason::LocallyInitiatedCooperativeClosure => nativeClosureReason::LocallyInitiatedCooperativeClosure,
@@ -793,6 +987,14 @@ impl ClosureReason {
 			ClosureReason::CounterpartyCoopClosedUnfundedChannel => nativeClosureReason::CounterpartyCoopClosedUnfundedChannel,
 			ClosureReason::FundingBatchClosure => nativeClosureReason::FundingBatchClosure,
 			ClosureReason::HTLCsTimedOut => nativeClosureReason::HTLCsTimedOut,
+			ClosureReason::PeerFeerateTooLow {ref peer_feerate_sat_per_kw, ref required_feerate_sat_per_kw, } => {
+				let mut peer_feerate_sat_per_kw_nonref = Clone::clone(peer_feerate_sat_per_kw);
+				let mut required_feerate_sat_per_kw_nonref = Clone::clone(required_feerate_sat_per_kw);
+				nativeClosureReason::PeerFeerateTooLow {
+					peer_feerate_sat_per_kw: peer_feerate_sat_per_kw_nonref,
+					required_feerate_sat_per_kw: required_feerate_sat_per_kw_nonref,
+				}
+			},
 		}
 	}
 	#[allow(unused)]
@@ -803,7 +1005,12 @@ impl ClosureReason {
 					peer_msg: *unsafe { Box::from_raw(peer_msg.take_inner()) },
 				}
 			},
-			ClosureReason::HolderForceClosed => nativeClosureReason::HolderForceClosed,
+			ClosureReason::HolderForceClosed {mut broadcasted_latest_txn, } => {
+				let mut local_broadcasted_latest_txn = if broadcasted_latest_txn.is_some() { Some( { broadcasted_latest_txn.take() }) } else { None };
+				nativeClosureReason::HolderForceClosed {
+					broadcasted_latest_txn: local_broadcasted_latest_txn,
+				}
+			},
 			ClosureReason::LegacyCooperativeClosure => nativeClosureReason::LegacyCooperativeClosure,
 			ClosureReason::CounterpartyInitiatedCooperativeClosure => nativeClosureReason::CounterpartyInitiatedCooperativeClosure,
 			ClosureReason::LocallyInitiatedCooperativeClosure => nativeClosureReason::LocallyInitiatedCooperativeClosure,
@@ -819,6 +1026,12 @@ impl ClosureReason {
 			ClosureReason::CounterpartyCoopClosedUnfundedChannel => nativeClosureReason::CounterpartyCoopClosedUnfundedChannel,
 			ClosureReason::FundingBatchClosure => nativeClosureReason::FundingBatchClosure,
 			ClosureReason::HTLCsTimedOut => nativeClosureReason::HTLCsTimedOut,
+			ClosureReason::PeerFeerateTooLow {mut peer_feerate_sat_per_kw, mut required_feerate_sat_per_kw, } => {
+				nativeClosureReason::PeerFeerateTooLow {
+					peer_feerate_sat_per_kw: peer_feerate_sat_per_kw,
+					required_feerate_sat_per_kw: required_feerate_sat_per_kw,
+				}
+			},
 		}
 	}
 	#[allow(unused)]
@@ -828,10 +1041,16 @@ impl ClosureReason {
 			nativeClosureReason::CounterpartyForceClosed {ref peer_msg, } => {
 				let mut peer_msg_nonref = Clone::clone(peer_msg);
 				ClosureReason::CounterpartyForceClosed {
-					peer_msg: crate::lightning::util::string::UntrustedString { inner: ObjOps::heap_alloc(peer_msg_nonref), is_owned: true },
+					peer_msg: crate::lightning_types::string::UntrustedString { inner: ObjOps::heap_alloc(peer_msg_nonref), is_owned: true },
 				}
 			},
-			nativeClosureReason::HolderForceClosed => ClosureReason::HolderForceClosed,
+			nativeClosureReason::HolderForceClosed {ref broadcasted_latest_txn, } => {
+				let mut broadcasted_latest_txn_nonref = Clone::clone(broadcasted_latest_txn);
+				let mut local_broadcasted_latest_txn_nonref = if broadcasted_latest_txn_nonref.is_none() { crate::c_types::derived::COption_boolZ::None } else { crate::c_types::derived::COption_boolZ::Some( { broadcasted_latest_txn_nonref.unwrap() }) };
+				ClosureReason::HolderForceClosed {
+					broadcasted_latest_txn: local_broadcasted_latest_txn_nonref,
+				}
+			},
 			nativeClosureReason::LegacyCooperativeClosure => ClosureReason::LegacyCooperativeClosure,
 			nativeClosureReason::CounterpartyInitiatedCooperativeClosure => ClosureReason::CounterpartyInitiatedCooperativeClosure,
 			nativeClosureReason::LocallyInitiatedCooperativeClosure => ClosureReason::LocallyInitiatedCooperativeClosure,
@@ -848,6 +1067,14 @@ impl ClosureReason {
 			nativeClosureReason::CounterpartyCoopClosedUnfundedChannel => ClosureReason::CounterpartyCoopClosedUnfundedChannel,
 			nativeClosureReason::FundingBatchClosure => ClosureReason::FundingBatchClosure,
 			nativeClosureReason::HTLCsTimedOut => ClosureReason::HTLCsTimedOut,
+			nativeClosureReason::PeerFeerateTooLow {ref peer_feerate_sat_per_kw, ref required_feerate_sat_per_kw, } => {
+				let mut peer_feerate_sat_per_kw_nonref = Clone::clone(peer_feerate_sat_per_kw);
+				let mut required_feerate_sat_per_kw_nonref = Clone::clone(required_feerate_sat_per_kw);
+				ClosureReason::PeerFeerateTooLow {
+					peer_feerate_sat_per_kw: peer_feerate_sat_per_kw_nonref,
+					required_feerate_sat_per_kw: required_feerate_sat_per_kw_nonref,
+				}
+			},
 		}
 	}
 	#[allow(unused)]
@@ -855,10 +1082,15 @@ impl ClosureReason {
 		match native {
 			nativeClosureReason::CounterpartyForceClosed {mut peer_msg, } => {
 				ClosureReason::CounterpartyForceClosed {
-					peer_msg: crate::lightning::util::string::UntrustedString { inner: ObjOps::heap_alloc(peer_msg), is_owned: true },
+					peer_msg: crate::lightning_types::string::UntrustedString { inner: ObjOps::heap_alloc(peer_msg), is_owned: true },
 				}
 			},
-			nativeClosureReason::HolderForceClosed => ClosureReason::HolderForceClosed,
+			nativeClosureReason::HolderForceClosed {mut broadcasted_latest_txn, } => {
+				let mut local_broadcasted_latest_txn = if broadcasted_latest_txn.is_none() { crate::c_types::derived::COption_boolZ::None } else { crate::c_types::derived::COption_boolZ::Some( { broadcasted_latest_txn.unwrap() }) };
+				ClosureReason::HolderForceClosed {
+					broadcasted_latest_txn: local_broadcasted_latest_txn,
+				}
+			},
 			nativeClosureReason::LegacyCooperativeClosure => ClosureReason::LegacyCooperativeClosure,
 			nativeClosureReason::CounterpartyInitiatedCooperativeClosure => ClosureReason::CounterpartyInitiatedCooperativeClosure,
 			nativeClosureReason::LocallyInitiatedCooperativeClosure => ClosureReason::LocallyInitiatedCooperativeClosure,
@@ -874,6 +1106,12 @@ impl ClosureReason {
 			nativeClosureReason::CounterpartyCoopClosedUnfundedChannel => ClosureReason::CounterpartyCoopClosedUnfundedChannel,
 			nativeClosureReason::FundingBatchClosure => ClosureReason::FundingBatchClosure,
 			nativeClosureReason::HTLCsTimedOut => ClosureReason::HTLCsTimedOut,
+			nativeClosureReason::PeerFeerateTooLow {mut peer_feerate_sat_per_kw, mut required_feerate_sat_per_kw, } => {
+				ClosureReason::PeerFeerateTooLow {
+					peer_feerate_sat_per_kw: peer_feerate_sat_per_kw,
+					required_feerate_sat_per_kw: required_feerate_sat_per_kw,
+				}
+			},
 		}
 	}
 }
@@ -897,15 +1135,18 @@ pub(crate) extern "C" fn ClosureReason_free_void(this_ptr: *mut c_void) {
 }
 #[no_mangle]
 /// Utility method to constructs a new CounterpartyForceClosed-variant ClosureReason
-pub extern "C" fn ClosureReason_counterparty_force_closed(peer_msg: crate::lightning::util::string::UntrustedString) -> ClosureReason {
+pub extern "C" fn ClosureReason_counterparty_force_closed(peer_msg: crate::lightning_types::string::UntrustedString) -> ClosureReason {
 	ClosureReason::CounterpartyForceClosed {
 		peer_msg,
 	}
 }
 #[no_mangle]
 /// Utility method to constructs a new HolderForceClosed-variant ClosureReason
-pub extern "C" fn ClosureReason_holder_force_closed() -> ClosureReason {
-	ClosureReason::HolderForceClosed}
+pub extern "C" fn ClosureReason_holder_force_closed(broadcasted_latest_txn: crate::c_types::derived::COption_boolZ) -> ClosureReason {
+	ClosureReason::HolderForceClosed {
+		broadcasted_latest_txn,
+	}
+}
 #[no_mangle]
 /// Utility method to constructs a new LegacyCooperativeClosure-variant ClosureReason
 pub extern "C" fn ClosureReason_legacy_cooperative_closure() -> ClosureReason {
@@ -953,6 +1194,14 @@ pub extern "C" fn ClosureReason_funding_batch_closure() -> ClosureReason {
 /// Utility method to constructs a new HTLCsTimedOut-variant ClosureReason
 pub extern "C" fn ClosureReason_htlcs_timed_out() -> ClosureReason {
 	ClosureReason::HTLCsTimedOut}
+#[no_mangle]
+/// Utility method to constructs a new PeerFeerateTooLow-variant ClosureReason
+pub extern "C" fn ClosureReason_peer_feerate_too_low(peer_feerate_sat_per_kw: u32, required_feerate_sat_per_kw: u32) -> ClosureReason {
+	ClosureReason::PeerFeerateTooLow {
+		peer_feerate_sat_per_kw,
+		required_feerate_sat_per_kw,
+	}
+}
 /// Get a string which allows debug introspection of a ClosureReason object
 pub extern "C" fn ClosureReason_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::events::ClosureReason }).into()}
@@ -1238,6 +1487,12 @@ pub extern "C" fn HTLCDestination_read(ser: crate::c_types::u8slice) -> crate::c
 #[repr(C)]
 pub enum PaymentFailureReason {
 	/// The intended recipient rejected our payment.
+	///
+	/// Also used for [`UnknownRequiredFeatures`] and [`InvoiceRequestRejected`] when downgrading to
+	/// version prior to 0.0.124.
+	///
+	/// [`UnknownRequiredFeatures`]: Self::UnknownRequiredFeatures
+	/// [`InvoiceRequestRejected`]: Self::InvoiceRequestRejected
 	RecipientRejected,
 	/// The user chose to abandon this payment by calling [`ChannelManager::abandon_payment`].
 	///
@@ -1253,7 +1508,10 @@ pub enum PaymentFailureReason {
 	/// The payment expired while retrying, based on the provided
 	/// [`PaymentParameters::expiry_time`].
 	///
+	/// Also used for [`InvoiceRequestExpired`] when downgrading to version prior to 0.0.124.
+	///
 	/// [`PaymentParameters::expiry_time`]: crate::routing::router::PaymentParameters::expiry_time
+	/// [`InvoiceRequestExpired`]: Self::InvoiceRequestExpired
 	PaymentExpired,
 	/// We failed to find a route while retrying the payment.
 	///
@@ -1264,6 +1522,14 @@ pub enum PaymentFailureReason {
 	/// This error should generally never happen. This likely means that there is a problem with
 	/// your router.
 	UnexpectedError,
+	/// An invoice was received that required unknown features.
+	UnknownRequiredFeatures,
+	/// A [`Bolt12Invoice`] was not received in a reasonable amount of time.
+	InvoiceRequestExpired,
+	/// An [`InvoiceRequest`] for the payment was rejected by the recipient.
+	///
+	/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+	InvoiceRequestRejected,
 }
 use lightning::events::PaymentFailureReason as PaymentFailureReasonImport;
 pub(crate) type nativePaymentFailureReason = PaymentFailureReasonImport;
@@ -1278,6 +1544,9 @@ impl PaymentFailureReason {
 			PaymentFailureReason::PaymentExpired => nativePaymentFailureReason::PaymentExpired,
 			PaymentFailureReason::RouteNotFound => nativePaymentFailureReason::RouteNotFound,
 			PaymentFailureReason::UnexpectedError => nativePaymentFailureReason::UnexpectedError,
+			PaymentFailureReason::UnknownRequiredFeatures => nativePaymentFailureReason::UnknownRequiredFeatures,
+			PaymentFailureReason::InvoiceRequestExpired => nativePaymentFailureReason::InvoiceRequestExpired,
+			PaymentFailureReason::InvoiceRequestRejected => nativePaymentFailureReason::InvoiceRequestRejected,
 		}
 	}
 	#[allow(unused)]
@@ -1289,6 +1558,9 @@ impl PaymentFailureReason {
 			PaymentFailureReason::PaymentExpired => nativePaymentFailureReason::PaymentExpired,
 			PaymentFailureReason::RouteNotFound => nativePaymentFailureReason::RouteNotFound,
 			PaymentFailureReason::UnexpectedError => nativePaymentFailureReason::UnexpectedError,
+			PaymentFailureReason::UnknownRequiredFeatures => nativePaymentFailureReason::UnknownRequiredFeatures,
+			PaymentFailureReason::InvoiceRequestExpired => nativePaymentFailureReason::InvoiceRequestExpired,
+			PaymentFailureReason::InvoiceRequestRejected => nativePaymentFailureReason::InvoiceRequestRejected,
 		}
 	}
 	#[allow(unused)]
@@ -1301,6 +1573,9 @@ impl PaymentFailureReason {
 			nativePaymentFailureReason::PaymentExpired => PaymentFailureReason::PaymentExpired,
 			nativePaymentFailureReason::RouteNotFound => PaymentFailureReason::RouteNotFound,
 			nativePaymentFailureReason::UnexpectedError => PaymentFailureReason::UnexpectedError,
+			nativePaymentFailureReason::UnknownRequiredFeatures => PaymentFailureReason::UnknownRequiredFeatures,
+			nativePaymentFailureReason::InvoiceRequestExpired => PaymentFailureReason::InvoiceRequestExpired,
+			nativePaymentFailureReason::InvoiceRequestRejected => PaymentFailureReason::InvoiceRequestRejected,
 		}
 	}
 	#[allow(unused)]
@@ -1312,6 +1587,9 @@ impl PaymentFailureReason {
 			nativePaymentFailureReason::PaymentExpired => PaymentFailureReason::PaymentExpired,
 			nativePaymentFailureReason::RouteNotFound => PaymentFailureReason::RouteNotFound,
 			nativePaymentFailureReason::UnexpectedError => PaymentFailureReason::UnexpectedError,
+			nativePaymentFailureReason::UnknownRequiredFeatures => PaymentFailureReason::UnknownRequiredFeatures,
+			nativePaymentFailureReason::InvoiceRequestExpired => PaymentFailureReason::InvoiceRequestExpired,
+			nativePaymentFailureReason::InvoiceRequestRejected => PaymentFailureReason::InvoiceRequestRejected,
 		}
 	}
 }
@@ -1354,6 +1632,18 @@ pub extern "C" fn PaymentFailureReason_route_not_found() -> PaymentFailureReason
 /// Utility method to constructs a new UnexpectedError-variant PaymentFailureReason
 pub extern "C" fn PaymentFailureReason_unexpected_error() -> PaymentFailureReason {
 	PaymentFailureReason::UnexpectedError}
+#[no_mangle]
+/// Utility method to constructs a new UnknownRequiredFeatures-variant PaymentFailureReason
+pub extern "C" fn PaymentFailureReason_unknown_required_features() -> PaymentFailureReason {
+	PaymentFailureReason::UnknownRequiredFeatures}
+#[no_mangle]
+/// Utility method to constructs a new InvoiceRequestExpired-variant PaymentFailureReason
+pub extern "C" fn PaymentFailureReason_invoice_request_expired() -> PaymentFailureReason {
+	PaymentFailureReason::InvoiceRequestExpired}
+#[no_mangle]
+/// Utility method to constructs a new InvoiceRequestRejected-variant PaymentFailureReason
+pub extern "C" fn PaymentFailureReason_invoice_request_rejected() -> PaymentFailureReason {
+	PaymentFailureReason::InvoiceRequestRejected}
 /// Get a string which allows debug introspection of a PaymentFailureReason object
 pub extern "C" fn PaymentFailureReason_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::events::PaymentFailureReason }).into()}
@@ -1374,9 +1664,9 @@ pub(crate) extern "C" fn PaymentFailureReason_write_void(obj: *const c_void) -> 
 }
 #[no_mangle]
 /// Read a PaymentFailureReason from a byte array, created by PaymentFailureReason_write
-pub extern "C" fn PaymentFailureReason_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_PaymentFailureReasonDecodeErrorZ {
-	let res: Result<lightning::events::PaymentFailureReason, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::events::PaymentFailureReason::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+pub extern "C" fn PaymentFailureReason_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_COption_PaymentFailureReasonZDecodeErrorZ {
+	let res: Result<Option<lightning::events::PaymentFailureReason>, lightning::ln::msgs::DecodeError> = crate::c_types::maybe_deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_res_0 = if o.is_none() { crate::c_types::derived::COption_PaymentFailureReasonZ::None } else { crate::c_types::derived::COption_PaymentFailureReasonZ::Some( { crate::lightning::events::PaymentFailureReason::native_into(o.unwrap()) }) }; local_res_0 }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
 /// An Event which you should probably take some action in response to.
@@ -1393,6 +1683,10 @@ pub enum Event {
 	/// Generated in [`ChannelManager`] message handling.
 	/// Note that *all inputs* in the funding transaction must spend SegWit outputs or your
 	/// counterparty can steal your funds!
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`), but won't be persisted across restarts.
 	///
 	/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 	/// [`ChannelManager::funding_transaction_generated`]: crate::ln::channelmanager::ChannelManager::funding_transaction_generated
@@ -1422,6 +1716,32 @@ pub enum Event {
 		/// [`UserConfig::manually_accept_inbound_channels`]: crate::util::config::UserConfig::manually_accept_inbound_channels
 		user_channel_id: crate::c_types::U128,
 	},
+	/// Used to indicate that the counterparty node has provided the signature(s) required to
+	/// recover our funds in case they go offline.
+	///
+	/// It is safe (and your responsibility) to broadcast the funding transaction upon receiving this
+	/// event.
+	///
+	/// This event is only emitted if you called
+	/// [`ChannelManager::unsafe_manual_funding_transaction_generated`] instead of
+	/// [`ChannelManager::funding_transaction_generated`].
+	///
+	/// [`ChannelManager::unsafe_manual_funding_transaction_generated`]: crate::ln::channelmanager::ChannelManager::unsafe_manual_funding_transaction_generated
+	/// [`ChannelManager::funding_transaction_generated`]: crate::ln::channelmanager::ChannelManager::funding_transaction_generated
+	FundingTxBroadcastSafe {
+		/// The `channel_id` indicating which channel has reached this stage.
+		channel_id: crate::lightning::ln::types::ChannelId,
+		/// The `user_channel_id` value passed in to [`ChannelManager::create_channel`].
+		///
+		/// [`ChannelManager::create_channel`]: crate::ln::channelmanager::ChannelManager::create_channel
+		user_channel_id: crate::c_types::U128,
+		/// The outpoint of the channel's funding transaction.
+		funding_txo: crate::lightning::chain::transaction::OutPoint,
+		/// The `node_id` of the channel counterparty.
+		counterparty_node_id: crate::c_types::PublicKey,
+		/// The `temporary_channel_id` this channel used to be known by during channel establishment.
+		former_temporary_channel_id: crate::lightning::ln::types::ChannelId,
+	},
 	/// Indicates that we've been offered a payment and it needs to be claimed via calling
 	/// [`ChannelManager::claim_funds`] with the preimage given in [`PaymentPurpose`].
 	///
@@ -1450,6 +1770,10 @@ pub enum Event {
 	///
 	/// # Note
 	/// This event used to be called `PaymentReceived` in LDK versions 0.0.112 and earlier.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	///
 	/// [`ChannelManager::claim_funds`]: crate::ln::channelmanager::ChannelManager::claim_funds
 	/// [`ChannelManager::claim_funds_with_known_custom_tlvs`]: crate::ln::channelmanager::ChannelManager::claim_funds_with_known_custom_tlvs
@@ -1526,6 +1850,10 @@ pub enum Event {
 	/// [`ChannelManager::claim_funds`] twice for the same [`Event::PaymentClaimable`] you may get
 	/// multiple `PaymentClaimed` events.
 	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
+	///
 	/// [`ChannelManager::claim_funds`]: crate::ln::channelmanager::ChannelManager::claim_funds
 	PaymentClaimed {
 		/// The node that received the payment.
@@ -1552,6 +1880,13 @@ pub enum Event {
 		/// The sender-intended sum total of all the MPP parts. This will be `None` for events
 		/// serialized prior to LDK version 0.0.117.
 		sender_intended_total_msat: crate::c_types::derived::COption_u64Z,
+		/// The fields in the onion which were received with each HTLC. Only fields which were
+		/// identical in each HTLC involved in the payment will be included here.
+		///
+		/// Payments received on LDK versions prior to 0.0.124 will have this field unset.
+		///
+		/// Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
+		onion_fields: crate::lightning::ln::outbound_payment::RecipientOnionFields,
 	},
 	/// Indicates that a peer connection with a node is needed in order to send an [`OnionMessage`].
 	///
@@ -1561,6 +1896,11 @@ pub enum Event {
 	///
 	/// This event will not be generated for onion message forwards; only for sends including
 	/// replies. Handlers should connect to the node otherwise any buffered messages may be lost.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event won't be replayed after failures-to-handle
+	/// (i.e., the event handler returning `Err(ReplayEvent ())`), and also won't be persisted
+	/// across restarts.
 	///
 	/// [`OnionMessage`]: msgs::OnionMessage
 	/// [`MessageRouter`]: crate::onion_message::messenger::MessageRouter
@@ -1572,23 +1912,50 @@ pub enum Event {
 		/// Sockets for connecting to the node.
 		addresses: crate::c_types::derived::CVec_SocketAddressZ,
 	},
-	/// Indicates a request for an invoice failed to yield a response in a reasonable amount of time
-	/// or was explicitly abandoned by [`ChannelManager::abandon_payment`]. This may be for an
-	/// [`InvoiceRequest`] sent for an [`Offer`] or for a [`Refund`] that hasn't been redeemed.
+	/// Indicates a [`Bolt12Invoice`] in response to an [`InvoiceRequest`] or a [`Refund`] was
+	/// received.
 	///
-	/// [`ChannelManager::abandon_payment`]: crate::ln::channelmanager::ChannelManager::abandon_payment
+	/// This event will only be generated if [`UserConfig::manually_handle_bolt12_invoices`] is set.
+	/// Use [`ChannelManager::send_payment_for_bolt12_invoice`] to pay the invoice or
+	/// [`ChannelManager::abandon_payment`] to abandon the associated payment. See those docs for
+	/// further details.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
+	///
 	/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
-	/// [`Offer`]: crate::offers::offer::Offer
 	/// [`Refund`]: crate::offers::refund::Refund
-	InvoiceRequestFailed {
-		/// The `payment_id` to have been associated with payment for the requested invoice.
+	/// [`UserConfig::manually_handle_bolt12_invoices`]: crate::util::config::UserConfig::manually_handle_bolt12_invoices
+	/// [`ChannelManager::send_payment_for_bolt12_invoice`]: crate::ln::channelmanager::ChannelManager::send_payment_for_bolt12_invoice
+	/// [`ChannelManager::abandon_payment`]: crate::ln::channelmanager::ChannelManager::abandon_payment
+	InvoiceReceived {
+		/// The `payment_id` associated with payment for the invoice.
 		payment_id: crate::c_types::ThirtyTwoBytes,
+		/// The invoice to pay.
+		invoice: crate::lightning::offers::invoice::Bolt12Invoice,
+		/// The context of the [`BlindedMessagePath`] used to send the invoice.
+		///
+		/// [`BlindedMessagePath`]: crate::blinded_path::message::BlindedMessagePath
+		context: crate::c_types::derived::COption_OffersContextZ,
+		/// A responder for replying with an [`InvoiceError`] if needed.
+		///
+		/// `None` if the invoice wasn't sent with a reply path.
+		///
+		/// [`InvoiceError`]: crate::offers::invoice_error::InvoiceError
+		///
+		/// Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
+		responder: crate::lightning::onion_message::messenger::Responder,
 	},
 	/// Indicates an outbound payment we made succeeded (i.e. it made it all the way to its target
 	/// and we got back the payment preimage for it).
 	///
 	/// Note for MPP payments: in rare cases, this event may be preceded by a `PaymentPathFailed`
 	/// event. In this situation, you SHOULD treat this payment as having succeeded.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	PaymentSent {
 		/// The `payment_id` passed to [`ChannelManager::send_payment`].
 		///
@@ -1610,6 +1977,8 @@ pub enum Event {
 		/// If the recipient or an intermediate node misbehaves and gives us free money, this may
 		/// overstate the amount paid, though this is unlikely.
 		///
+		/// This is only `None` for payments initiated on LDK versions prior to 0.0.103.
+		///
 		/// [`Route::get_total_fees`]: crate::routing::router::Route::get_total_fees
 		fee_paid_msat: crate::c_types::derived::COption_u64Z,
 	},
@@ -1625,6 +1994,10 @@ pub enum Event {
 	/// received and processed. In this case, the [`Event::PaymentFailed`] event MUST be ignored,
 	/// and the payment MUST be treated as having succeeded.
 	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
+	///
 	/// [`Retry`]: crate::ln::channelmanager::Retry
 	/// [`ChannelManager::abandon_payment`]: crate::ln::channelmanager::ChannelManager::abandon_payment
 	PaymentFailed {
@@ -1632,18 +2005,25 @@ pub enum Event {
 		///
 		/// [`ChannelManager::send_payment`]: crate::ln::channelmanager::ChannelManager::send_payment
 		payment_id: crate::c_types::ThirtyTwoBytes,
-		/// The hash that was given to [`ChannelManager::send_payment`].
+		/// The hash that was given to [`ChannelManager::send_payment`]. `None` if the payment failed
+		/// before receiving an invoice when paying a BOLT12 [`Offer`].
 		///
 		/// [`ChannelManager::send_payment`]: crate::ln::channelmanager::ChannelManager::send_payment
-		payment_hash: crate::c_types::ThirtyTwoBytes,
+		/// [`Offer`]: crate::offers::offer::Offer
+		payment_hash: crate::c_types::derived::COption_ThirtyTwoBytesZ,
 		/// The reason the payment failed. This is only `None` for events generated or serialized
-		/// by versions prior to 0.0.115.
+		/// by versions prior to 0.0.115, or when downgrading to a version with a reason that was
+		/// added after.
 		reason: crate::c_types::derived::COption_PaymentFailureReasonZ,
 	},
 	/// Indicates that a path for an outbound payment was successful.
 	///
 	/// Always generated after [`Event::PaymentSent`] and thus useful for scoring channels. See
 	/// [`Event::PaymentSent`] for obtaining the payment preimage.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	PaymentPathSuccessful {
 		/// The `payment_id` passed to [`ChannelManager::send_payment`].
 		///
@@ -1668,6 +2048,10 @@ pub enum Event {
 	///
 	/// See [`ChannelManager::abandon_payment`] for giving up on this payment before its retries have
 	/// been exhausted.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	///
 	/// [`ChannelManager::abandon_payment`]: crate::ln::channelmanager::ChannelManager::abandon_payment
 	PaymentPathFailed {
@@ -1704,6 +2088,10 @@ pub enum Event {
 		short_channel_id: crate::c_types::derived::COption_u64Z,
 	},
 	/// Indicates that a probe payment we sent returned successful, i.e., only failed at the destination.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	ProbeSuccessful {
 		/// The id returned by [`ChannelManager::send_probe`].
 		///
@@ -1717,6 +2105,10 @@ pub enum Event {
 		path: crate::lightning::routing::router::Path,
 	},
 	/// Indicates that a probe payment we sent failed at an intermediary node on the path.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	ProbeFailed {
 		/// The id returned by [`ChannelManager::send_probe`].
 		///
@@ -1738,6 +2130,10 @@ pub enum Event {
 	/// Used to indicate that [`ChannelManager::process_pending_htlc_forwards`] should be called at
 	/// a time in the future.
 	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be regenerated after restarts.
+	///
 	/// [`ChannelManager::process_pending_htlc_forwards`]: crate::ln::channelmanager::ChannelManager::process_pending_htlc_forwards
 	PendingHTLCsForwardable {
 		/// The minimum amount of time that should be waited prior to calling
@@ -1753,6 +2149,10 @@ pub enum Event {
 	/// [`ChannelManager::forward_intercepted_htlc`] or
 	/// [`ChannelManager::fail_intercepted_htlc`] MUST be called in response to this event. See
 	/// their docs for more information.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	///
 	/// [`ChannelManager::get_intercept_scid`]: crate::ln::channelmanager::ChannelManager::get_intercept_scid
 	/// [`UserConfig::accept_intercept_htlcs`]: crate::util::config::UserConfig::accept_intercept_htlcs
@@ -1789,6 +2189,10 @@ pub enum Event {
 	/// You may hand them to the [`OutputSweeper`] utility which will store and (re-)generate spending
 	/// transactions for you.
 	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
+	///
 	/// [`OutputSweeper`]: crate::util::sweep::OutputSweeper
 	SpendableOutputs {
 		/// The outputs which you should store as spendable by you.
@@ -1802,6 +2206,10 @@ pub enum Event {
 	},
 	/// This event is generated when a payment has been successfully forwarded through us and a
 	/// forwarding fee earned.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	PaymentForwarded {
 		/// The channel id of the incoming channel between the previous node and us.
 		///
@@ -1867,6 +2275,10 @@ pub enum Event {
 	/// This event is emitted when the funding transaction has been signed and is broadcast to the
 	/// network. For 0conf channels it will be immediately followed by the corresponding
 	/// [`Event::ChannelReady`] event.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	ChannelPending {
 		/// The `channel_id` of the channel that is pending confirmation.
 		channel_id: crate::lightning::ln::types::ChannelId,
@@ -1894,12 +2306,16 @@ pub enum Event {
 		/// Will be `None` for channels created prior to LDK version 0.0.122.
 		///
 		/// Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
-		channel_type: crate::lightning::ln::features::ChannelTypeFeatures,
+		channel_type: crate::lightning_types::features::ChannelTypeFeatures,
 	},
 	/// Used to indicate that a channel with the given `channel_id` is ready to
 	/// be used. This event is emitted either when the funding transaction has been confirmed
 	/// on-chain, or, in case of a 0conf channel, when both parties have confirmed the channel
 	/// establishment.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	ChannelReady {
 		/// The `channel_id` of the channel that is ready.
 		channel_id: crate::lightning::ln::types::ChannelId,
@@ -1915,7 +2331,7 @@ pub enum Event {
 		/// The `node_id` of the channel counterparty.
 		counterparty_node_id: crate::c_types::PublicKey,
 		/// The features that this channel will operate with.
-		channel_type: crate::lightning::ln::features::ChannelTypeFeatures,
+		channel_type: crate::lightning_types::features::ChannelTypeFeatures,
 	},
 	/// Used to indicate that a channel that got past the initial handshake with the given `channel_id` is in the
 	/// process of closure. This includes previously opened channels, and channels that time out from not being funded.
@@ -1926,6 +2342,10 @@ pub enum Event {
 	///
 	/// [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
 	/// [`UserConfig::manually_accept_inbound_channels`]: crate::util::config::UserConfig::manually_accept_inbound_channels
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	ChannelClosed {
 		/// The `channel_id` of the channel which has been closed. Note that on-chain transactions
 		/// resolving the channel are likely still awaiting confirmation.
@@ -1964,11 +2384,15 @@ pub enum Event {
 	/// inputs for another purpose.
 	///
 	/// This event is not guaranteed to be generated for channels that are closed due to a restart.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	DiscardFunding {
 		/// The channel_id of the channel which has been closed.
 		channel_id: crate::lightning::ln::types::ChannelId,
 		/// The full transaction received from the user
-		transaction: crate::c_types::Transaction,
+		funding_info: crate::lightning::events::FundingInfo,
 	},
 	/// Indicates a request to open a new channel by a peer.
 	///
@@ -1978,6 +2402,10 @@ pub enum Event {
 	///
 	/// The event is only triggered when a new open channel request is received and the
 	/// [`UserConfig::manually_accept_inbound_channels`] config flag is set to true.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	///
 	/// [`ChannelManager::accept_inbound_channel`]: crate::ln::channelmanager::ChannelManager::accept_inbound_channel
 	/// [`ChannelManager::force_close_without_broadcasting_txn`]: crate::ln::channelmanager::ChannelManager::force_close_without_broadcasting_txn
@@ -2021,7 +2449,11 @@ pub enum Event {
 		/// or will be rejected otherwise.
 		///
 		/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
-		channel_type: crate::lightning::ln::features::ChannelTypeFeatures,
+		channel_type: crate::lightning_types::features::ChannelTypeFeatures,
+		/// True if this channel is (or will be) publicly-announced.
+		is_announced: bool,
+		/// Channel parameters given by the counterparty.
+		params: crate::lightning::ln::msgs::ChannelParameters,
 	},
 	/// Indicates that the HTLC was accepted, but could not be processed when or after attempting to
 	/// forward it.
@@ -2035,6 +2467,10 @@ pub enum Event {
 	///
 	/// This event, however, does not get generated if an HTLC fails to meet the forwarding
 	/// requirements (i.e. insufficient fees paid, or a CLTV that is too soon).
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`) and will be persisted across restarts.
 	HTLCHandlingFailed {
 		/// The channel over which the HTLC was received.
 		prev_channel_id: crate::lightning::ln::types::ChannelId,
@@ -2048,9 +2484,45 @@ pub enum Event {
 	/// [`ChannelHandshakeConfig::negotiate_anchors_zero_fee_htlc_tx`] config flag is set to true.
 	/// It is limited to the scope of channels with anchor outputs.
 	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`), but will only be regenerated as needed after restarts.
+	///
 	/// [`ChannelHandshakeConfig::negotiate_anchors_zero_fee_htlc_tx`]: crate::util::config::ChannelHandshakeConfig::negotiate_anchors_zero_fee_htlc_tx
 	BumpTransaction(
 		crate::lightning::events::bump_transaction::BumpTransactionEvent),
+	/// We received an onion message that is intended to be forwarded to a peer
+	/// that is currently offline. This event will only be generated if the
+	/// `OnionMessenger` was initialized with
+	/// [`OnionMessenger::new_with_offline_peer_interception`], see its docs.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`), but won't be persisted across restarts.
+	///
+	/// [`OnionMessenger::new_with_offline_peer_interception`]: crate::onion_message::messenger::OnionMessenger::new_with_offline_peer_interception
+	OnionMessageIntercepted {
+		/// The node id of the offline peer.
+		peer_node_id: crate::c_types::PublicKey,
+		/// The onion message intended to be forwarded to `peer_node_id`.
+		message: crate::lightning::ln::msgs::OnionMessage,
+	},
+	/// Indicates that an onion message supporting peer has come online and it may
+	/// be time to forward any onion messages that were previously intercepted for
+	/// them. This event will only be generated if the `OnionMessenger` was
+	/// initialized with
+	/// [`OnionMessenger::new_with_offline_peer_interception`], see its docs.
+	///
+	/// # Failure Behavior and Persistence
+	/// This event will eventually be replayed after failures-to-handle (i.e., the event handler
+	/// returning `Err(ReplayEvent ())`), but won't be persisted across restarts.
+	///
+	/// [`OnionMessenger::new_with_offline_peer_interception`]: crate::onion_message::messenger::OnionMessenger::new_with_offline_peer_interception
+	OnionMessagePeerConnected {
+		/// The node id of the peer we just connected to, who advertises support for
+		/// onion messages.
+		peer_node_id: crate::c_types::PublicKey,
+	},
 }
 use lightning::events::Event as EventImport;
 pub(crate) type nativeEvent = EventImport;
@@ -2069,8 +2541,22 @@ impl Event {
 					temporary_channel_id: *unsafe { Box::from_raw(temporary_channel_id_nonref.take_inner()) },
 					counterparty_node_id: counterparty_node_id_nonref.into_rust(),
 					channel_value_satoshis: channel_value_satoshis_nonref,
-					output_script: ::bitcoin::blockdata::script::ScriptBuf::from(output_script_nonref.into_rust()),
+					output_script: ::bitcoin::script::ScriptBuf::from(output_script_nonref.into_rust()),
 					user_channel_id: user_channel_id_nonref.into(),
+				}
+			},
+			Event::FundingTxBroadcastSafe {ref channel_id, ref user_channel_id, ref funding_txo, ref counterparty_node_id, ref former_temporary_channel_id, } => {
+				let mut channel_id_nonref = Clone::clone(channel_id);
+				let mut user_channel_id_nonref = Clone::clone(user_channel_id);
+				let mut funding_txo_nonref = Clone::clone(funding_txo);
+				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
+				let mut former_temporary_channel_id_nonref = Clone::clone(former_temporary_channel_id);
+				nativeEvent::FundingTxBroadcastSafe {
+					channel_id: *unsafe { Box::from_raw(channel_id_nonref.take_inner()) },
+					user_channel_id: user_channel_id_nonref.into(),
+					funding_txo: crate::c_types::C_to_bitcoin_outpoint(funding_txo_nonref),
+					counterparty_node_id: counterparty_node_id_nonref.into_rust(),
+					former_temporary_channel_id: *unsafe { Box::from_raw(former_temporary_channel_id_nonref.take_inner()) },
 				}
 			},
 			Event::PaymentClaimable {ref receiver_node_id, ref payment_hash, ref onion_fields, ref amount_msat, ref counterparty_skimmed_fee_msat, ref purpose, ref via_channel_id, ref via_user_channel_id, ref claim_deadline, } => {
@@ -2100,7 +2586,7 @@ impl Event {
 					claim_deadline: local_claim_deadline_nonref,
 				}
 			},
-			Event::PaymentClaimed {ref receiver_node_id, ref payment_hash, ref amount_msat, ref purpose, ref htlcs, ref sender_intended_total_msat, } => {
+			Event::PaymentClaimed {ref receiver_node_id, ref payment_hash, ref amount_msat, ref purpose, ref htlcs, ref sender_intended_total_msat, ref onion_fields, } => {
 				let mut receiver_node_id_nonref = Clone::clone(receiver_node_id);
 				let mut local_receiver_node_id_nonref = if receiver_node_id_nonref.is_null() { None } else { Some( { receiver_node_id_nonref.into_rust() }) };
 				let mut payment_hash_nonref = Clone::clone(payment_hash);
@@ -2110,6 +2596,8 @@ impl Event {
 				let mut local_htlcs_nonref = Vec::new(); for mut item in htlcs_nonref.into_rust().drain(..) { local_htlcs_nonref.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				let mut sender_intended_total_msat_nonref = Clone::clone(sender_intended_total_msat);
 				let mut local_sender_intended_total_msat_nonref = if sender_intended_total_msat_nonref.is_some() { Some( { sender_intended_total_msat_nonref.take() }) } else { None };
+				let mut onion_fields_nonref = Clone::clone(onion_fields);
+				let mut local_onion_fields_nonref = if onion_fields_nonref.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(onion_fields_nonref.take_inner()) } }) };
 				nativeEvent::PaymentClaimed {
 					receiver_node_id: local_receiver_node_id_nonref,
 					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
@@ -2117,6 +2605,7 @@ impl Event {
 					purpose: purpose_nonref.into_native(),
 					htlcs: local_htlcs_nonref,
 					sender_intended_total_msat: local_sender_intended_total_msat_nonref,
+					onion_fields: local_onion_fields_nonref,
 				}
 			},
 			Event::ConnectionNeeded {ref node_id, ref addresses, } => {
@@ -2128,10 +2617,18 @@ impl Event {
 					addresses: local_addresses_nonref,
 				}
 			},
-			Event::InvoiceRequestFailed {ref payment_id, } => {
+			Event::InvoiceReceived {ref payment_id, ref invoice, ref context, ref responder, } => {
 				let mut payment_id_nonref = Clone::clone(payment_id);
-				nativeEvent::InvoiceRequestFailed {
+				let mut invoice_nonref = Clone::clone(invoice);
+				let mut context_nonref = Clone::clone(context);
+				let mut local_context_nonref = { /*context_nonref*/ let context_nonref_opt = context_nonref; if context_nonref_opt.is_none() { None } else { Some({ { { context_nonref_opt.take() }.into_native() }})} };
+				let mut responder_nonref = Clone::clone(responder);
+				let mut local_responder_nonref = if responder_nonref.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(responder_nonref.take_inner()) } }) };
+				nativeEvent::InvoiceReceived {
 					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id_nonref.data),
+					invoice: *unsafe { Box::from_raw(invoice_nonref.take_inner()) },
+					context: local_context_nonref,
+					responder: local_responder_nonref,
 				}
 			},
 			Event::PaymentSent {ref payment_id, ref payment_preimage, ref payment_hash, ref fee_paid_msat, } => {
@@ -2151,11 +2648,12 @@ impl Event {
 			Event::PaymentFailed {ref payment_id, ref payment_hash, ref reason, } => {
 				let mut payment_id_nonref = Clone::clone(payment_id);
 				let mut payment_hash_nonref = Clone::clone(payment_hash);
+				let mut local_payment_hash_nonref = { /*payment_hash_nonref*/ let payment_hash_nonref_opt = payment_hash_nonref; if payment_hash_nonref_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentHash({ payment_hash_nonref_opt.take() }.data) }})} };
 				let mut reason_nonref = Clone::clone(reason);
 				let mut local_reason_nonref = { /*reason_nonref*/ let reason_nonref_opt = reason_nonref; if reason_nonref_opt.is_none() { None } else { Some({ { { reason_nonref_opt.take() }.into_native() }})} };
 				nativeEvent::PaymentFailed {
 					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id_nonref.data),
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
+					payment_hash: local_payment_hash_nonref,
 					reason: local_reason_nonref,
 				}
 			},
@@ -2317,26 +2815,30 @@ impl Event {
 					channel_funding_txo: local_channel_funding_txo_nonref,
 				}
 			},
-			Event::DiscardFunding {ref channel_id, ref transaction, } => {
+			Event::DiscardFunding {ref channel_id, ref funding_info, } => {
 				let mut channel_id_nonref = Clone::clone(channel_id);
-				let mut transaction_nonref = Clone::clone(transaction);
+				let mut funding_info_nonref = Clone::clone(funding_info);
 				nativeEvent::DiscardFunding {
 					channel_id: *unsafe { Box::from_raw(channel_id_nonref.take_inner()) },
-					transaction: transaction_nonref.into_bitcoin(),
+					funding_info: funding_info_nonref.into_native(),
 				}
 			},
-			Event::OpenChannelRequest {ref temporary_channel_id, ref counterparty_node_id, ref funding_satoshis, ref push_msat, ref channel_type, } => {
+			Event::OpenChannelRequest {ref temporary_channel_id, ref counterparty_node_id, ref funding_satoshis, ref push_msat, ref channel_type, ref is_announced, ref params, } => {
 				let mut temporary_channel_id_nonref = Clone::clone(temporary_channel_id);
 				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
 				let mut funding_satoshis_nonref = Clone::clone(funding_satoshis);
 				let mut push_msat_nonref = Clone::clone(push_msat);
 				let mut channel_type_nonref = Clone::clone(channel_type);
+				let mut is_announced_nonref = Clone::clone(is_announced);
+				let mut params_nonref = Clone::clone(params);
 				nativeEvent::OpenChannelRequest {
 					temporary_channel_id: *unsafe { Box::from_raw(temporary_channel_id_nonref.take_inner()) },
 					counterparty_node_id: counterparty_node_id_nonref.into_rust(),
 					funding_satoshis: funding_satoshis_nonref,
 					push_msat: push_msat_nonref,
 					channel_type: *unsafe { Box::from_raw(channel_type_nonref.take_inner()) },
+					is_announced: is_announced_nonref,
+					params: *unsafe { Box::from_raw(params_nonref.take_inner()) },
 				}
 			},
 			Event::HTLCHandlingFailed {ref prev_channel_id, ref failed_next_destination, } => {
@@ -2353,6 +2855,20 @@ impl Event {
 					a_nonref.into_native(),
 				)
 			},
+			Event::OnionMessageIntercepted {ref peer_node_id, ref message, } => {
+				let mut peer_node_id_nonref = Clone::clone(peer_node_id);
+				let mut message_nonref = Clone::clone(message);
+				nativeEvent::OnionMessageIntercepted {
+					peer_node_id: peer_node_id_nonref.into_rust(),
+					message: *unsafe { Box::from_raw(message_nonref.take_inner()) },
+				}
+			},
+			Event::OnionMessagePeerConnected {ref peer_node_id, } => {
+				let mut peer_node_id_nonref = Clone::clone(peer_node_id);
+				nativeEvent::OnionMessagePeerConnected {
+					peer_node_id: peer_node_id_nonref.into_rust(),
+				}
+			},
 		}
 	}
 	#[allow(unused)]
@@ -2363,8 +2879,17 @@ impl Event {
 					temporary_channel_id: *unsafe { Box::from_raw(temporary_channel_id.take_inner()) },
 					counterparty_node_id: counterparty_node_id.into_rust(),
 					channel_value_satoshis: channel_value_satoshis,
-					output_script: ::bitcoin::blockdata::script::ScriptBuf::from(output_script.into_rust()),
+					output_script: ::bitcoin::script::ScriptBuf::from(output_script.into_rust()),
 					user_channel_id: user_channel_id.into(),
+				}
+			},
+			Event::FundingTxBroadcastSafe {mut channel_id, mut user_channel_id, mut funding_txo, mut counterparty_node_id, mut former_temporary_channel_id, } => {
+				nativeEvent::FundingTxBroadcastSafe {
+					channel_id: *unsafe { Box::from_raw(channel_id.take_inner()) },
+					user_channel_id: user_channel_id.into(),
+					funding_txo: crate::c_types::C_to_bitcoin_outpoint(funding_txo),
+					counterparty_node_id: counterparty_node_id.into_rust(),
+					former_temporary_channel_id: *unsafe { Box::from_raw(former_temporary_channel_id.take_inner()) },
 				}
 			},
 			Event::PaymentClaimable {mut receiver_node_id, mut payment_hash, mut onion_fields, mut amount_msat, mut counterparty_skimmed_fee_msat, mut purpose, mut via_channel_id, mut via_user_channel_id, mut claim_deadline, } => {
@@ -2385,10 +2910,11 @@ impl Event {
 					claim_deadline: local_claim_deadline,
 				}
 			},
-			Event::PaymentClaimed {mut receiver_node_id, mut payment_hash, mut amount_msat, mut purpose, mut htlcs, mut sender_intended_total_msat, } => {
+			Event::PaymentClaimed {mut receiver_node_id, mut payment_hash, mut amount_msat, mut purpose, mut htlcs, mut sender_intended_total_msat, mut onion_fields, } => {
 				let mut local_receiver_node_id = if receiver_node_id.is_null() { None } else { Some( { receiver_node_id.into_rust() }) };
 				let mut local_htlcs = Vec::new(); for mut item in htlcs.into_rust().drain(..) { local_htlcs.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				let mut local_sender_intended_total_msat = if sender_intended_total_msat.is_some() { Some( { sender_intended_total_msat.take() }) } else { None };
+				let mut local_onion_fields = if onion_fields.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(onion_fields.take_inner()) } }) };
 				nativeEvent::PaymentClaimed {
 					receiver_node_id: local_receiver_node_id,
 					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
@@ -2396,6 +2922,7 @@ impl Event {
 					purpose: purpose.into_native(),
 					htlcs: local_htlcs,
 					sender_intended_total_msat: local_sender_intended_total_msat,
+					onion_fields: local_onion_fields,
 				}
 			},
 			Event::ConnectionNeeded {mut node_id, mut addresses, } => {
@@ -2405,9 +2932,14 @@ impl Event {
 					addresses: local_addresses,
 				}
 			},
-			Event::InvoiceRequestFailed {mut payment_id, } => {
-				nativeEvent::InvoiceRequestFailed {
+			Event::InvoiceReceived {mut payment_id, mut invoice, mut context, mut responder, } => {
+				let mut local_context = { /*context*/ let context_opt = context; if context_opt.is_none() { None } else { Some({ { { context_opt.take() }.into_native() }})} };
+				let mut local_responder = if responder.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(responder.take_inner()) } }) };
+				nativeEvent::InvoiceReceived {
 					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id.data),
+					invoice: *unsafe { Box::from_raw(invoice.take_inner()) },
+					context: local_context,
+					responder: local_responder,
 				}
 			},
 			Event::PaymentSent {mut payment_id, mut payment_preimage, mut payment_hash, mut fee_paid_msat, } => {
@@ -2421,10 +2953,11 @@ impl Event {
 				}
 			},
 			Event::PaymentFailed {mut payment_id, mut payment_hash, mut reason, } => {
+				let mut local_payment_hash = { /*payment_hash*/ let payment_hash_opt = payment_hash; if payment_hash_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentHash({ payment_hash_opt.take() }.data) }})} };
 				let mut local_reason = { /*reason*/ let reason_opt = reason; if reason_opt.is_none() { None } else { Some({ { { reason_opt.take() }.into_native() }})} };
 				nativeEvent::PaymentFailed {
 					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id.data),
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
+					payment_hash: local_payment_hash,
 					reason: local_reason,
 				}
 			},
@@ -2538,19 +3071,21 @@ impl Event {
 					channel_funding_txo: local_channel_funding_txo,
 				}
 			},
-			Event::DiscardFunding {mut channel_id, mut transaction, } => {
+			Event::DiscardFunding {mut channel_id, mut funding_info, } => {
 				nativeEvent::DiscardFunding {
 					channel_id: *unsafe { Box::from_raw(channel_id.take_inner()) },
-					transaction: transaction.into_bitcoin(),
+					funding_info: funding_info.into_native(),
 				}
 			},
-			Event::OpenChannelRequest {mut temporary_channel_id, mut counterparty_node_id, mut funding_satoshis, mut push_msat, mut channel_type, } => {
+			Event::OpenChannelRequest {mut temporary_channel_id, mut counterparty_node_id, mut funding_satoshis, mut push_msat, mut channel_type, mut is_announced, mut params, } => {
 				nativeEvent::OpenChannelRequest {
 					temporary_channel_id: *unsafe { Box::from_raw(temporary_channel_id.take_inner()) },
 					counterparty_node_id: counterparty_node_id.into_rust(),
 					funding_satoshis: funding_satoshis,
 					push_msat: push_msat,
 					channel_type: *unsafe { Box::from_raw(channel_type.take_inner()) },
+					is_announced: is_announced,
+					params: *unsafe { Box::from_raw(params.take_inner()) },
 				}
 			},
 			Event::HTLCHandlingFailed {mut prev_channel_id, mut failed_next_destination, } => {
@@ -2563,6 +3098,17 @@ impl Event {
 				nativeEvent::BumpTransaction (
 					a.into_native(),
 				)
+			},
+			Event::OnionMessageIntercepted {mut peer_node_id, mut message, } => {
+				nativeEvent::OnionMessageIntercepted {
+					peer_node_id: peer_node_id.into_rust(),
+					message: *unsafe { Box::from_raw(message.take_inner()) },
+				}
+			},
+			Event::OnionMessagePeerConnected {mut peer_node_id, } => {
+				nativeEvent::OnionMessagePeerConnected {
+					peer_node_id: peer_node_id.into_rust(),
+				}
 			},
 		}
 	}
@@ -2582,6 +3128,20 @@ impl Event {
 					channel_value_satoshis: channel_value_satoshis_nonref,
 					output_script: output_script_nonref.to_bytes().into(),
 					user_channel_id: user_channel_id_nonref.into(),
+				}
+			},
+			nativeEvent::FundingTxBroadcastSafe {ref channel_id, ref user_channel_id, ref funding_txo, ref counterparty_node_id, ref former_temporary_channel_id, } => {
+				let mut channel_id_nonref = Clone::clone(channel_id);
+				let mut user_channel_id_nonref = Clone::clone(user_channel_id);
+				let mut funding_txo_nonref = Clone::clone(funding_txo);
+				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
+				let mut former_temporary_channel_id_nonref = Clone::clone(former_temporary_channel_id);
+				Event::FundingTxBroadcastSafe {
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id_nonref), is_owned: true },
+					user_channel_id: user_channel_id_nonref.into(),
+					funding_txo: crate::c_types::bitcoin_to_C_outpoint(&funding_txo_nonref),
+					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id_nonref),
+					former_temporary_channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(former_temporary_channel_id_nonref), is_owned: true },
 				}
 			},
 			nativeEvent::PaymentClaimable {ref receiver_node_id, ref payment_hash, ref onion_fields, ref amount_msat, ref counterparty_skimmed_fee_msat, ref purpose, ref via_channel_id, ref via_user_channel_id, ref claim_deadline, } => {
@@ -2611,7 +3171,7 @@ impl Event {
 					claim_deadline: local_claim_deadline_nonref,
 				}
 			},
-			nativeEvent::PaymentClaimed {ref receiver_node_id, ref payment_hash, ref amount_msat, ref purpose, ref htlcs, ref sender_intended_total_msat, } => {
+			nativeEvent::PaymentClaimed {ref receiver_node_id, ref payment_hash, ref amount_msat, ref purpose, ref htlcs, ref sender_intended_total_msat, ref onion_fields, } => {
 				let mut receiver_node_id_nonref = Clone::clone(receiver_node_id);
 				let mut local_receiver_node_id_nonref = if receiver_node_id_nonref.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(receiver_node_id_nonref.unwrap())) } };
 				let mut payment_hash_nonref = Clone::clone(payment_hash);
@@ -2621,6 +3181,8 @@ impl Event {
 				let mut local_htlcs_nonref = Vec::new(); for mut item in htlcs_nonref.drain(..) { local_htlcs_nonref.push( { crate::lightning::events::ClaimedHTLC { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				let mut sender_intended_total_msat_nonref = Clone::clone(sender_intended_total_msat);
 				let mut local_sender_intended_total_msat_nonref = if sender_intended_total_msat_nonref.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { sender_intended_total_msat_nonref.unwrap() }) };
+				let mut onion_fields_nonref = Clone::clone(onion_fields);
+				let mut local_onion_fields_nonref = crate::lightning::ln::outbound_payment::RecipientOnionFields { inner: if onion_fields_nonref.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((onion_fields_nonref.unwrap())) } }, is_owned: true };
 				Event::PaymentClaimed {
 					receiver_node_id: local_receiver_node_id_nonref,
 					payment_hash: crate::c_types::ThirtyTwoBytes { data: payment_hash_nonref.0 },
@@ -2628,6 +3190,7 @@ impl Event {
 					purpose: crate::lightning::events::PaymentPurpose::native_into(purpose_nonref),
 					htlcs: local_htlcs_nonref.into(),
 					sender_intended_total_msat: local_sender_intended_total_msat_nonref,
+					onion_fields: local_onion_fields_nonref,
 				}
 			},
 			nativeEvent::ConnectionNeeded {ref node_id, ref addresses, } => {
@@ -2639,10 +3202,18 @@ impl Event {
 					addresses: local_addresses_nonref.into(),
 				}
 			},
-			nativeEvent::InvoiceRequestFailed {ref payment_id, } => {
+			nativeEvent::InvoiceReceived {ref payment_id, ref invoice, ref context, ref responder, } => {
 				let mut payment_id_nonref = Clone::clone(payment_id);
-				Event::InvoiceRequestFailed {
+				let mut invoice_nonref = Clone::clone(invoice);
+				let mut context_nonref = Clone::clone(context);
+				let mut local_context_nonref = if context_nonref.is_none() { crate::c_types::derived::COption_OffersContextZ::None } else { crate::c_types::derived::COption_OffersContextZ::Some( { crate::lightning::blinded_path::message::OffersContext::native_into(context_nonref.unwrap()) }) };
+				let mut responder_nonref = Clone::clone(responder);
+				let mut local_responder_nonref = crate::lightning::onion_message::messenger::Responder { inner: if responder_nonref.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((responder_nonref.unwrap())) } }, is_owned: true };
+				Event::InvoiceReceived {
 					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id_nonref.0 },
+					invoice: crate::lightning::offers::invoice::Bolt12Invoice { inner: ObjOps::heap_alloc(invoice_nonref), is_owned: true },
+					context: local_context_nonref,
+					responder: local_responder_nonref,
 				}
 			},
 			nativeEvent::PaymentSent {ref payment_id, ref payment_preimage, ref payment_hash, ref fee_paid_msat, } => {
@@ -2662,11 +3233,12 @@ impl Event {
 			nativeEvent::PaymentFailed {ref payment_id, ref payment_hash, ref reason, } => {
 				let mut payment_id_nonref = Clone::clone(payment_id);
 				let mut payment_hash_nonref = Clone::clone(payment_hash);
+				let mut local_payment_hash_nonref = if payment_hash_nonref.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some( { crate::c_types::ThirtyTwoBytes { data: payment_hash_nonref.unwrap().0 } }) };
 				let mut reason_nonref = Clone::clone(reason);
 				let mut local_reason_nonref = if reason_nonref.is_none() { crate::c_types::derived::COption_PaymentFailureReasonZ::None } else { crate::c_types::derived::COption_PaymentFailureReasonZ::Some( { crate::lightning::events::PaymentFailureReason::native_into(reason_nonref.unwrap()) }) };
 				Event::PaymentFailed {
 					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id_nonref.0 },
-					payment_hash: crate::c_types::ThirtyTwoBytes { data: payment_hash_nonref.0 },
+					payment_hash: local_payment_hash_nonref,
 					reason: local_reason_nonref,
 				}
 			},
@@ -2787,7 +3359,7 @@ impl Event {
 				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
 				let mut funding_txo_nonref = Clone::clone(funding_txo);
 				let mut channel_type_nonref = Clone::clone(channel_type);
-				let mut local_channel_type_nonref = crate::lightning::ln::features::ChannelTypeFeatures { inner: if channel_type_nonref.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((channel_type_nonref.unwrap())) } }, is_owned: true };
+				let mut local_channel_type_nonref = crate::lightning_types::features::ChannelTypeFeatures { inner: if channel_type_nonref.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((channel_type_nonref.unwrap())) } }, is_owned: true };
 				Event::ChannelPending {
 					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id_nonref), is_owned: true },
 					user_channel_id: user_channel_id_nonref.into(),
@@ -2806,7 +3378,7 @@ impl Event {
 					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id_nonref), is_owned: true },
 					user_channel_id: user_channel_id_nonref.into(),
 					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id_nonref),
-					channel_type: crate::lightning::ln::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(channel_type_nonref), is_owned: true },
+					channel_type: crate::lightning_types::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(channel_type_nonref), is_owned: true },
 				}
 			},
 			nativeEvent::ChannelClosed {ref channel_id, ref user_channel_id, ref reason, ref counterparty_node_id, ref channel_capacity_sats, ref channel_funding_txo, } => {
@@ -2828,26 +3400,30 @@ impl Event {
 					channel_funding_txo: local_channel_funding_txo_nonref,
 				}
 			},
-			nativeEvent::DiscardFunding {ref channel_id, ref transaction, } => {
+			nativeEvent::DiscardFunding {ref channel_id, ref funding_info, } => {
 				let mut channel_id_nonref = Clone::clone(channel_id);
-				let mut transaction_nonref = Clone::clone(transaction);
+				let mut funding_info_nonref = Clone::clone(funding_info);
 				Event::DiscardFunding {
 					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id_nonref), is_owned: true },
-					transaction: crate::c_types::Transaction::from_bitcoin(&transaction_nonref),
+					funding_info: crate::lightning::events::FundingInfo::native_into(funding_info_nonref),
 				}
 			},
-			nativeEvent::OpenChannelRequest {ref temporary_channel_id, ref counterparty_node_id, ref funding_satoshis, ref push_msat, ref channel_type, } => {
+			nativeEvent::OpenChannelRequest {ref temporary_channel_id, ref counterparty_node_id, ref funding_satoshis, ref push_msat, ref channel_type, ref is_announced, ref params, } => {
 				let mut temporary_channel_id_nonref = Clone::clone(temporary_channel_id);
 				let mut counterparty_node_id_nonref = Clone::clone(counterparty_node_id);
 				let mut funding_satoshis_nonref = Clone::clone(funding_satoshis);
 				let mut push_msat_nonref = Clone::clone(push_msat);
 				let mut channel_type_nonref = Clone::clone(channel_type);
+				let mut is_announced_nonref = Clone::clone(is_announced);
+				let mut params_nonref = Clone::clone(params);
 				Event::OpenChannelRequest {
 					temporary_channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(temporary_channel_id_nonref), is_owned: true },
 					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id_nonref),
 					funding_satoshis: funding_satoshis_nonref,
 					push_msat: push_msat_nonref,
-					channel_type: crate::lightning::ln::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(channel_type_nonref), is_owned: true },
+					channel_type: crate::lightning_types::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(channel_type_nonref), is_owned: true },
+					is_announced: is_announced_nonref,
+					params: crate::lightning::ln::msgs::ChannelParameters { inner: ObjOps::heap_alloc(params_nonref), is_owned: true },
 				}
 			},
 			nativeEvent::HTLCHandlingFailed {ref prev_channel_id, ref failed_next_destination, } => {
@@ -2864,6 +3440,20 @@ impl Event {
 					crate::lightning::events::bump_transaction::BumpTransactionEvent::native_into(a_nonref),
 				)
 			},
+			nativeEvent::OnionMessageIntercepted {ref peer_node_id, ref message, } => {
+				let mut peer_node_id_nonref = Clone::clone(peer_node_id);
+				let mut message_nonref = Clone::clone(message);
+				Event::OnionMessageIntercepted {
+					peer_node_id: crate::c_types::PublicKey::from_rust(&peer_node_id_nonref),
+					message: crate::lightning::ln::msgs::OnionMessage { inner: ObjOps::heap_alloc(message_nonref), is_owned: true },
+				}
+			},
+			nativeEvent::OnionMessagePeerConnected {ref peer_node_id, } => {
+				let mut peer_node_id_nonref = Clone::clone(peer_node_id);
+				Event::OnionMessagePeerConnected {
+					peer_node_id: crate::c_types::PublicKey::from_rust(&peer_node_id_nonref),
+				}
+			},
 		}
 	}
 	#[allow(unused)]
@@ -2876,6 +3466,15 @@ impl Event {
 					channel_value_satoshis: channel_value_satoshis,
 					output_script: output_script.to_bytes().into(),
 					user_channel_id: user_channel_id.into(),
+				}
+			},
+			nativeEvent::FundingTxBroadcastSafe {mut channel_id, mut user_channel_id, mut funding_txo, mut counterparty_node_id, mut former_temporary_channel_id, } => {
+				Event::FundingTxBroadcastSafe {
+					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id), is_owned: true },
+					user_channel_id: user_channel_id.into(),
+					funding_txo: crate::c_types::bitcoin_to_C_outpoint(&funding_txo),
+					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id),
+					former_temporary_channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(former_temporary_channel_id), is_owned: true },
 				}
 			},
 			nativeEvent::PaymentClaimable {mut receiver_node_id, mut payment_hash, mut onion_fields, mut amount_msat, mut counterparty_skimmed_fee_msat, mut purpose, mut via_channel_id, mut via_user_channel_id, mut claim_deadline, } => {
@@ -2896,10 +3495,11 @@ impl Event {
 					claim_deadline: local_claim_deadline,
 				}
 			},
-			nativeEvent::PaymentClaimed {mut receiver_node_id, mut payment_hash, mut amount_msat, mut purpose, mut htlcs, mut sender_intended_total_msat, } => {
+			nativeEvent::PaymentClaimed {mut receiver_node_id, mut payment_hash, mut amount_msat, mut purpose, mut htlcs, mut sender_intended_total_msat, mut onion_fields, } => {
 				let mut local_receiver_node_id = if receiver_node_id.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(receiver_node_id.unwrap())) } };
 				let mut local_htlcs = Vec::new(); for mut item in htlcs.drain(..) { local_htlcs.push( { crate::lightning::events::ClaimedHTLC { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				let mut local_sender_intended_total_msat = if sender_intended_total_msat.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { sender_intended_total_msat.unwrap() }) };
+				let mut local_onion_fields = crate::lightning::ln::outbound_payment::RecipientOnionFields { inner: if onion_fields.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((onion_fields.unwrap())) } }, is_owned: true };
 				Event::PaymentClaimed {
 					receiver_node_id: local_receiver_node_id,
 					payment_hash: crate::c_types::ThirtyTwoBytes { data: payment_hash.0 },
@@ -2907,6 +3507,7 @@ impl Event {
 					purpose: crate::lightning::events::PaymentPurpose::native_into(purpose),
 					htlcs: local_htlcs.into(),
 					sender_intended_total_msat: local_sender_intended_total_msat,
+					onion_fields: local_onion_fields,
 				}
 			},
 			nativeEvent::ConnectionNeeded {mut node_id, mut addresses, } => {
@@ -2916,9 +3517,14 @@ impl Event {
 					addresses: local_addresses.into(),
 				}
 			},
-			nativeEvent::InvoiceRequestFailed {mut payment_id, } => {
-				Event::InvoiceRequestFailed {
+			nativeEvent::InvoiceReceived {mut payment_id, mut invoice, mut context, mut responder, } => {
+				let mut local_context = if context.is_none() { crate::c_types::derived::COption_OffersContextZ::None } else { crate::c_types::derived::COption_OffersContextZ::Some( { crate::lightning::blinded_path::message::OffersContext::native_into(context.unwrap()) }) };
+				let mut local_responder = crate::lightning::onion_message::messenger::Responder { inner: if responder.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((responder.unwrap())) } }, is_owned: true };
+				Event::InvoiceReceived {
 					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id.0 },
+					invoice: crate::lightning::offers::invoice::Bolt12Invoice { inner: ObjOps::heap_alloc(invoice), is_owned: true },
+					context: local_context,
+					responder: local_responder,
 				}
 			},
 			nativeEvent::PaymentSent {mut payment_id, mut payment_preimage, mut payment_hash, mut fee_paid_msat, } => {
@@ -2932,10 +3538,11 @@ impl Event {
 				}
 			},
 			nativeEvent::PaymentFailed {mut payment_id, mut payment_hash, mut reason, } => {
+				let mut local_payment_hash = if payment_hash.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some( { crate::c_types::ThirtyTwoBytes { data: payment_hash.unwrap().0 } }) };
 				let mut local_reason = if reason.is_none() { crate::c_types::derived::COption_PaymentFailureReasonZ::None } else { crate::c_types::derived::COption_PaymentFailureReasonZ::Some( { crate::lightning::events::PaymentFailureReason::native_into(reason.unwrap()) }) };
 				Event::PaymentFailed {
 					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id.0 },
-					payment_hash: crate::c_types::ThirtyTwoBytes { data: payment_hash.0 },
+					payment_hash: local_payment_hash,
 					reason: local_reason,
 				}
 			},
@@ -3018,7 +3625,7 @@ impl Event {
 			},
 			nativeEvent::ChannelPending {mut channel_id, mut user_channel_id, mut former_temporary_channel_id, mut counterparty_node_id, mut funding_txo, mut channel_type, } => {
 				let mut local_former_temporary_channel_id = crate::lightning::ln::types::ChannelId { inner: if former_temporary_channel_id.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((former_temporary_channel_id.unwrap())) } }, is_owned: true };
-				let mut local_channel_type = crate::lightning::ln::features::ChannelTypeFeatures { inner: if channel_type.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((channel_type.unwrap())) } }, is_owned: true };
+				let mut local_channel_type = crate::lightning_types::features::ChannelTypeFeatures { inner: if channel_type.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((channel_type.unwrap())) } }, is_owned: true };
 				Event::ChannelPending {
 					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id), is_owned: true },
 					user_channel_id: user_channel_id.into(),
@@ -3033,7 +3640,7 @@ impl Event {
 					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id), is_owned: true },
 					user_channel_id: user_channel_id.into(),
 					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id),
-					channel_type: crate::lightning::ln::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(channel_type), is_owned: true },
+					channel_type: crate::lightning_types::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(channel_type), is_owned: true },
 				}
 			},
 			nativeEvent::ChannelClosed {mut channel_id, mut user_channel_id, mut reason, mut counterparty_node_id, mut channel_capacity_sats, mut channel_funding_txo, } => {
@@ -3049,19 +3656,21 @@ impl Event {
 					channel_funding_txo: local_channel_funding_txo,
 				}
 			},
-			nativeEvent::DiscardFunding {mut channel_id, mut transaction, } => {
+			nativeEvent::DiscardFunding {mut channel_id, mut funding_info, } => {
 				Event::DiscardFunding {
 					channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(channel_id), is_owned: true },
-					transaction: crate::c_types::Transaction::from_bitcoin(&transaction),
+					funding_info: crate::lightning::events::FundingInfo::native_into(funding_info),
 				}
 			},
-			nativeEvent::OpenChannelRequest {mut temporary_channel_id, mut counterparty_node_id, mut funding_satoshis, mut push_msat, mut channel_type, } => {
+			nativeEvent::OpenChannelRequest {mut temporary_channel_id, mut counterparty_node_id, mut funding_satoshis, mut push_msat, mut channel_type, mut is_announced, mut params, } => {
 				Event::OpenChannelRequest {
 					temporary_channel_id: crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(temporary_channel_id), is_owned: true },
 					counterparty_node_id: crate::c_types::PublicKey::from_rust(&counterparty_node_id),
 					funding_satoshis: funding_satoshis,
 					push_msat: push_msat,
-					channel_type: crate::lightning::ln::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(channel_type), is_owned: true },
+					channel_type: crate::lightning_types::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(channel_type), is_owned: true },
+					is_announced: is_announced,
+					params: crate::lightning::ln::msgs::ChannelParameters { inner: ObjOps::heap_alloc(params), is_owned: true },
 				}
 			},
 			nativeEvent::HTLCHandlingFailed {mut prev_channel_id, mut failed_next_destination, } => {
@@ -3074,6 +3683,17 @@ impl Event {
 				Event::BumpTransaction (
 					crate::lightning::events::bump_transaction::BumpTransactionEvent::native_into(a),
 				)
+			},
+			nativeEvent::OnionMessageIntercepted {mut peer_node_id, mut message, } => {
+				Event::OnionMessageIntercepted {
+					peer_node_id: crate::c_types::PublicKey::from_rust(&peer_node_id),
+					message: crate::lightning::ln::msgs::OnionMessage { inner: ObjOps::heap_alloc(message), is_owned: true },
+				}
+			},
+			nativeEvent::OnionMessagePeerConnected {mut peer_node_id, } => {
+				Event::OnionMessagePeerConnected {
+					peer_node_id: crate::c_types::PublicKey::from_rust(&peer_node_id),
+				}
 			},
 		}
 	}
@@ -3108,6 +3728,17 @@ pub extern "C" fn Event_funding_generation_ready(temporary_channel_id: crate::li
 	}
 }
 #[no_mangle]
+/// Utility method to constructs a new FundingTxBroadcastSafe-variant Event
+pub extern "C" fn Event_funding_tx_broadcast_safe(channel_id: crate::lightning::ln::types::ChannelId, user_channel_id: crate::c_types::U128, funding_txo: crate::lightning::chain::transaction::OutPoint, counterparty_node_id: crate::c_types::PublicKey, former_temporary_channel_id: crate::lightning::ln::types::ChannelId) -> Event {
+	Event::FundingTxBroadcastSafe {
+		channel_id,
+		user_channel_id,
+		funding_txo,
+		counterparty_node_id,
+		former_temporary_channel_id,
+	}
+}
+#[no_mangle]
 /// Utility method to constructs a new PaymentClaimable-variant Event
 pub extern "C" fn Event_payment_claimable(receiver_node_id: crate::c_types::PublicKey, payment_hash: crate::c_types::ThirtyTwoBytes, onion_fields: crate::lightning::ln::outbound_payment::RecipientOnionFields, amount_msat: u64, counterparty_skimmed_fee_msat: u64, purpose: crate::lightning::events::PaymentPurpose, via_channel_id: crate::lightning::ln::types::ChannelId, via_user_channel_id: crate::c_types::derived::COption_U128Z, claim_deadline: crate::c_types::derived::COption_u32Z) -> Event {
 	Event::PaymentClaimable {
@@ -3124,7 +3755,7 @@ pub extern "C" fn Event_payment_claimable(receiver_node_id: crate::c_types::Publ
 }
 #[no_mangle]
 /// Utility method to constructs a new PaymentClaimed-variant Event
-pub extern "C" fn Event_payment_claimed(receiver_node_id: crate::c_types::PublicKey, payment_hash: crate::c_types::ThirtyTwoBytes, amount_msat: u64, purpose: crate::lightning::events::PaymentPurpose, htlcs: crate::c_types::derived::CVec_ClaimedHTLCZ, sender_intended_total_msat: crate::c_types::derived::COption_u64Z) -> Event {
+pub extern "C" fn Event_payment_claimed(receiver_node_id: crate::c_types::PublicKey, payment_hash: crate::c_types::ThirtyTwoBytes, amount_msat: u64, purpose: crate::lightning::events::PaymentPurpose, htlcs: crate::c_types::derived::CVec_ClaimedHTLCZ, sender_intended_total_msat: crate::c_types::derived::COption_u64Z, onion_fields: crate::lightning::ln::outbound_payment::RecipientOnionFields) -> Event {
 	Event::PaymentClaimed {
 		receiver_node_id,
 		payment_hash,
@@ -3132,6 +3763,7 @@ pub extern "C" fn Event_payment_claimed(receiver_node_id: crate::c_types::Public
 		purpose,
 		htlcs,
 		sender_intended_total_msat,
+		onion_fields,
 	}
 }
 #[no_mangle]
@@ -3143,10 +3775,13 @@ pub extern "C" fn Event_connection_needed(node_id: crate::c_types::PublicKey, ad
 	}
 }
 #[no_mangle]
-/// Utility method to constructs a new InvoiceRequestFailed-variant Event
-pub extern "C" fn Event_invoice_request_failed(payment_id: crate::c_types::ThirtyTwoBytes) -> Event {
-	Event::InvoiceRequestFailed {
+/// Utility method to constructs a new InvoiceReceived-variant Event
+pub extern "C" fn Event_invoice_received(payment_id: crate::c_types::ThirtyTwoBytes, invoice: crate::lightning::offers::invoice::Bolt12Invoice, context: crate::c_types::derived::COption_OffersContextZ, responder: crate::lightning::onion_message::messenger::Responder) -> Event {
+	Event::InvoiceReceived {
 		payment_id,
+		invoice,
+		context,
+		responder,
 	}
 }
 #[no_mangle]
@@ -3161,7 +3796,7 @@ pub extern "C" fn Event_payment_sent(payment_id: crate::c_types::derived::COptio
 }
 #[no_mangle]
 /// Utility method to constructs a new PaymentFailed-variant Event
-pub extern "C" fn Event_payment_failed(payment_id: crate::c_types::ThirtyTwoBytes, payment_hash: crate::c_types::ThirtyTwoBytes, reason: crate::c_types::derived::COption_PaymentFailureReasonZ) -> Event {
+pub extern "C" fn Event_payment_failed(payment_id: crate::c_types::ThirtyTwoBytes, payment_hash: crate::c_types::derived::COption_ThirtyTwoBytesZ, reason: crate::c_types::derived::COption_PaymentFailureReasonZ) -> Event {
 	Event::PaymentFailed {
 		payment_id,
 		payment_hash,
@@ -3250,7 +3885,7 @@ pub extern "C" fn Event_payment_forwarded(prev_channel_id: crate::lightning::ln:
 }
 #[no_mangle]
 /// Utility method to constructs a new ChannelPending-variant Event
-pub extern "C" fn Event_channel_pending(channel_id: crate::lightning::ln::types::ChannelId, user_channel_id: crate::c_types::U128, former_temporary_channel_id: crate::lightning::ln::types::ChannelId, counterparty_node_id: crate::c_types::PublicKey, funding_txo: crate::lightning::chain::transaction::OutPoint, channel_type: crate::lightning::ln::features::ChannelTypeFeatures) -> Event {
+pub extern "C" fn Event_channel_pending(channel_id: crate::lightning::ln::types::ChannelId, user_channel_id: crate::c_types::U128, former_temporary_channel_id: crate::lightning::ln::types::ChannelId, counterparty_node_id: crate::c_types::PublicKey, funding_txo: crate::lightning::chain::transaction::OutPoint, channel_type: crate::lightning_types::features::ChannelTypeFeatures) -> Event {
 	Event::ChannelPending {
 		channel_id,
 		user_channel_id,
@@ -3262,7 +3897,7 @@ pub extern "C" fn Event_channel_pending(channel_id: crate::lightning::ln::types:
 }
 #[no_mangle]
 /// Utility method to constructs a new ChannelReady-variant Event
-pub extern "C" fn Event_channel_ready(channel_id: crate::lightning::ln::types::ChannelId, user_channel_id: crate::c_types::U128, counterparty_node_id: crate::c_types::PublicKey, channel_type: crate::lightning::ln::features::ChannelTypeFeatures) -> Event {
+pub extern "C" fn Event_channel_ready(channel_id: crate::lightning::ln::types::ChannelId, user_channel_id: crate::c_types::U128, counterparty_node_id: crate::c_types::PublicKey, channel_type: crate::lightning_types::features::ChannelTypeFeatures) -> Event {
 	Event::ChannelReady {
 		channel_id,
 		user_channel_id,
@@ -3284,21 +3919,23 @@ pub extern "C" fn Event_channel_closed(channel_id: crate::lightning::ln::types::
 }
 #[no_mangle]
 /// Utility method to constructs a new DiscardFunding-variant Event
-pub extern "C" fn Event_discard_funding(channel_id: crate::lightning::ln::types::ChannelId, transaction: crate::c_types::Transaction) -> Event {
+pub extern "C" fn Event_discard_funding(channel_id: crate::lightning::ln::types::ChannelId, funding_info: crate::lightning::events::FundingInfo) -> Event {
 	Event::DiscardFunding {
 		channel_id,
-		transaction,
+		funding_info,
 	}
 }
 #[no_mangle]
 /// Utility method to constructs a new OpenChannelRequest-variant Event
-pub extern "C" fn Event_open_channel_request(temporary_channel_id: crate::lightning::ln::types::ChannelId, counterparty_node_id: crate::c_types::PublicKey, funding_satoshis: u64, push_msat: u64, channel_type: crate::lightning::ln::features::ChannelTypeFeatures) -> Event {
+pub extern "C" fn Event_open_channel_request(temporary_channel_id: crate::lightning::ln::types::ChannelId, counterparty_node_id: crate::c_types::PublicKey, funding_satoshis: u64, push_msat: u64, channel_type: crate::lightning_types::features::ChannelTypeFeatures, is_announced: bool, params: crate::lightning::ln::msgs::ChannelParameters) -> Event {
 	Event::OpenChannelRequest {
 		temporary_channel_id,
 		counterparty_node_id,
 		funding_satoshis,
 		push_msat,
 		channel_type,
+		is_announced,
+		params,
 	}
 }
 #[no_mangle]
@@ -3313,6 +3950,21 @@ pub extern "C" fn Event_htlchandling_failed(prev_channel_id: crate::lightning::l
 /// Utility method to constructs a new BumpTransaction-variant Event
 pub extern "C" fn Event_bump_transaction(a: crate::lightning::events::bump_transaction::BumpTransactionEvent) -> Event {
 	Event::BumpTransaction(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new OnionMessageIntercepted-variant Event
+pub extern "C" fn Event_onion_message_intercepted(peer_node_id: crate::c_types::PublicKey, message: crate::lightning::ln::msgs::OnionMessage) -> Event {
+	Event::OnionMessageIntercepted {
+		peer_node_id,
+		message,
+	}
+}
+#[no_mangle]
+/// Utility method to constructs a new OnionMessagePeerConnected-variant Event
+pub extern "C" fn Event_onion_message_peer_connected(peer_node_id: crate::c_types::PublicKey) -> Event {
+	Event::OnionMessagePeerConnected {
+		peer_node_id,
+	}
 }
 /// Get a string which allows debug introspection of a Event object
 pub extern "C" fn Event_debug_str_void(o: *const c_void) -> Str {
@@ -3399,12 +4051,12 @@ pub enum MessageSendEvent {
 		/// The message which should be sent.
 		msg: crate::lightning::ln::msgs::Stfu,
 	},
-	/// Used to indicate that a splice message should be sent to the peer with the given node id.
-	SendSplice {
+	/// Used to indicate that a splice_init message should be sent to the peer with the given node id.
+	SendSpliceInit {
 		/// The node_id of the node which should receive this message
 		node_id: crate::c_types::PublicKey,
 		/// The message which should be sent.
-		msg: crate::lightning::ln::msgs::Splice,
+		msg: crate::lightning::ln::msgs::SpliceInit,
 	},
 	/// Used to indicate that a splice_ack message should be sent to the peer with the given node id.
 	SendSpliceAck {
@@ -3682,10 +4334,10 @@ impl MessageSendEvent {
 					msg: *unsafe { Box::from_raw(msg_nonref.take_inner()) },
 				}
 			},
-			MessageSendEvent::SendSplice {ref node_id, ref msg, } => {
+			MessageSendEvent::SendSpliceInit {ref node_id, ref msg, } => {
 				let mut node_id_nonref = Clone::clone(node_id);
 				let mut msg_nonref = Clone::clone(msg);
-				nativeMessageSendEvent::SendSplice {
+				nativeMessageSendEvent::SendSpliceInit {
 					node_id: node_id_nonref.into_rust(),
 					msg: *unsafe { Box::from_raw(msg_nonref.take_inner()) },
 				}
@@ -3960,8 +4612,8 @@ impl MessageSendEvent {
 					msg: *unsafe { Box::from_raw(msg.take_inner()) },
 				}
 			},
-			MessageSendEvent::SendSplice {mut node_id, mut msg, } => {
-				nativeMessageSendEvent::SendSplice {
+			MessageSendEvent::SendSpliceInit {mut node_id, mut msg, } => {
+				nativeMessageSendEvent::SendSpliceInit {
 					node_id: node_id.into_rust(),
 					msg: *unsafe { Box::from_raw(msg.take_inner()) },
 				}
@@ -4196,12 +4848,12 @@ impl MessageSendEvent {
 					msg: crate::lightning::ln::msgs::Stfu { inner: ObjOps::heap_alloc(msg_nonref), is_owned: true },
 				}
 			},
-			nativeMessageSendEvent::SendSplice {ref node_id, ref msg, } => {
+			nativeMessageSendEvent::SendSpliceInit {ref node_id, ref msg, } => {
 				let mut node_id_nonref = Clone::clone(node_id);
 				let mut msg_nonref = Clone::clone(msg);
-				MessageSendEvent::SendSplice {
+				MessageSendEvent::SendSpliceInit {
 					node_id: crate::c_types::PublicKey::from_rust(&node_id_nonref),
-					msg: crate::lightning::ln::msgs::Splice { inner: ObjOps::heap_alloc(msg_nonref), is_owned: true },
+					msg: crate::lightning::ln::msgs::SpliceInit { inner: ObjOps::heap_alloc(msg_nonref), is_owned: true },
 				}
 			},
 			nativeMessageSendEvent::SendSpliceAck {ref node_id, ref msg, } => {
@@ -4474,10 +5126,10 @@ impl MessageSendEvent {
 					msg: crate::lightning::ln::msgs::Stfu { inner: ObjOps::heap_alloc(msg), is_owned: true },
 				}
 			},
-			nativeMessageSendEvent::SendSplice {mut node_id, mut msg, } => {
-				MessageSendEvent::SendSplice {
+			nativeMessageSendEvent::SendSpliceInit {mut node_id, mut msg, } => {
+				MessageSendEvent::SendSpliceInit {
 					node_id: crate::c_types::PublicKey::from_rust(&node_id),
-					msg: crate::lightning::ln::msgs::Splice { inner: ObjOps::heap_alloc(msg), is_owned: true },
+					msg: crate::lightning::ln::msgs::SpliceInit { inner: ObjOps::heap_alloc(msg), is_owned: true },
 				}
 			},
 			nativeMessageSendEvent::SendSpliceAck {mut node_id, mut msg, } => {
@@ -4726,9 +5378,9 @@ pub extern "C" fn MessageSendEvent_send_stfu(node_id: crate::c_types::PublicKey,
 	}
 }
 #[no_mangle]
-/// Utility method to constructs a new SendSplice-variant MessageSendEvent
-pub extern "C" fn MessageSendEvent_send_splice(node_id: crate::c_types::PublicKey, msg: crate::lightning::ln::msgs::Splice) -> MessageSendEvent {
-	MessageSendEvent::SendSplice {
+/// Utility method to constructs a new SendSpliceInit-variant MessageSendEvent
+pub extern "C" fn MessageSendEvent_send_splice_init(node_id: crate::c_types::PublicKey, msg: crate::lightning::ln::msgs::SpliceInit) -> MessageSendEvent {
+	MessageSendEvent::SendSpliceInit {
 		node_id,
 		msg,
 	}
@@ -4992,17 +5644,26 @@ impl rustMessageSendEventsProvider for MessageSendEventsProvider {
 	}
 }
 
+pub struct MessageSendEventsProviderRef(MessageSendEventsProvider);
+impl rustMessageSendEventsProvider for MessageSendEventsProviderRef {
+	fn get_and_clear_pending_msg_events(&self) -> Vec<lightning::events::MessageSendEvent> {
+		let mut ret = (self.0.get_and_clear_pending_msg_events)(self.0.this_arg);
+		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { item.into_native() }); };
+		local_ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for MessageSendEventsProvider {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = MessageSendEventsProviderRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const MessageSendEventsProviderRef) }
 	}
 }
 impl core::ops::DerefMut for MessageSendEventsProvider {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut MessageSendEventsProviderRef {
+		unsafe { &mut *(self as *mut _ as *mut MessageSendEventsProviderRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -5030,8 +5691,12 @@ impl Drop for MessageSendEventsProvider {
 ///
 /// In order to ensure no [`Event`]s are lost, implementors of this trait will persist [`Event`]s
 /// and replay any unhandled events on startup. An [`Event`] is considered handled when
-/// [`process_pending_events`] returns, thus handlers MUST fully handle [`Event`]s and persist any
-/// relevant changes to disk *before* returning.
+/// [`process_pending_events`] returns `Ok(())`, thus handlers MUST fully handle [`Event`]s and
+/// persist any relevant changes to disk *before* returning `Ok(())`. In case of an error (e.g.,
+/// persistence failure) implementors should return `Err(ReplayEvent())`, signalling to the
+/// [`EventsProvider`] to replay unhandled events on the next invocation (generally immediately).
+/// Note that some events might not be replayed, please refer to the documentation for
+/// the individual [`Event`] variants for more detail.
 ///
 /// Further, because an application may crash between an [`Event`] being handled and the
 /// implementor of this trait being re-serialized, [`Event`] handling must be idempotent - in
@@ -5086,11 +5751,104 @@ impl Drop for EventsProvider {
 		}
 	}
 }
+
+use lightning::events::ReplayEvent as nativeReplayEventImport;
+pub(crate) type nativeReplayEvent = nativeReplayEventImport;
+
+/// An error type that may be returned to LDK in order to safely abort event handling if it can't
+/// currently succeed (e.g., due to a persistence failure).
+///
+/// Depending on the type, LDK may ensure the event is persisted and will eventually be replayed.
+/// Please refer to the documentation of each [`Event`] variant for more details.
+#[must_use]
+#[repr(C)]
+pub struct ReplayEvent {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeReplayEvent,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for ReplayEvent {
+	type Target = nativeReplayEvent;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ReplayEvent { }
+unsafe impl core::marker::Sync for ReplayEvent { }
+impl Drop for ReplayEvent {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeReplayEvent>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the ReplayEvent, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn ReplayEvent_free(this_obj: ReplayEvent) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn ReplayEvent_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeReplayEvent) };
+}
+#[allow(unused)]
+impl ReplayEvent {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeReplayEvent {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeReplayEvent {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeReplayEvent {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// Constructs a new ReplayEvent given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ReplayEvent_new() -> ReplayEvent {
+	ReplayEvent { inner: ObjOps::heap_alloc(lightning::events::ReplayEvent (
+	)), is_owned: true }
+}
+impl Clone for ReplayEvent {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeReplayEvent>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn ReplayEvent_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeReplayEvent)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the ReplayEvent
+pub extern "C" fn ReplayEvent_clone(orig: &ReplayEvent) -> ReplayEvent {
+	orig.clone()
+}
+/// Get a string which allows debug introspection of a ReplayEvent object
+pub extern "C" fn ReplayEvent_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::events::ReplayEvent }).into()}
 /// A trait implemented for objects handling events from [`EventsProvider`].
 ///
 /// An async variation also exists for implementations of [`EventsProvider`] that support async
 /// event handling. The async event handler should satisfy the generic bounds: `F:
-/// core::future::Future, H: Fn(Event) -> F`.
+/// core::future::Future<Output = Result<(), ReplayEvent>>, H: Fn(Event) -> F`.
 #[repr(C)]
 pub struct EventHandler {
 	/// An opaque pointer which is passed to your function implementations as an argument.
@@ -5099,7 +5857,7 @@ pub struct EventHandler {
 	/// Handles the given [`Event`].
 	///
 	/// See [`EventsProvider`] for details that must be considered when implementing this method.
-	pub handle_event: extern "C" fn (this_arg: *const c_void, event: crate::lightning::events::Event),
+	pub handle_event: extern "C" fn (this_arg: *const c_void, event: crate::lightning::events::Event) -> crate::c_types::derived::CResult_NoneReplayEventZ,
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
 	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
@@ -5117,22 +5875,33 @@ pub(crate) fn EventHandler_clone_fields(orig: &EventHandler) -> EventHandler {
 
 use lightning::events::EventHandler as rustEventHandler;
 impl rustEventHandler for EventHandler {
-	fn handle_event(&self, mut event: lightning::events::Event) {
-		(self.handle_event)(self.this_arg, crate::lightning::events::Event::native_into(event))
+	fn handle_event(&self, mut event: lightning::events::Event) -> Result<(), lightning::events::ReplayEvent> {
+		let mut ret = (self.handle_event)(self.this_arg, crate::lightning::events::Event::native_into(event));
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+}
+
+pub struct EventHandlerRef(EventHandler);
+impl rustEventHandler for EventHandlerRef {
+	fn handle_event(&self, mut event: lightning::events::Event) -> Result<(), lightning::events::ReplayEvent> {
+		let mut ret = (self.0.handle_event)(self.0.this_arg, crate::lightning::events::Event::native_into(event));
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
 	}
 }
 
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for EventHandler {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = EventHandlerRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const EventHandlerRef) }
 	}
 }
 impl core::ops::DerefMut for EventHandler {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut EventHandlerRef {
+		unsafe { &mut *(self as *mut _ as *mut EventHandlerRef) }
 	}
 }
 /// Calls the free function if one is set

@@ -521,7 +521,7 @@ fn writeln_docs_impl<'a, W: std::io::Write, I>(w: &mut W, attrs: &[syn::Attribut
 /// this_param is used when returning Self or accepting a self parameter, and should be the
 /// concrete, mapped type.
 pub fn write_method_params<W: std::io::Write>(w: &mut W, sig: &syn::Signature, this_param: &str, types: &mut TypeResolver, generics: Option<&GenericTypes>, self_ptr: bool, fn_decl: bool) {
-	if sig.constness.is_some() || sig.asyncness.is_some() || sig.unsafety.is_some() ||
+	if sig.asyncness.is_some() || sig.unsafety.is_some() ||
 			sig.abi.is_some() || sig.variadic.is_some() {
 		unimplemented!();
 	}

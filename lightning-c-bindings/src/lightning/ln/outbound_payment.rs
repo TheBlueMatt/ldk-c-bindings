@@ -192,6 +192,12 @@ pub enum RetryableSendFailure {
 	/// [`Event::PaymentSent`]: crate::events::Event::PaymentSent
 	/// [`Event::PaymentFailed`]: crate::events::Event::PaymentFailed
 	DuplicatePayment,
+	/// The [`RecipientOnionFields::payment_metadata`], [`RecipientOnionFields::custom_tlvs`], or
+	/// [`BlindedPaymentPath`]s provided are too large and caused us to exceed the maximum onion
+	/// packet size of 1300 bytes.
+	///
+	/// [`BlindedPaymentPath`]: crate::blinded_path::payment::BlindedPaymentPath
+	OnionPacketSizeExceeded,
 }
 use lightning::ln::outbound_payment::RetryableSendFailure as RetryableSendFailureImport;
 pub(crate) type nativeRetryableSendFailure = RetryableSendFailureImport;
@@ -203,6 +209,7 @@ impl RetryableSendFailure {
 			RetryableSendFailure::PaymentExpired => nativeRetryableSendFailure::PaymentExpired,
 			RetryableSendFailure::RouteNotFound => nativeRetryableSendFailure::RouteNotFound,
 			RetryableSendFailure::DuplicatePayment => nativeRetryableSendFailure::DuplicatePayment,
+			RetryableSendFailure::OnionPacketSizeExceeded => nativeRetryableSendFailure::OnionPacketSizeExceeded,
 		}
 	}
 	#[allow(unused)]
@@ -211,6 +218,7 @@ impl RetryableSendFailure {
 			RetryableSendFailure::PaymentExpired => nativeRetryableSendFailure::PaymentExpired,
 			RetryableSendFailure::RouteNotFound => nativeRetryableSendFailure::RouteNotFound,
 			RetryableSendFailure::DuplicatePayment => nativeRetryableSendFailure::DuplicatePayment,
+			RetryableSendFailure::OnionPacketSizeExceeded => nativeRetryableSendFailure::OnionPacketSizeExceeded,
 		}
 	}
 	#[allow(unused)]
@@ -220,6 +228,7 @@ impl RetryableSendFailure {
 			nativeRetryableSendFailure::PaymentExpired => RetryableSendFailure::PaymentExpired,
 			nativeRetryableSendFailure::RouteNotFound => RetryableSendFailure::RouteNotFound,
 			nativeRetryableSendFailure::DuplicatePayment => RetryableSendFailure::DuplicatePayment,
+			nativeRetryableSendFailure::OnionPacketSizeExceeded => RetryableSendFailure::OnionPacketSizeExceeded,
 		}
 	}
 	#[allow(unused)]
@@ -228,6 +237,7 @@ impl RetryableSendFailure {
 			nativeRetryableSendFailure::PaymentExpired => RetryableSendFailure::PaymentExpired,
 			nativeRetryableSendFailure::RouteNotFound => RetryableSendFailure::RouteNotFound,
 			nativeRetryableSendFailure::DuplicatePayment => RetryableSendFailure::DuplicatePayment,
+			nativeRetryableSendFailure::OnionPacketSizeExceeded => RetryableSendFailure::OnionPacketSizeExceeded,
 		}
 	}
 }
@@ -258,6 +268,10 @@ pub extern "C" fn RetryableSendFailure_route_not_found() -> RetryableSendFailure
 /// Utility method to constructs a new DuplicatePayment-variant RetryableSendFailure
 pub extern "C" fn RetryableSendFailure_duplicate_payment() -> RetryableSendFailure {
 	RetryableSendFailure::DuplicatePayment}
+#[no_mangle]
+/// Utility method to constructs a new OnionPacketSizeExceeded-variant RetryableSendFailure
+pub extern "C" fn RetryableSendFailure_onion_packet_size_exceeded() -> RetryableSendFailure {
+	RetryableSendFailure::OnionPacketSizeExceeded}
 /// Get a string which allows debug introspection of a RetryableSendFailure object
 pub extern "C" fn RetryableSendFailure_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::outbound_payment::RetryableSendFailure }).into()}
@@ -544,6 +558,125 @@ pub extern "C" fn PaymentSendFailure_debug_str_void(o: *const c_void) -> Str {
 pub extern "C" fn PaymentSendFailure_eq(a: &PaymentSendFailure, b: &PaymentSendFailure) -> bool {
 	if &a.to_native() == &b.to_native() { true } else { false }
 }
+/// An error when attempting to pay a [`Bolt12Invoice`].
+#[derive(Clone)]
+#[must_use]
+#[repr(C)]
+pub enum Bolt12PaymentError {
+	/// The invoice was not requested.
+	UnexpectedInvoice,
+	/// Payment for an invoice with the corresponding [`PaymentId`] was already initiated.
+	DuplicateInvoice,
+	/// The invoice was valid for the corresponding [`PaymentId`], but required unknown features.
+	UnknownRequiredFeatures,
+	/// The invoice was valid for the corresponding [`PaymentId`], but sending the payment failed.
+	SendingFailed(
+		crate::lightning::ln::outbound_payment::RetryableSendFailure),
+}
+use lightning::ln::outbound_payment::Bolt12PaymentError as Bolt12PaymentErrorImport;
+pub(crate) type nativeBolt12PaymentError = Bolt12PaymentErrorImport;
+
+impl Bolt12PaymentError {
+	#[allow(unused)]
+	pub(crate) fn to_native(&self) -> nativeBolt12PaymentError {
+		match self {
+			Bolt12PaymentError::UnexpectedInvoice => nativeBolt12PaymentError::UnexpectedInvoice,
+			Bolt12PaymentError::DuplicateInvoice => nativeBolt12PaymentError::DuplicateInvoice,
+			Bolt12PaymentError::UnknownRequiredFeatures => nativeBolt12PaymentError::UnknownRequiredFeatures,
+			Bolt12PaymentError::SendingFailed (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeBolt12PaymentError::SendingFailed (
+					a_nonref.into_native(),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn into_native(self) -> nativeBolt12PaymentError {
+		match self {
+			Bolt12PaymentError::UnexpectedInvoice => nativeBolt12PaymentError::UnexpectedInvoice,
+			Bolt12PaymentError::DuplicateInvoice => nativeBolt12PaymentError::DuplicateInvoice,
+			Bolt12PaymentError::UnknownRequiredFeatures => nativeBolt12PaymentError::UnknownRequiredFeatures,
+			Bolt12PaymentError::SendingFailed (mut a, ) => {
+				nativeBolt12PaymentError::SendingFailed (
+					a.into_native(),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn from_native(native: &Bolt12PaymentErrorImport) -> Self {
+		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeBolt12PaymentError) };
+		match native {
+			nativeBolt12PaymentError::UnexpectedInvoice => Bolt12PaymentError::UnexpectedInvoice,
+			nativeBolt12PaymentError::DuplicateInvoice => Bolt12PaymentError::DuplicateInvoice,
+			nativeBolt12PaymentError::UnknownRequiredFeatures => Bolt12PaymentError::UnknownRequiredFeatures,
+			nativeBolt12PaymentError::SendingFailed (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				Bolt12PaymentError::SendingFailed (
+					crate::lightning::ln::outbound_payment::RetryableSendFailure::native_into(a_nonref),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn native_into(native: nativeBolt12PaymentError) -> Self {
+		match native {
+			nativeBolt12PaymentError::UnexpectedInvoice => Bolt12PaymentError::UnexpectedInvoice,
+			nativeBolt12PaymentError::DuplicateInvoice => Bolt12PaymentError::DuplicateInvoice,
+			nativeBolt12PaymentError::UnknownRequiredFeatures => Bolt12PaymentError::UnknownRequiredFeatures,
+			nativeBolt12PaymentError::SendingFailed (mut a, ) => {
+				Bolt12PaymentError::SendingFailed (
+					crate::lightning::ln::outbound_payment::RetryableSendFailure::native_into(a),
+				)
+			},
+		}
+	}
+}
+/// Frees any resources used by the Bolt12PaymentError
+#[no_mangle]
+pub extern "C" fn Bolt12PaymentError_free(this_ptr: Bolt12PaymentError) { }
+/// Creates a copy of the Bolt12PaymentError
+#[no_mangle]
+pub extern "C" fn Bolt12PaymentError_clone(orig: &Bolt12PaymentError) -> Bolt12PaymentError {
+	orig.clone()
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt12PaymentError_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const Bolt12PaymentError)).clone() })) as *mut c_void
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt12PaymentError_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut Bolt12PaymentError) };
+}
+#[no_mangle]
+/// Utility method to constructs a new UnexpectedInvoice-variant Bolt12PaymentError
+pub extern "C" fn Bolt12PaymentError_unexpected_invoice() -> Bolt12PaymentError {
+	Bolt12PaymentError::UnexpectedInvoice}
+#[no_mangle]
+/// Utility method to constructs a new DuplicateInvoice-variant Bolt12PaymentError
+pub extern "C" fn Bolt12PaymentError_duplicate_invoice() -> Bolt12PaymentError {
+	Bolt12PaymentError::DuplicateInvoice}
+#[no_mangle]
+/// Utility method to constructs a new UnknownRequiredFeatures-variant Bolt12PaymentError
+pub extern "C" fn Bolt12PaymentError_unknown_required_features() -> Bolt12PaymentError {
+	Bolt12PaymentError::UnknownRequiredFeatures}
+#[no_mangle]
+/// Utility method to constructs a new SendingFailed-variant Bolt12PaymentError
+pub extern "C" fn Bolt12PaymentError_sending_failed(a: crate::lightning::ln::outbound_payment::RetryableSendFailure) -> Bolt12PaymentError {
+	Bolt12PaymentError::SendingFailed(a, )
+}
+/// Get a string which allows debug introspection of a Bolt12PaymentError object
+pub extern "C" fn Bolt12PaymentError_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::outbound_payment::Bolt12PaymentError }).into()}
+/// Checks if two Bolt12PaymentErrors contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+#[no_mangle]
+pub extern "C" fn Bolt12PaymentError_eq(a: &Bolt12PaymentError, b: &Bolt12PaymentError) -> bool {
+	if &a.to_native() == &b.to_native() { true } else { false }
+}
 /// Indicates that we failed to send a payment probe. Further errors may be surfaced later via
 /// [`Event::ProbeFailed`].
 ///
@@ -669,6 +802,12 @@ pub struct RecipientOnionFields {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RecipientOnionFields {
+	type Target = nativeRecipientOnionFields;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RecipientOnionFields { }
+unsafe impl core::marker::Sync for RecipientOnionFields { }
 impl Drop for RecipientOnionFields {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRecipientOnionFields>::is_null(self.inner) {
@@ -698,6 +837,9 @@ impl RecipientOnionFields {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The [`PaymentSecret`] is an arbitrary 32 bytes provided by the recipient for us to repeat
@@ -808,7 +950,7 @@ pub extern "C" fn RecipientOnionFields_write(obj: &crate::lightning::ln::outboun
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RecipientOnionFields_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRecipientOnionFields) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::outbound_payment::nativeRecipientOnionFields) })
 }
 #[no_mangle]
 /// Read a RecipientOnionFields from a byte array, created by RecipientOnionFields_write

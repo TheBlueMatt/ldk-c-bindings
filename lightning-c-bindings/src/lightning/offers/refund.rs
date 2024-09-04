@@ -27,23 +27,23 @@
 //! use core::convert::TryFrom;
 //! use core::time::Duration;
 //!
-//! use bitcoin::network::constants::Network;
-//! use bitcoin::secp256k1::{KeyPair, PublicKey, Secp256k1, SecretKey};
+//! use bitcoin::network::Network;
+//! use bitcoin::secp256k1::{Keypair, PublicKey, Secp256k1, SecretKey};
 //! use lightning::offers::parse::Bolt12ParseError;
 //! use lightning::offers::refund::{Refund, RefundBuilder};
 //! use lightning::util::ser::{Readable, Writeable};
 //!
-//! # use lightning::blinded_path::BlindedPath;
+//! # use lightning::blinded_path::message::BlindedMessagePath;
 //! # #[cfg(feature = \"std\")]
 //! # use std::time::SystemTime;
 //! #
-//! # fn create_blinded_path() -> BlindedPath { unimplemented!() }
-//! # fn create_another_blinded_path() -> BlindedPath { unimplemented!() }
+//! # fn create_blinded_path() -> BlindedMessagePath { unimplemented!() }
+//! # fn create_another_blinded_path() -> BlindedMessagePath { unimplemented!() }
 //! #
 //! # #[cfg(feature = \"std\")]
 //! # fn build() -> Result<(), Bolt12ParseError> {
 //! let secp_ctx = Secp256k1::new();
-//! let keys = KeyPair::from_secret_key(&secp_ctx, &SecretKey::from_slice(&[42; 32]).unwrap());
+//! let keys = Keypair::from_secret_key(&secp_ctx, &SecretKey::from_slice(&[42; 32]).unwrap());
 //! let pubkey = PublicKey::from(keys);
 //!
 //! let expiration = SystemTime::now() + Duration::from_secs(24 * 60 * 60);
@@ -114,6 +114,12 @@ pub struct RefundMaybeWithDerivedMetadataBuilder {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RefundMaybeWithDerivedMetadataBuilder {
+	type Target = nativeRefundMaybeWithDerivedMetadataBuilder;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RefundMaybeWithDerivedMetadataBuilder { }
+unsafe impl core::marker::Sync for RefundMaybeWithDerivedMetadataBuilder { }
 impl Drop for RefundMaybeWithDerivedMetadataBuilder {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRefundMaybeWithDerivedMetadataBuilder>::is_null(self.inner) {
@@ -143,6 +149,9 @@ impl RefundMaybeWithDerivedMetadataBuilder {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for RefundMaybeWithDerivedMetadataBuilder {
@@ -191,18 +200,22 @@ pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_new(mut metadata: crate:
 /// different payer id for each refund, assuming a different nonce is used.  Otherwise, the
 /// provided `node_id` is used for the payer id.
 ///
-/// Also, sets the metadata when [`RefundBuilder::build`] is called such that it can be used to
-/// verify that an [`InvoiceRequest`] was produced for the refund given an [`ExpandedKey`].
+/// Also, sets the metadata when [`RefundBuilder::build`] is called such that it can be used by
+/// [`Bolt12Invoice::verify_using_metadata`] to determine if the invoice was produced for the
+/// refund given an [`ExpandedKey`]. However, if [`RefundBuilder::path`] is called, then the
+/// metadata must be included in each [`BlindedMessagePath`] instead. In this case, use
+/// [`Bolt12Invoice::verify_using_payer_data`].
 ///
 /// The `payment_id` is encrypted in the metadata and should be unique. This ensures that only
 /// one invoice will be paid for the refund and that payments can be uniquely identified.
 ///
-/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+/// [`Bolt12Invoice::verify_using_metadata`]: crate::offers::invoice::Bolt12Invoice::verify_using_metadata
+/// [`Bolt12Invoice::verify_using_payer_data`]: crate::offers::invoice::Bolt12Invoice::verify_using_payer_data
 /// [`ExpandedKey`]: crate::ln::inbound_payment::ExpandedKey
 #[must_use]
 #[no_mangle]
-pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_deriving_payer_id(mut node_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut entropy_source: crate::lightning::sign::EntropySource, mut amount_msats: u64, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
-	let mut ret = lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder::deriving_payer_id(node_id.into_rust(), expanded_key.get_native_ref(), entropy_source, secp256k1::global::SECP256K1, amount_msats, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_deriving_payer_id(mut node_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut amount_msats: u64, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	let mut ret = lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder::deriving_payer_id(node_id.into_rust(), expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, secp256k1::global::SECP256K1, amount_msats, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
 	local_ret
 }
@@ -245,7 +258,7 @@ pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_issuer(mut this_arg: cra
 /// adding duplicate paths.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_path(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut path: crate::lightning::blinded_path::BlindedPath) {
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_path(mut this_arg: crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder, mut path: crate::lightning::blinded_path::message::BlindedMessagePath) {
 	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).path(*unsafe { Box::from_raw(path.take_inner()) });
 	() /*ret*/
 }
@@ -323,6 +336,12 @@ pub struct Refund {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Refund {
+	type Target = nativeRefund;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Refund { }
+unsafe impl core::marker::Sync for Refund { }
 impl Drop for Refund {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRefund>::is_null(self.inner) {
@@ -353,6 +372,9 @@ impl Refund {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 impl Clone for Refund {
 	fn clone(&self) -> Self {
@@ -380,9 +402,9 @@ pub extern "C" fn Refund_debug_str_void(o: *const c_void) -> Str {
 /// but with the caveat that it has not been verified in any way.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Refund_description(this_arg: &crate::lightning::offers::refund::Refund) -> crate::lightning::util::string::PrintableString {
+pub extern "C" fn Refund_description(this_arg: &crate::lightning::offers::refund::Refund) -> crate::lightning_types::string::PrintableString {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.description();
-	crate::lightning::util::string::PrintableString { inner: ObjOps::heap_alloc(ret), is_owned: true }
+	crate::lightning_types::string::PrintableString { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// Duration since the Unix epoch when an invoice should no longer be sent.
@@ -418,9 +440,9 @@ pub extern "C" fn Refund_is_expired_no_std(this_arg: &crate::lightning::offers::
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Refund_issuer(this_arg: &crate::lightning::offers::refund::Refund) -> crate::lightning::util::string::PrintableString {
+pub extern "C" fn Refund_issuer(this_arg: &crate::lightning::offers::refund::Refund) -> crate::lightning_types::string::PrintableString {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.issuer();
-	let mut local_ret = crate::lightning::util::string::PrintableString { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
+	let mut local_ret = crate::lightning_types::string::PrintableString { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
 	local_ret
 }
 
@@ -428,9 +450,9 @@ pub extern "C" fn Refund_issuer(this_arg: &crate::lightning::offers::refund::Ref
 /// privacy by obfuscating its node id.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Refund_paths(this_arg: &crate::lightning::offers::refund::Refund) -> crate::c_types::derived::CVec_BlindedPathZ {
+pub extern "C" fn Refund_paths(this_arg: &crate::lightning::offers::refund::Refund) -> crate::c_types::derived::CVec_BlindedMessagePathZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.paths();
-	let mut local_ret_clone = Vec::new(); local_ret_clone.extend_from_slice(ret); let mut ret = local_ret_clone; let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::blinded_path::BlindedPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+	let mut local_ret_clone = Vec::new(); local_ret_clone.extend_from_slice(ret); let mut ret = local_ret_clone; let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 	local_ret.into()
 }
 
@@ -467,9 +489,9 @@ pub extern "C" fn Refund_amount_msats(this_arg: &crate::lightning::offers::refun
 /// Features pertaining to requesting an invoice.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Refund_features(this_arg: &crate::lightning::offers::refund::Refund) -> crate::lightning::ln::features::InvoiceRequestFeatures {
+pub extern "C" fn Refund_features(this_arg: &crate::lightning::offers::refund::Refund) -> crate::lightning_types::features::InvoiceRequestFeatures {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.features();
-	crate::lightning::ln::features::InvoiceRequestFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning::ln::features::InvoiceRequestFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::InvoiceRequestFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning_types::features::InvoiceRequestFeatures<>) as *mut _) }, is_owned: false }
 }
 
 /// The quantity of an item that refund is for.
@@ -497,9 +519,9 @@ pub extern "C" fn Refund_payer_id(this_arg: &crate::lightning::offers::refund::R
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Refund_payer_note(this_arg: &crate::lightning::offers::refund::Refund) -> crate::lightning::util::string::PrintableString {
+pub extern "C" fn Refund_payer_note(this_arg: &crate::lightning::offers::refund::Refund) -> crate::lightning_types::string::PrintableString {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payer_note();
-	let mut local_ret = crate::lightning::util::string::PrintableString { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
+	let mut local_ret = crate::lightning_types::string::PrintableString { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
 	local_ret
 }
 
@@ -514,13 +536,20 @@ pub extern "C" fn Refund_hash(o: &Refund) -> u64 {
 	core::hash::Hasher::finish(&hasher)
 }
 #[no_mangle]
+/// Read a Refund from a byte array, created by Refund_write
+pub extern "C" fn Refund_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_RefundDecodeErrorZ {
+	let res: Result<lightning::offers::refund::Refund, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::refund::Refund { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
 /// Serialize the Refund object into a byte array which can be read by Refund_read
 pub extern "C" fn Refund_write(obj: &crate::lightning::offers::refund::Refund) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Refund_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRefund) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::offers::refund::nativeRefund) })
 }
 #[no_mangle]
 /// Read a Refund object from a string

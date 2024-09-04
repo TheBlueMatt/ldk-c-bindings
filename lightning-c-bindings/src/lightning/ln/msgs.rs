@@ -236,6 +236,12 @@ pub struct Init {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Init {
+	type Target = nativeInit;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Init { }
+unsafe impl core::marker::Sync for Init { }
 impl Drop for Init {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeInit>::is_null(self.inner) {
@@ -266,16 +272,19 @@ impl Init {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The relevant features which the sender supports.
 #[no_mangle]
-pub extern "C" fn Init_get_features(this_ptr: &Init) -> crate::lightning::ln::features::InitFeatures {
+pub extern "C" fn Init_get_features(this_ptr: &Init) -> crate::lightning_types::features::InitFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
-	crate::lightning::ln::features::InitFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::InitFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::InitFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::InitFeatures<>) as *mut _) }, is_owned: false }
 }
 /// The relevant features which the sender supports.
 #[no_mangle]
-pub extern "C" fn Init_set_features(this_ptr: &mut Init, mut val: crate::lightning::ln::features::InitFeatures) {
+pub extern "C" fn Init_set_features(this_ptr: &mut Init, mut val: crate::lightning_types::features::InitFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// Indicates chains the sender is interested in.
@@ -294,7 +303,7 @@ pub extern "C" fn Init_get_networks(this_ptr: &Init) -> crate::c_types::derived:
 /// If there are no common chains, the connection will be closed.
 #[no_mangle]
 pub extern "C" fn Init_set_networks(this_ptr: &mut Init, mut val: crate::c_types::derived::COption_CVec_ThirtyTwoBytesZZ) {
-	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { let mut local_val_0 = Vec::new(); for mut item in { val_opt.take() }.into_rust().drain(..) { local_val_0.push( { ::bitcoin::blockdata::constants::ChainHash::from(&item.data) }); }; local_val_0 }})} };
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { let mut local_val_0 = Vec::new(); for mut item in { val_opt.take() }.into_rust().drain(..) { local_val_0.push( { ::bitcoin::constants::ChainHash::from(&item.data) }); }; local_val_0 }})} };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.networks = local_val;
 }
 /// The receipient's network address.
@@ -323,8 +332,8 @@ pub extern "C" fn Init_set_remote_network_address(this_ptr: &mut Init, mut val: 
 /// Constructs a new Init given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Init_new(mut features_arg: crate::lightning::ln::features::InitFeatures, mut networks_arg: crate::c_types::derived::COption_CVec_ThirtyTwoBytesZZ, mut remote_network_address_arg: crate::c_types::derived::COption_SocketAddressZ) -> Init {
-	let mut local_networks_arg = { /*networks_arg*/ let networks_arg_opt = networks_arg; if networks_arg_opt.is_none() { None } else { Some({ { let mut local_networks_arg_0 = Vec::new(); for mut item in { networks_arg_opt.take() }.into_rust().drain(..) { local_networks_arg_0.push( { ::bitcoin::blockdata::constants::ChainHash::from(&item.data) }); }; local_networks_arg_0 }})} };
+pub extern "C" fn Init_new(mut features_arg: crate::lightning_types::features::InitFeatures, mut networks_arg: crate::c_types::derived::COption_CVec_ThirtyTwoBytesZZ, mut remote_network_address_arg: crate::c_types::derived::COption_SocketAddressZ) -> Init {
+	let mut local_networks_arg = { /*networks_arg*/ let networks_arg_opt = networks_arg; if networks_arg_opt.is_none() { None } else { Some({ { let mut local_networks_arg_0 = Vec::new(); for mut item in { networks_arg_opt.take() }.into_rust().drain(..) { local_networks_arg_0.push( { ::bitcoin::constants::ChainHash::from(&item.data) }); }; local_networks_arg_0 }})} };
 	let mut local_remote_network_address_arg = { /*remote_network_address_arg*/ let remote_network_address_arg_opt = remote_network_address_arg; if remote_network_address_arg_opt.is_none() { None } else { Some({ { { remote_network_address_arg_opt.take() }.into_native() }})} };
 	Init { inner: ObjOps::heap_alloc(nativeInit {
 		features: *unsafe { Box::from_raw(features_arg.take_inner()) },
@@ -395,6 +404,12 @@ pub struct ErrorMessage {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ErrorMessage {
+	type Target = nativeErrorMessage;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ErrorMessage { }
+unsafe impl core::marker::Sync for ErrorMessage { }
 impl Drop for ErrorMessage {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeErrorMessage>::is_null(self.inner) {
@@ -424,6 +439,9 @@ impl ErrorMessage {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID involved in the error.
@@ -534,6 +552,12 @@ pub struct WarningMessage {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for WarningMessage {
+	type Target = nativeWarningMessage;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for WarningMessage { }
+unsafe impl core::marker::Sync for WarningMessage { }
 impl Drop for WarningMessage {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeWarningMessage>::is_null(self.inner) {
@@ -563,6 +587,9 @@ impl WarningMessage {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID involved in the warning.
@@ -671,6 +698,12 @@ pub struct Ping {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Ping {
+	type Target = nativePing;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Ping { }
+unsafe impl core::marker::Sync for Ping { }
 impl Drop for Ping {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePing>::is_null(self.inner) {
@@ -700,6 +733,9 @@ impl Ping {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The desired response length.
@@ -800,6 +836,12 @@ pub struct Pong {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Pong {
+	type Target = nativePong;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Pong { }
+unsafe impl core::marker::Sync for Pong { }
 impl Drop for Pong {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePong>::is_null(self.inner) {
@@ -829,6 +871,9 @@ impl Pong {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The pong packet size.
@@ -917,6 +962,12 @@ pub struct CommonOpenChannelFields {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for CommonOpenChannelFields {
+	type Target = nativeCommonOpenChannelFields;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CommonOpenChannelFields { }
+unsafe impl core::marker::Sync for CommonOpenChannelFields { }
 impl Drop for CommonOpenChannelFields {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeCommonOpenChannelFields>::is_null(self.inner) {
@@ -947,6 +998,9 @@ impl CommonOpenChannelFields {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The genesis hash of the blockchain where the channel is to be opened
 #[no_mangle]
@@ -957,7 +1011,7 @@ pub extern "C" fn CommonOpenChannelFields_get_chain_hash(this_ptr: &CommonOpenCh
 /// The genesis hash of the blockchain where the channel is to be opened
 #[no_mangle]
 pub extern "C" fn CommonOpenChannelFields_set_chain_hash(this_ptr: &mut CommonOpenChannelFields, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::constants::ChainHash::from(&val.data);
 }
 /// A temporary channel ID
 /// For V2 channels: derived using a zeroed out value for the channel acceptor's revocation basepoint
@@ -1150,7 +1204,7 @@ pub extern "C" fn CommonOpenChannelFields_get_shutdown_scriptpubkey(this_ptr: &C
 /// collaboratively close
 #[no_mangle]
 pub extern "C" fn CommonOpenChannelFields_set_shutdown_scriptpubkey(this_ptr: &mut CommonOpenChannelFields, mut val: crate::c_types::derived::COption_CVec_u8ZZ) {
-	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::bitcoin::blockdata::script::ScriptBuf::from({ val_opt.take() }.into_rust()) }})} };
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::bitcoin::script::ScriptBuf::from({ val_opt.take() }.into_rust()) }})} };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.shutdown_scriptpubkey = local_val;
 }
 /// The channel type that this channel will represent
@@ -1160,9 +1214,9 @@ pub extern "C" fn CommonOpenChannelFields_set_shutdown_scriptpubkey(this_ptr: &m
 ///
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn CommonOpenChannelFields_get_channel_type(this_ptr: &CommonOpenChannelFields) -> crate::lightning::ln::features::ChannelTypeFeatures {
+pub extern "C" fn CommonOpenChannelFields_get_channel_type(this_ptr: &CommonOpenChannelFields) -> crate::lightning_types::features::ChannelTypeFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_type;
-	let mut local_inner_val = crate::lightning::ln::features::ChannelTypeFeatures { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::features::ChannelTypeFeatures<>) as *mut _ }, is_owned: false };
+	let mut local_inner_val = crate::lightning_types::features::ChannelTypeFeatures { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning_types::features::ChannelTypeFeatures<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
 /// The channel type that this channel will represent
@@ -1172,7 +1226,7 @@ pub extern "C" fn CommonOpenChannelFields_get_channel_type(this_ptr: &CommonOpen
 ///
 /// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn CommonOpenChannelFields_set_channel_type(this_ptr: &mut CommonOpenChannelFields, mut val: crate::lightning::ln::features::ChannelTypeFeatures) {
+pub extern "C" fn CommonOpenChannelFields_set_channel_type(this_ptr: &mut CommonOpenChannelFields, mut val: crate::lightning_types::features::ChannelTypeFeatures) {
 	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_type = local_val;
 }
@@ -1181,11 +1235,11 @@ pub extern "C" fn CommonOpenChannelFields_set_channel_type(this_ptr: &mut Common
 /// Note that channel_type_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn CommonOpenChannelFields_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut temporary_channel_id_arg: crate::lightning::ln::types::ChannelId, mut funding_satoshis_arg: u64, mut dust_limit_satoshis_arg: u64, mut max_htlc_value_in_flight_msat_arg: u64, mut htlc_minimum_msat_arg: u64, mut commitment_feerate_sat_per_1000_weight_arg: u32, mut to_self_delay_arg: u16, mut max_accepted_htlcs_arg: u16, mut funding_pubkey_arg: crate::c_types::PublicKey, mut revocation_basepoint_arg: crate::c_types::PublicKey, mut payment_basepoint_arg: crate::c_types::PublicKey, mut delayed_payment_basepoint_arg: crate::c_types::PublicKey, mut htlc_basepoint_arg: crate::c_types::PublicKey, mut first_per_commitment_point_arg: crate::c_types::PublicKey, mut channel_flags_arg: u8, mut shutdown_scriptpubkey_arg: crate::c_types::derived::COption_CVec_u8ZZ, mut channel_type_arg: crate::lightning::ln::features::ChannelTypeFeatures) -> CommonOpenChannelFields {
-	let mut local_shutdown_scriptpubkey_arg = { /*shutdown_scriptpubkey_arg*/ let shutdown_scriptpubkey_arg_opt = shutdown_scriptpubkey_arg; if shutdown_scriptpubkey_arg_opt.is_none() { None } else { Some({ { ::bitcoin::blockdata::script::ScriptBuf::from({ shutdown_scriptpubkey_arg_opt.take() }.into_rust()) }})} };
+pub extern "C" fn CommonOpenChannelFields_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut temporary_channel_id_arg: crate::lightning::ln::types::ChannelId, mut funding_satoshis_arg: u64, mut dust_limit_satoshis_arg: u64, mut max_htlc_value_in_flight_msat_arg: u64, mut htlc_minimum_msat_arg: u64, mut commitment_feerate_sat_per_1000_weight_arg: u32, mut to_self_delay_arg: u16, mut max_accepted_htlcs_arg: u16, mut funding_pubkey_arg: crate::c_types::PublicKey, mut revocation_basepoint_arg: crate::c_types::PublicKey, mut payment_basepoint_arg: crate::c_types::PublicKey, mut delayed_payment_basepoint_arg: crate::c_types::PublicKey, mut htlc_basepoint_arg: crate::c_types::PublicKey, mut first_per_commitment_point_arg: crate::c_types::PublicKey, mut channel_flags_arg: u8, mut shutdown_scriptpubkey_arg: crate::c_types::derived::COption_CVec_u8ZZ, mut channel_type_arg: crate::lightning_types::features::ChannelTypeFeatures) -> CommonOpenChannelFields {
+	let mut local_shutdown_scriptpubkey_arg = { /*shutdown_scriptpubkey_arg*/ let shutdown_scriptpubkey_arg_opt = shutdown_scriptpubkey_arg; if shutdown_scriptpubkey_arg_opt.is_none() { None } else { Some({ { ::bitcoin::script::ScriptBuf::from({ shutdown_scriptpubkey_arg_opt.take() }.into_rust()) }})} };
 	let mut local_channel_type_arg = if channel_type_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_type_arg.take_inner()) } }) };
 	CommonOpenChannelFields { inner: ObjOps::heap_alloc(nativeCommonOpenChannelFields {
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
+		chain_hash: ::bitcoin::constants::ChainHash::from(&chain_hash_arg.data),
 		temporary_channel_id: *unsafe { Box::from_raw(temporary_channel_id_arg.take_inner()) },
 		funding_satoshis: funding_satoshis_arg,
 		dust_limit_satoshis: dust_limit_satoshis_arg,
@@ -1246,6 +1300,201 @@ pub extern "C" fn CommonOpenChannelFields_eq(a: &CommonOpenChannelFields, b: &Co
 	if a.inner.is_null() || b.inner.is_null() { return false; }
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
+/// The [`ChannelParameters`] for this channel.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn CommonOpenChannelFields_channel_parameters(this_arg: &crate::lightning::ln::msgs::CommonOpenChannelFields) -> crate::lightning::ln::msgs::ChannelParameters {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.channel_parameters();
+	crate::lightning::ln::msgs::ChannelParameters { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+
+use lightning::ln::msgs::ChannelParameters as nativeChannelParametersImport;
+pub(crate) type nativeChannelParameters = nativeChannelParametersImport;
+
+/// A subset of [`CommonOpenChannelFields`], containing various parameters which are set by the
+/// channel initiator and which are not part of the channel funding transaction.
+#[must_use]
+#[repr(C)]
+pub struct ChannelParameters {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeChannelParameters,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for ChannelParameters {
+	type Target = nativeChannelParameters;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelParameters { }
+unsafe impl core::marker::Sync for ChannelParameters { }
+impl Drop for ChannelParameters {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeChannelParameters>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the ChannelParameters, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_free(this_obj: ChannelParameters) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn ChannelParameters_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeChannelParameters) };
+}
+#[allow(unused)]
+impl ChannelParameters {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeChannelParameters {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeChannelParameters {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeChannelParameters {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// The threshold below which outputs on transactions broadcast by the channel initiator will be
+/// omitted.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_get_dust_limit_satoshis(this_ptr: &ChannelParameters) -> u64 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().dust_limit_satoshis;
+	*inner_val
+}
+/// The threshold below which outputs on transactions broadcast by the channel initiator will be
+/// omitted.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_set_dust_limit_satoshis(this_ptr: &mut ChannelParameters, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.dust_limit_satoshis = val;
+}
+/// The maximum inbound HTLC value in flight towards channel initiator, in milli-satoshi
+#[no_mangle]
+pub extern "C" fn ChannelParameters_get_max_htlc_value_in_flight_msat(this_ptr: &ChannelParameters) -> u64 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_htlc_value_in_flight_msat;
+	*inner_val
+}
+/// The maximum inbound HTLC value in flight towards channel initiator, in milli-satoshi
+#[no_mangle]
+pub extern "C" fn ChannelParameters_set_max_htlc_value_in_flight_msat(this_ptr: &mut ChannelParameters, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_htlc_value_in_flight_msat = val;
+}
+/// The minimum HTLC size for HTLCs towards the channel initiator, in milli-satoshi
+#[no_mangle]
+pub extern "C" fn ChannelParameters_get_htlc_minimum_msat(this_ptr: &ChannelParameters) -> u64 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_minimum_msat;
+	*inner_val
+}
+/// The minimum HTLC size for HTLCs towards the channel initiator, in milli-satoshi
+#[no_mangle]
+pub extern "C" fn ChannelParameters_set_htlc_minimum_msat(this_ptr: &mut ChannelParameters, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.htlc_minimum_msat = val;
+}
+/// The feerate for the commitment transaction set by the channel initiator until updated by
+/// [`UpdateFee`]
+#[no_mangle]
+pub extern "C" fn ChannelParameters_get_commitment_feerate_sat_per_1000_weight(this_ptr: &ChannelParameters) -> u32 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().commitment_feerate_sat_per_1000_weight;
+	*inner_val
+}
+/// The feerate for the commitment transaction set by the channel initiator until updated by
+/// [`UpdateFee`]
+#[no_mangle]
+pub extern "C" fn ChannelParameters_set_commitment_feerate_sat_per_1000_weight(this_ptr: &mut ChannelParameters, mut val: u32) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.commitment_feerate_sat_per_1000_weight = val;
+}
+/// The number of blocks which the non-channel-initator will have to wait to claim on-chain
+/// funds if they broadcast a commitment transaction.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_get_to_self_delay(this_ptr: &ChannelParameters) -> u16 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().to_self_delay;
+	*inner_val
+}
+/// The number of blocks which the non-channel-initator will have to wait to claim on-chain
+/// funds if they broadcast a commitment transaction.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_set_to_self_delay(this_ptr: &mut ChannelParameters, mut val: u16) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.to_self_delay = val;
+}
+/// The maximum number of pending HTLCs towards the channel initiator.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_get_max_accepted_htlcs(this_ptr: &ChannelParameters) -> u16 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_accepted_htlcs;
+	*inner_val
+}
+/// The maximum number of pending HTLCs towards the channel initiator.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_set_max_accepted_htlcs(this_ptr: &mut ChannelParameters, mut val: u16) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_accepted_htlcs = val;
+}
+/// Constructs a new ChannelParameters given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelParameters_new(mut dust_limit_satoshis_arg: u64, mut max_htlc_value_in_flight_msat_arg: u64, mut htlc_minimum_msat_arg: u64, mut commitment_feerate_sat_per_1000_weight_arg: u32, mut to_self_delay_arg: u16, mut max_accepted_htlcs_arg: u16) -> ChannelParameters {
+	ChannelParameters { inner: ObjOps::heap_alloc(nativeChannelParameters {
+		dust_limit_satoshis: dust_limit_satoshis_arg,
+		max_htlc_value_in_flight_msat: max_htlc_value_in_flight_msat_arg,
+		htlc_minimum_msat: htlc_minimum_msat_arg,
+		commitment_feerate_sat_per_1000_weight: commitment_feerate_sat_per_1000_weight_arg,
+		to_self_delay: to_self_delay_arg,
+		max_accepted_htlcs: max_accepted_htlcs_arg,
+	}), is_owned: true }
+}
+impl Clone for ChannelParameters {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeChannelParameters>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn ChannelParameters_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelParameters)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the ChannelParameters
+pub extern "C" fn ChannelParameters_clone(orig: &ChannelParameters) -> ChannelParameters {
+	orig.clone()
+}
+/// Get a string which allows debug introspection of a ChannelParameters object
+pub extern "C" fn ChannelParameters_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::msgs::ChannelParameters }).into()}
+/// Generates a non-cryptographic 64-bit hash of the ChannelParameters.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_hash(o: &ChannelParameters) -> u64 {
+	if o.inner.is_null() { return 0; }
+	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
+	#[allow(deprecated)]
+	let mut hasher = core::hash::SipHasher::new();
+	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
+	core::hash::Hasher::finish(&hasher)
+}
+/// Checks if two ChannelParameterss contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn ChannelParameters_eq(a: &ChannelParameters, b: &ChannelParameters) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
 
 use lightning::ln::msgs::OpenChannel as nativeOpenChannelImport;
 pub(crate) type nativeOpenChannel = nativeOpenChannelImport;
@@ -1270,6 +1519,12 @@ pub struct OpenChannel {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OpenChannel {
+	type Target = nativeOpenChannel;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OpenChannel { }
+unsafe impl core::marker::Sync for OpenChannel { }
 impl Drop for OpenChannel {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOpenChannel>::is_null(self.inner) {
@@ -1299,6 +1554,9 @@ impl OpenChannel {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Common fields of `open_channel(2)`-like messages
@@ -1408,6 +1666,12 @@ pub struct OpenChannelV2 {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OpenChannelV2 {
+	type Target = nativeOpenChannelV2;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OpenChannelV2 { }
+unsafe impl core::marker::Sync for OpenChannelV2 { }
 impl Drop for OpenChannelV2 {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOpenChannelV2>::is_null(self.inner) {
@@ -1437,6 +1701,9 @@ impl OpenChannelV2 {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Common fields of `open_channel(2)`-like messages
@@ -1572,6 +1839,12 @@ pub struct CommonAcceptChannelFields {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for CommonAcceptChannelFields {
+	type Target = nativeCommonAcceptChannelFields;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CommonAcceptChannelFields { }
+unsafe impl core::marker::Sync for CommonAcceptChannelFields { }
 impl Drop for CommonAcceptChannelFields {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeCommonAcceptChannelFields>::is_null(self.inner) {
@@ -1601,6 +1874,9 @@ impl CommonAcceptChannelFields {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The same `temporary_channel_id` received from the initiator's `open_channel2` or `open_channel` message.
@@ -1764,7 +2040,7 @@ pub extern "C" fn CommonAcceptChannelFields_get_shutdown_scriptpubkey(this_ptr: 
 /// collaboratively close
 #[no_mangle]
 pub extern "C" fn CommonAcceptChannelFields_set_shutdown_scriptpubkey(this_ptr: &mut CommonAcceptChannelFields, mut val: crate::c_types::derived::COption_CVec_u8ZZ) {
-	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::bitcoin::blockdata::script::ScriptBuf::from({ val_opt.take() }.into_rust()) }})} };
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::bitcoin::script::ScriptBuf::from({ val_opt.take() }.into_rust()) }})} };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.shutdown_scriptpubkey = local_val;
 }
 /// The channel type that this channel will represent. If none is set, we derive the channel
@@ -1776,9 +2052,9 @@ pub extern "C" fn CommonAcceptChannelFields_set_shutdown_scriptpubkey(this_ptr: 
 ///
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn CommonAcceptChannelFields_get_channel_type(this_ptr: &CommonAcceptChannelFields) -> crate::lightning::ln::features::ChannelTypeFeatures {
+pub extern "C" fn CommonAcceptChannelFields_get_channel_type(this_ptr: &CommonAcceptChannelFields) -> crate::lightning_types::features::ChannelTypeFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_type;
-	let mut local_inner_val = crate::lightning::ln::features::ChannelTypeFeatures { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::features::ChannelTypeFeatures<>) as *mut _ }, is_owned: false };
+	let mut local_inner_val = crate::lightning_types::features::ChannelTypeFeatures { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning_types::features::ChannelTypeFeatures<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
 /// The channel type that this channel will represent. If none is set, we derive the channel
@@ -1790,7 +2066,7 @@ pub extern "C" fn CommonAcceptChannelFields_get_channel_type(this_ptr: &CommonAc
 ///
 /// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn CommonAcceptChannelFields_set_channel_type(this_ptr: &mut CommonAcceptChannelFields, mut val: crate::lightning::ln::features::ChannelTypeFeatures) {
+pub extern "C" fn CommonAcceptChannelFields_set_channel_type(this_ptr: &mut CommonAcceptChannelFields, mut val: crate::lightning_types::features::ChannelTypeFeatures) {
 	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_type = local_val;
 }
@@ -1799,8 +2075,8 @@ pub extern "C" fn CommonAcceptChannelFields_set_channel_type(this_ptr: &mut Comm
 /// Note that channel_type_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn CommonAcceptChannelFields_new(mut temporary_channel_id_arg: crate::lightning::ln::types::ChannelId, mut dust_limit_satoshis_arg: u64, mut max_htlc_value_in_flight_msat_arg: u64, mut htlc_minimum_msat_arg: u64, mut minimum_depth_arg: u32, mut to_self_delay_arg: u16, mut max_accepted_htlcs_arg: u16, mut funding_pubkey_arg: crate::c_types::PublicKey, mut revocation_basepoint_arg: crate::c_types::PublicKey, mut payment_basepoint_arg: crate::c_types::PublicKey, mut delayed_payment_basepoint_arg: crate::c_types::PublicKey, mut htlc_basepoint_arg: crate::c_types::PublicKey, mut first_per_commitment_point_arg: crate::c_types::PublicKey, mut shutdown_scriptpubkey_arg: crate::c_types::derived::COption_CVec_u8ZZ, mut channel_type_arg: crate::lightning::ln::features::ChannelTypeFeatures) -> CommonAcceptChannelFields {
-	let mut local_shutdown_scriptpubkey_arg = { /*shutdown_scriptpubkey_arg*/ let shutdown_scriptpubkey_arg_opt = shutdown_scriptpubkey_arg; if shutdown_scriptpubkey_arg_opt.is_none() { None } else { Some({ { ::bitcoin::blockdata::script::ScriptBuf::from({ shutdown_scriptpubkey_arg_opt.take() }.into_rust()) }})} };
+pub extern "C" fn CommonAcceptChannelFields_new(mut temporary_channel_id_arg: crate::lightning::ln::types::ChannelId, mut dust_limit_satoshis_arg: u64, mut max_htlc_value_in_flight_msat_arg: u64, mut htlc_minimum_msat_arg: u64, mut minimum_depth_arg: u32, mut to_self_delay_arg: u16, mut max_accepted_htlcs_arg: u16, mut funding_pubkey_arg: crate::c_types::PublicKey, mut revocation_basepoint_arg: crate::c_types::PublicKey, mut payment_basepoint_arg: crate::c_types::PublicKey, mut delayed_payment_basepoint_arg: crate::c_types::PublicKey, mut htlc_basepoint_arg: crate::c_types::PublicKey, mut first_per_commitment_point_arg: crate::c_types::PublicKey, mut shutdown_scriptpubkey_arg: crate::c_types::derived::COption_CVec_u8ZZ, mut channel_type_arg: crate::lightning_types::features::ChannelTypeFeatures) -> CommonAcceptChannelFields {
+	let mut local_shutdown_scriptpubkey_arg = { /*shutdown_scriptpubkey_arg*/ let shutdown_scriptpubkey_arg_opt = shutdown_scriptpubkey_arg; if shutdown_scriptpubkey_arg_opt.is_none() { None } else { Some({ { ::bitcoin::script::ScriptBuf::from({ shutdown_scriptpubkey_arg_opt.take() }.into_rust()) }})} };
 	let mut local_channel_type_arg = if channel_type_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_type_arg.take_inner()) } }) };
 	CommonAcceptChannelFields { inner: ObjOps::heap_alloc(nativeCommonAcceptChannelFields {
 		temporary_channel_id: *unsafe { Box::from_raw(temporary_channel_id_arg.take_inner()) },
@@ -1885,6 +2161,12 @@ pub struct AcceptChannel {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for AcceptChannel {
+	type Target = nativeAcceptChannel;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for AcceptChannel { }
+unsafe impl core::marker::Sync for AcceptChannel { }
 impl Drop for AcceptChannel {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeAcceptChannel>::is_null(self.inner) {
@@ -1914,6 +2196,9 @@ impl AcceptChannel {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Common fields of `accept_channel(2)`-like messages
@@ -2011,6 +2296,12 @@ pub struct AcceptChannelV2 {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for AcceptChannelV2 {
+	type Target = nativeAcceptChannelV2;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for AcceptChannelV2 { }
+unsafe impl core::marker::Sync for AcceptChannelV2 { }
 impl Drop for AcceptChannelV2 {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeAcceptChannelV2>::is_null(self.inner) {
@@ -2040,6 +2331,9 @@ impl AcceptChannelV2 {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Common fields of `accept_channel(2)`-like messages
@@ -2165,6 +2459,12 @@ pub struct FundingCreated {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for FundingCreated {
+	type Target = nativeFundingCreated;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for FundingCreated { }
+unsafe impl core::marker::Sync for FundingCreated { }
 impl Drop for FundingCreated {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeFundingCreated>::is_null(self.inner) {
@@ -2194,6 +2494,9 @@ impl FundingCreated {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// A temporary channel ID, until the funding is established
@@ -2316,6 +2619,12 @@ pub struct FundingSigned {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for FundingSigned {
+	type Target = nativeFundingSigned;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for FundingSigned { }
+unsafe impl core::marker::Sync for FundingSigned { }
 impl Drop for FundingSigned {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeFundingSigned>::is_null(self.inner) {
@@ -2345,6 +2654,9 @@ impl FundingSigned {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -2441,6 +2753,12 @@ pub struct ChannelReady {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelReady {
+	type Target = nativeChannelReady;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelReady { }
+unsafe impl core::marker::Sync for ChannelReady { }
 impl Drop for ChannelReady {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelReady>::is_null(self.inner) {
@@ -2470,6 +2788,9 @@ impl ChannelReady {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -2569,7 +2890,8 @@ pub extern "C" fn ChannelReady_eq(a: &ChannelReady, b: &ChannelReady) -> bool {
 use lightning::ln::msgs::Stfu as nativeStfuImport;
 pub(crate) type nativeStfu = nativeStfuImport;
 
-/// An stfu (quiescence) message to be sent by or received from the stfu initiator.
+/// An `stfu` (quiescence) message to be sent by or received from the stfu initiator.
+///
 #[must_use]
 #[repr(C)]
 pub struct Stfu {
@@ -2585,6 +2907,12 @@ pub struct Stfu {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Stfu {
+	type Target = nativeStfu;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Stfu { }
+unsafe impl core::marker::Sync for Stfu { }
 impl Drop for Stfu {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeStfu>::is_null(self.inner) {
@@ -2614,6 +2942,9 @@ impl Stfu {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID where quiescence is intended
@@ -2679,18 +3010,19 @@ pub extern "C" fn Stfu_eq(a: &Stfu, b: &Stfu) -> bool {
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
 
-use lightning::ln::msgs::Splice as nativeSpliceImport;
-pub(crate) type nativeSplice = nativeSpliceImport;
+use lightning::ln::msgs::SpliceInit as nativeSpliceInitImport;
+pub(crate) type nativeSpliceInit = nativeSpliceInitImport;
 
-/// A splice message to be sent by or received from the stfu initiator (splice initiator).
+/// A `splice_init` message to be sent by or received from the stfu initiator (splice initiator).
+///
 #[must_use]
 #[repr(C)]
-pub struct Splice {
+pub struct SpliceInit {
 	/// A pointer to the opaque Rust object.
 
 	/// Nearly everywhere, inner must be non-null, however in places where
 	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeSplice,
+	pub inner: *mut nativeSpliceInit,
 	/// Indicates that this is the only struct which contains the same pointer.
 
 	/// Rust functions which take ownership of an object provided via an argument require
@@ -2698,122 +3030,134 @@ pub struct Splice {
 	pub is_owned: bool,
 }
 
-impl Drop for Splice {
+impl core::ops::Deref for SpliceInit {
+	type Target = nativeSpliceInit;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for SpliceInit { }
+unsafe impl core::marker::Sync for SpliceInit { }
+impl Drop for SpliceInit {
 	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeSplice>::is_null(self.inner) {
+		if self.is_owned && !<*mut nativeSpliceInit>::is_null(self.inner) {
 			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
 		}
 	}
 }
-/// Frees any resources used by the Splice, if is_owned is set and inner is non-NULL.
+/// Frees any resources used by the SpliceInit, if is_owned is set and inner is non-NULL.
 #[no_mangle]
-pub extern "C" fn Splice_free(this_obj: Splice) { }
+pub extern "C" fn SpliceInit_free(this_obj: SpliceInit) { }
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn Splice_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeSplice) };
+pub(crate) extern "C" fn SpliceInit_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeSpliceInit) };
 }
 #[allow(unused)]
-impl Splice {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeSplice {
+impl SpliceInit {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeSpliceInit {
 		unsafe { &*ObjOps::untweak_ptr(self.inner) }
 	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeSplice {
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeSpliceInit {
 		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
 	}
 	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeSplice {
+	pub(crate) fn take_inner(mut self) -> *mut nativeSpliceInit {
 		assert!(self.is_owned);
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The channel ID where splicing is intended
 #[no_mangle]
-pub extern "C" fn Splice_get_channel_id(this_ptr: &Splice) -> crate::lightning::ln::types::ChannelId {
+pub extern "C" fn SpliceInit_get_channel_id(this_ptr: &SpliceInit) -> crate::lightning::ln::types::ChannelId {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_id;
 	crate::lightning::ln::types::ChannelId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::types::ChannelId<>) as *mut _) }, is_owned: false }
 }
 /// The channel ID where splicing is intended
 #[no_mangle]
-pub extern "C" fn Splice_set_channel_id(this_ptr: &mut Splice, mut val: crate::lightning::ln::types::ChannelId) {
+pub extern "C" fn SpliceInit_set_channel_id(this_ptr: &mut SpliceInit, mut val: crate::lightning::ln::types::ChannelId) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_id = *unsafe { Box::from_raw(val.take_inner()) };
 }
-/// The genesis hash of the blockchain where the channel is intended to be spliced
+/// The amount the splice initiator is intending to add to its channel balance (splice-in)
+/// or remove from its channel balance (splice-out).
 #[no_mangle]
-pub extern "C" fn Splice_get_chain_hash(this_ptr: &Splice) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().chain_hash;
-	inner_val.as_ref()
-}
-/// The genesis hash of the blockchain where the channel is intended to be spliced
-#[no_mangle]
-pub extern "C" fn Splice_set_chain_hash(this_ptr: &mut Splice, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
-}
-/// The intended change in channel capacity: the amount to be added (positive value)
-/// or removed (negative value) by the sender (splice initiator) by splicing into/from the channel.
-#[no_mangle]
-pub extern "C" fn Splice_get_relative_satoshis(this_ptr: &Splice) -> i64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().relative_satoshis;
+pub extern "C" fn SpliceInit_get_funding_contribution_satoshis(this_ptr: &SpliceInit) -> i64 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().funding_contribution_satoshis;
 	*inner_val
 }
-/// The intended change in channel capacity: the amount to be added (positive value)
-/// or removed (negative value) by the sender (splice initiator) by splicing into/from the channel.
+/// The amount the splice initiator is intending to add to its channel balance (splice-in)
+/// or remove from its channel balance (splice-out).
 #[no_mangle]
-pub extern "C" fn Splice_set_relative_satoshis(this_ptr: &mut Splice, mut val: i64) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.relative_satoshis = val;
+pub extern "C" fn SpliceInit_set_funding_contribution_satoshis(this_ptr: &mut SpliceInit, mut val: i64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_contribution_satoshis = val;
 }
 /// The feerate for the new funding transaction, set by the splice initiator
 #[no_mangle]
-pub extern "C" fn Splice_get_funding_feerate_perkw(this_ptr: &Splice) -> u32 {
+pub extern "C" fn SpliceInit_get_funding_feerate_perkw(this_ptr: &SpliceInit) -> u32 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().funding_feerate_perkw;
 	*inner_val
 }
 /// The feerate for the new funding transaction, set by the splice initiator
 #[no_mangle]
-pub extern "C" fn Splice_set_funding_feerate_perkw(this_ptr: &mut Splice, mut val: u32) {
+pub extern "C" fn SpliceInit_set_funding_feerate_perkw(this_ptr: &mut SpliceInit, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_feerate_perkw = val;
 }
 /// The locktime for the new funding transaction
 #[no_mangle]
-pub extern "C" fn Splice_get_locktime(this_ptr: &Splice) -> u32 {
+pub extern "C" fn SpliceInit_get_locktime(this_ptr: &SpliceInit) -> u32 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().locktime;
 	*inner_val
 }
 /// The locktime for the new funding transaction
 #[no_mangle]
-pub extern "C" fn Splice_set_locktime(this_ptr: &mut Splice, mut val: u32) {
+pub extern "C" fn SpliceInit_set_locktime(this_ptr: &mut SpliceInit, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.locktime = val;
 }
 /// The key of the sender (splice initiator) controlling the new funding transaction
 #[no_mangle]
-pub extern "C" fn Splice_get_funding_pubkey(this_ptr: &Splice) -> crate::c_types::PublicKey {
+pub extern "C" fn SpliceInit_get_funding_pubkey(this_ptr: &SpliceInit) -> crate::c_types::PublicKey {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().funding_pubkey;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 /// The key of the sender (splice initiator) controlling the new funding transaction
 #[no_mangle]
-pub extern "C" fn Splice_set_funding_pubkey(this_ptr: &mut Splice, mut val: crate::c_types::PublicKey) {
+pub extern "C" fn SpliceInit_set_funding_pubkey(this_ptr: &mut SpliceInit, mut val: crate::c_types::PublicKey) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_pubkey = val.into_rust();
 }
-/// Constructs a new Splice given each field
+/// If set, only confirmed inputs added (by the splice acceptor) will be accepted
+#[no_mangle]
+pub extern "C" fn SpliceInit_get_require_confirmed_inputs(this_ptr: &SpliceInit) -> crate::c_types::derived::COption_NoneZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().require_confirmed_inputs;
+	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_NoneZ::None } else { crate::c_types::derived::COption_NoneZ::Some /*  { () /**/ } */ };
+	local_inner_val
+}
+/// If set, only confirmed inputs added (by the splice acceptor) will be accepted
+#[no_mangle]
+pub extern "C" fn SpliceInit_set_require_confirmed_inputs(this_ptr: &mut SpliceInit, mut val: crate::c_types::derived::COption_NoneZ) {
+	let mut local_val = if val.is_some() { Some( { () /*val.take()*/ }) } else { None };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.require_confirmed_inputs = local_val;
+}
+/// Constructs a new SpliceInit given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Splice_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut relative_satoshis_arg: i64, mut funding_feerate_perkw_arg: u32, mut locktime_arg: u32, mut funding_pubkey_arg: crate::c_types::PublicKey) -> Splice {
-	Splice { inner: ObjOps::heap_alloc(nativeSplice {
+pub extern "C" fn SpliceInit_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut funding_contribution_satoshis_arg: i64, mut funding_feerate_perkw_arg: u32, mut locktime_arg: u32, mut funding_pubkey_arg: crate::c_types::PublicKey, mut require_confirmed_inputs_arg: crate::c_types::derived::COption_NoneZ) -> SpliceInit {
+	let mut local_require_confirmed_inputs_arg = if require_confirmed_inputs_arg.is_some() { Some( { () /*require_confirmed_inputs_arg.take()*/ }) } else { None };
+	SpliceInit { inner: ObjOps::heap_alloc(nativeSpliceInit {
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
-		relative_satoshis: relative_satoshis_arg,
+		funding_contribution_satoshis: funding_contribution_satoshis_arg,
 		funding_feerate_perkw: funding_feerate_perkw_arg,
 		locktime: locktime_arg,
 		funding_pubkey: funding_pubkey_arg.into_rust(),
+		require_confirmed_inputs: local_require_confirmed_inputs_arg,
 	}), is_owned: true }
 }
-impl Clone for Splice {
+impl Clone for SpliceInit {
 	fn clone(&self) -> Self {
 		Self {
-			inner: if <*mut nativeSplice>::is_null(self.inner) { core::ptr::null_mut() } else {
+			inner: if <*mut nativeSpliceInit>::is_null(self.inner) { core::ptr::null_mut() } else {
 				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
 			is_owned: true,
 		}
@@ -2821,22 +3165,22 @@ impl Clone for Splice {
 }
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn Splice_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeSplice)).clone() })) as *mut c_void
+pub(crate) extern "C" fn SpliceInit_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeSpliceInit)).clone() })) as *mut c_void
 }
 #[no_mangle]
-/// Creates a copy of the Splice
-pub extern "C" fn Splice_clone(orig: &Splice) -> Splice {
+/// Creates a copy of the SpliceInit
+pub extern "C" fn SpliceInit_clone(orig: &SpliceInit) -> SpliceInit {
 	orig.clone()
 }
-/// Get a string which allows debug introspection of a Splice object
-pub extern "C" fn Splice_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::msgs::Splice }).into()}
-/// Checks if two Splices contain equal inner contents.
+/// Get a string which allows debug introspection of a SpliceInit object
+pub extern "C" fn SpliceInit_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::msgs::SpliceInit }).into()}
+/// Checks if two SpliceInits contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
 /// Two objects with NULL inner values will be considered "equal" here.
 #[no_mangle]
-pub extern "C" fn Splice_eq(a: &Splice, b: &Splice) -> bool {
+pub extern "C" fn SpliceInit_eq(a: &SpliceInit, b: &SpliceInit) -> bool {
 	if a.inner == b.inner { return true; }
 	if a.inner.is_null() || b.inner.is_null() { return false; }
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
@@ -2845,7 +3189,7 @@ pub extern "C" fn Splice_eq(a: &Splice, b: &Splice) -> bool {
 use lightning::ln::msgs::SpliceAck as nativeSpliceAckImport;
 pub(crate) type nativeSpliceAck = nativeSpliceAckImport;
 
-/// A splice_ack message to be received by or sent to the splice initiator.
+/// A `splice_ack` message to be received by or sent to the splice initiator.
 ///
 #[must_use]
 #[repr(C)]
@@ -2862,6 +3206,12 @@ pub struct SpliceAck {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for SpliceAck {
+	type Target = nativeSpliceAck;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for SpliceAck { }
+unsafe impl core::marker::Sync for SpliceAck { }
 impl Drop for SpliceAck {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeSpliceAck>::is_null(self.inner) {
@@ -2892,6 +3242,9 @@ impl SpliceAck {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The channel ID where splicing is intended
 #[no_mangle]
@@ -2904,29 +3257,18 @@ pub extern "C" fn SpliceAck_get_channel_id(this_ptr: &SpliceAck) -> crate::light
 pub extern "C" fn SpliceAck_set_channel_id(this_ptr: &mut SpliceAck, mut val: crate::lightning::ln::types::ChannelId) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_id = *unsafe { Box::from_raw(val.take_inner()) };
 }
-/// The genesis hash of the blockchain where the channel is intended to be spliced
+/// The amount the splice acceptor is intending to add to its channel balance (splice-in)
+/// or remove from its channel balance (splice-out).
 #[no_mangle]
-pub extern "C" fn SpliceAck_get_chain_hash(this_ptr: &SpliceAck) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().chain_hash;
-	inner_val.as_ref()
-}
-/// The genesis hash of the blockchain where the channel is intended to be spliced
-#[no_mangle]
-pub extern "C" fn SpliceAck_set_chain_hash(this_ptr: &mut SpliceAck, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
-}
-/// The intended change in channel capacity: the amount to be added (positive value)
-/// or removed (negative value) by the sender (splice acceptor) by splicing into/from the channel.
-#[no_mangle]
-pub extern "C" fn SpliceAck_get_relative_satoshis(this_ptr: &SpliceAck) -> i64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().relative_satoshis;
+pub extern "C" fn SpliceAck_get_funding_contribution_satoshis(this_ptr: &SpliceAck) -> i64 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().funding_contribution_satoshis;
 	*inner_val
 }
-/// The intended change in channel capacity: the amount to be added (positive value)
-/// or removed (negative value) by the sender (splice acceptor) by splicing into/from the channel.
+/// The amount the splice acceptor is intending to add to its channel balance (splice-in)
+/// or remove from its channel balance (splice-out).
 #[no_mangle]
-pub extern "C" fn SpliceAck_set_relative_satoshis(this_ptr: &mut SpliceAck, mut val: i64) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.relative_satoshis = val;
+pub extern "C" fn SpliceAck_set_funding_contribution_satoshis(this_ptr: &mut SpliceAck, mut val: i64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_contribution_satoshis = val;
 }
 /// The key of the sender (splice acceptor) controlling the new funding transaction
 #[no_mangle]
@@ -2939,15 +3281,29 @@ pub extern "C" fn SpliceAck_get_funding_pubkey(this_ptr: &SpliceAck) -> crate::c
 pub extern "C" fn SpliceAck_set_funding_pubkey(this_ptr: &mut SpliceAck, mut val: crate::c_types::PublicKey) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_pubkey = val.into_rust();
 }
+/// If set, only confirmed inputs added (by the splice initiator) will be accepted
+#[no_mangle]
+pub extern "C" fn SpliceAck_get_require_confirmed_inputs(this_ptr: &SpliceAck) -> crate::c_types::derived::COption_NoneZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().require_confirmed_inputs;
+	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_NoneZ::None } else { crate::c_types::derived::COption_NoneZ::Some /*  { () /**/ } */ };
+	local_inner_val
+}
+/// If set, only confirmed inputs added (by the splice initiator) will be accepted
+#[no_mangle]
+pub extern "C" fn SpliceAck_set_require_confirmed_inputs(this_ptr: &mut SpliceAck, mut val: crate::c_types::derived::COption_NoneZ) {
+	let mut local_val = if val.is_some() { Some( { () /*val.take()*/ }) } else { None };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.require_confirmed_inputs = local_val;
+}
 /// Constructs a new SpliceAck given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn SpliceAck_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut relative_satoshis_arg: i64, mut funding_pubkey_arg: crate::c_types::PublicKey) -> SpliceAck {
+pub extern "C" fn SpliceAck_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut funding_contribution_satoshis_arg: i64, mut funding_pubkey_arg: crate::c_types::PublicKey, mut require_confirmed_inputs_arg: crate::c_types::derived::COption_NoneZ) -> SpliceAck {
+	let mut local_require_confirmed_inputs_arg = if require_confirmed_inputs_arg.is_some() { Some( { () /*require_confirmed_inputs_arg.take()*/ }) } else { None };
 	SpliceAck { inner: ObjOps::heap_alloc(nativeSpliceAck {
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
-		relative_satoshis: relative_satoshis_arg,
+		funding_contribution_satoshis: funding_contribution_satoshis_arg,
 		funding_pubkey: funding_pubkey_arg.into_rust(),
+		require_confirmed_inputs: local_require_confirmed_inputs_arg,
 	}), is_owned: true }
 }
 impl Clone for SpliceAck {
@@ -2985,7 +3341,7 @@ pub extern "C" fn SpliceAck_eq(a: &SpliceAck, b: &SpliceAck) -> bool {
 use lightning::ln::msgs::SpliceLocked as nativeSpliceLockedImport;
 pub(crate) type nativeSpliceLocked = nativeSpliceLockedImport;
 
-/// A splice_locked message to be sent to or received from a peer.
+/// A `splice_locked` message to be sent to or received from a peer.
 ///
 #[must_use]
 #[repr(C)]
@@ -3002,6 +3358,12 @@ pub struct SpliceLocked {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for SpliceLocked {
+	type Target = nativeSpliceLocked;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for SpliceLocked { }
+unsafe impl core::marker::Sync for SpliceLocked { }
 impl Drop for SpliceLocked {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeSpliceLocked>::is_null(self.inner) {
@@ -3032,6 +3394,9 @@ impl SpliceLocked {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The channel ID
 #[no_mangle]
@@ -3044,12 +3409,24 @@ pub extern "C" fn SpliceLocked_get_channel_id(this_ptr: &SpliceLocked) -> crate:
 pub extern "C" fn SpliceLocked_set_channel_id(this_ptr: &mut SpliceLocked, mut val: crate::lightning::ln::types::ChannelId) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_id = *unsafe { Box::from_raw(val.take_inner()) };
 }
+/// The ID of the new funding transaction that has been locked
+#[no_mangle]
+pub extern "C" fn SpliceLocked_get_splice_txid(this_ptr: &SpliceLocked) -> *const [u8; 32] {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().splice_txid;
+	inner_val.as_ref()
+}
+/// The ID of the new funding transaction that has been locked
+#[no_mangle]
+pub extern "C" fn SpliceLocked_set_splice_txid(this_ptr: &mut SpliceLocked, mut val: crate::c_types::ThirtyTwoBytes) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.splice_txid = ::bitcoin::hash_types::Txid::from_slice(&val.data[..]).unwrap();
+}
 /// Constructs a new SpliceLocked given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn SpliceLocked_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId) -> SpliceLocked {
+pub extern "C" fn SpliceLocked_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut splice_txid_arg: crate::c_types::ThirtyTwoBytes) -> SpliceLocked {
 	SpliceLocked { inner: ObjOps::heap_alloc(nativeSpliceLocked {
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
+		splice_txid: ::bitcoin::hash_types::Txid::from_slice(&splice_txid_arg.data[..]).unwrap(),
 	}), is_owned: true }
 }
 impl Clone for SpliceLocked {
@@ -3104,6 +3481,12 @@ pub struct TxAddInput {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxAddInput {
+	type Target = nativeTxAddInput;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxAddInput { }
+unsafe impl core::marker::Sync for TxAddInput { }
 impl Drop for TxAddInput {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxAddInput>::is_null(self.inner) {
@@ -3133,6 +3516,9 @@ impl TxAddInput {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -3194,16 +3580,31 @@ pub extern "C" fn TxAddInput_get_sequence(this_ptr: &TxAddInput) -> u32 {
 pub extern "C" fn TxAddInput_set_sequence(this_ptr: &mut TxAddInput, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.sequence = val;
 }
+/// The ID of the previous funding transaction, when it is being added as an input during splicing
+#[no_mangle]
+pub extern "C" fn TxAddInput_get_shared_input_txid(this_ptr: &TxAddInput) -> crate::c_types::derived::COption_ThirtyTwoBytesZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().shared_input_txid;
+	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::c_types::ThirtyTwoBytes { data: *(*inner_val.as_ref().unwrap()).clone().as_ref() } }) };
+	local_inner_val
+}
+/// The ID of the previous funding transaction, when it is being added as an input during splicing
+#[no_mangle]
+pub extern "C" fn TxAddInput_set_shared_input_txid(this_ptr: &mut TxAddInput, mut val: crate::c_types::derived::COption_ThirtyTwoBytesZ) {
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::bitcoin::hash_types::Txid::from_slice(&{ val_opt.take() }.data[..]).unwrap() }})} };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.shared_input_txid = local_val;
+}
 /// Constructs a new TxAddInput given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn TxAddInput_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut serial_id_arg: u64, mut prevtx_arg: crate::lightning::util::ser::TransactionU16LenLimited, mut prevtx_out_arg: u32, mut sequence_arg: u32) -> TxAddInput {
+pub extern "C" fn TxAddInput_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut serial_id_arg: u64, mut prevtx_arg: crate::lightning::util::ser::TransactionU16LenLimited, mut prevtx_out_arg: u32, mut sequence_arg: u32, mut shared_input_txid_arg: crate::c_types::derived::COption_ThirtyTwoBytesZ) -> TxAddInput {
+	let mut local_shared_input_txid_arg = { /*shared_input_txid_arg*/ let shared_input_txid_arg_opt = shared_input_txid_arg; if shared_input_txid_arg_opt.is_none() { None } else { Some({ { ::bitcoin::hash_types::Txid::from_slice(&{ shared_input_txid_arg_opt.take() }.data[..]).unwrap() }})} };
 	TxAddInput { inner: ObjOps::heap_alloc(nativeTxAddInput {
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
 		serial_id: serial_id_arg,
 		prevtx: *unsafe { Box::from_raw(prevtx_arg.take_inner()) },
 		prevtx_out: prevtx_out_arg,
 		sequence: sequence_arg,
+		shared_input_txid: local_shared_input_txid_arg,
 	}), is_owned: true }
 }
 impl Clone for TxAddInput {
@@ -3268,6 +3669,12 @@ pub struct TxAddOutput {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxAddOutput {
+	type Target = nativeTxAddOutput;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxAddOutput { }
+unsafe impl core::marker::Sync for TxAddOutput { }
 impl Drop for TxAddOutput {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxAddOutput>::is_null(self.inner) {
@@ -3297,6 +3704,9 @@ impl TxAddOutput {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -3343,7 +3753,7 @@ pub extern "C" fn TxAddOutput_get_script(this_ptr: &TxAddOutput) -> crate::c_typ
 /// The scriptPubKey for the output
 #[no_mangle]
 pub extern "C" fn TxAddOutput_set_script(this_ptr: &mut TxAddOutput, mut val: crate::c_types::derived::CVec_u8Z) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.script = ::bitcoin::blockdata::script::ScriptBuf::from(val.into_rust());
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.script = ::bitcoin::script::ScriptBuf::from(val.into_rust());
 }
 /// Constructs a new TxAddOutput given each field
 #[must_use]
@@ -3353,7 +3763,7 @@ pub extern "C" fn TxAddOutput_new(mut channel_id_arg: crate::lightning::ln::type
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
 		serial_id: serial_id_arg,
 		sats: sats_arg,
-		script: ::bitcoin::blockdata::script::ScriptBuf::from(script_arg.into_rust()),
+		script: ::bitcoin::script::ScriptBuf::from(script_arg.into_rust()),
 	}), is_owned: true }
 }
 impl Clone for TxAddOutput {
@@ -3418,6 +3828,12 @@ pub struct TxRemoveInput {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxRemoveInput {
+	type Target = nativeTxRemoveInput;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxRemoveInput { }
+unsafe impl core::marker::Sync for TxRemoveInput { }
 impl Drop for TxRemoveInput {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxRemoveInput>::is_null(self.inner) {
@@ -3447,6 +3863,9 @@ impl TxRemoveInput {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -3542,6 +3961,12 @@ pub struct TxRemoveOutput {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxRemoveOutput {
+	type Target = nativeTxRemoveOutput;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxRemoveOutput { }
+unsafe impl core::marker::Sync for TxRemoveOutput { }
 impl Drop for TxRemoveOutput {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxRemoveOutput>::is_null(self.inner) {
@@ -3571,6 +3996,9 @@ impl TxRemoveOutput {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -3667,6 +4095,12 @@ pub struct TxComplete {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxComplete {
+	type Target = nativeTxComplete;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxComplete { }
+unsafe impl core::marker::Sync for TxComplete { }
 impl Drop for TxComplete {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxComplete>::is_null(self.inner) {
@@ -3696,6 +4130,9 @@ impl TxComplete {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -3780,6 +4217,12 @@ pub struct TxSignatures {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxSignatures {
+	type Target = nativeTxSignatures;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxSignatures { }
+unsafe impl core::marker::Sync for TxSignatures { }
 impl Drop for TxSignatures {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxSignatures>::is_null(self.inner) {
@@ -3809,6 +4252,9 @@ impl TxSignatures {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -3850,28 +4296,28 @@ pub extern "C" fn TxSignatures_set_witnesses(this_ptr: &mut TxSignatures, mut va
 }
 /// Optional signature for the shared input -- the previous funding outpoint -- signed by both peers
 #[no_mangle]
-pub extern "C" fn TxSignatures_get_funding_outpoint_sig(this_ptr: &TxSignatures) -> crate::c_types::derived::COption_ECDSASignatureZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().funding_outpoint_sig;
+pub extern "C" fn TxSignatures_get_shared_input_signature(this_ptr: &TxSignatures) -> crate::c_types::derived::COption_ECDSASignatureZ {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().shared_input_signature;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_ECDSASignatureZ::None } else { crate::c_types::derived::COption_ECDSASignatureZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::c_types::ECDSASignature::from_rust(&(*inner_val.as_ref().unwrap()).clone()) }) };
 	local_inner_val
 }
 /// Optional signature for the shared input -- the previous funding outpoint -- signed by both peers
 #[no_mangle]
-pub extern "C" fn TxSignatures_set_funding_outpoint_sig(this_ptr: &mut TxSignatures, mut val: crate::c_types::derived::COption_ECDSASignatureZ) {
+pub extern "C" fn TxSignatures_set_shared_input_signature(this_ptr: &mut TxSignatures, mut val: crate::c_types::derived::COption_ECDSASignatureZ) {
 	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { { val_opt.take() }.into_rust() }})} };
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_outpoint_sig = local_val;
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.shared_input_signature = local_val;
 }
 /// Constructs a new TxSignatures given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn TxSignatures_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut tx_hash_arg: crate::c_types::ThirtyTwoBytes, mut witnesses_arg: crate::c_types::derived::CVec_WitnessZ, mut funding_outpoint_sig_arg: crate::c_types::derived::COption_ECDSASignatureZ) -> TxSignatures {
+pub extern "C" fn TxSignatures_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut tx_hash_arg: crate::c_types::ThirtyTwoBytes, mut witnesses_arg: crate::c_types::derived::CVec_WitnessZ, mut shared_input_signature_arg: crate::c_types::derived::COption_ECDSASignatureZ) -> TxSignatures {
 	let mut local_witnesses_arg = Vec::new(); for mut item in witnesses_arg.into_rust().drain(..) { local_witnesses_arg.push( { item.into_bitcoin() }); };
-	let mut local_funding_outpoint_sig_arg = { /*funding_outpoint_sig_arg*/ let funding_outpoint_sig_arg_opt = funding_outpoint_sig_arg; if funding_outpoint_sig_arg_opt.is_none() { None } else { Some({ { { funding_outpoint_sig_arg_opt.take() }.into_rust() }})} };
+	let mut local_shared_input_signature_arg = { /*shared_input_signature_arg*/ let shared_input_signature_arg_opt = shared_input_signature_arg; if shared_input_signature_arg_opt.is_none() { None } else { Some({ { { shared_input_signature_arg_opt.take() }.into_rust() }})} };
 	TxSignatures { inner: ObjOps::heap_alloc(nativeTxSignatures {
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
 		tx_hash: ::bitcoin::hash_types::Txid::from_slice(&tx_hash_arg.data[..]).unwrap(),
 		witnesses: local_witnesses_arg,
-		funding_outpoint_sig: local_funding_outpoint_sig_arg,
+		shared_input_signature: local_shared_input_signature_arg,
 	}), is_owned: true }
 }
 impl Clone for TxSignatures {
@@ -3937,6 +4383,12 @@ pub struct TxInitRbf {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxInitRbf {
+	type Target = nativeTxInitRbf;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxInitRbf { }
+unsafe impl core::marker::Sync for TxInitRbf { }
 impl Drop for TxInitRbf {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxInitRbf>::is_null(self.inner) {
@@ -3966,6 +4418,9 @@ impl TxInitRbf {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -4091,6 +4546,12 @@ pub struct TxAckRbf {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxAckRbf {
+	type Target = nativeTxAckRbf;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxAckRbf { }
+unsafe impl core::marker::Sync for TxAckRbf { }
 impl Drop for TxAckRbf {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxAckRbf>::is_null(self.inner) {
@@ -4120,6 +4581,9 @@ impl TxAckRbf {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -4220,6 +4684,12 @@ pub struct TxAbort {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TxAbort {
+	type Target = nativeTxAbort;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TxAbort { }
+unsafe impl core::marker::Sync for TxAbort { }
 impl Drop for TxAbort {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTxAbort>::is_null(self.inner) {
@@ -4249,6 +4719,9 @@ impl TxAbort {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -4350,6 +4823,12 @@ pub struct Shutdown {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Shutdown {
+	type Target = nativeShutdown;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Shutdown { }
+unsafe impl core::marker::Sync for Shutdown { }
 impl Drop for Shutdown {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeShutdown>::is_null(self.inner) {
@@ -4380,6 +4859,9 @@ impl Shutdown {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The channel ID
 #[no_mangle]
@@ -4405,7 +4887,7 @@ pub extern "C" fn Shutdown_get_scriptpubkey(this_ptr: &Shutdown) -> crate::c_typ
 /// Must be in one of these forms: P2PKH, P2SH, P2WPKH, P2WSH, P2TR.
 #[no_mangle]
 pub extern "C" fn Shutdown_set_scriptpubkey(this_ptr: &mut Shutdown, mut val: crate::c_types::derived::CVec_u8Z) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.scriptpubkey = ::bitcoin::blockdata::script::ScriptBuf::from(val.into_rust());
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.scriptpubkey = ::bitcoin::script::ScriptBuf::from(val.into_rust());
 }
 /// Constructs a new Shutdown given each field
 #[must_use]
@@ -4413,7 +4895,7 @@ pub extern "C" fn Shutdown_set_scriptpubkey(this_ptr: &mut Shutdown, mut val: cr
 pub extern "C" fn Shutdown_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut scriptpubkey_arg: crate::c_types::derived::CVec_u8Z) -> Shutdown {
 	Shutdown { inner: ObjOps::heap_alloc(nativeShutdown {
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
-		scriptpubkey: ::bitcoin::blockdata::script::ScriptBuf::from(scriptpubkey_arg.into_rust()),
+		scriptpubkey: ::bitcoin::script::ScriptBuf::from(scriptpubkey_arg.into_rust()),
 	}), is_owned: true }
 }
 impl Clone for Shutdown {
@@ -4480,6 +4962,12 @@ pub struct ClosingSignedFeeRange {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ClosingSignedFeeRange {
+	type Target = nativeClosingSignedFeeRange;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ClosingSignedFeeRange { }
+unsafe impl core::marker::Sync for ClosingSignedFeeRange { }
 impl Drop for ClosingSignedFeeRange {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeClosingSignedFeeRange>::is_null(self.inner) {
@@ -4509,6 +4997,9 @@ impl ClosingSignedFeeRange {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The minimum absolute fee, in satoshis, which the sender is willing to place on the closing
@@ -4609,6 +5100,12 @@ pub struct ClosingSigned {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ClosingSigned {
+	type Target = nativeClosingSigned;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ClosingSigned { }
+unsafe impl core::marker::Sync for ClosingSigned { }
 impl Drop for ClosingSigned {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeClosingSigned>::is_null(self.inner) {
@@ -4638,6 +5135,9 @@ impl ClosingSigned {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -4769,6 +5269,12 @@ pub struct UpdateAddHTLC {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UpdateAddHTLC {
+	type Target = nativeUpdateAddHTLC;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UpdateAddHTLC { }
+unsafe impl core::marker::Sync for UpdateAddHTLC { }
 impl Drop for UpdateAddHTLC {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUpdateAddHTLC>::is_null(self.inner) {
@@ -4798,6 +5304,9 @@ impl UpdateAddHTLC {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -4985,6 +5494,12 @@ pub struct OnionMessage {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OnionMessage {
+	type Target = nativeOnionMessage;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OnionMessage { }
+unsafe impl core::marker::Sync for OnionMessage { }
 impl Drop for OnionMessage {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOnionMessage>::is_null(self.inner) {
@@ -5014,6 +5529,9 @@ impl OnionMessage {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Used in decrypting the onion packet's payload.
@@ -5110,6 +5628,12 @@ pub struct UpdateFulfillHTLC {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UpdateFulfillHTLC {
+	type Target = nativeUpdateFulfillHTLC;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UpdateFulfillHTLC { }
+unsafe impl core::marker::Sync for UpdateFulfillHTLC { }
 impl Drop for UpdateFulfillHTLC {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUpdateFulfillHTLC>::is_null(self.inner) {
@@ -5139,6 +5663,9 @@ impl UpdateFulfillHTLC {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -5247,6 +5774,12 @@ pub struct UpdateFailHTLC {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UpdateFailHTLC {
+	type Target = nativeUpdateFailHTLC;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UpdateFailHTLC { }
+unsafe impl core::marker::Sync for UpdateFailHTLC { }
 impl Drop for UpdateFailHTLC {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUpdateFailHTLC>::is_null(self.inner) {
@@ -5276,6 +5809,9 @@ impl UpdateFailHTLC {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -5363,6 +5899,12 @@ pub struct UpdateFailMalformedHTLC {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UpdateFailMalformedHTLC {
+	type Target = nativeUpdateFailMalformedHTLC;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UpdateFailMalformedHTLC { }
+unsafe impl core::marker::Sync for UpdateFailMalformedHTLC { }
 impl Drop for UpdateFailMalformedHTLC {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUpdateFailMalformedHTLC>::is_null(self.inner) {
@@ -5392,6 +5934,9 @@ impl UpdateFailMalformedHTLC {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -5469,6 +6014,138 @@ pub extern "C" fn UpdateFailMalformedHTLC_eq(a: &UpdateFailMalformedHTLC, b: &Up
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
 
+use lightning::ln::msgs::CommitmentSignedBatch as nativeCommitmentSignedBatchImport;
+pub(crate) type nativeCommitmentSignedBatch = nativeCommitmentSignedBatchImport;
+
+/// Optional batch parameters for `commitment_signed` message.
+#[must_use]
+#[repr(C)]
+pub struct CommitmentSignedBatch {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeCommitmentSignedBatch,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for CommitmentSignedBatch {
+	type Target = nativeCommitmentSignedBatch;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CommitmentSignedBatch { }
+unsafe impl core::marker::Sync for CommitmentSignedBatch { }
+impl Drop for CommitmentSignedBatch {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeCommitmentSignedBatch>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the CommitmentSignedBatch, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn CommitmentSignedBatch_free(this_obj: CommitmentSignedBatch) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn CommitmentSignedBatch_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeCommitmentSignedBatch) };
+}
+#[allow(unused)]
+impl CommitmentSignedBatch {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeCommitmentSignedBatch {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeCommitmentSignedBatch {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeCommitmentSignedBatch {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// Batch size N: all N `commitment_signed` messages must be received before being processed
+#[no_mangle]
+pub extern "C" fn CommitmentSignedBatch_get_batch_size(this_ptr: &CommitmentSignedBatch) -> u16 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().batch_size;
+	*inner_val
+}
+/// Batch size N: all N `commitment_signed` messages must be received before being processed
+#[no_mangle]
+pub extern "C" fn CommitmentSignedBatch_set_batch_size(this_ptr: &mut CommitmentSignedBatch, mut val: u16) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.batch_size = val;
+}
+/// The funding transaction, to discriminate among multiple pending funding transactions (e.g. in case of splicing)
+#[no_mangle]
+pub extern "C" fn CommitmentSignedBatch_get_funding_txid(this_ptr: &CommitmentSignedBatch) -> *const [u8; 32] {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().funding_txid;
+	inner_val.as_ref()
+}
+/// The funding transaction, to discriminate among multiple pending funding transactions (e.g. in case of splicing)
+#[no_mangle]
+pub extern "C" fn CommitmentSignedBatch_set_funding_txid(this_ptr: &mut CommitmentSignedBatch, mut val: crate::c_types::ThirtyTwoBytes) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_txid = ::bitcoin::hash_types::Txid::from_slice(&val.data[..]).unwrap();
+}
+/// Constructs a new CommitmentSignedBatch given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn CommitmentSignedBatch_new(mut batch_size_arg: u16, mut funding_txid_arg: crate::c_types::ThirtyTwoBytes) -> CommitmentSignedBatch {
+	CommitmentSignedBatch { inner: ObjOps::heap_alloc(nativeCommitmentSignedBatch {
+		batch_size: batch_size_arg,
+		funding_txid: ::bitcoin::hash_types::Txid::from_slice(&funding_txid_arg.data[..]).unwrap(),
+	}), is_owned: true }
+}
+impl Clone for CommitmentSignedBatch {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeCommitmentSignedBatch>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn CommitmentSignedBatch_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeCommitmentSignedBatch)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the CommitmentSignedBatch
+pub extern "C" fn CommitmentSignedBatch_clone(orig: &CommitmentSignedBatch) -> CommitmentSignedBatch {
+	orig.clone()
+}
+/// Get a string which allows debug introspection of a CommitmentSignedBatch object
+pub extern "C" fn CommitmentSignedBatch_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::msgs::CommitmentSignedBatch }).into()}
+/// Generates a non-cryptographic 64-bit hash of the CommitmentSignedBatch.
+#[no_mangle]
+pub extern "C" fn CommitmentSignedBatch_hash(o: &CommitmentSignedBatch) -> u64 {
+	if o.inner.is_null() { return 0; }
+	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
+	#[allow(deprecated)]
+	let mut hasher = core::hash::SipHasher::new();
+	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
+	core::hash::Hasher::finish(&hasher)
+}
+/// Checks if two CommitmentSignedBatchs contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn CommitmentSignedBatch_eq(a: &CommitmentSignedBatch, b: &CommitmentSignedBatch) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+
 use lightning::ln::msgs::CommitmentSigned as nativeCommitmentSignedImport;
 pub(crate) type nativeCommitmentSigned = nativeCommitmentSignedImport;
 
@@ -5490,6 +6167,12 @@ pub struct CommitmentSigned {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for CommitmentSigned {
+	type Target = nativeCommitmentSigned;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CommitmentSigned { }
+unsafe impl core::marker::Sync for CommitmentSigned { }
 impl Drop for CommitmentSigned {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeCommitmentSigned>::is_null(self.inner) {
@@ -5519,6 +6202,9 @@ impl CommitmentSigned {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -5558,15 +6244,36 @@ pub extern "C" fn CommitmentSigned_set_htlc_signatures(this_ptr: &mut Commitment
 	let mut local_val = Vec::new(); for mut item in val.into_rust().drain(..) { local_val.push( { item.into_rust() }); };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.htlc_signatures = local_val;
 }
+/// Optional batch size and other parameters
+///
+/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[no_mangle]
+pub extern "C" fn CommitmentSigned_get_batch(this_ptr: &CommitmentSigned) -> crate::lightning::ln::msgs::CommitmentSignedBatch {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().batch;
+	let mut local_inner_val = crate::lightning::ln::msgs::CommitmentSignedBatch { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::msgs::CommitmentSignedBatch<>) as *mut _ }, is_owned: false };
+	local_inner_val
+}
+/// Optional batch size and other parameters
+///
+/// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[no_mangle]
+pub extern "C" fn CommitmentSigned_set_batch(this_ptr: &mut CommitmentSigned, mut val: crate::lightning::ln::msgs::CommitmentSignedBatch) {
+	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.batch = local_val;
+}
 /// Constructs a new CommitmentSigned given each field
+///
+/// Note that batch_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn CommitmentSigned_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut signature_arg: crate::c_types::ECDSASignature, mut htlc_signatures_arg: crate::c_types::derived::CVec_ECDSASignatureZ) -> CommitmentSigned {
+pub extern "C" fn CommitmentSigned_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut signature_arg: crate::c_types::ECDSASignature, mut htlc_signatures_arg: crate::c_types::derived::CVec_ECDSASignatureZ, mut batch_arg: crate::lightning::ln::msgs::CommitmentSignedBatch) -> CommitmentSigned {
 	let mut local_htlc_signatures_arg = Vec::new(); for mut item in htlc_signatures_arg.into_rust().drain(..) { local_htlc_signatures_arg.push( { item.into_rust() }); };
+	let mut local_batch_arg = if batch_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(batch_arg.take_inner()) } }) };
 	CommitmentSigned { inner: ObjOps::heap_alloc(nativeCommitmentSigned {
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
 		signature: signature_arg.into_rust(),
 		htlc_signatures: local_htlc_signatures_arg,
+		batch: local_batch_arg,
 	}), is_owned: true }
 }
 impl Clone for CommitmentSigned {
@@ -5632,6 +6339,12 @@ pub struct RevokeAndACK {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RevokeAndACK {
+	type Target = nativeRevokeAndACK;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RevokeAndACK { }
+unsafe impl core::marker::Sync for RevokeAndACK { }
 impl Drop for RevokeAndACK {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRevokeAndACK>::is_null(self.inner) {
@@ -5661,6 +6374,9 @@ impl RevokeAndACK {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -5769,6 +6485,12 @@ pub struct UpdateFee {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UpdateFee {
+	type Target = nativeUpdateFee;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UpdateFee { }
+unsafe impl core::marker::Sync for UpdateFee { }
 impl Drop for UpdateFee {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUpdateFee>::is_null(self.inner) {
@@ -5798,6 +6520,9 @@ impl UpdateFee {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -5894,6 +6619,12 @@ pub struct ChannelReestablish {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelReestablish {
+	type Target = nativeChannelReestablish;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelReestablish { }
+unsafe impl core::marker::Sync for ChannelReestablish { }
 impl Drop for ChannelReestablish {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelReestablish>::is_null(self.inner) {
@@ -5923,6 +6654,9 @@ impl ChannelReestablish {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -6072,6 +6806,12 @@ pub struct AnnouncementSignatures {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for AnnouncementSignatures {
+	type Target = nativeAnnouncementSignatures;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for AnnouncementSignatures { }
+unsafe impl core::marker::Sync for AnnouncementSignatures { }
 impl Drop for AnnouncementSignatures {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeAnnouncementSignatures>::is_null(self.inner) {
@@ -6101,6 +6841,9 @@ impl AnnouncementSignatures {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The channel ID
@@ -6821,6 +7564,12 @@ pub struct UnsignedNodeAnnouncement {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UnsignedNodeAnnouncement {
+	type Target = nativeUnsignedNodeAnnouncement;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UnsignedNodeAnnouncement { }
+unsafe impl core::marker::Sync for UnsignedNodeAnnouncement { }
 impl Drop for UnsignedNodeAnnouncement {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUnsignedNodeAnnouncement>::is_null(self.inner) {
@@ -6851,16 +7600,19 @@ impl UnsignedNodeAnnouncement {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The advertised features
 #[no_mangle]
-pub extern "C" fn UnsignedNodeAnnouncement_get_features(this_ptr: &UnsignedNodeAnnouncement) -> crate::lightning::ln::features::NodeFeatures {
+pub extern "C" fn UnsignedNodeAnnouncement_get_features(this_ptr: &UnsignedNodeAnnouncement) -> crate::lightning_types::features::NodeFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
-	crate::lightning::ln::features::NodeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::NodeFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::NodeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::NodeFeatures<>) as *mut _) }, is_owned: false }
 }
 /// The advertised features
 #[no_mangle]
-pub extern "C" fn UnsignedNodeAnnouncement_set_features(this_ptr: &mut UnsignedNodeAnnouncement, mut val: crate::lightning::ln::features::NodeFeatures) {
+pub extern "C" fn UnsignedNodeAnnouncement_set_features(this_ptr: &mut UnsignedNodeAnnouncement, mut val: crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// A strictly monotonic announcement counter, with gaps allowed
@@ -6973,7 +7725,7 @@ pub extern "C" fn UnsignedNodeAnnouncement_set_excess_data(this_ptr: &mut Unsign
 /// Constructs a new UnsignedNodeAnnouncement given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn UnsignedNodeAnnouncement_new(mut features_arg: crate::lightning::ln::features::NodeFeatures, mut timestamp_arg: u32, mut node_id_arg: crate::lightning::routing::gossip::NodeId, mut rgb_arg: crate::c_types::ThreeBytes, mut alias_arg: crate::lightning::routing::gossip::NodeAlias, mut addresses_arg: crate::c_types::derived::CVec_SocketAddressZ, mut excess_address_data_arg: crate::c_types::derived::CVec_u8Z, mut excess_data_arg: crate::c_types::derived::CVec_u8Z) -> UnsignedNodeAnnouncement {
+pub extern "C" fn UnsignedNodeAnnouncement_new(mut features_arg: crate::lightning_types::features::NodeFeatures, mut timestamp_arg: u32, mut node_id_arg: crate::lightning::routing::gossip::NodeId, mut rgb_arg: crate::c_types::ThreeBytes, mut alias_arg: crate::lightning::routing::gossip::NodeAlias, mut addresses_arg: crate::c_types::derived::CVec_SocketAddressZ, mut excess_address_data_arg: crate::c_types::derived::CVec_u8Z, mut excess_data_arg: crate::c_types::derived::CVec_u8Z) -> UnsignedNodeAnnouncement {
 	let mut local_addresses_arg = Vec::new(); for mut item in addresses_arg.into_rust().drain(..) { local_addresses_arg.push( { item.into_native() }); };
 	let mut local_excess_address_data_arg = Vec::new(); for mut item in excess_address_data_arg.into_rust().drain(..) { local_excess_address_data_arg.push( { item }); };
 	let mut local_excess_data_arg = Vec::new(); for mut item in excess_data_arg.into_rust().drain(..) { local_excess_data_arg.push( { item }); };
@@ -7051,6 +7803,12 @@ pub struct NodeAnnouncement {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for NodeAnnouncement {
+	type Target = nativeNodeAnnouncement;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for NodeAnnouncement { }
+unsafe impl core::marker::Sync for NodeAnnouncement { }
 impl Drop for NodeAnnouncement {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeNodeAnnouncement>::is_null(self.inner) {
@@ -7080,6 +7838,9 @@ impl NodeAnnouncement {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The signature by the node key
@@ -7176,6 +7937,12 @@ pub struct UnsignedChannelAnnouncement {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UnsignedChannelAnnouncement {
+	type Target = nativeUnsignedChannelAnnouncement;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UnsignedChannelAnnouncement { }
+unsafe impl core::marker::Sync for UnsignedChannelAnnouncement { }
 impl Drop for UnsignedChannelAnnouncement {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUnsignedChannelAnnouncement>::is_null(self.inner) {
@@ -7206,16 +7973,19 @@ impl UnsignedChannelAnnouncement {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The advertised channel features
 #[no_mangle]
-pub extern "C" fn UnsignedChannelAnnouncement_get_features(this_ptr: &UnsignedChannelAnnouncement) -> crate::lightning::ln::features::ChannelFeatures {
+pub extern "C" fn UnsignedChannelAnnouncement_get_features(this_ptr: &UnsignedChannelAnnouncement) -> crate::lightning_types::features::ChannelFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
-	crate::lightning::ln::features::ChannelFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::ChannelFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::ChannelFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::ChannelFeatures<>) as *mut _) }, is_owned: false }
 }
 /// The advertised channel features
 #[no_mangle]
-pub extern "C" fn UnsignedChannelAnnouncement_set_features(this_ptr: &mut UnsignedChannelAnnouncement, mut val: crate::lightning::ln::features::ChannelFeatures) {
+pub extern "C" fn UnsignedChannelAnnouncement_set_features(this_ptr: &mut UnsignedChannelAnnouncement, mut val: crate::lightning_types::features::ChannelFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// The genesis hash of the blockchain where the channel is to be opened
@@ -7227,7 +7997,7 @@ pub extern "C" fn UnsignedChannelAnnouncement_get_chain_hash(this_ptr: &Unsigned
 /// The genesis hash of the blockchain where the channel is to be opened
 #[no_mangle]
 pub extern "C" fn UnsignedChannelAnnouncement_set_chain_hash(this_ptr: &mut UnsignedChannelAnnouncement, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::constants::ChainHash::from(&val.data);
 }
 /// The short channel ID
 #[no_mangle]
@@ -7308,11 +8078,11 @@ pub extern "C" fn UnsignedChannelAnnouncement_set_excess_data(this_ptr: &mut Uns
 /// Constructs a new UnsignedChannelAnnouncement given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn UnsignedChannelAnnouncement_new(mut features_arg: crate::lightning::ln::features::ChannelFeatures, mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut short_channel_id_arg: u64, mut node_id_1_arg: crate::lightning::routing::gossip::NodeId, mut node_id_2_arg: crate::lightning::routing::gossip::NodeId, mut bitcoin_key_1_arg: crate::lightning::routing::gossip::NodeId, mut bitcoin_key_2_arg: crate::lightning::routing::gossip::NodeId, mut excess_data_arg: crate::c_types::derived::CVec_u8Z) -> UnsignedChannelAnnouncement {
+pub extern "C" fn UnsignedChannelAnnouncement_new(mut features_arg: crate::lightning_types::features::ChannelFeatures, mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut short_channel_id_arg: u64, mut node_id_1_arg: crate::lightning::routing::gossip::NodeId, mut node_id_2_arg: crate::lightning::routing::gossip::NodeId, mut bitcoin_key_1_arg: crate::lightning::routing::gossip::NodeId, mut bitcoin_key_2_arg: crate::lightning::routing::gossip::NodeId, mut excess_data_arg: crate::c_types::derived::CVec_u8Z) -> UnsignedChannelAnnouncement {
 	let mut local_excess_data_arg = Vec::new(); for mut item in excess_data_arg.into_rust().drain(..) { local_excess_data_arg.push( { item }); };
 	UnsignedChannelAnnouncement { inner: ObjOps::heap_alloc(nativeUnsignedChannelAnnouncement {
 		features: *unsafe { Box::from_raw(features_arg.take_inner()) },
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
+		chain_hash: ::bitcoin::constants::ChainHash::from(&chain_hash_arg.data),
 		short_channel_id: short_channel_id_arg,
 		node_id_1: *unsafe { Box::from_raw(node_id_1_arg.take_inner()) },
 		node_id_2: *unsafe { Box::from_raw(node_id_2_arg.take_inner()) },
@@ -7384,6 +8154,12 @@ pub struct ChannelAnnouncement {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelAnnouncement {
+	type Target = nativeChannelAnnouncement;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelAnnouncement { }
+unsafe impl core::marker::Sync for ChannelAnnouncement { }
 impl Drop for ChannelAnnouncement {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelAnnouncement>::is_null(self.inner) {
@@ -7413,6 +8189,9 @@ impl ChannelAnnouncement {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Authentication of the announcement by the first public node
@@ -7545,6 +8324,12 @@ pub struct UnsignedChannelUpdate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for UnsignedChannelUpdate {
+	type Target = nativeUnsignedChannelUpdate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UnsignedChannelUpdate { }
+unsafe impl core::marker::Sync for UnsignedChannelUpdate { }
 impl Drop for UnsignedChannelUpdate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeUnsignedChannelUpdate>::is_null(self.inner) {
@@ -7575,6 +8360,9 @@ impl UnsignedChannelUpdate {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The genesis hash of the blockchain where the channel is to be opened
 #[no_mangle]
@@ -7585,7 +8373,7 @@ pub extern "C" fn UnsignedChannelUpdate_get_chain_hash(this_ptr: &UnsignedChanne
 /// The genesis hash of the blockchain where the channel is to be opened
 #[no_mangle]
 pub extern "C" fn UnsignedChannelUpdate_set_chain_hash(this_ptr: &mut UnsignedChannelUpdate, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::constants::ChainHash::from(&val.data);
 }
 /// The short channel ID
 #[no_mangle]
@@ -7609,16 +8397,29 @@ pub extern "C" fn UnsignedChannelUpdate_get_timestamp(this_ptr: &UnsignedChannel
 pub extern "C" fn UnsignedChannelUpdate_set_timestamp(this_ptr: &mut UnsignedChannelUpdate, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.timestamp = val;
 }
-/// Channel flags
+/// Flags pertaining to this message.
 #[no_mangle]
-pub extern "C" fn UnsignedChannelUpdate_get_flags(this_ptr: &UnsignedChannelUpdate) -> u8 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().flags;
+pub extern "C" fn UnsignedChannelUpdate_get_message_flags(this_ptr: &UnsignedChannelUpdate) -> u8 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().message_flags;
 	*inner_val
 }
-/// Channel flags
+/// Flags pertaining to this message.
 #[no_mangle]
-pub extern "C" fn UnsignedChannelUpdate_set_flags(this_ptr: &mut UnsignedChannelUpdate, mut val: u8) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.flags = val;
+pub extern "C" fn UnsignedChannelUpdate_set_message_flags(this_ptr: &mut UnsignedChannelUpdate, mut val: u8) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.message_flags = val;
+}
+/// Flags pertaining to the channel, including to which direction in the channel this update
+/// applies and whether the direction is currently able to forward HTLCs.
+#[no_mangle]
+pub extern "C" fn UnsignedChannelUpdate_get_channel_flags(this_ptr: &UnsignedChannelUpdate) -> u8 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_flags;
+	*inner_val
+}
+/// Flags pertaining to the channel, including to which direction in the channel this update
+/// applies and whether the direction is currently able to forward HTLCs.
+#[no_mangle]
+pub extern "C" fn UnsignedChannelUpdate_set_channel_flags(this_ptr: &mut UnsignedChannelUpdate, mut val: u8) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_flags = val;
 }
 /// The number of blocks such that if:
 /// `incoming_htlc.cltv_expiry < outgoing_htlc.cltv_expiry + cltv_expiry_delta`
@@ -7717,13 +8518,14 @@ pub extern "C" fn UnsignedChannelUpdate_set_excess_data(this_ptr: &mut UnsignedC
 /// Constructs a new UnsignedChannelUpdate given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn UnsignedChannelUpdate_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut short_channel_id_arg: u64, mut timestamp_arg: u32, mut flags_arg: u8, mut cltv_expiry_delta_arg: u16, mut htlc_minimum_msat_arg: u64, mut htlc_maximum_msat_arg: u64, mut fee_base_msat_arg: u32, mut fee_proportional_millionths_arg: u32, mut excess_data_arg: crate::c_types::derived::CVec_u8Z) -> UnsignedChannelUpdate {
+pub extern "C" fn UnsignedChannelUpdate_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut short_channel_id_arg: u64, mut timestamp_arg: u32, mut message_flags_arg: u8, mut channel_flags_arg: u8, mut cltv_expiry_delta_arg: u16, mut htlc_minimum_msat_arg: u64, mut htlc_maximum_msat_arg: u64, mut fee_base_msat_arg: u32, mut fee_proportional_millionths_arg: u32, mut excess_data_arg: crate::c_types::derived::CVec_u8Z) -> UnsignedChannelUpdate {
 	let mut local_excess_data_arg = Vec::new(); for mut item in excess_data_arg.into_rust().drain(..) { local_excess_data_arg.push( { item }); };
 	UnsignedChannelUpdate { inner: ObjOps::heap_alloc(nativeUnsignedChannelUpdate {
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
+		chain_hash: ::bitcoin::constants::ChainHash::from(&chain_hash_arg.data),
 		short_channel_id: short_channel_id_arg,
 		timestamp: timestamp_arg,
-		flags: flags_arg,
+		message_flags: message_flags_arg,
+		channel_flags: channel_flags_arg,
 		cltv_expiry_delta: cltv_expiry_delta_arg,
 		htlc_minimum_msat: htlc_minimum_msat_arg,
 		htlc_maximum_msat: htlc_maximum_msat_arg,
@@ -7795,6 +8597,12 @@ pub struct ChannelUpdate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelUpdate {
+	type Target = nativeChannelUpdate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelUpdate { }
+unsafe impl core::marker::Sync for ChannelUpdate { }
 impl Drop for ChannelUpdate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelUpdate>::is_null(self.inner) {
@@ -7824,6 +8632,9 @@ impl ChannelUpdate {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// A signature of the channel update
@@ -7923,6 +8734,12 @@ pub struct QueryChannelRange {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for QueryChannelRange {
+	type Target = nativeQueryChannelRange;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for QueryChannelRange { }
+unsafe impl core::marker::Sync for QueryChannelRange { }
 impl Drop for QueryChannelRange {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeQueryChannelRange>::is_null(self.inner) {
@@ -7953,6 +8770,9 @@ impl QueryChannelRange {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The genesis hash of the blockchain being queried
 #[no_mangle]
@@ -7963,7 +8783,7 @@ pub extern "C" fn QueryChannelRange_get_chain_hash(this_ptr: &QueryChannelRange)
 /// The genesis hash of the blockchain being queried
 #[no_mangle]
 pub extern "C" fn QueryChannelRange_set_chain_hash(this_ptr: &mut QueryChannelRange, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::constants::ChainHash::from(&val.data);
 }
 /// The height of the first block for the channel UTXOs being queried
 #[no_mangle]
@@ -7992,7 +8812,7 @@ pub extern "C" fn QueryChannelRange_set_number_of_blocks(this_ptr: &mut QueryCha
 #[no_mangle]
 pub extern "C" fn QueryChannelRange_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut first_blocknum_arg: u32, mut number_of_blocks_arg: u32) -> QueryChannelRange {
 	QueryChannelRange { inner: ObjOps::heap_alloc(nativeQueryChannelRange {
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
+		chain_hash: ::bitcoin::constants::ChainHash::from(&chain_hash_arg.data),
 		first_blocknum: first_blocknum_arg,
 		number_of_blocks: number_of_blocks_arg,
 	}), is_owned: true }
@@ -8068,6 +8888,12 @@ pub struct ReplyChannelRange {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ReplyChannelRange {
+	type Target = nativeReplyChannelRange;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ReplyChannelRange { }
+unsafe impl core::marker::Sync for ReplyChannelRange { }
 impl Drop for ReplyChannelRange {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeReplyChannelRange>::is_null(self.inner) {
@@ -8098,6 +8924,9 @@ impl ReplyChannelRange {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The genesis hash of the blockchain being queried
 #[no_mangle]
@@ -8108,7 +8937,7 @@ pub extern "C" fn ReplyChannelRange_get_chain_hash(this_ptr: &ReplyChannelRange)
 /// The genesis hash of the blockchain being queried
 #[no_mangle]
 pub extern "C" fn ReplyChannelRange_set_chain_hash(this_ptr: &mut ReplyChannelRange, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::constants::ChainHash::from(&val.data);
 }
 /// The height of the first block in the range of the reply
 #[no_mangle]
@@ -8164,7 +8993,7 @@ pub extern "C" fn ReplyChannelRange_set_short_channel_ids(this_ptr: &mut ReplyCh
 pub extern "C" fn ReplyChannelRange_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut first_blocknum_arg: u32, mut number_of_blocks_arg: u32, mut sync_complete_arg: bool, mut short_channel_ids_arg: crate::c_types::derived::CVec_u64Z) -> ReplyChannelRange {
 	let mut local_short_channel_ids_arg = Vec::new(); for mut item in short_channel_ids_arg.into_rust().drain(..) { local_short_channel_ids_arg.push( { item }); };
 	ReplyChannelRange { inner: ObjOps::heap_alloc(nativeReplyChannelRange {
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
+		chain_hash: ::bitcoin::constants::ChainHash::from(&chain_hash_arg.data),
 		first_blocknum: first_blocknum_arg,
 		number_of_blocks: number_of_blocks_arg,
 		sync_complete: sync_complete_arg,
@@ -8242,6 +9071,12 @@ pub struct QueryShortChannelIds {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for QueryShortChannelIds {
+	type Target = nativeQueryShortChannelIds;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for QueryShortChannelIds { }
+unsafe impl core::marker::Sync for QueryShortChannelIds { }
 impl Drop for QueryShortChannelIds {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeQueryShortChannelIds>::is_null(self.inner) {
@@ -8272,6 +9107,9 @@ impl QueryShortChannelIds {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The genesis hash of the blockchain being queried
 #[no_mangle]
@@ -8282,7 +9120,7 @@ pub extern "C" fn QueryShortChannelIds_get_chain_hash(this_ptr: &QueryShortChann
 /// The genesis hash of the blockchain being queried
 #[no_mangle]
 pub extern "C" fn QueryShortChannelIds_set_chain_hash(this_ptr: &mut QueryShortChannelIds, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::constants::ChainHash::from(&val.data);
 }
 /// The short_channel_ids that are being queried
 ///
@@ -8305,7 +9143,7 @@ pub extern "C" fn QueryShortChannelIds_set_short_channel_ids(this_ptr: &mut Quer
 pub extern "C" fn QueryShortChannelIds_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut short_channel_ids_arg: crate::c_types::derived::CVec_u64Z) -> QueryShortChannelIds {
 	let mut local_short_channel_ids_arg = Vec::new(); for mut item in short_channel_ids_arg.into_rust().drain(..) { local_short_channel_ids_arg.push( { item }); };
 	QueryShortChannelIds { inner: ObjOps::heap_alloc(nativeQueryShortChannelIds {
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
+		chain_hash: ::bitcoin::constants::ChainHash::from(&chain_hash_arg.data),
 		short_channel_ids: local_short_channel_ids_arg,
 	}), is_owned: true }
 }
@@ -8375,6 +9213,12 @@ pub struct ReplyShortChannelIdsEnd {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ReplyShortChannelIdsEnd {
+	type Target = nativeReplyShortChannelIdsEnd;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ReplyShortChannelIdsEnd { }
+unsafe impl core::marker::Sync for ReplyShortChannelIdsEnd { }
 impl Drop for ReplyShortChannelIdsEnd {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeReplyShortChannelIdsEnd>::is_null(self.inner) {
@@ -8405,6 +9249,9 @@ impl ReplyShortChannelIdsEnd {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The genesis hash of the blockchain that was queried
 #[no_mangle]
@@ -8415,7 +9262,7 @@ pub extern "C" fn ReplyShortChannelIdsEnd_get_chain_hash(this_ptr: &ReplyShortCh
 /// The genesis hash of the blockchain that was queried
 #[no_mangle]
 pub extern "C" fn ReplyShortChannelIdsEnd_set_chain_hash(this_ptr: &mut ReplyShortChannelIdsEnd, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::constants::ChainHash::from(&val.data);
 }
 /// Indicates if the query recipient maintains up-to-date channel
 /// information for the `chain_hash`
@@ -8435,7 +9282,7 @@ pub extern "C" fn ReplyShortChannelIdsEnd_set_full_information(this_ptr: &mut Re
 #[no_mangle]
 pub extern "C" fn ReplyShortChannelIdsEnd_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut full_information_arg: bool) -> ReplyShortChannelIdsEnd {
 	ReplyShortChannelIdsEnd { inner: ObjOps::heap_alloc(nativeReplyShortChannelIdsEnd {
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
+		chain_hash: ::bitcoin::constants::ChainHash::from(&chain_hash_arg.data),
 		full_information: full_information_arg,
 	}), is_owned: true }
 }
@@ -8504,6 +9351,12 @@ pub struct GossipTimestampFilter {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for GossipTimestampFilter {
+	type Target = nativeGossipTimestampFilter;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for GossipTimestampFilter { }
+unsafe impl core::marker::Sync for GossipTimestampFilter { }
 impl Drop for GossipTimestampFilter {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeGossipTimestampFilter>::is_null(self.inner) {
@@ -8534,6 +9387,9 @@ impl GossipTimestampFilter {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The genesis hash of the blockchain for channel and node information
 #[no_mangle]
@@ -8544,7 +9400,7 @@ pub extern "C" fn GossipTimestampFilter_get_chain_hash(this_ptr: &GossipTimestam
 /// The genesis hash of the blockchain for channel and node information
 #[no_mangle]
 pub extern "C" fn GossipTimestampFilter_set_chain_hash(this_ptr: &mut GossipTimestampFilter, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::blockdata::constants::ChainHash::from(&val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.chain_hash = ::bitcoin::constants::ChainHash::from(&val.data);
 }
 /// The starting unix timestamp
 #[no_mangle]
@@ -8573,7 +9429,7 @@ pub extern "C" fn GossipTimestampFilter_set_timestamp_range(this_ptr: &mut Gossi
 #[no_mangle]
 pub extern "C" fn GossipTimestampFilter_new(mut chain_hash_arg: crate::c_types::ThirtyTwoBytes, mut first_timestamp_arg: u32, mut timestamp_range_arg: u32) -> GossipTimestampFilter {
 	GossipTimestampFilter { inner: ObjOps::heap_alloc(nativeGossipTimestampFilter {
-		chain_hash: ::bitcoin::blockdata::constants::ChainHash::from(&chain_hash_arg.data),
+		chain_hash: ::bitcoin::constants::ChainHash::from(&chain_hash_arg.data),
 		first_timestamp: first_timestamp_arg,
 		timestamp_range: timestamp_range_arg,
 	}), is_owned: true }
@@ -8907,6 +9763,12 @@ pub struct LightningError {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for LightningError {
+	type Target = nativeLightningError;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for LightningError { }
+unsafe impl core::marker::Sync for LightningError { }
 impl Drop for LightningError {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeLightningError>::is_null(self.inner) {
@@ -8936,6 +9798,9 @@ impl LightningError {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// A human-readable message describing the error
@@ -9012,6 +9877,12 @@ pub struct CommitmentUpdate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for CommitmentUpdate {
+	type Target = nativeCommitmentUpdate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CommitmentUpdate { }
+unsafe impl core::marker::Sync for CommitmentUpdate { }
 impl Drop for CommitmentUpdate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeCommitmentUpdate>::is_null(self.inner) {
@@ -9041,6 +9912,9 @@ impl CommitmentUpdate {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// `update_add_htlc` messages which should be sent
@@ -9264,13 +10138,13 @@ pub struct ChannelMessageHandler {
 	/// Gets the node feature flags which this handler itself supports. All available handlers are
 	/// queried similarly and their feature flags are OR'd together to form the [`NodeFeatures`]
 	/// which are broadcasted in our [`NodeAnnouncement`] message.
-	pub provided_node_features: extern "C" fn (this_arg: *const c_void) -> crate::lightning::ln::features::NodeFeatures,
+	pub provided_node_features: extern "C" fn (this_arg: *const c_void) -> crate::lightning_types::features::NodeFeatures,
 	/// Gets the init feature flags which should be sent to the given peer. All available handlers
 	/// are queried similarly and their feature flags are OR'd together to form the [`InitFeatures`]
 	/// which are sent in our [`Init`] message.
 	///
 	/// Note that this method is called before [`Self::peer_connected`].
-	pub provided_init_features: extern "C" fn (this_arg: *const c_void, their_node_id: crate::c_types::PublicKey) -> crate::lightning::ln::features::InitFeatures,
+	pub provided_init_features: extern "C" fn (this_arg: *const c_void, their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures,
 	/// Gets the chain hashes for this `ChannelMessageHandler` indicating which chains it supports.
 	///
 	/// If it's `None`, then no particular network chain hash compatibility will be enforced when
@@ -9330,6 +10204,13 @@ pub(crate) fn ChannelMessageHandler_clone_fields(orig: &ChannelMessageHandler) -
 impl lightning::events::MessageSendEventsProvider for ChannelMessageHandler {
 	fn get_and_clear_pending_msg_events(&self) -> Vec<lightning::events::MessageSendEvent> {
 		let mut ret = (self.MessageSendEventsProvider.get_and_clear_pending_msg_events)(self.MessageSendEventsProvider.this_arg);
+		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { item.into_native() }); };
+		local_ret
+	}
+}
+impl lightning::events::MessageSendEventsProvider for ChannelMessageHandlerRef {
+	fn get_and_clear_pending_msg_events(&self) -> Vec<lightning::events::MessageSendEvent> {
+		let mut ret = (self.0.MessageSendEventsProvider.get_and_clear_pending_msg_events)(self.0.MessageSendEventsProvider.this_arg);
 		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { item.into_native() }); };
 		local_ret
 	}
@@ -9435,17 +10316,132 @@ impl rustChannelMessageHandler for ChannelMessageHandler {
 	fn handle_error(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::ErrorMessage) {
 		(self.handle_error)(self.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::ErrorMessage { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::ErrorMessage<>) as *mut _) }, is_owned: false })
 	}
-	fn provided_node_features(&self) -> lightning::ln::features::NodeFeatures {
+	fn provided_node_features(&self) -> lightning_types::features::NodeFeatures {
 		let mut ret = (self.provided_node_features)(self.this_arg);
 		*unsafe { Box::from_raw(ret.take_inner()) }
 	}
-	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning::ln::features::InitFeatures {
+	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning_types::features::InitFeatures {
 		let mut ret = (self.provided_init_features)(self.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id));
 		*unsafe { Box::from_raw(ret.take_inner()) }
 	}
-	fn get_chain_hashes(&self) -> Option<Vec<bitcoin::blockdata::constants::ChainHash>> {
+	fn get_chain_hashes(&self) -> Option<Vec<bitcoin::constants::ChainHash>> {
 		let mut ret = (self.get_chain_hashes)(self.this_arg);
-		let mut local_ret = { /*ret*/ let ret_opt = ret; if ret_opt.is_none() { None } else { Some({ { let mut local_ret_0 = Vec::new(); for mut item in { ret_opt.take() }.into_rust().drain(..) { local_ret_0.push( { ::bitcoin::blockdata::constants::ChainHash::from(&item.data) }); }; local_ret_0 }})} };
+		let mut local_ret = { /*ret*/ let ret_opt = ret; if ret_opt.is_none() { None } else { Some({ { let mut local_ret_0 = Vec::new(); for mut item in { ret_opt.take() }.into_rust().drain(..) { local_ret_0.push( { ::bitcoin::constants::ChainHash::from(&item.data) }); }; local_ret_0 }})} };
+		local_ret
+	}
+}
+
+pub struct ChannelMessageHandlerRef(ChannelMessageHandler);
+impl rustChannelMessageHandler for ChannelMessageHandlerRef {
+	fn handle_open_channel(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::OpenChannel) {
+		(self.0.handle_open_channel)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::OpenChannel { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::OpenChannel<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_open_channel_v2(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::OpenChannelV2) {
+		(self.0.handle_open_channel_v2)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::OpenChannelV2 { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::OpenChannelV2<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_accept_channel(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::AcceptChannel) {
+		(self.0.handle_accept_channel)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::AcceptChannel { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::AcceptChannel<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_accept_channel_v2(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::AcceptChannelV2) {
+		(self.0.handle_accept_channel_v2)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::AcceptChannelV2 { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::AcceptChannelV2<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_funding_created(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::FundingCreated) {
+		(self.0.handle_funding_created)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::FundingCreated { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::FundingCreated<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_funding_signed(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::FundingSigned) {
+		(self.0.handle_funding_signed)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::FundingSigned { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::FundingSigned<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_channel_ready(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::ChannelReady) {
+		(self.0.handle_channel_ready)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::ChannelReady { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::ChannelReady<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_shutdown(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::Shutdown) {
+		(self.0.handle_shutdown)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::Shutdown { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::Shutdown<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_closing_signed(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::ClosingSigned) {
+		(self.0.handle_closing_signed)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::ClosingSigned { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::ClosingSigned<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_stfu(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::Stfu) {
+		(self.0.handle_stfu)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::Stfu { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::Stfu<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_add_input(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxAddInput) {
+		(self.0.handle_tx_add_input)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxAddInput { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxAddInput<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_add_output(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxAddOutput) {
+		(self.0.handle_tx_add_output)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxAddOutput { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxAddOutput<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_remove_input(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxRemoveInput) {
+		(self.0.handle_tx_remove_input)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxRemoveInput { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxRemoveInput<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_remove_output(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxRemoveOutput) {
+		(self.0.handle_tx_remove_output)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxRemoveOutput { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxRemoveOutput<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_complete(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxComplete) {
+		(self.0.handle_tx_complete)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxComplete { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxComplete<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_signatures(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxSignatures) {
+		(self.0.handle_tx_signatures)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxSignatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxSignatures<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_init_rbf(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxInitRbf) {
+		(self.0.handle_tx_init_rbf)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxInitRbf { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxInitRbf<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_ack_rbf(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxAckRbf) {
+		(self.0.handle_tx_ack_rbf)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxAckRbf { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxAckRbf<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_tx_abort(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::TxAbort) {
+		(self.0.handle_tx_abort)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::TxAbort { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::TxAbort<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_update_add_htlc(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::UpdateAddHTLC) {
+		(self.0.handle_update_add_htlc)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::UpdateAddHTLC { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UpdateAddHTLC<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_update_fulfill_htlc(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::UpdateFulfillHTLC) {
+		(self.0.handle_update_fulfill_htlc)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::UpdateFulfillHTLC { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UpdateFulfillHTLC<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_update_fail_htlc(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::UpdateFailHTLC) {
+		(self.0.handle_update_fail_htlc)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::UpdateFailHTLC { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UpdateFailHTLC<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_update_fail_malformed_htlc(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::UpdateFailMalformedHTLC) {
+		(self.0.handle_update_fail_malformed_htlc)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::UpdateFailMalformedHTLC { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UpdateFailMalformedHTLC<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_commitment_signed(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::CommitmentSigned) {
+		(self.0.handle_commitment_signed)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::CommitmentSigned { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::CommitmentSigned<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_revoke_and_ack(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::RevokeAndACK) {
+		(self.0.handle_revoke_and_ack)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::RevokeAndACK { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::RevokeAndACK<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_update_fee(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::UpdateFee) {
+		(self.0.handle_update_fee)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::UpdateFee { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UpdateFee<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_announcement_signatures(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::AnnouncementSignatures) {
+		(self.0.handle_announcement_signatures)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::AnnouncementSignatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::AnnouncementSignatures<>) as *mut _) }, is_owned: false })
+	}
+	fn peer_disconnected(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) {
+		(self.0.peer_disconnected)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id))
+	}
+	fn peer_connected(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::Init, mut inbound: bool) -> Result<(), ()> {
+		let mut ret = (self.0.peer_connected)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::Init { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::Init<>) as *mut _) }, is_owned: false }, inbound);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn handle_channel_reestablish(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::ChannelReestablish) {
+		(self.0.handle_channel_reestablish)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::ChannelReestablish { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::ChannelReestablish<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_channel_update(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::ChannelUpdate) {
+		(self.0.handle_channel_update)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::ChannelUpdate { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::ChannelUpdate<>) as *mut _) }, is_owned: false })
+	}
+	fn handle_error(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::ErrorMessage) {
+		(self.0.handle_error)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::ErrorMessage { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::ErrorMessage<>) as *mut _) }, is_owned: false })
+	}
+	fn provided_node_features(&self) -> lightning_types::features::NodeFeatures {
+		let mut ret = (self.0.provided_node_features)(self.0.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning_types::features::InitFeatures {
+		let mut ret = (self.0.provided_init_features)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id));
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+	fn get_chain_hashes(&self) -> Option<Vec<bitcoin::constants::ChainHash>> {
+		let mut ret = (self.0.get_chain_hashes)(self.0.this_arg);
+		let mut local_ret = { /*ret*/ let ret_opt = ret; if ret_opt.is_none() { None } else { Some({ { let mut local_ret_0 = Vec::new(); for mut item in { ret_opt.take() }.into_rust().drain(..) { local_ret_0.push( { ::bitcoin::constants::ChainHash::from(&item.data) }); }; local_ret_0 }})} };
 		local_ret
 	}
 }
@@ -9453,14 +10449,14 @@ impl rustChannelMessageHandler for ChannelMessageHandler {
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for ChannelMessageHandler {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = ChannelMessageHandlerRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const ChannelMessageHandlerRef) }
 	}
 }
 impl core::ops::DerefMut for ChannelMessageHandler {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut ChannelMessageHandlerRef {
+		unsafe { &mut *(self as *mut _ as *mut ChannelMessageHandlerRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -9537,13 +10533,13 @@ pub struct RoutingMessageHandler {
 	/// Gets the node feature flags which this handler itself supports. All available handlers are
 	/// queried similarly and their feature flags are OR'd together to form the [`NodeFeatures`]
 	/// which are broadcasted in our [`NodeAnnouncement`] message.
-	pub provided_node_features: extern "C" fn (this_arg: *const c_void) -> crate::lightning::ln::features::NodeFeatures,
+	pub provided_node_features: extern "C" fn (this_arg: *const c_void) -> crate::lightning_types::features::NodeFeatures,
 	/// Gets the init feature flags which should be sent to the given peer. All available handlers
 	/// are queried similarly and their feature flags are OR'd together to form the [`InitFeatures`]
 	/// which are sent in our [`Init`] message.
 	///
 	/// Note that this method is called before [`Self::peer_connected`].
-	pub provided_init_features: extern "C" fn (this_arg: *const c_void, their_node_id: crate::c_types::PublicKey) -> crate::lightning::ln::features::InitFeatures,
+	pub provided_init_features: extern "C" fn (this_arg: *const c_void, their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures,
 	/// Implementation of MessageSendEventsProvider for this object.
 	pub MessageSendEventsProvider: crate::lightning::events::MessageSendEventsProvider,
 	/// Frees any resources associated with this object given its this_arg pointer.
@@ -9576,6 +10572,13 @@ pub(crate) fn RoutingMessageHandler_clone_fields(orig: &RoutingMessageHandler) -
 impl lightning::events::MessageSendEventsProvider for RoutingMessageHandler {
 	fn get_and_clear_pending_msg_events(&self) -> Vec<lightning::events::MessageSendEvent> {
 		let mut ret = (self.MessageSendEventsProvider.get_and_clear_pending_msg_events)(self.MessageSendEventsProvider.this_arg);
+		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { item.into_native() }); };
+		local_ret
+	}
+}
+impl lightning::events::MessageSendEventsProvider for RoutingMessageHandlerRef {
+	fn get_and_clear_pending_msg_events(&self) -> Vec<lightning::events::MessageSendEvent> {
+		let mut ret = (self.0.MessageSendEventsProvider.get_and_clear_pending_msg_events)(self.0.MessageSendEventsProvider.this_arg);
 		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { item.into_native() }); };
 		local_ret
 	}
@@ -9638,12 +10641,79 @@ impl rustRoutingMessageHandler for RoutingMessageHandler {
 		let mut ret = (self.processing_queue_high)(self.this_arg);
 		ret
 	}
-	fn provided_node_features(&self) -> lightning::ln::features::NodeFeatures {
+	fn provided_node_features(&self) -> lightning_types::features::NodeFeatures {
 		let mut ret = (self.provided_node_features)(self.this_arg);
 		*unsafe { Box::from_raw(ret.take_inner()) }
 	}
-	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning::ln::features::InitFeatures {
+	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning_types::features::InitFeatures {
 		let mut ret = (self.provided_init_features)(self.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id));
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+}
+
+pub struct RoutingMessageHandlerRef(RoutingMessageHandler);
+impl rustRoutingMessageHandler for RoutingMessageHandlerRef {
+	fn handle_node_announcement(&self, mut msg: &lightning::ln::msgs::NodeAnnouncement) -> Result<bool, lightning::ln::msgs::LightningError> {
+		let mut ret = (self.0.handle_node_announcement)(self.0.this_arg, &crate::lightning::ln::msgs::NodeAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::NodeAnnouncement<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }) }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn handle_channel_announcement(&self, mut msg: &lightning::ln::msgs::ChannelAnnouncement) -> Result<bool, lightning::ln::msgs::LightningError> {
+		let mut ret = (self.0.handle_channel_announcement)(self.0.this_arg, &crate::lightning::ln::msgs::ChannelAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::ChannelAnnouncement<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }) }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn handle_channel_update(&self, mut msg: &lightning::ln::msgs::ChannelUpdate) -> Result<bool, lightning::ln::msgs::LightningError> {
+		let mut ret = (self.0.handle_channel_update)(self.0.this_arg, &crate::lightning::ln::msgs::ChannelUpdate { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::ChannelUpdate<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }) }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn get_next_channel_announcement(&self, mut starting_point: u64) -> Option<(lightning::ln::msgs::ChannelAnnouncement, Option<lightning::ln::msgs::ChannelUpdate>, Option<lightning::ln::msgs::ChannelUpdate>)> {
+		let mut ret = (self.0.get_next_channel_announcement)(self.0.this_arg, starting_point);
+		let mut local_ret = if ret.is_some() { Some( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2) = ret.take().to_rust(); let mut local_orig_ret_0_1 = if orig_ret_0_1.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(orig_ret_0_1.take_inner()) } }) }; let mut local_orig_ret_0_2 = if orig_ret_0_2.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(orig_ret_0_2.take_inner()) } }) }; let mut local_ret_0 = (*unsafe { Box::from_raw(orig_ret_0_0.take_inner()) }, local_orig_ret_0_1, local_orig_ret_0_2); local_ret_0 }) } else { None };
+		local_ret
+	}
+	fn get_next_node_announcement(&self, mut starting_point: Option<&lightning::routing::gossip::NodeId>) -> Option<lightning::ln::msgs::NodeAnnouncement> {
+		let mut local_starting_point = crate::lightning::routing::gossip::NodeId { inner: unsafe { (if starting_point.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (starting_point.unwrap()) }) } as *const lightning::routing::gossip::NodeId<>) as *mut _ }, is_owned: false };
+		let mut ret = (self.0.get_next_node_announcement)(self.0.this_arg, local_starting_point);
+		let mut local_ret = if ret.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(ret.take_inner()) } }) };
+		local_ret
+	}
+	fn peer_connected(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut init: &lightning::ln::msgs::Init, mut inbound: bool) -> Result<(), ()> {
+		let mut ret = (self.0.peer_connected)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::Init { inner: unsafe { ObjOps::nonnull_ptr_to_inner((init as *const lightning::ln::msgs::Init<>) as *mut _) }, is_owned: false }, inbound);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn handle_reply_channel_range(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: lightning::ln::msgs::ReplyChannelRange) -> Result<(), lightning::ln::msgs::LightningError> {
+		let mut ret = (self.0.handle_reply_channel_range)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), crate::lightning::ln::msgs::ReplyChannelRange { inner: ObjOps::heap_alloc(msg), is_owned: true });
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn handle_reply_short_channel_ids_end(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: lightning::ln::msgs::ReplyShortChannelIdsEnd) -> Result<(), lightning::ln::msgs::LightningError> {
+		let mut ret = (self.0.handle_reply_short_channel_ids_end)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), crate::lightning::ln::msgs::ReplyShortChannelIdsEnd { inner: ObjOps::heap_alloc(msg), is_owned: true });
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn handle_query_channel_range(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: lightning::ln::msgs::QueryChannelRange) -> Result<(), lightning::ln::msgs::LightningError> {
+		let mut ret = (self.0.handle_query_channel_range)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), crate::lightning::ln::msgs::QueryChannelRange { inner: ObjOps::heap_alloc(msg), is_owned: true });
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn handle_query_short_channel_ids(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut msg: lightning::ln::msgs::QueryShortChannelIds) -> Result<(), lightning::ln::msgs::LightningError> {
+		let mut ret = (self.0.handle_query_short_channel_ids)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), crate::lightning::ln::msgs::QueryShortChannelIds { inner: ObjOps::heap_alloc(msg), is_owned: true });
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn processing_queue_high(&self) -> bool {
+		let mut ret = (self.0.processing_queue_high)(self.0.this_arg);
+		ret
+	}
+	fn provided_node_features(&self) -> lightning_types::features::NodeFeatures {
+		let mut ret = (self.0.provided_node_features)(self.0.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning_types::features::InitFeatures {
+		let mut ret = (self.0.provided_init_features)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id));
 		*unsafe { Box::from_raw(ret.take_inner()) }
 	}
 }
@@ -9651,14 +10721,14 @@ impl rustRoutingMessageHandler for RoutingMessageHandler {
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for RoutingMessageHandler {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = RoutingMessageHandlerRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const RoutingMessageHandlerRef) }
 	}
 }
 impl core::ops::DerefMut for RoutingMessageHandler {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut RoutingMessageHandlerRef {
+		unsafe { &mut *(self as *mut _ as *mut RoutingMessageHandlerRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -9677,14 +10747,6 @@ pub struct OnionMessageHandler {
 	/// An opaque pointer which is passed to your function implementations as an argument.
 	/// This has no meaning in the LDK, and can be NULL or any other value.
 	pub this_arg: *mut c_void,
-	/// Because much of the lightning network does not yet support forwarding onion messages, we
-	/// may need to directly connect to a node which will forward a message for us. In such a case,
-	/// this method will return the set of nodes which need connection by node_id and the
-	/// corresponding socket addresses where they may accept incoming connections.
-	///
-	/// Thus, this method should be polled regularly to detect messages await such a direct
-	/// connection.
-	pub get_and_clear_connections_needed: extern "C" fn (this_arg: *const c_void) -> crate::c_types::derived::CVec_C2Tuple_PublicKeyCVec_SocketAddressZZZ,
 	/// Handle an incoming `onion_message` message from the given peer.
 	pub handle_onion_message: extern "C" fn (this_arg: *const c_void, peer_node_id: crate::c_types::PublicKey, msg: &crate::lightning::ln::msgs::OnionMessage),
 	/// Returns the next pending onion message for the peer with the given node id.
@@ -9707,13 +10769,13 @@ pub struct OnionMessageHandler {
 	/// Gets the node feature flags which this handler itself supports. All available handlers are
 	/// queried similarly and their feature flags are OR'd together to form the [`NodeFeatures`]
 	/// which are broadcasted in our [`NodeAnnouncement`] message.
-	pub provided_node_features: extern "C" fn (this_arg: *const c_void) -> crate::lightning::ln::features::NodeFeatures,
+	pub provided_node_features: extern "C" fn (this_arg: *const c_void) -> crate::lightning_types::features::NodeFeatures,
 	/// Gets the init feature flags which should be sent to the given peer. All available handlers
 	/// are queried similarly and their feature flags are OR'd together to form the [`InitFeatures`]
 	/// which are sent in our [`Init`] message.
 	///
 	/// Note that this method is called before [`Self::peer_connected`].
-	pub provided_init_features: extern "C" fn (this_arg: *const c_void, their_node_id: crate::c_types::PublicKey) -> crate::lightning::ln::features::InitFeatures,
+	pub provided_init_features: extern "C" fn (this_arg: *const c_void, their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures,
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
 	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
@@ -9724,7 +10786,6 @@ unsafe impl Sync for OnionMessageHandler {}
 pub(crate) fn OnionMessageHandler_clone_fields(orig: &OnionMessageHandler) -> OnionMessageHandler {
 	OnionMessageHandler {
 		this_arg: orig.this_arg,
-		get_and_clear_connections_needed: Clone::clone(&orig.get_and_clear_connections_needed),
 		handle_onion_message: Clone::clone(&orig.handle_onion_message),
 		next_onion_message_for_peer: Clone::clone(&orig.next_onion_message_for_peer),
 		peer_connected: Clone::clone(&orig.peer_connected),
@@ -9738,11 +10799,6 @@ pub(crate) fn OnionMessageHandler_clone_fields(orig: &OnionMessageHandler) -> On
 
 use lightning::ln::msgs::OnionMessageHandler as rustOnionMessageHandler;
 impl rustOnionMessageHandler for OnionMessageHandler {
-	fn get_and_clear_connections_needed(&self) -> Vec<(bitcoin::secp256k1::PublicKey, Vec<lightning::ln::msgs::SocketAddress>)> {
-		let mut ret = (self.get_and_clear_connections_needed)(self.this_arg);
-		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1) = item.to_rust(); let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.into_rust().drain(..) { local_orig_ret_0_1.push( { item.into_native() }); }; let mut local_ret_0 = (orig_ret_0_0.into_rust(), local_orig_ret_0_1); local_ret_0 }); };
-		local_ret
-	}
 	fn handle_onion_message(&self, mut peer_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::OnionMessage) {
 		(self.handle_onion_message)(self.this_arg, crate::c_types::PublicKey::from_rust(&peer_node_id), &crate::lightning::ln::msgs::OnionMessage { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::OnionMessage<>) as *mut _) }, is_owned: false })
 	}
@@ -9762,12 +10818,43 @@ impl rustOnionMessageHandler for OnionMessageHandler {
 	fn timer_tick_occurred(&self) {
 		(self.timer_tick_occurred)(self.this_arg)
 	}
-	fn provided_node_features(&self) -> lightning::ln::features::NodeFeatures {
+	fn provided_node_features(&self) -> lightning_types::features::NodeFeatures {
 		let mut ret = (self.provided_node_features)(self.this_arg);
 		*unsafe { Box::from_raw(ret.take_inner()) }
 	}
-	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning::ln::features::InitFeatures {
+	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning_types::features::InitFeatures {
 		let mut ret = (self.provided_init_features)(self.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id));
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+}
+
+pub struct OnionMessageHandlerRef(OnionMessageHandler);
+impl rustOnionMessageHandler for OnionMessageHandlerRef {
+	fn handle_onion_message(&self, mut peer_node_id: &bitcoin::secp256k1::PublicKey, mut msg: &lightning::ln::msgs::OnionMessage) {
+		(self.0.handle_onion_message)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&peer_node_id), &crate::lightning::ln::msgs::OnionMessage { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::OnionMessage<>) as *mut _) }, is_owned: false })
+	}
+	fn next_onion_message_for_peer(&self, mut peer_node_id: bitcoin::secp256k1::PublicKey) -> Option<lightning::ln::msgs::OnionMessage> {
+		let mut ret = (self.0.next_onion_message_for_peer)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&peer_node_id));
+		let mut local_ret = if ret.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(ret.take_inner()) } }) };
+		local_ret
+	}
+	fn peer_connected(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey, mut init: &lightning::ln::msgs::Init, mut inbound: bool) -> Result<(), ()> {
+		let mut ret = (self.0.peer_connected)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id), &crate::lightning::ln::msgs::Init { inner: unsafe { ObjOps::nonnull_ptr_to_inner((init as *const lightning::ln::msgs::Init<>) as *mut _) }, is_owned: false }, inbound);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn peer_disconnected(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) {
+		(self.0.peer_disconnected)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id))
+	}
+	fn timer_tick_occurred(&self) {
+		(self.0.timer_tick_occurred)(self.0.this_arg)
+	}
+	fn provided_node_features(&self) -> lightning_types::features::NodeFeatures {
+		let mut ret = (self.0.provided_node_features)(self.0.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+	fn provided_init_features(&self, mut their_node_id: &bitcoin::secp256k1::PublicKey) -> lightning_types::features::InitFeatures {
+		let mut ret = (self.0.provided_init_features)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&their_node_id));
 		*unsafe { Box::from_raw(ret.take_inner()) }
 	}
 }
@@ -9775,14 +10862,14 @@ impl rustOnionMessageHandler for OnionMessageHandler {
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for OnionMessageHandler {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = OnionMessageHandlerRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const OnionMessageHandlerRef) }
 	}
 }
 impl core::ops::DerefMut for OnionMessageHandler {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut OnionMessageHandlerRef {
+		unsafe { &mut *(self as *mut _ as *mut OnionMessageHandlerRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -9816,6 +10903,12 @@ pub struct FinalOnionHopData {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for FinalOnionHopData {
+	type Target = nativeFinalOnionHopData;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for FinalOnionHopData { }
+unsafe impl core::marker::Sync for FinalOnionHopData { }
 impl Drop for FinalOnionHopData {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeFinalOnionHopData>::is_null(self.inner) {
@@ -9845,6 +10938,9 @@ impl FinalOnionHopData {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// When sending a multi-part payment, this secret is used to identify a payment across HTLCs.
@@ -9937,6 +11033,12 @@ pub struct OnionPacket {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OnionPacket {
+	type Target = nativeOnionPacket;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OnionPacket { }
+unsafe impl core::marker::Sync for OnionPacket { }
 impl Drop for OnionPacket {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOnionPacket>::is_null(self.inner) {
@@ -9966,6 +11068,9 @@ impl OnionPacket {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// BOLT 4 version number.
@@ -10074,6 +11179,12 @@ pub struct TrampolineOnionPacket {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TrampolineOnionPacket {
+	type Target = nativeTrampolineOnionPacket;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TrampolineOnionPacket { }
+unsafe impl core::marker::Sync for TrampolineOnionPacket { }
 impl Drop for TrampolineOnionPacket {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTrampolineOnionPacket>::is_null(self.inner) {
@@ -10103,6 +11214,9 @@ impl TrampolineOnionPacket {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Bolt 04 version number
@@ -10210,7 +11324,7 @@ pub extern "C" fn TrampolineOnionPacket_write(obj: &crate::lightning::ln::msgs::
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TrampolineOnionPacket_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTrampolineOnionPacket) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTrampolineOnionPacket) })
 }
 /// Get a string which allows debug introspection of a TrampolineOnionPacket object
 pub extern "C" fn TrampolineOnionPacket_debug_str_void(o: *const c_void) -> Str {
@@ -10227,7 +11341,7 @@ pub extern "C" fn AcceptChannel_write(obj: &crate::lightning::ln::msgs::AcceptCh
 }
 #[allow(unused)]
 pub(crate) extern "C" fn AcceptChannel_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeAcceptChannel) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeAcceptChannel) })
 }
 #[no_mangle]
 /// Read a AcceptChannel from a byte array, created by AcceptChannel_write
@@ -10243,7 +11357,7 @@ pub extern "C" fn AcceptChannelV2_write(obj: &crate::lightning::ln::msgs::Accept
 }
 #[allow(unused)]
 pub(crate) extern "C" fn AcceptChannelV2_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeAcceptChannelV2) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeAcceptChannelV2) })
 }
 #[no_mangle]
 /// Read a AcceptChannelV2 from a byte array, created by AcceptChannelV2_write
@@ -10259,7 +11373,7 @@ pub extern "C" fn Stfu_write(obj: &crate::lightning::ln::msgs::Stfu) -> crate::c
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Stfu_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeStfu) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeStfu) })
 }
 #[no_mangle]
 /// Read a Stfu from a byte array, created by Stfu_write
@@ -10269,19 +11383,19 @@ pub extern "C" fn Stfu_read(ser: crate::c_types::u8slice) -> crate::c_types::der
 	local_res
 }
 #[no_mangle]
-/// Serialize the Splice object into a byte array which can be read by Splice_read
-pub extern "C" fn Splice_write(obj: &crate::lightning::ln::msgs::Splice) -> crate::c_types::derived::CVec_u8Z {
+/// Serialize the SpliceInit object into a byte array which can be read by SpliceInit_read
+pub extern "C" fn SpliceInit_write(obj: &crate::lightning::ln::msgs::SpliceInit) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
 }
 #[allow(unused)]
-pub(crate) extern "C" fn Splice_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeSplice) })
+pub(crate) extern "C" fn SpliceInit_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeSpliceInit) })
 }
 #[no_mangle]
-/// Read a Splice from a byte array, created by Splice_write
-pub extern "C" fn Splice_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_SpliceDecodeErrorZ {
-	let res: Result<lightning::ln::msgs::Splice, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::ln::msgs::Splice { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+/// Read a SpliceInit from a byte array, created by SpliceInit_write
+pub extern "C" fn SpliceInit_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_SpliceInitDecodeErrorZ {
+	let res: Result<lightning::ln::msgs::SpliceInit, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::ln::msgs::SpliceInit { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
 #[no_mangle]
@@ -10291,7 +11405,7 @@ pub extern "C" fn SpliceAck_write(obj: &crate::lightning::ln::msgs::SpliceAck) -
 }
 #[allow(unused)]
 pub(crate) extern "C" fn SpliceAck_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeSpliceAck) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeSpliceAck) })
 }
 #[no_mangle]
 /// Read a SpliceAck from a byte array, created by SpliceAck_write
@@ -10307,7 +11421,7 @@ pub extern "C" fn SpliceLocked_write(obj: &crate::lightning::ln::msgs::SpliceLoc
 }
 #[allow(unused)]
 pub(crate) extern "C" fn SpliceLocked_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeSpliceLocked) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeSpliceLocked) })
 }
 #[no_mangle]
 /// Read a SpliceLocked from a byte array, created by SpliceLocked_write
@@ -10323,7 +11437,7 @@ pub extern "C" fn TxAddInput_write(obj: &crate::lightning::ln::msgs::TxAddInput)
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxAddInput_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxAddInput) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxAddInput) })
 }
 #[no_mangle]
 /// Read a TxAddInput from a byte array, created by TxAddInput_write
@@ -10339,7 +11453,7 @@ pub extern "C" fn TxAddOutput_write(obj: &crate::lightning::ln::msgs::TxAddOutpu
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxAddOutput_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxAddOutput) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxAddOutput) })
 }
 #[no_mangle]
 /// Read a TxAddOutput from a byte array, created by TxAddOutput_write
@@ -10355,7 +11469,7 @@ pub extern "C" fn TxRemoveInput_write(obj: &crate::lightning::ln::msgs::TxRemove
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxRemoveInput_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxRemoveInput) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxRemoveInput) })
 }
 #[no_mangle]
 /// Read a TxRemoveInput from a byte array, created by TxRemoveInput_write
@@ -10371,7 +11485,7 @@ pub extern "C" fn TxRemoveOutput_write(obj: &crate::lightning::ln::msgs::TxRemov
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxRemoveOutput_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxRemoveOutput) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxRemoveOutput) })
 }
 #[no_mangle]
 /// Read a TxRemoveOutput from a byte array, created by TxRemoveOutput_write
@@ -10387,7 +11501,7 @@ pub extern "C" fn TxComplete_write(obj: &crate::lightning::ln::msgs::TxComplete)
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxComplete_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxComplete) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxComplete) })
 }
 #[no_mangle]
 /// Read a TxComplete from a byte array, created by TxComplete_write
@@ -10403,7 +11517,7 @@ pub extern "C" fn TxSignatures_write(obj: &crate::lightning::ln::msgs::TxSignatu
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxSignatures_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxSignatures) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxSignatures) })
 }
 #[no_mangle]
 /// Read a TxSignatures from a byte array, created by TxSignatures_write
@@ -10419,7 +11533,7 @@ pub extern "C" fn TxInitRbf_write(obj: &crate::lightning::ln::msgs::TxInitRbf) -
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxInitRbf_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxInitRbf) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxInitRbf) })
 }
 #[no_mangle]
 /// Read a TxInitRbf from a byte array, created by TxInitRbf_write
@@ -10435,7 +11549,7 @@ pub extern "C" fn TxAckRbf_write(obj: &crate::lightning::ln::msgs::TxAckRbf) -> 
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxAckRbf_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxAckRbf) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxAckRbf) })
 }
 #[no_mangle]
 /// Read a TxAckRbf from a byte array, created by TxAckRbf_write
@@ -10451,7 +11565,7 @@ pub extern "C" fn TxAbort_write(obj: &crate::lightning::ln::msgs::TxAbort) -> cr
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TxAbort_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTxAbort) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeTxAbort) })
 }
 #[no_mangle]
 /// Read a TxAbort from a byte array, created by TxAbort_write
@@ -10467,7 +11581,7 @@ pub extern "C" fn AnnouncementSignatures_write(obj: &crate::lightning::ln::msgs:
 }
 #[allow(unused)]
 pub(crate) extern "C" fn AnnouncementSignatures_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeAnnouncementSignatures) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeAnnouncementSignatures) })
 }
 #[no_mangle]
 /// Read a AnnouncementSignatures from a byte array, created by AnnouncementSignatures_write
@@ -10483,7 +11597,7 @@ pub extern "C" fn ChannelReestablish_write(obj: &crate::lightning::ln::msgs::Cha
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelReestablish_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelReestablish) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeChannelReestablish) })
 }
 #[no_mangle]
 /// Read a ChannelReestablish from a byte array, created by ChannelReestablish_write
@@ -10499,7 +11613,7 @@ pub extern "C" fn ClosingSigned_write(obj: &crate::lightning::ln::msgs::ClosingS
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ClosingSigned_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeClosingSigned) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeClosingSigned) })
 }
 #[no_mangle]
 /// Read a ClosingSigned from a byte array, created by ClosingSigned_write
@@ -10515,7 +11629,7 @@ pub extern "C" fn ClosingSignedFeeRange_write(obj: &crate::lightning::ln::msgs::
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ClosingSignedFeeRange_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeClosingSignedFeeRange) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeClosingSignedFeeRange) })
 }
 #[no_mangle]
 /// Read a ClosingSignedFeeRange from a byte array, created by ClosingSignedFeeRange_write
@@ -10525,13 +11639,29 @@ pub extern "C" fn ClosingSignedFeeRange_read(ser: crate::c_types::u8slice) -> cr
 	local_res
 }
 #[no_mangle]
+/// Serialize the CommitmentSignedBatch object into a byte array which can be read by CommitmentSignedBatch_read
+pub extern "C" fn CommitmentSignedBatch_write(obj: &crate::lightning::ln::msgs::CommitmentSignedBatch) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn CommitmentSignedBatch_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeCommitmentSignedBatch) })
+}
+#[no_mangle]
+/// Read a CommitmentSignedBatch from a byte array, created by CommitmentSignedBatch_write
+pub extern "C" fn CommitmentSignedBatch_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_CommitmentSignedBatchDecodeErrorZ {
+	let res: Result<lightning::ln::msgs::CommitmentSignedBatch, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::ln::msgs::CommitmentSignedBatch { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
 /// Serialize the CommitmentSigned object into a byte array which can be read by CommitmentSigned_read
 pub extern "C" fn CommitmentSigned_write(obj: &crate::lightning::ln::msgs::CommitmentSigned) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
 }
 #[allow(unused)]
 pub(crate) extern "C" fn CommitmentSigned_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeCommitmentSigned) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeCommitmentSigned) })
 }
 #[no_mangle]
 /// Read a CommitmentSigned from a byte array, created by CommitmentSigned_write
@@ -10547,7 +11677,7 @@ pub extern "C" fn FundingCreated_write(obj: &crate::lightning::ln::msgs::Funding
 }
 #[allow(unused)]
 pub(crate) extern "C" fn FundingCreated_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeFundingCreated) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeFundingCreated) })
 }
 #[no_mangle]
 /// Read a FundingCreated from a byte array, created by FundingCreated_write
@@ -10563,7 +11693,7 @@ pub extern "C" fn FundingSigned_write(obj: &crate::lightning::ln::msgs::FundingS
 }
 #[allow(unused)]
 pub(crate) extern "C" fn FundingSigned_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeFundingSigned) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeFundingSigned) })
 }
 #[no_mangle]
 /// Read a FundingSigned from a byte array, created by FundingSigned_write
@@ -10579,7 +11709,7 @@ pub extern "C" fn ChannelReady_write(obj: &crate::lightning::ln::msgs::ChannelRe
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelReady_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelReady) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeChannelReady) })
 }
 #[no_mangle]
 /// Read a ChannelReady from a byte array, created by ChannelReady_write
@@ -10595,7 +11725,7 @@ pub extern "C" fn Init_write(obj: &crate::lightning::ln::msgs::Init) -> crate::c
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Init_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeInit) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeInit) })
 }
 #[no_mangle]
 /// Read a Init from a byte array, created by Init_write
@@ -10611,7 +11741,7 @@ pub extern "C" fn OpenChannel_write(obj: &crate::lightning::ln::msgs::OpenChanne
 }
 #[allow(unused)]
 pub(crate) extern "C" fn OpenChannel_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeOpenChannel) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeOpenChannel) })
 }
 #[no_mangle]
 /// Read a OpenChannel from a byte array, created by OpenChannel_write
@@ -10627,7 +11757,7 @@ pub extern "C" fn OpenChannelV2_write(obj: &crate::lightning::ln::msgs::OpenChan
 }
 #[allow(unused)]
 pub(crate) extern "C" fn OpenChannelV2_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeOpenChannelV2) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeOpenChannelV2) })
 }
 #[no_mangle]
 /// Read a OpenChannelV2 from a byte array, created by OpenChannelV2_write
@@ -10643,7 +11773,7 @@ pub extern "C" fn RevokeAndACK_write(obj: &crate::lightning::ln::msgs::RevokeAnd
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RevokeAndACK_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRevokeAndACK) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeRevokeAndACK) })
 }
 #[no_mangle]
 /// Read a RevokeAndACK from a byte array, created by RevokeAndACK_write
@@ -10659,7 +11789,7 @@ pub extern "C" fn Shutdown_write(obj: &crate::lightning::ln::msgs::Shutdown) -> 
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Shutdown_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeShutdown) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeShutdown) })
 }
 #[no_mangle]
 /// Read a Shutdown from a byte array, created by Shutdown_write
@@ -10675,7 +11805,7 @@ pub extern "C" fn UpdateFailHTLC_write(obj: &crate::lightning::ln::msgs::UpdateF
 }
 #[allow(unused)]
 pub(crate) extern "C" fn UpdateFailHTLC_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUpdateFailHTLC) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeUpdateFailHTLC) })
 }
 #[no_mangle]
 /// Read a UpdateFailHTLC from a byte array, created by UpdateFailHTLC_write
@@ -10691,7 +11821,7 @@ pub extern "C" fn UpdateFailMalformedHTLC_write(obj: &crate::lightning::ln::msgs
 }
 #[allow(unused)]
 pub(crate) extern "C" fn UpdateFailMalformedHTLC_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUpdateFailMalformedHTLC) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeUpdateFailMalformedHTLC) })
 }
 #[no_mangle]
 /// Read a UpdateFailMalformedHTLC from a byte array, created by UpdateFailMalformedHTLC_write
@@ -10707,7 +11837,7 @@ pub extern "C" fn UpdateFee_write(obj: &crate::lightning::ln::msgs::UpdateFee) -
 }
 #[allow(unused)]
 pub(crate) extern "C" fn UpdateFee_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUpdateFee) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeUpdateFee) })
 }
 #[no_mangle]
 /// Read a UpdateFee from a byte array, created by UpdateFee_write
@@ -10723,7 +11853,7 @@ pub extern "C" fn UpdateFulfillHTLC_write(obj: &crate::lightning::ln::msgs::Upda
 }
 #[allow(unused)]
 pub(crate) extern "C" fn UpdateFulfillHTLC_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUpdateFulfillHTLC) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeUpdateFulfillHTLC) })
 }
 #[no_mangle]
 /// Read a UpdateFulfillHTLC from a byte array, created by UpdateFulfillHTLC_write
@@ -10739,7 +11869,7 @@ pub extern "C" fn OnionPacket_write(obj: &crate::lightning::ln::msgs::OnionPacke
 }
 #[allow(unused)]
 pub(crate) extern "C" fn OnionPacket_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeOnionPacket) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeOnionPacket) })
 }
 #[no_mangle]
 /// Read a OnionPacket from a byte array, created by OnionPacket_write
@@ -10755,7 +11885,7 @@ pub extern "C" fn UpdateAddHTLC_write(obj: &crate::lightning::ln::msgs::UpdateAd
 }
 #[allow(unused)]
 pub(crate) extern "C" fn UpdateAddHTLC_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUpdateAddHTLC) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeUpdateAddHTLC) })
 }
 #[no_mangle]
 /// Read a UpdateAddHTLC from a byte array, created by UpdateAddHTLC_write
@@ -10778,7 +11908,7 @@ pub extern "C" fn OnionMessage_write(obj: &crate::lightning::ln::msgs::OnionMess
 }
 #[allow(unused)]
 pub(crate) extern "C" fn OnionMessage_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeOnionMessage) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeOnionMessage) })
 }
 #[no_mangle]
 /// Serialize the FinalOnionHopData object into a byte array which can be read by FinalOnionHopData_read
@@ -10787,7 +11917,7 @@ pub extern "C" fn FinalOnionHopData_write(obj: &crate::lightning::ln::msgs::Fina
 }
 #[allow(unused)]
 pub(crate) extern "C" fn FinalOnionHopData_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeFinalOnionHopData) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeFinalOnionHopData) })
 }
 #[no_mangle]
 /// Read a FinalOnionHopData from a byte array, created by FinalOnionHopData_write
@@ -10803,7 +11933,7 @@ pub extern "C" fn Ping_write(obj: &crate::lightning::ln::msgs::Ping) -> crate::c
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Ping_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativePing) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativePing) })
 }
 #[no_mangle]
 /// Read a Ping from a byte array, created by Ping_write
@@ -10819,7 +11949,7 @@ pub extern "C" fn Pong_write(obj: &crate::lightning::ln::msgs::Pong) -> crate::c
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Pong_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativePong) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativePong) })
 }
 #[no_mangle]
 /// Read a Pong from a byte array, created by Pong_write
@@ -10835,7 +11965,7 @@ pub extern "C" fn UnsignedChannelAnnouncement_write(obj: &crate::lightning::ln::
 }
 #[allow(unused)]
 pub(crate) extern "C" fn UnsignedChannelAnnouncement_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUnsignedChannelAnnouncement) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeUnsignedChannelAnnouncement) })
 }
 #[no_mangle]
 /// Read a UnsignedChannelAnnouncement from a byte array, created by UnsignedChannelAnnouncement_write
@@ -10851,7 +11981,7 @@ pub extern "C" fn ChannelAnnouncement_write(obj: &crate::lightning::ln::msgs::Ch
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelAnnouncement_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelAnnouncement) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeChannelAnnouncement) })
 }
 #[no_mangle]
 /// Read a ChannelAnnouncement from a byte array, created by ChannelAnnouncement_write
@@ -10867,7 +11997,7 @@ pub extern "C" fn UnsignedChannelUpdate_write(obj: &crate::lightning::ln::msgs::
 }
 #[allow(unused)]
 pub(crate) extern "C" fn UnsignedChannelUpdate_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUnsignedChannelUpdate) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeUnsignedChannelUpdate) })
 }
 #[no_mangle]
 /// Read a UnsignedChannelUpdate from a byte array, created by UnsignedChannelUpdate_write
@@ -10883,7 +12013,7 @@ pub extern "C" fn ChannelUpdate_write(obj: &crate::lightning::ln::msgs::ChannelU
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelUpdate_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelUpdate) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeChannelUpdate) })
 }
 #[no_mangle]
 /// Read a ChannelUpdate from a byte array, created by ChannelUpdate_write
@@ -10899,7 +12029,7 @@ pub extern "C" fn ErrorMessage_write(obj: &crate::lightning::ln::msgs::ErrorMess
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ErrorMessage_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeErrorMessage) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeErrorMessage) })
 }
 #[no_mangle]
 /// Read a ErrorMessage from a byte array, created by ErrorMessage_write
@@ -10915,7 +12045,7 @@ pub extern "C" fn WarningMessage_write(obj: &crate::lightning::ln::msgs::Warning
 }
 #[allow(unused)]
 pub(crate) extern "C" fn WarningMessage_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeWarningMessage) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeWarningMessage) })
 }
 #[no_mangle]
 /// Read a WarningMessage from a byte array, created by WarningMessage_write
@@ -10931,7 +12061,7 @@ pub extern "C" fn UnsignedNodeAnnouncement_write(obj: &crate::lightning::ln::msg
 }
 #[allow(unused)]
 pub(crate) extern "C" fn UnsignedNodeAnnouncement_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeUnsignedNodeAnnouncement) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeUnsignedNodeAnnouncement) })
 }
 #[no_mangle]
 /// Read a UnsignedNodeAnnouncement from a byte array, created by UnsignedNodeAnnouncement_write
@@ -10947,7 +12077,7 @@ pub extern "C" fn NodeAnnouncement_write(obj: &crate::lightning::ln::msgs::NodeA
 }
 #[allow(unused)]
 pub(crate) extern "C" fn NodeAnnouncement_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeNodeAnnouncement) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeNodeAnnouncement) })
 }
 #[no_mangle]
 /// Read a NodeAnnouncement from a byte array, created by NodeAnnouncement_write
@@ -10970,7 +12100,7 @@ pub extern "C" fn QueryShortChannelIds_write(obj: &crate::lightning::ln::msgs::Q
 }
 #[allow(unused)]
 pub(crate) extern "C" fn QueryShortChannelIds_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeQueryShortChannelIds) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeQueryShortChannelIds) })
 }
 #[no_mangle]
 /// Serialize the ReplyShortChannelIdsEnd object into a byte array which can be read by ReplyShortChannelIdsEnd_read
@@ -10979,7 +12109,7 @@ pub extern "C" fn ReplyShortChannelIdsEnd_write(obj: &crate::lightning::ln::msgs
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ReplyShortChannelIdsEnd_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeReplyShortChannelIdsEnd) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeReplyShortChannelIdsEnd) })
 }
 #[no_mangle]
 /// Read a ReplyShortChannelIdsEnd from a byte array, created by ReplyShortChannelIdsEnd_write
@@ -11005,7 +12135,7 @@ pub extern "C" fn QueryChannelRange_write(obj: &crate::lightning::ln::msgs::Quer
 }
 #[allow(unused)]
 pub(crate) extern "C" fn QueryChannelRange_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeQueryChannelRange) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeQueryChannelRange) })
 }
 #[no_mangle]
 /// Read a QueryChannelRange from a byte array, created by QueryChannelRange_write
@@ -11028,7 +12158,7 @@ pub extern "C" fn ReplyChannelRange_write(obj: &crate::lightning::ln::msgs::Repl
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ReplyChannelRange_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeReplyChannelRange) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeReplyChannelRange) })
 }
 #[no_mangle]
 /// Serialize the GossipTimestampFilter object into a byte array which can be read by GossipTimestampFilter_read
@@ -11037,7 +12167,7 @@ pub extern "C" fn GossipTimestampFilter_write(obj: &crate::lightning::ln::msgs::
 }
 #[allow(unused)]
 pub(crate) extern "C" fn GossipTimestampFilter_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeGossipTimestampFilter) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::msgs::nativeGossipTimestampFilter) })
 }
 #[no_mangle]
 /// Read a GossipTimestampFilter from a byte array, created by GossipTimestampFilter_write

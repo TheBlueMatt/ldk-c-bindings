@@ -22,6 +22,11 @@ use lightning::routing::router::DefaultRouter as nativeDefaultRouterImport;
 pub(crate) type nativeDefaultRouter = nativeDefaultRouterImport<&'static lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>, crate::lightning::util::logger::Logger, crate::lightning::sign::EntropySource, crate::lightning::routing::scoring::LockableScore, >;
 
 /// A [`Router`] implemented using [`find_route`].
+///
+/// # Privacy
+///
+/// Implements [`MessageRouter`] by delegating to [`DefaultMessageRouter`]. See those docs for
+/// privacy implications.
 #[must_use]
 #[repr(C)]
 pub struct DefaultRouter {
@@ -37,6 +42,12 @@ pub struct DefaultRouter {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for DefaultRouter {
+	type Target = nativeDefaultRouter;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for DefaultRouter { }
+unsafe impl core::marker::Sync for DefaultRouter { }
 impl Drop for DefaultRouter {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeDefaultRouter>::is_null(self.inner) {
@@ -66,6 +77,9 @@ impl DefaultRouter {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Creates a new router.
@@ -101,6 +115,7 @@ pub extern "C" fn DefaultRouter_as_Router(this_arg: &DefaultRouter) -> crate::li
 			free: None,
 			find_path: DefaultRouter_MessageRouter_find_path,
 			create_blinded_paths: DefaultRouter_MessageRouter_create_blinded_paths,
+			create_compact_blinded_paths: DefaultRouter_MessageRouter_create_compact_blinded_paths,
 		},
 	}
 }
@@ -120,10 +135,10 @@ extern "C" fn DefaultRouter_Router_find_route_with_id(this_arg: *const c_void, m
 	local_ret
 }
 #[must_use]
-extern "C" fn DefaultRouter_Router_create_blinded_payment_paths(this_arg: *const c_void, mut recipient: crate::c_types::PublicKey, mut first_hops: crate::c_types::derived::CVec_ChannelDetailsZ, mut tlvs: crate::lightning::blinded_path::payment::ReceiveTlvs, mut amount_msats: u64) -> crate::c_types::derived::CResult_CVec_C2Tuple_BlindedPayInfoBlindedPathZZNoneZ {
+extern "C" fn DefaultRouter_Router_create_blinded_payment_paths(this_arg: *const c_void, mut recipient: crate::c_types::PublicKey, mut first_hops: crate::c_types::derived::CVec_ChannelDetailsZ, mut tlvs: crate::lightning::blinded_path::payment::ReceiveTlvs, mut amount_msats: u64) -> crate::c_types::derived::CResult_CVec_BlindedPaymentPathZNoneZ {
 	let mut local_first_hops = Vec::new(); for mut item in first_hops.into_rust().drain(..) { local_first_hops.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	let mut ret = <nativeDefaultRouter as lightning::routing::router::Router>::create_blinded_payment_paths(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, recipient.into_rust(), local_first_hops, *unsafe { Box::from_raw(tlvs.take_inner()) }, amount_msats, secp256k1::global::SECP256K1);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1) = item; let mut local_ret_0_0 = (crate::lightning::offers::invoice::BlindedPayInfo { inner: ObjOps::heap_alloc(orig_ret_0_0_0), is_owned: true }, crate::lightning::blinded_path::BlindedPath { inner: ObjOps::heap_alloc(orig_ret_0_0_1), is_owned: true }).into(); local_ret_0_0 }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { crate::lightning::blinded_path::payment::BlindedPaymentPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 
@@ -146,6 +161,7 @@ pub extern "C" fn DefaultRouter_as_MessageRouter(this_arg: &DefaultRouter) -> cr
 		free: None,
 		find_path: DefaultRouter_MessageRouter_find_path,
 		create_blinded_paths: DefaultRouter_MessageRouter_create_blinded_paths,
+		create_compact_blinded_paths: DefaultRouter_MessageRouter_create_compact_blinded_paths,
 	}
 }
 
@@ -157,10 +173,17 @@ extern "C" fn DefaultRouter_MessageRouter_find_path(this_arg: *const c_void, mut
 	local_ret
 }
 #[must_use]
-extern "C" fn DefaultRouter_MessageRouter_create_blinded_paths(this_arg: *const c_void, mut recipient: crate::c_types::PublicKey, mut peers: crate::c_types::derived::CVec_PublicKeyZ) -> crate::c_types::derived::CResult_CVec_BlindedPathZNoneZ {
+extern "C" fn DefaultRouter_MessageRouter_create_blinded_paths(this_arg: *const c_void, mut recipient: crate::c_types::PublicKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut peers: crate::c_types::derived::CVec_PublicKeyZ) -> crate::c_types::derived::CResult_CVec_BlindedMessagePathZNoneZ {
 	let mut local_peers = Vec::new(); for mut item in peers.into_rust().drain(..) { local_peers.push( { item.into_rust() }); };
-	let mut ret = <nativeDefaultRouter as lightning::onion_message::messenger::MessageRouter>::create_blinded_paths(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, recipient.into_rust(), local_peers, secp256k1::global::SECP256K1);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { crate::lightning::blinded_path::BlindedPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	let mut ret = <nativeDefaultRouter as lightning::onion_message::messenger::MessageRouter>::create_blinded_paths(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, recipient.into_rust(), context.into_native(), local_peers, secp256k1::global::SECP256K1);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(item), is_owned: true } }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	local_ret
+}
+#[must_use]
+extern "C" fn DefaultRouter_MessageRouter_create_compact_blinded_paths(this_arg: *const c_void, mut recipient: crate::c_types::PublicKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut peers: crate::c_types::derived::CVec_MessageForwardNodeZ) -> crate::c_types::derived::CResult_CVec_BlindedMessagePathZNoneZ {
+	let mut local_peers = Vec::new(); for mut item in peers.into_rust().drain(..) { local_peers.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
+	let mut ret = <nativeDefaultRouter as lightning::onion_message::messenger::MessageRouter>::create_compact_blinded_paths(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, recipient.into_rust(), context.into_native(), local_peers, secp256k1::global::SECP256K1);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(item), is_owned: true } }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 
@@ -187,10 +210,10 @@ pub struct Router {
 	///
 	/// Note that first_hops (or a relevant inner pointer) may be NULL or all-0s to represent None
 	pub find_route_with_id: extern "C" fn (this_arg: *const c_void, payer: crate::c_types::PublicKey, route_params: &crate::lightning::routing::router::RouteParameters, first_hops: *mut crate::c_types::derived::CVec_ChannelDetailsZ, inflight_htlcs: crate::lightning::routing::router::InFlightHtlcs, _payment_hash: crate::c_types::ThirtyTwoBytes, _payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_RouteLightningErrorZ,
-	/// Creates [`BlindedPath`]s for payment to the `recipient` node. The channels in `first_hops`
+	/// Creates [`BlindedPaymentPath`]s for payment to the `recipient` node. The channels in `first_hops`
 	/// are assumed to be with the `recipient`'s peers. The payment secret and any constraints are
 	/// given in `tlvs`.
-	pub create_blinded_payment_paths: extern "C" fn (this_arg: *const c_void, recipient: crate::c_types::PublicKey, first_hops: crate::c_types::derived::CVec_ChannelDetailsZ, tlvs: crate::lightning::blinded_path::payment::ReceiveTlvs, amount_msats: u64) -> crate::c_types::derived::CResult_CVec_C2Tuple_BlindedPayInfoBlindedPathZZNoneZ,
+	pub create_blinded_payment_paths: extern "C" fn (this_arg: *const c_void, recipient: crate::c_types::PublicKey, first_hops: crate::c_types::derived::CVec_ChannelDetailsZ, tlvs: crate::lightning::blinded_path::payment::ReceiveTlvs, amount_msats: u64) -> crate::c_types::derived::CResult_CVec_BlindedPaymentPathZNoneZ,
 	/// Implementation of MessageRouter for this object.
 	pub MessageRouter: crate::lightning::onion_message::messenger::MessageRouter,
 	/// Frees any resources associated with this object given its this_arg pointer.
@@ -217,9 +240,35 @@ impl lightning::onion_message::messenger::MessageRouter for Router {
 		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn create_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut peers: Vec<bitcoin::secp256k1::PublicKey>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::BlindedPath>, ()> {
+	fn create_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut context: lightning::blinded_path::message::MessageContext, mut peers: Vec<bitcoin::secp256k1::PublicKey>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::message::BlindedMessagePath>, ()> {
 		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::c_types::PublicKey::from_rust(&item) }); };
-		let mut ret = (self.MessageRouter.create_blinded_paths)(self.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), local_peers.into());
+		let mut ret = (self.MessageRouter.create_blinded_paths)(self.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), crate::lightning::blinded_path::message::MessageContext::native_into(context), local_peers.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn create_compact_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut context: lightning::blinded_path::message::MessageContext, mut peers: Vec<lightning::blinded_path::message::MessageForwardNode>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::message::BlindedMessagePath>, ()> {
+		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::lightning::blinded_path::message::MessageForwardNode { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+		let mut ret = (self.MessageRouter.create_compact_blinded_paths)(self.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), crate::lightning::blinded_path::message::MessageContext::native_into(context), local_peers.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+}
+impl lightning::onion_message::messenger::MessageRouter for RouterRef {
+	fn find_path(&self, mut sender: bitcoin::secp256k1::PublicKey, mut peers: Vec<bitcoin::secp256k1::PublicKey>, mut destination: lightning::onion_message::messenger::Destination) -> Result<lightning::onion_message::messenger::OnionMessagePath, ()> {
+		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::c_types::PublicKey::from_rust(&item) }); };
+		let mut ret = (self.0.MessageRouter.find_path)(self.0.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&sender), local_peers.into(), crate::lightning::onion_message::messenger::Destination::native_into(destination));
+		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn create_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut context: lightning::blinded_path::message::MessageContext, mut peers: Vec<bitcoin::secp256k1::PublicKey>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::message::BlindedMessagePath>, ()> {
+		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::c_types::PublicKey::from_rust(&item) }); };
+		let mut ret = (self.0.MessageRouter.create_blinded_paths)(self.0.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), crate::lightning::blinded_path::message::MessageContext::native_into(context), local_peers.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn create_compact_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut context: lightning::blinded_path::message::MessageContext, mut peers: Vec<lightning::blinded_path::message::MessageForwardNode>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::message::BlindedMessagePath>, ()> {
+		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::lightning::blinded_path::message::MessageForwardNode { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+		let mut ret = (self.0.MessageRouter.create_compact_blinded_paths)(self.0.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), crate::lightning::blinded_path::message::MessageContext::native_into(context), local_peers.into());
 		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
@@ -233,16 +282,38 @@ impl rustRouter for Router {
 		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
 		local_ret
 	}
-	fn find_route_with_id(&self, mut payer: &bitcoin::secp256k1::PublicKey, mut route_params: &lightning::routing::router::RouteParameters, mut first_hops: Option<&[&lightning::ln::channel_state::ChannelDetails]>, mut inflight_htlcs: lightning::routing::router::InFlightHtlcs, mut _payment_hash: lightning::ln::types::PaymentHash, mut _payment_id: lightning::ln::channelmanager::PaymentId) -> Result<lightning::routing::router::Route, lightning::ln::msgs::LightningError> {
+	fn find_route_with_id(&self, mut payer: &bitcoin::secp256k1::PublicKey, mut route_params: &lightning::routing::router::RouteParameters, mut first_hops: Option<&[&lightning::ln::channel_state::ChannelDetails]>, mut inflight_htlcs: lightning::routing::router::InFlightHtlcs, mut _payment_hash: lightning_types::payment::PaymentHash, mut _payment_id: lightning::ln::channelmanager::PaymentId) -> Result<lightning::routing::router::Route, lightning::ln::msgs::LightningError> {
 		let mut local_first_hops_base = if first_hops.is_none() { SmartPtr::null() } else { SmartPtr::from_obj( { let mut local_first_hops_0 = Vec::new(); for item in (first_hops.unwrap()).iter() { local_first_hops_0.push( { crate::lightning::ln::channel_state::ChannelDetails { inner: unsafe { ObjOps::nonnull_ptr_to_inner(((*item) as *const lightning::ln::channel_state::ChannelDetails<>) as *mut _) }, is_owned: false } }); }; local_first_hops_0.into() }) }; let mut local_first_hops = *local_first_hops_base;
 		let mut ret = (self.find_route_with_id)(self.this_arg, crate::c_types::PublicKey::from_rust(&payer), &crate::lightning::routing::router::RouteParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((route_params as *const lightning::routing::router::RouteParameters<>) as *mut _) }, is_owned: false }, local_first_hops, crate::lightning::routing::router::InFlightHtlcs { inner: ObjOps::heap_alloc(inflight_htlcs), is_owned: true }, crate::c_types::ThirtyTwoBytes { data: _payment_hash.0 }, crate::c_types::ThirtyTwoBytes { data: _payment_id.0 });
 		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
 		local_ret
 	}
-	fn create_blinded_payment_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut first_hops: Vec<lightning::ln::channel_state::ChannelDetails>, mut tlvs: lightning::blinded_path::payment::ReceiveTlvs, mut amount_msats: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<(lightning::offers::invoice::BlindedPayInfo, lightning::blinded_path::BlindedPath)>, ()> {
+	fn create_blinded_payment_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut first_hops: Vec<lightning::ln::channel_state::ChannelDetails>, mut tlvs: lightning::blinded_path::payment::ReceiveTlvs, mut amount_msats: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::payment::BlindedPaymentPath>, ()> {
 		let mut local_first_hops = Vec::new(); for mut item in first_hops.drain(..) { local_first_hops.push( { crate::lightning::ln::channel_state::ChannelDetails { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 		let mut ret = (self.create_blinded_payment_paths)(self.this_arg, crate::c_types::PublicKey::from_rust(&recipient), local_first_hops.into(), crate::lightning::blinded_path::payment::ReceiveTlvs { inner: ObjOps::heap_alloc(tlvs), is_owned: true }, amount_msats);
-		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1) = item.to_rust(); let mut local_ret_0_0 = (*unsafe { Box::from_raw(orig_ret_0_0_0.take_inner()) }, *unsafe { Box::from_raw(orig_ret_0_0_1.take_inner()) }); local_ret_0_0 }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+}
+
+pub struct RouterRef(Router);
+impl rustRouter for RouterRef {
+	fn find_route(&self, mut payer: &bitcoin::secp256k1::PublicKey, mut route_params: &lightning::routing::router::RouteParameters, mut first_hops: Option<&[&lightning::ln::channel_state::ChannelDetails]>, mut inflight_htlcs: lightning::routing::router::InFlightHtlcs) -> Result<lightning::routing::router::Route, lightning::ln::msgs::LightningError> {
+		let mut local_first_hops_base = if first_hops.is_none() { SmartPtr::null() } else { SmartPtr::from_obj( { let mut local_first_hops_0 = Vec::new(); for item in (first_hops.unwrap()).iter() { local_first_hops_0.push( { crate::lightning::ln::channel_state::ChannelDetails { inner: unsafe { ObjOps::nonnull_ptr_to_inner(((*item) as *const lightning::ln::channel_state::ChannelDetails<>) as *mut _) }, is_owned: false } }); }; local_first_hops_0.into() }) }; let mut local_first_hops = *local_first_hops_base;
+		let mut ret = (self.0.find_route)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&payer), &crate::lightning::routing::router::RouteParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((route_params as *const lightning::routing::router::RouteParameters<>) as *mut _) }, is_owned: false }, local_first_hops, crate::lightning::routing::router::InFlightHtlcs { inner: ObjOps::heap_alloc(inflight_htlcs), is_owned: true });
+		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn find_route_with_id(&self, mut payer: &bitcoin::secp256k1::PublicKey, mut route_params: &lightning::routing::router::RouteParameters, mut first_hops: Option<&[&lightning::ln::channel_state::ChannelDetails]>, mut inflight_htlcs: lightning::routing::router::InFlightHtlcs, mut _payment_hash: lightning_types::payment::PaymentHash, mut _payment_id: lightning::ln::channelmanager::PaymentId) -> Result<lightning::routing::router::Route, lightning::ln::msgs::LightningError> {
+		let mut local_first_hops_base = if first_hops.is_none() { SmartPtr::null() } else { SmartPtr::from_obj( { let mut local_first_hops_0 = Vec::new(); for item in (first_hops.unwrap()).iter() { local_first_hops_0.push( { crate::lightning::ln::channel_state::ChannelDetails { inner: unsafe { ObjOps::nonnull_ptr_to_inner(((*item) as *const lightning::ln::channel_state::ChannelDetails<>) as *mut _) }, is_owned: false } }); }; local_first_hops_0.into() }) }; let mut local_first_hops = *local_first_hops_base;
+		let mut ret = (self.0.find_route_with_id)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&payer), &crate::lightning::routing::router::RouteParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((route_params as *const lightning::routing::router::RouteParameters<>) as *mut _) }, is_owned: false }, local_first_hops, crate::lightning::routing::router::InFlightHtlcs { inner: ObjOps::heap_alloc(inflight_htlcs), is_owned: true }, crate::c_types::ThirtyTwoBytes { data: _payment_hash.0 }, crate::c_types::ThirtyTwoBytes { data: _payment_id.0 });
+		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).take_inner()) } })};
+		local_ret
+	}
+	fn create_blinded_payment_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut first_hops: Vec<lightning::ln::channel_state::ChannelDetails>, mut tlvs: lightning::blinded_path::payment::ReceiveTlvs, mut amount_msats: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::payment::BlindedPaymentPath>, ()> {
+		let mut local_first_hops = Vec::new(); for mut item in first_hops.drain(..) { local_first_hops.push( { crate::lightning::ln::channel_state::ChannelDetails { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+		let mut ret = (self.0.create_blinded_payment_paths)(self.0.this_arg, crate::c_types::PublicKey::from_rust(&recipient), local_first_hops.into(), crate::lightning::blinded_path::payment::ReceiveTlvs { inner: ObjOps::heap_alloc(tlvs), is_owned: true }, amount_msats);
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
 }
@@ -250,14 +321,14 @@ impl rustRouter for Router {
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Router {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = RouterRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const RouterRef) }
 	}
 }
 impl core::ops::DerefMut for Router {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut RouterRef {
+		unsafe { &mut *(self as *mut _ as *mut RouterRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -295,6 +366,12 @@ pub struct ScorerAccountingForInFlightHtlcs {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ScorerAccountingForInFlightHtlcs {
+	type Target = nativeScorerAccountingForInFlightHtlcs;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ScorerAccountingForInFlightHtlcs { }
+unsafe impl core::marker::Sync for ScorerAccountingForInFlightHtlcs { }
 impl Drop for ScorerAccountingForInFlightHtlcs {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeScorerAccountingForInFlightHtlcs>::is_null(self.inner) {
@@ -324,6 +401,9 @@ impl ScorerAccountingForInFlightHtlcs {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Initialize a new `ScorerAccountingForInFlightHtlcs`.
@@ -382,6 +462,12 @@ pub struct InFlightHtlcs {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for InFlightHtlcs {
+	type Target = nativeInFlightHtlcs;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for InFlightHtlcs { }
+unsafe impl core::marker::Sync for InFlightHtlcs { }
 impl Drop for InFlightHtlcs {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeInFlightHtlcs>::is_null(self.inner) {
@@ -411,6 +497,9 @@ impl InFlightHtlcs {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for InFlightHtlcs {
@@ -470,7 +559,7 @@ pub extern "C" fn InFlightHtlcs_write(obj: &crate::lightning::routing::router::I
 }
 #[allow(unused)]
 pub(crate) extern "C" fn InFlightHtlcs_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeInFlightHtlcs) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::router::nativeInFlightHtlcs) })
 }
 #[no_mangle]
 /// Read a InFlightHtlcs from a byte array, created by InFlightHtlcs_write
@@ -500,6 +589,12 @@ pub struct RouteHop {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RouteHop {
+	type Target = nativeRouteHop;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RouteHop { }
+unsafe impl core::marker::Sync for RouteHop { }
 impl Drop for RouteHop {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRouteHop>::is_null(self.inner) {
@@ -530,6 +625,9 @@ impl RouteHop {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The node_id of the node at this hop.
 #[no_mangle]
@@ -545,14 +643,14 @@ pub extern "C" fn RouteHop_set_pubkey(this_ptr: &mut RouteHop, mut val: crate::c
 /// The node_announcement features of the node at this hop. For the last hop, these may be
 /// amended to match the features present in the invoice this node generated.
 #[no_mangle]
-pub extern "C" fn RouteHop_get_node_features(this_ptr: &RouteHop) -> crate::lightning::ln::features::NodeFeatures {
+pub extern "C" fn RouteHop_get_node_features(this_ptr: &RouteHop) -> crate::lightning_types::features::NodeFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().node_features;
-	crate::lightning::ln::features::NodeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::NodeFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::NodeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::NodeFeatures<>) as *mut _) }, is_owned: false }
 }
 /// The node_announcement features of the node at this hop. For the last hop, these may be
 /// amended to match the features present in the invoice this node generated.
 #[no_mangle]
-pub extern "C" fn RouteHop_set_node_features(this_ptr: &mut RouteHop, mut val: crate::lightning::ln::features::NodeFeatures) {
+pub extern "C" fn RouteHop_set_node_features(this_ptr: &mut RouteHop, mut val: crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.node_features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// The channel that should be used from the previous hop to reach this node.
@@ -569,22 +667,21 @@ pub extern "C" fn RouteHop_set_short_channel_id(this_ptr: &mut RouteHop, mut val
 /// The channel_announcement features of the channel that should be used from the previous hop
 /// to reach this node.
 #[no_mangle]
-pub extern "C" fn RouteHop_get_channel_features(this_ptr: &RouteHop) -> crate::lightning::ln::features::ChannelFeatures {
+pub extern "C" fn RouteHop_get_channel_features(this_ptr: &RouteHop) -> crate::lightning_types::features::ChannelFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_features;
-	crate::lightning::ln::features::ChannelFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::ChannelFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::ChannelFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::ChannelFeatures<>) as *mut _) }, is_owned: false }
 }
 /// The channel_announcement features of the channel that should be used from the previous hop
 /// to reach this node.
 #[no_mangle]
-pub extern "C" fn RouteHop_set_channel_features(this_ptr: &mut RouteHop, mut val: crate::lightning::ln::features::ChannelFeatures) {
+pub extern "C" fn RouteHop_set_channel_features(this_ptr: &mut RouteHop, mut val: crate::lightning_types::features::ChannelFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// The fee taken on this hop (for paying for the use of the *next* channel in the path).
 /// If this is the last hop in [`Path::hops`]:
-/// * if we're sending to a [`BlindedPath`], this is the fee paid for use of the entire blinded path
+/// * if we're sending to a [`BlindedPaymentPath`], this is the fee paid for use of the entire
+///   blinded path
 /// * otherwise, this is the full value of this [`Path`]'s part of the payment
-///
-/// [`BlindedPath`]: crate::blinded_path::BlindedPath
 #[no_mangle]
 pub extern "C" fn RouteHop_get_fee_msat(this_ptr: &RouteHop) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().fee_msat;
@@ -592,20 +689,18 @@ pub extern "C" fn RouteHop_get_fee_msat(this_ptr: &RouteHop) -> u64 {
 }
 /// The fee taken on this hop (for paying for the use of the *next* channel in the path).
 /// If this is the last hop in [`Path::hops`]:
-/// * if we're sending to a [`BlindedPath`], this is the fee paid for use of the entire blinded path
+/// * if we're sending to a [`BlindedPaymentPath`], this is the fee paid for use of the entire
+///   blinded path
 /// * otherwise, this is the full value of this [`Path`]'s part of the payment
-///
-/// [`BlindedPath`]: crate::blinded_path::BlindedPath
 #[no_mangle]
 pub extern "C" fn RouteHop_set_fee_msat(this_ptr: &mut RouteHop, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.fee_msat = val;
 }
 /// The CLTV delta added for this hop.
 /// If this is the last hop in [`Path::hops`]:
-/// * if we're sending to a [`BlindedPath`], this is the CLTV delta for the entire blinded path
+/// * if we're sending to a [`BlindedPaymentPath`], this is the CLTV delta for the entire blinded
+///   path
 /// * otherwise, this is the CLTV delta expected at the destination
-///
-/// [`BlindedPath`]: crate::blinded_path::BlindedPath
 #[no_mangle]
 pub extern "C" fn RouteHop_get_cltv_expiry_delta(this_ptr: &RouteHop) -> u32 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
@@ -613,10 +708,9 @@ pub extern "C" fn RouteHop_get_cltv_expiry_delta(this_ptr: &RouteHop) -> u32 {
 }
 /// The CLTV delta added for this hop.
 /// If this is the last hop in [`Path::hops`]:
-/// * if we're sending to a [`BlindedPath`], this is the CLTV delta for the entire blinded path
+/// * if we're sending to a [`BlindedPaymentPath`], this is the CLTV delta for the entire blinded
+///   path
 /// * otherwise, this is the CLTV delta expected at the destination
-///
-/// [`BlindedPath`]: crate::blinded_path::BlindedPath
 #[no_mangle]
 pub extern "C" fn RouteHop_set_cltv_expiry_delta(this_ptr: &mut RouteHop, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.cltv_expiry_delta = val;
@@ -649,7 +743,7 @@ pub extern "C" fn RouteHop_set_maybe_announced_channel(this_ptr: &mut RouteHop, 
 /// Constructs a new RouteHop given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn RouteHop_new(mut pubkey_arg: crate::c_types::PublicKey, mut node_features_arg: crate::lightning::ln::features::NodeFeatures, mut short_channel_id_arg: u64, mut channel_features_arg: crate::lightning::ln::features::ChannelFeatures, mut fee_msat_arg: u64, mut cltv_expiry_delta_arg: u32, mut maybe_announced_channel_arg: bool) -> RouteHop {
+pub extern "C" fn RouteHop_new(mut pubkey_arg: crate::c_types::PublicKey, mut node_features_arg: crate::lightning_types::features::NodeFeatures, mut short_channel_id_arg: u64, mut channel_features_arg: crate::lightning_types::features::ChannelFeatures, mut fee_msat_arg: u64, mut cltv_expiry_delta_arg: u32, mut maybe_announced_channel_arg: bool) -> RouteHop {
 	RouteHop { inner: ObjOps::heap_alloc(nativeRouteHop {
 		pubkey: pubkey_arg.into_rust(),
 		node_features: *unsafe { Box::from_raw(node_features_arg.take_inner()) },
@@ -708,7 +802,7 @@ pub extern "C" fn RouteHop_write(obj: &crate::lightning::routing::router::RouteH
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RouteHop_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRouteHop) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::router::nativeRouteHop) })
 }
 #[no_mangle]
 /// Read a RouteHop from a byte array, created by RouteHop_write
@@ -740,6 +834,12 @@ pub struct BlindedTail {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for BlindedTail {
+	type Target = nativeBlindedTail;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for BlindedTail { }
+unsafe impl core::marker::Sync for BlindedTail { }
 impl Drop for BlindedTail {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBlindedTail>::is_null(self.inner) {
@@ -770,35 +870,30 @@ impl BlindedTail {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
-/// The hops of the [`BlindedPath`] provided by the recipient.
-///
-/// [`BlindedPath`]: crate::blinded_path::BlindedPath
+/// The hops of the [`BlindedPaymentPath`] provided by the recipient.
 #[no_mangle]
 pub extern "C" fn BlindedTail_get_hops(this_ptr: &BlindedTail) -> crate::c_types::derived::CVec_BlindedHopZ {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().hops;
 	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::blinded_path::BlindedHop { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const lightning::blinded_path::BlindedHop<>) as *mut _) }, is_owned: false } }); };
 	local_inner_val.into()
 }
-/// The hops of the [`BlindedPath`] provided by the recipient.
-///
-/// [`BlindedPath`]: crate::blinded_path::BlindedPath
+/// The hops of the [`BlindedPaymentPath`] provided by the recipient.
 #[no_mangle]
 pub extern "C" fn BlindedTail_set_hops(this_ptr: &mut BlindedTail, mut val: crate::c_types::derived::CVec_BlindedHopZ) {
 	let mut local_val = Vec::new(); for mut item in val.into_rust().drain(..) { local_val.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.hops = local_val;
 }
-/// The blinding point of the [`BlindedPath`] provided by the recipient.
-///
-/// [`BlindedPath`]: crate::blinded_path::BlindedPath
+/// The blinding point of the [`BlindedPaymentPath`] provided by the recipient.
 #[no_mangle]
 pub extern "C" fn BlindedTail_get_blinding_point(this_ptr: &BlindedTail) -> crate::c_types::PublicKey {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().blinding_point;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
-/// The blinding point of the [`BlindedPath`] provided by the recipient.
-///
-/// [`BlindedPath`]: crate::blinded_path::BlindedPath
+/// The blinding point of the [`BlindedPaymentPath`] provided by the recipient.
 #[no_mangle]
 pub extern "C" fn BlindedTail_set_blinding_point(this_ptr: &mut BlindedTail, mut val: crate::c_types::PublicKey) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.blinding_point = val.into_rust();
@@ -887,7 +982,7 @@ pub extern "C" fn BlindedTail_write(obj: &crate::lightning::routing::router::Bli
 }
 #[allow(unused)]
 pub(crate) extern "C" fn BlindedTail_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeBlindedTail) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::router::nativeBlindedTail) })
 }
 #[no_mangle]
 /// Read a BlindedTail from a byte array, created by BlindedTail_write
@@ -917,6 +1012,12 @@ pub struct Path {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Path {
+	type Target = nativePath;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Path { }
+unsafe impl core::marker::Sync for Path { }
 impl Drop for Path {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePath>::is_null(self.inner) {
@@ -946,6 +1047,9 @@ impl Path {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The list of unblinded hops in this [`Path`]. Must be at least length one.
@@ -1078,6 +1182,12 @@ pub struct Route {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for Route {
+	type Target = nativeRoute;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Route { }
+unsafe impl core::marker::Sync for Route { }
 impl Drop for Route {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRoute>::is_null(self.inner) {
@@ -1107,6 +1217,9 @@ impl Route {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The list of [`Path`]s taken for a single (potentially-)multi-part payment. If no
@@ -1244,7 +1357,7 @@ pub extern "C" fn Route_write(obj: &crate::lightning::routing::router::Route) ->
 }
 #[allow(unused)]
 pub(crate) extern "C" fn Route_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRoute) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::router::nativeRoute) })
 }
 #[no_mangle]
 /// Read a Route from a byte array, created by Route_write
@@ -1275,6 +1388,12 @@ pub struct RouteParameters {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for RouteParameters {
+	type Target = nativeRouteParameters;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for RouteParameters { }
+unsafe impl core::marker::Sync for RouteParameters { }
 impl Drop for RouteParameters {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeRouteParameters>::is_null(self.inner) {
@@ -1304,6 +1423,9 @@ impl RouteParameters {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The parameters of the failed payment path.
@@ -1413,6 +1535,16 @@ pub extern "C" fn RouteParameters_from_payment_params_and_value(mut payment_para
 	crate::lightning::routing::router::RouteParameters { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
+/// Sets the maximum number of hops that can be included in a payment path, based on the provided
+/// [`RecipientOnionFields`] and blinded paths.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn RouteParameters_set_max_path_length(this_arg: &mut crate::lightning::routing::router::RouteParameters, recipient_onion: &crate::lightning::ln::outbound_payment::RecipientOnionFields, mut is_keysend: bool, mut best_block_height: u32) -> crate::c_types::derived::CResult_NoneNoneZ {
+	let mut ret = unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::routing::router::nativeRouteParameters)) }.set_max_path_length(recipient_onion.get_native_ref(), is_keysend, best_block_height);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	local_ret
+}
+
 #[no_mangle]
 /// Serialize the RouteParameters object into a byte array which can be read by RouteParameters_read
 pub extern "C" fn RouteParameters_write(obj: &crate::lightning::routing::router::RouteParameters) -> crate::c_types::derived::CVec_u8Z {
@@ -1420,7 +1552,7 @@ pub extern "C" fn RouteParameters_write(obj: &crate::lightning::routing::router:
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RouteParameters_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRouteParameters) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::router::nativeRouteParameters) })
 }
 #[no_mangle]
 /// Read a RouteParameters from a byte array, created by RouteParameters_write
@@ -1437,6 +1569,11 @@ pub static DEFAULT_MAX_TOTAL_CLTV_EXPIRY_DELTA: u32 = lightning::routing::router
 
 #[no_mangle]
 pub static DEFAULT_MAX_PATH_COUNT: u8 = lightning::routing::router::DEFAULT_MAX_PATH_COUNT;
+/// Estimated maximum number of hops that can be included in a payment path. May be inaccurate if
+/// payment metadata, custom TLVs, or blinded paths are included in the payment.
+
+#[no_mangle]
+pub static MAX_PATH_LENGTH_ESTIMATE: u8 = lightning::routing::router::MAX_PATH_LENGTH_ESTIMATE;
 
 use lightning::routing::router::PaymentParameters as nativePaymentParametersImport;
 pub(crate) type nativePaymentParameters = nativePaymentParametersImport;
@@ -1457,6 +1594,12 @@ pub struct PaymentParameters {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for PaymentParameters {
+	type Target = nativePaymentParameters;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for PaymentParameters { }
+unsafe impl core::marker::Sync for PaymentParameters { }
 impl Drop for PaymentParameters {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePaymentParameters>::is_null(self.inner) {
@@ -1486,6 +1629,9 @@ impl PaymentParameters {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Information about the payee, such as their features and route hints for their channels.
@@ -1537,6 +1683,19 @@ pub extern "C" fn PaymentParameters_get_max_path_count(this_ptr: &PaymentParamet
 #[no_mangle]
 pub extern "C" fn PaymentParameters_set_max_path_count(this_ptr: &mut PaymentParameters, mut val: u8) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_path_count = val;
+}
+/// The maximum number of [`Path::hops`] in any returned path.
+/// Defaults to [`MAX_PATH_LENGTH_ESTIMATE`].
+#[no_mangle]
+pub extern "C" fn PaymentParameters_get_max_path_length(this_ptr: &PaymentParameters) -> u8 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_path_length;
+	*inner_val
+}
+/// The maximum number of [`Path::hops`] in any returned path.
+/// Defaults to [`MAX_PATH_LENGTH_ESTIMATE`].
+#[no_mangle]
+pub extern "C" fn PaymentParameters_set_max_path_length(this_ptr: &mut PaymentParameters, mut val: u8) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.max_path_length = val;
 }
 /// Selects the maximum share of a channel's total capacity which will be sent over a channel,
 /// as a power of 1/2. A higher value prefers to send the payment using more MPP parts whereas
@@ -1614,7 +1773,7 @@ pub extern "C" fn PaymentParameters_set_previously_failed_blinded_path_idxs(this
 /// Constructs a new PaymentParameters given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn PaymentParameters_new(mut payee_arg: crate::lightning::routing::router::Payee, mut expiry_time_arg: crate::c_types::derived::COption_u64Z, mut max_total_cltv_expiry_delta_arg: u32, mut max_path_count_arg: u8, mut max_channel_saturation_power_of_half_arg: u8, mut previously_failed_channels_arg: crate::c_types::derived::CVec_u64Z, mut previously_failed_blinded_path_idxs_arg: crate::c_types::derived::CVec_u64Z) -> PaymentParameters {
+pub extern "C" fn PaymentParameters_new(mut payee_arg: crate::lightning::routing::router::Payee, mut expiry_time_arg: crate::c_types::derived::COption_u64Z, mut max_total_cltv_expiry_delta_arg: u32, mut max_path_count_arg: u8, mut max_path_length_arg: u8, mut max_channel_saturation_power_of_half_arg: u8, mut previously_failed_channels_arg: crate::c_types::derived::CVec_u64Z, mut previously_failed_blinded_path_idxs_arg: crate::c_types::derived::CVec_u64Z) -> PaymentParameters {
 	let mut local_expiry_time_arg = if expiry_time_arg.is_some() { Some( { expiry_time_arg.take() }) } else { None };
 	let mut local_previously_failed_channels_arg = Vec::new(); for mut item in previously_failed_channels_arg.into_rust().drain(..) { local_previously_failed_channels_arg.push( { item }); };
 	let mut local_previously_failed_blinded_path_idxs_arg = Vec::new(); for mut item in previously_failed_blinded_path_idxs_arg.into_rust().drain(..) { local_previously_failed_blinded_path_idxs_arg.push( { item }); };
@@ -1623,6 +1782,7 @@ pub extern "C" fn PaymentParameters_new(mut payee_arg: crate::lightning::routing
 		expiry_time: local_expiry_time_arg,
 		max_total_cltv_expiry_delta: max_total_cltv_expiry_delta_arg,
 		max_path_count: max_path_count_arg,
+		max_path_length: max_path_length_arg,
 		max_channel_saturation_power_of_half: max_channel_saturation_power_of_half_arg,
 		previously_failed_channels: local_previously_failed_channels_arg,
 		previously_failed_blinded_path_idxs: local_previously_failed_blinded_path_idxs_arg,
@@ -1676,7 +1836,7 @@ pub extern "C" fn PaymentParameters_write(obj: &crate::lightning::routing::route
 }
 #[allow(unused)]
 pub(crate) extern "C" fn PaymentParameters_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativePaymentParameters) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::router::nativePaymentParameters) })
 }
 #[no_mangle]
 /// Read a PaymentParameters from a byte array, created by PaymentParameters_write
@@ -1728,8 +1888,8 @@ pub extern "C" fn PaymentParameters_from_bolt12_invoice(invoice: &crate::lightni
 /// Creates parameters for paying to a blinded payee from the provided blinded route hints.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn PaymentParameters_blinded(mut blinded_route_hints: crate::c_types::derived::CVec_C2Tuple_BlindedPayInfoBlindedPathZZ) -> crate::lightning::routing::router::PaymentParameters {
-	let mut local_blinded_route_hints = Vec::new(); for mut item in blinded_route_hints.into_rust().drain(..) { local_blinded_route_hints.push( { let (mut orig_blinded_route_hints_0_0, mut orig_blinded_route_hints_0_1) = item.to_rust(); let mut local_blinded_route_hints_0 = (*unsafe { Box::from_raw(orig_blinded_route_hints_0_0.take_inner()) }, *unsafe { Box::from_raw(orig_blinded_route_hints_0_1.take_inner()) }); local_blinded_route_hints_0 }); };
+pub extern "C" fn PaymentParameters_blinded(mut blinded_route_hints: crate::c_types::derived::CVec_BlindedPaymentPathZ) -> crate::lightning::routing::router::PaymentParameters {
+	let mut local_blinded_route_hints = Vec::new(); for mut item in blinded_route_hints.into_rust().drain(..) { local_blinded_route_hints.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	let mut ret = lightning::routing::router::PaymentParameters::blinded(local_blinded_route_hints);
 	crate::lightning::routing::router::PaymentParameters { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
@@ -1745,14 +1905,14 @@ pub enum Payee {
 	Blinded {
 		/// Aggregated routing info and blinded paths, for routing to the payee without knowing their
 		/// node id.
-		route_hints: crate::c_types::derived::CVec_C2Tuple_BlindedPayInfoBlindedPathZZ,
+		route_hints: crate::c_types::derived::CVec_BlindedPaymentPathZ,
 		/// Features supported by the payee.
 		///
 		/// May be set from the payee's invoice. May be `None` if the invoice does not contain any
 		/// features.
 		///
 		/// Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
-		features: crate::lightning::ln::features::Bolt12InvoiceFeatures,
+		features: crate::lightning_types::features::Bolt12InvoiceFeatures,
 	},
 	/// The recipient included these route hints in their BOLT11 invoice.
 	Clear {
@@ -1768,7 +1928,7 @@ pub enum Payee {
 		/// [`for_keysend`]: PaymentParameters::for_keysend
 		///
 		/// Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
-		features: crate::lightning::ln::features::Bolt11InvoiceFeatures,
+		features: crate::lightning_types::features::Bolt11InvoiceFeatures,
 		/// The minimum CLTV delta at the end of the route. This value must not be zero.
 		final_cltv_expiry_delta: u32,
 	},
@@ -1782,7 +1942,7 @@ impl Payee {
 		match self {
 			Payee::Blinded {ref route_hints, ref features, } => {
 				let mut route_hints_nonref = Clone::clone(route_hints);
-				let mut local_route_hints_nonref = Vec::new(); for mut item in route_hints_nonref.into_rust().drain(..) { local_route_hints_nonref.push( { let (mut orig_route_hints_nonref_0_0, mut orig_route_hints_nonref_0_1) = item.to_rust(); let mut local_route_hints_nonref_0 = (*unsafe { Box::from_raw(orig_route_hints_nonref_0_0.take_inner()) }, *unsafe { Box::from_raw(orig_route_hints_nonref_0_1.take_inner()) }); local_route_hints_nonref_0 }); };
+				let mut local_route_hints_nonref = Vec::new(); for mut item in route_hints_nonref.into_rust().drain(..) { local_route_hints_nonref.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				let mut features_nonref = Clone::clone(features);
 				let mut local_features_nonref = if features_nonref.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(features_nonref.take_inner()) } }) };
 				nativePayee::Blinded {
@@ -1810,7 +1970,7 @@ impl Payee {
 	pub(crate) fn into_native(self) -> nativePayee {
 		match self {
 			Payee::Blinded {mut route_hints, mut features, } => {
-				let mut local_route_hints = Vec::new(); for mut item in route_hints.into_rust().drain(..) { local_route_hints.push( { let (mut orig_route_hints_0_0, mut orig_route_hints_0_1) = item.to_rust(); let mut local_route_hints_0 = (*unsafe { Box::from_raw(orig_route_hints_0_0.take_inner()) }, *unsafe { Box::from_raw(orig_route_hints_0_1.take_inner()) }); local_route_hints_0 }); };
+				let mut local_route_hints = Vec::new(); for mut item in route_hints.into_rust().drain(..) { local_route_hints.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				let mut local_features = if features.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(features.take_inner()) } }) };
 				nativePayee::Blinded {
 					route_hints: local_route_hints,
@@ -1835,9 +1995,9 @@ impl Payee {
 		match native {
 			nativePayee::Blinded {ref route_hints, ref features, } => {
 				let mut route_hints_nonref = Clone::clone(route_hints);
-				let mut local_route_hints_nonref = Vec::new(); for mut item in route_hints_nonref.drain(..) { local_route_hints_nonref.push( { let (mut orig_route_hints_nonref_0_0, mut orig_route_hints_nonref_0_1) = item; let mut local_route_hints_nonref_0 = (crate::lightning::offers::invoice::BlindedPayInfo { inner: ObjOps::heap_alloc(orig_route_hints_nonref_0_0), is_owned: true }, crate::lightning::blinded_path::BlindedPath { inner: ObjOps::heap_alloc(orig_route_hints_nonref_0_1), is_owned: true }).into(); local_route_hints_nonref_0 }); };
+				let mut local_route_hints_nonref = Vec::new(); for mut item in route_hints_nonref.drain(..) { local_route_hints_nonref.push( { crate::lightning::blinded_path::payment::BlindedPaymentPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				let mut features_nonref = Clone::clone(features);
-				let mut local_features_nonref = crate::lightning::ln::features::Bolt12InvoiceFeatures { inner: if features_nonref.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((features_nonref.unwrap())) } }, is_owned: true };
+				let mut local_features_nonref = crate::lightning_types::features::Bolt12InvoiceFeatures { inner: if features_nonref.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((features_nonref.unwrap())) } }, is_owned: true };
 				Payee::Blinded {
 					route_hints: local_route_hints_nonref.into(),
 					features: local_features_nonref,
@@ -1846,9 +2006,9 @@ impl Payee {
 			nativePayee::Clear {ref node_id, ref route_hints, ref features, ref final_cltv_expiry_delta, } => {
 				let mut node_id_nonref = Clone::clone(node_id);
 				let mut route_hints_nonref = Clone::clone(route_hints);
-				let mut local_route_hints_nonref = Vec::new(); for mut item in route_hints_nonref.drain(..) { local_route_hints_nonref.push( { crate::lightning::routing::router::RouteHint { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+				let mut local_route_hints_nonref = Vec::new(); for mut item in route_hints_nonref.drain(..) { local_route_hints_nonref.push( { crate::lightning_types::routing::RouteHint { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				let mut features_nonref = Clone::clone(features);
-				let mut local_features_nonref = crate::lightning::ln::features::Bolt11InvoiceFeatures { inner: if features_nonref.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((features_nonref.unwrap())) } }, is_owned: true };
+				let mut local_features_nonref = crate::lightning_types::features::Bolt11InvoiceFeatures { inner: if features_nonref.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((features_nonref.unwrap())) } }, is_owned: true };
 				let mut final_cltv_expiry_delta_nonref = Clone::clone(final_cltv_expiry_delta);
 				Payee::Clear {
 					node_id: crate::c_types::PublicKey::from_rust(&node_id_nonref),
@@ -1863,16 +2023,16 @@ impl Payee {
 	pub(crate) fn native_into(native: nativePayee) -> Self {
 		match native {
 			nativePayee::Blinded {mut route_hints, mut features, } => {
-				let mut local_route_hints = Vec::new(); for mut item in route_hints.drain(..) { local_route_hints.push( { let (mut orig_route_hints_0_0, mut orig_route_hints_0_1) = item; let mut local_route_hints_0 = (crate::lightning::offers::invoice::BlindedPayInfo { inner: ObjOps::heap_alloc(orig_route_hints_0_0), is_owned: true }, crate::lightning::blinded_path::BlindedPath { inner: ObjOps::heap_alloc(orig_route_hints_0_1), is_owned: true }).into(); local_route_hints_0 }); };
-				let mut local_features = crate::lightning::ln::features::Bolt12InvoiceFeatures { inner: if features.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((features.unwrap())) } }, is_owned: true };
+				let mut local_route_hints = Vec::new(); for mut item in route_hints.drain(..) { local_route_hints.push( { crate::lightning::blinded_path::payment::BlindedPaymentPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+				let mut local_features = crate::lightning_types::features::Bolt12InvoiceFeatures { inner: if features.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((features.unwrap())) } }, is_owned: true };
 				Payee::Blinded {
 					route_hints: local_route_hints.into(),
 					features: local_features,
 				}
 			},
 			nativePayee::Clear {mut node_id, mut route_hints, mut features, mut final_cltv_expiry_delta, } => {
-				let mut local_route_hints = Vec::new(); for mut item in route_hints.drain(..) { local_route_hints.push( { crate::lightning::routing::router::RouteHint { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
-				let mut local_features = crate::lightning::ln::features::Bolt11InvoiceFeatures { inner: if features.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((features.unwrap())) } }, is_owned: true };
+				let mut local_route_hints = Vec::new(); for mut item in route_hints.drain(..) { local_route_hints.push( { crate::lightning_types::routing::RouteHint { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+				let mut local_features = crate::lightning_types::features::Bolt11InvoiceFeatures { inner: if features.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((features.unwrap())) } }, is_owned: true };
 				Payee::Clear {
 					node_id: crate::c_types::PublicKey::from_rust(&node_id),
 					route_hints: local_route_hints.into(),
@@ -1903,7 +2063,7 @@ pub(crate) extern "C" fn Payee_free_void(this_ptr: *mut c_void) {
 }
 #[no_mangle]
 /// Utility method to constructs a new Blinded-variant Payee
-pub extern "C" fn Payee_blinded(route_hints: crate::c_types::derived::CVec_C2Tuple_BlindedPayInfoBlindedPathZZ, features: crate::lightning::ln::features::Bolt12InvoiceFeatures) -> Payee {
+pub extern "C" fn Payee_blinded(route_hints: crate::c_types::derived::CVec_BlindedPaymentPathZ, features: crate::lightning_types::features::Bolt12InvoiceFeatures) -> Payee {
 	Payee::Blinded {
 		route_hints,
 		features,
@@ -1911,7 +2071,7 @@ pub extern "C" fn Payee_blinded(route_hints: crate::c_types::derived::CVec_C2Tup
 }
 #[no_mangle]
 /// Utility method to constructs a new Clear-variant Payee
-pub extern "C" fn Payee_clear(node_id: crate::c_types::PublicKey, route_hints: crate::c_types::derived::CVec_RouteHintZ, features: crate::lightning::ln::features::Bolt11InvoiceFeatures, final_cltv_expiry_delta: u32) -> Payee {
+pub extern "C" fn Payee_clear(node_id: crate::c_types::PublicKey, route_hints: crate::c_types::derived::CVec_RouteHintZ, features: crate::lightning_types::features::Bolt11InvoiceFeatures, final_cltv_expiry_delta: u32) -> Payee {
 	Payee::Clear {
 		node_id,
 		route_hints,
@@ -1937,329 +2097,36 @@ pub extern "C" fn Payee_hash(o: &Payee) -> u64 {
 pub extern "C" fn Payee_eq(a: &Payee, b: &Payee) -> bool {
 	if &a.to_native() == &b.to_native() { true } else { false }
 }
-
-use lightning::routing::router::RouteHint as nativeRouteHintImport;
-pub(crate) type nativeRouteHint = nativeRouteHintImport;
-
-/// A list of hops along a payment path terminating with a channel to the recipient.
-#[must_use]
-#[repr(C)]
-pub struct RouteHint {
-	/// A pointer to the opaque Rust object.
-
-	/// Nearly everywhere, inner must be non-null, however in places where
-	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeRouteHint,
-	/// Indicates that this is the only struct which contains the same pointer.
-
-	/// Rust functions which take ownership of an object provided via an argument require
-	/// this to be true and invalidate the object pointed to by inner.
-	pub is_owned: bool,
-}
-
-impl Drop for RouteHint {
-	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeRouteHint>::is_null(self.inner) {
-			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
-		}
-	}
-}
-/// Frees any resources used by the RouteHint, if is_owned is set and inner is non-NULL.
-#[no_mangle]
-pub extern "C" fn RouteHint_free(this_obj: RouteHint) { }
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn RouteHint_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeRouteHint) };
-}
-#[allow(unused)]
-impl RouteHint {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeRouteHint {
-		unsafe { &*ObjOps::untweak_ptr(self.inner) }
-	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeRouteHint {
-		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
-	}
-	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeRouteHint {
-		assert!(self.is_owned);
-		let ret = ObjOps::untweak_ptr(self.inner);
-		self.inner = core::ptr::null_mut();
-		ret
-	}
-}
-#[no_mangle]
-pub extern "C" fn RouteHint_get_a(this_ptr: &RouteHint) -> crate::c_types::derived::CVec_RouteHintHopZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
-	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::routing::router::RouteHintHop { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const lightning::routing::router::RouteHintHop<>) as *mut _) }, is_owned: false } }); };
-	local_inner_val.into()
-}
-#[no_mangle]
-pub extern "C" fn RouteHint_set_a(this_ptr: &mut RouteHint, mut val: crate::c_types::derived::CVec_RouteHintHopZ) {
-	let mut local_val = Vec::new(); for mut item in val.into_rust().drain(..) { local_val.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.0 = local_val;
-}
-/// Constructs a new RouteHint given each field
-#[must_use]
-#[no_mangle]
-pub extern "C" fn RouteHint_new(mut a_arg: crate::c_types::derived::CVec_RouteHintHopZ) -> RouteHint {
-	let mut local_a_arg = Vec::new(); for mut item in a_arg.into_rust().drain(..) { local_a_arg.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
-	RouteHint { inner: ObjOps::heap_alloc(lightning::routing::router::RouteHint (
-		local_a_arg,
-	)), is_owned: true }
-}
-impl Clone for RouteHint {
-	fn clone(&self) -> Self {
-		Self {
-			inner: if <*mut nativeRouteHint>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
-			is_owned: true,
-		}
-	}
-}
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn RouteHint_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRouteHint)).clone() })) as *mut c_void
-}
-#[no_mangle]
-/// Creates a copy of the RouteHint
-pub extern "C" fn RouteHint_clone(orig: &RouteHint) -> RouteHint {
-	orig.clone()
-}
-/// Get a string which allows debug introspection of a RouteHint object
-pub extern "C" fn RouteHint_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::routing::router::RouteHint }).into()}
-/// Generates a non-cryptographic 64-bit hash of the RouteHint.
-#[no_mangle]
-pub extern "C" fn RouteHint_hash(o: &RouteHint) -> u64 {
-	if o.inner.is_null() { return 0; }
-	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
-	#[allow(deprecated)]
-	let mut hasher = core::hash::SipHasher::new();
-	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
-	core::hash::Hasher::finish(&hasher)
-}
-/// Checks if two RouteHints contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn RouteHint_eq(a: &RouteHint, b: &RouteHint) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
 #[no_mangle]
 /// Serialize the RouteHint object into a byte array which can be read by RouteHint_read
-pub extern "C" fn RouteHint_write(obj: &crate::lightning::routing::router::RouteHint) -> crate::c_types::derived::CVec_u8Z {
+pub extern "C" fn RouteHint_write(obj: &crate::lightning_types::routing::RouteHint) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RouteHint_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRouteHint) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning_types::routing::nativeRouteHint) })
 }
 #[no_mangle]
 /// Read a RouteHint from a byte array, created by RouteHint_write
 pub extern "C" fn RouteHint_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_RouteHintDecodeErrorZ {
-	let res: Result<lightning::routing::router::RouteHint, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::router::RouteHint { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	let res: Result<lightning_types::routing::RouteHint, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning_types::routing::RouteHint { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
-}
-
-use lightning::routing::router::RouteHintHop as nativeRouteHintHopImport;
-pub(crate) type nativeRouteHintHop = nativeRouteHintHopImport;
-
-/// A channel descriptor for a hop along a payment path.
-///
-/// While this generally comes from BOLT 11's `r` field, this struct includes more fields than are
-/// available in BOLT 11. Thus, encoding and decoding this via `lightning-invoice` is lossy, as
-/// fields not supported in BOLT 11 will be stripped.
-#[must_use]
-#[repr(C)]
-pub struct RouteHintHop {
-	/// A pointer to the opaque Rust object.
-
-	/// Nearly everywhere, inner must be non-null, however in places where
-	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeRouteHintHop,
-	/// Indicates that this is the only struct which contains the same pointer.
-
-	/// Rust functions which take ownership of an object provided via an argument require
-	/// this to be true and invalidate the object pointed to by inner.
-	pub is_owned: bool,
-}
-
-impl Drop for RouteHintHop {
-	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeRouteHintHop>::is_null(self.inner) {
-			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
-		}
-	}
-}
-/// Frees any resources used by the RouteHintHop, if is_owned is set and inner is non-NULL.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_free(this_obj: RouteHintHop) { }
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn RouteHintHop_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeRouteHintHop) };
-}
-#[allow(unused)]
-impl RouteHintHop {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeRouteHintHop {
-		unsafe { &*ObjOps::untweak_ptr(self.inner) }
-	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeRouteHintHop {
-		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
-	}
-	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeRouteHintHop {
-		assert!(self.is_owned);
-		let ret = ObjOps::untweak_ptr(self.inner);
-		self.inner = core::ptr::null_mut();
-		ret
-	}
-}
-/// The node_id of the non-target end of the route
-#[no_mangle]
-pub extern "C" fn RouteHintHop_get_src_node_id(this_ptr: &RouteHintHop) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().src_node_id;
-	crate::c_types::PublicKey::from_rust(&inner_val)
-}
-/// The node_id of the non-target end of the route
-#[no_mangle]
-pub extern "C" fn RouteHintHop_set_src_node_id(this_ptr: &mut RouteHintHop, mut val: crate::c_types::PublicKey) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.src_node_id = val.into_rust();
-}
-/// The short_channel_id of this channel
-#[no_mangle]
-pub extern "C" fn RouteHintHop_get_short_channel_id(this_ptr: &RouteHintHop) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().short_channel_id;
-	*inner_val
-}
-/// The short_channel_id of this channel
-#[no_mangle]
-pub extern "C" fn RouteHintHop_set_short_channel_id(this_ptr: &mut RouteHintHop, mut val: u64) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.short_channel_id = val;
-}
-/// The fees which must be paid to use this channel
-#[no_mangle]
-pub extern "C" fn RouteHintHop_get_fees(this_ptr: &RouteHintHop) -> crate::lightning::routing::gossip::RoutingFees {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fees;
-	crate::lightning::routing::gossip::RoutingFees { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::routing::gossip::RoutingFees<>) as *mut _) }, is_owned: false }
-}
-/// The fees which must be paid to use this channel
-#[no_mangle]
-pub extern "C" fn RouteHintHop_set_fees(this_ptr: &mut RouteHintHop, mut val: crate::lightning::routing::gossip::RoutingFees) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.fees = *unsafe { Box::from_raw(val.take_inner()) };
-}
-/// The difference in CLTV values between this node and the next node.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_get_cltv_expiry_delta(this_ptr: &RouteHintHop) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
-	*inner_val
-}
-/// The difference in CLTV values between this node and the next node.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_set_cltv_expiry_delta(this_ptr: &mut RouteHintHop, mut val: u16) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.cltv_expiry_delta = val;
-}
-/// The minimum value, in msat, which must be relayed to the next hop.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_get_htlc_minimum_msat(this_ptr: &RouteHintHop) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_minimum_msat;
-	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
-	local_inner_val
-}
-/// The minimum value, in msat, which must be relayed to the next hop.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_set_htlc_minimum_msat(this_ptr: &mut RouteHintHop, mut val: crate::c_types::derived::COption_u64Z) {
-	let mut local_val = if val.is_some() { Some( { val.take() }) } else { None };
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.htlc_minimum_msat = local_val;
-}
-/// The maximum value in msat available for routing with a single HTLC.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_get_htlc_maximum_msat(this_ptr: &RouteHintHop) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_maximum_msat;
-	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
-	local_inner_val
-}
-/// The maximum value in msat available for routing with a single HTLC.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_set_htlc_maximum_msat(this_ptr: &mut RouteHintHop, mut val: crate::c_types::derived::COption_u64Z) {
-	let mut local_val = if val.is_some() { Some( { val.take() }) } else { None };
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.htlc_maximum_msat = local_val;
-}
-/// Constructs a new RouteHintHop given each field
-#[must_use]
-#[no_mangle]
-pub extern "C" fn RouteHintHop_new(mut src_node_id_arg: crate::c_types::PublicKey, mut short_channel_id_arg: u64, mut fees_arg: crate::lightning::routing::gossip::RoutingFees, mut cltv_expiry_delta_arg: u16, mut htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z) -> RouteHintHop {
-	let mut local_htlc_minimum_msat_arg = if htlc_minimum_msat_arg.is_some() { Some( { htlc_minimum_msat_arg.take() }) } else { None };
-	let mut local_htlc_maximum_msat_arg = if htlc_maximum_msat_arg.is_some() { Some( { htlc_maximum_msat_arg.take() }) } else { None };
-	RouteHintHop { inner: ObjOps::heap_alloc(nativeRouteHintHop {
-		src_node_id: src_node_id_arg.into_rust(),
-		short_channel_id: short_channel_id_arg,
-		fees: *unsafe { Box::from_raw(fees_arg.take_inner()) },
-		cltv_expiry_delta: cltv_expiry_delta_arg,
-		htlc_minimum_msat: local_htlc_minimum_msat_arg,
-		htlc_maximum_msat: local_htlc_maximum_msat_arg,
-	}), is_owned: true }
-}
-impl Clone for RouteHintHop {
-	fn clone(&self) -> Self {
-		Self {
-			inner: if <*mut nativeRouteHintHop>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
-			is_owned: true,
-		}
-	}
-}
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn RouteHintHop_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRouteHintHop)).clone() })) as *mut c_void
-}
-#[no_mangle]
-/// Creates a copy of the RouteHintHop
-pub extern "C" fn RouteHintHop_clone(orig: &RouteHintHop) -> RouteHintHop {
-	orig.clone()
-}
-/// Get a string which allows debug introspection of a RouteHintHop object
-pub extern "C" fn RouteHintHop_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::routing::router::RouteHintHop }).into()}
-/// Generates a non-cryptographic 64-bit hash of the RouteHintHop.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_hash(o: &RouteHintHop) -> u64 {
-	if o.inner.is_null() { return 0; }
-	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
-	#[allow(deprecated)]
-	let mut hasher = core::hash::SipHasher::new();
-	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
-	core::hash::Hasher::finish(&hasher)
-}
-/// Checks if two RouteHintHops contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn RouteHintHop_eq(a: &RouteHintHop, b: &RouteHintHop) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
 #[no_mangle]
 /// Serialize the RouteHintHop object into a byte array which can be read by RouteHintHop_read
-pub extern "C" fn RouteHintHop_write(obj: &crate::lightning::routing::router::RouteHintHop) -> crate::c_types::derived::CVec_u8Z {
+pub extern "C" fn RouteHintHop_write(obj: &crate::lightning_types::routing::RouteHintHop) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RouteHintHop_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRouteHintHop) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning_types::routing::nativeRouteHintHop) })
 }
 #[no_mangle]
 /// Read a RouteHintHop from a byte array, created by RouteHintHop_write
 pub extern "C" fn RouteHintHop_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_RouteHintHopDecodeErrorZ {
-	let res: Result<lightning::routing::router::RouteHintHop, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::router::RouteHintHop { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	let res: Result<lightning_types::routing::RouteHintHop, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning_types::routing::RouteHintHop { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
 
@@ -2282,6 +2149,12 @@ pub struct FirstHopCandidate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for FirstHopCandidate {
+	type Target = nativeFirstHopCandidate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for FirstHopCandidate { }
+unsafe impl core::marker::Sync for FirstHopCandidate { }
 impl Drop for FirstHopCandidate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeFirstHopCandidate>::is_null(self.inner) {
@@ -2311,6 +2184,9 @@ impl FirstHopCandidate {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for FirstHopCandidate {
@@ -2355,6 +2231,12 @@ pub struct PublicHopCandidate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for PublicHopCandidate {
+	type Target = nativePublicHopCandidate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for PublicHopCandidate { }
+unsafe impl core::marker::Sync for PublicHopCandidate { }
 impl Drop for PublicHopCandidate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePublicHopCandidate>::is_null(self.inner) {
@@ -2384,6 +2266,9 @@ impl PublicHopCandidate {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The short channel ID of the channel, i.e. the identifier by which we refer to this
@@ -2441,6 +2326,12 @@ pub struct PrivateHopCandidate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for PrivateHopCandidate {
+	type Target = nativePrivateHopCandidate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for PrivateHopCandidate { }
+unsafe impl core::marker::Sync for PrivateHopCandidate { }
 impl Drop for PrivateHopCandidate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativePrivateHopCandidate>::is_null(self.inner) {
@@ -2470,6 +2361,9 @@ impl PrivateHopCandidate {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for PrivateHopCandidate {
@@ -2514,6 +2408,12 @@ pub struct BlindedPathCandidate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for BlindedPathCandidate {
+	type Target = nativeBlindedPathCandidate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for BlindedPathCandidate { }
+unsafe impl core::marker::Sync for BlindedPathCandidate { }
 impl Drop for BlindedPathCandidate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBlindedPathCandidate>::is_null(self.inner) {
@@ -2543,6 +2443,9 @@ impl BlindedPathCandidate {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for BlindedPathCandidate {
@@ -2587,6 +2490,12 @@ pub struct OneHopBlindedPathCandidate {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OneHopBlindedPathCandidate {
+	type Target = nativeOneHopBlindedPathCandidate;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OneHopBlindedPathCandidate { }
+unsafe impl core::marker::Sync for OneHopBlindedPathCandidate { }
 impl Drop for OneHopBlindedPathCandidate {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOneHopBlindedPathCandidate>::is_null(self.inner) {
@@ -2616,6 +2525,9 @@ impl OneHopBlindedPathCandidate {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for OneHopBlindedPathCandidate {
@@ -2681,6 +2593,8 @@ pub enum CandidateRouteHop {
 	///
 	/// This primarily exists to track that we need to included a blinded path at the end of our
 	/// [`Route`], even though it doesn't actually add an additional hop in the payment.
+	///
+	/// [`BlindedPayInfo`]: crate::blinded_path::payment::BlindedPayInfo
 	OneHopBlinded(
 		crate::lightning::routing::router::OneHopBlindedPathCandidate),
 }
@@ -2902,9 +2816,9 @@ pub extern "C" fn CandidateRouteHop_htlc_minimum_msat(this_arg: &crate::lightnin
 /// Returns the fees that must be paid to route an HTLC over this channel.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn CandidateRouteHop_fees(this_arg: &crate::lightning::routing::router::CandidateRouteHop) -> crate::lightning::routing::gossip::RoutingFees {
+pub extern "C" fn CandidateRouteHop_fees(this_arg: &crate::lightning::routing::router::CandidateRouteHop) -> crate::lightning_types::routing::RoutingFees {
 	let mut ret = this_arg.to_native().fees();
-	crate::lightning::routing::gossip::RoutingFees { inner: ObjOps::heap_alloc(ret), is_owned: true }
+	crate::lightning_types::routing::RoutingFees { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// Returns the source node id of current hop.

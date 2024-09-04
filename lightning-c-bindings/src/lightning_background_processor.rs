@@ -67,6 +67,12 @@ pub struct BackgroundProcessor {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for BackgroundProcessor {
+	type Target = nativeBackgroundProcessor;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for BackgroundProcessor { }
+unsafe impl core::marker::Sync for BackgroundProcessor { }
 impl Drop for BackgroundProcessor {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeBackgroundProcessor>::is_null(self.inner) {
@@ -96,6 +102,9 @@ impl BackgroundProcessor {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Either [`P2PGossipSync`] or [`RapidGossipSync`].
@@ -218,9 +227,9 @@ pub extern "C" fn GossipSync_none() -> GossipSync {
 /// [`NetworkGraph::write`]: lightning::routing::gossip::NetworkGraph#impl-Writeable
 #[must_use]
 #[no_mangle]
-pub extern "C" fn BackgroundProcessor_start(mut persister: crate::lightning::util::persist::Persister, mut event_handler: crate::lightning::events::EventHandler, chain_monitor: &crate::lightning::chain::chainmonitor::ChainMonitor, channel_manager: &crate::lightning::ln::channelmanager::ChannelManager, mut gossip_sync: crate::lightning_background_processor::GossipSync, peer_manager: &crate::lightning::ln::peer_handler::PeerManager, mut logger: crate::lightning::util::logger::Logger, mut scorer: crate::c_types::derived::COption_WriteableScoreZ) -> crate::lightning_background_processor::BackgroundProcessor {
+pub extern "C" fn BackgroundProcessor_start(mut persister: crate::lightning::util::persist::Persister, mut event_handler: crate::lightning::events::EventHandler, chain_monitor: &crate::lightning::chain::chainmonitor::ChainMonitor, channel_manager: &crate::lightning::ln::channelmanager::ChannelManager, onion_messenger: &crate::lightning::onion_message::messenger::OnionMessenger, mut gossip_sync: crate::lightning_background_processor::GossipSync, peer_manager: &crate::lightning::ln::peer_handler::PeerManager, mut logger: crate::lightning::util::logger::Logger, mut scorer: crate::c_types::derived::COption_WriteableScoreZ) -> crate::lightning_background_processor::BackgroundProcessor {
 	let mut local_scorer = { /*scorer*/ let scorer_opt = scorer; if scorer_opt.is_none() { None } else { Some({ { { scorer_opt.take() } }})} };
-	let mut ret = lightning_background_processor::BackgroundProcessor::start(persister, event_handler, chain_monitor.get_native_ref(), channel_manager.get_native_ref(), gossip_sync.into_native(), peer_manager.get_native_ref(), logger, local_scorer);
+	let mut ret = lightning_background_processor::BackgroundProcessor::start(persister, event_handler, chain_monitor.get_native_ref(), channel_manager.as_ref_to(), onion_messenger.as_ref_to(), gossip_sync.into_native(), peer_manager.as_ref_to(), logger, local_scorer);
 	crate::lightning_background_processor::BackgroundProcessor { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 

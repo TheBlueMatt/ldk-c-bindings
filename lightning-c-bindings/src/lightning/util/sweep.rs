@@ -39,6 +39,12 @@ pub struct TrackedSpendableOutput {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for TrackedSpendableOutput {
+	type Target = nativeTrackedSpendableOutput;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TrackedSpendableOutput { }
+unsafe impl core::marker::Sync for TrackedSpendableOutput { }
 impl Drop for TrackedSpendableOutput {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeTrackedSpendableOutput>::is_null(self.inner) {
@@ -68,6 +74,9 @@ impl TrackedSpendableOutput {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The tracked output descriptor.
@@ -172,7 +181,7 @@ pub extern "C" fn TrackedSpendableOutput_write(obj: &crate::lightning::util::swe
 }
 #[allow(unused)]
 pub(crate) extern "C" fn TrackedSpendableOutput_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeTrackedSpendableOutput) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::util::sweep::nativeTrackedSpendableOutput) })
 }
 #[no_mangle]
 /// Read a TrackedSpendableOutput from a byte array, created by TrackedSpendableOutput_write
@@ -451,6 +460,12 @@ pub struct OutputSweeper {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for OutputSweeper {
+	type Target = nativeOutputSweeper;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OutputSweeper { }
+unsafe impl core::marker::Sync for OutputSweeper { }
 impl Drop for OutputSweeper {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeOutputSweeper>::is_null(self.inner) {
@@ -480,6 +495,9 @@ impl OutputSweeper {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Constructs a new [`OutputSweeper`].

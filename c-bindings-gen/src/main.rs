@@ -62,18 +62,22 @@ fn maybe_convert_trait_impl<W: std::io::Write>(w: &mut W, trait_path: &syn::Path
 	if let Some(t) = types.maybe_resolve_path(&trait_path, Some(generics)) {
 		let for_obj;
 		let full_obj_path;
+		let native_path;
 		let mut has_inner = false;
 		if let syn::Type::Path(ref p) = for_ty {
 			let resolved_path = types.resolve_path(&p.path, Some(generics));
 			for_obj = format!("{}", p.path.segments.last().unwrap().ident);
 			full_obj_path = format!("crate::{}", resolved_path);
 			has_inner = types.c_type_has_inner_from_path(&resolved_path);
+			let (path, name) = full_obj_path.rsplit_once("::").unwrap();
+			native_path = path.to_string() + "::native" + name;
 		} else {
 			// We assume that anything that isn't a Path is somehow a generic that ends up in our
 			// derived-types module.
 			let mut for_obj_vec = Vec::new();
 			types.write_c_type(&mut for_obj_vec, for_ty, Some(generics), false);
 			full_obj_path = String::from_utf8(for_obj_vec).unwrap();
+			native_path = full_obj_path.clone();
 			if !full_obj_path.starts_with(TypeResolver::generated_container_path()) { return; }
 			for_obj = full_obj_path[TypeResolver::generated_container_path().len() + 2..].into();
 		}
@@ -98,7 +102,7 @@ fn maybe_convert_trait_impl<W: std::io::Write>(w: &mut W, trait_path: &syn::Path
 				writeln!(w, "#[allow(unused)]").unwrap();
 				writeln!(w, "pub(crate) extern \"C\" fn {}_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {{", for_obj).unwrap();
 				if has_inner {
-					writeln!(w, "\tcrate::c_types::serialize_obj(unsafe {{ &*(obj as *const native{}) }})", for_obj).unwrap();
+					writeln!(w, "\tcrate::c_types::serialize_obj(unsafe {{ &*(obj as *const {}) }})", native_path).unwrap();
 				} else {
 					writeln!(w, "\t{}_write(unsafe {{ &*(obj as *const {}) }})", for_obj, for_obj).unwrap();
 				}
@@ -219,6 +223,11 @@ fn do_write_impl_trait<W: std::io::Write>(w: &mut W, trait_path: &str, _trait_na
 			writeln!(w, "impl {} for {} {{", trait_path, for_obj).unwrap();
 			writeln!(w, "\tfn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {{").unwrap();
 			writeln!(w, "\t\tlet vec = (self.write)(self.this_arg);").unwrap();
+			writeln!(w, "\t\tw.write_all(vec.as_slice())").unwrap();
+			writeln!(w, "\t}}\n}}").unwrap();
+			writeln!(w, "impl {} for {}Ref {{", trait_path, for_obj).unwrap();
+			writeln!(w, "\tfn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {{").unwrap();
+			writeln!(w, "\t\tlet vec = (self.0.write)(self.0.this_arg);").unwrap();
 			writeln!(w, "\t\tw.write_all(vec.as_slice())").unwrap();
 			writeln!(w, "\t}}\n}}").unwrap();
 		},
@@ -446,6 +455,47 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 		($t: expr, $impl_accessor: expr, $type_resolver: expr, $generic_impls: expr) => {
 			let mut trait_gen_types = gen_types.push_ctx();
 			assert!(trait_gen_types.learn_generics_with_impls(&$t.generics, $generic_impls, $type_resolver));
+
+			let mut ref_types = HashSet::new();
+			for item in $t.items.iter() {
+				if let syn::TraitItem::Type(ref t) = &item {
+					if t.default.is_some() || t.generics.lt_token.is_some() { panic!("10"); }
+					let mut bounds_iter = t.bounds.iter();
+					loop {
+						match bounds_iter.next().unwrap() {
+							syn::TypeParamBound::Trait(tr) => {
+								match $type_resolver.resolve_path(&tr.path, None).as_str() {
+									"core::ops::Deref"|"core::ops::DerefMut"|"std::ops::Deref"|"std::ops::DerefMut" => {
+										// Handle cases like
+										// trait A {
+										//  type B;
+										//  type C: Deref<Target = Self::B>;
+										// }
+										// by tracking if we have any B's here and making them
+										// the *Ref types below.
+										if let syn::PathArguments::AngleBracketed(args) = &tr.path.segments.iter().last().unwrap().arguments {
+											if let syn::GenericArgument::Binding(bind) = args.args.iter().last().unwrap() {
+												assert_eq!(format!("{}", bind.ident), "Target");
+												if let syn::Type::Path(p) = &bind.ty {
+													assert!(p.qself.is_none());
+													let mut segs = p.path.segments.iter();
+													assert_eq!(format!("{}", segs.next().unwrap().ident), "Self");
+													ref_types.insert(format!("{}", segs.next().unwrap().ident));
+													assert!(segs.next().is_none());
+												} else { panic!(); }
+											}
+										}
+									},
+									_ => {},
+								}
+								break;
+							}
+							syn::TypeParamBound::Lifetime(_) => {},
+						}
+					}
+				}
+			}
+
 			for item in $t.items.iter() {
 				match item {
 					syn::TraitItem::Method(m) => {
@@ -534,7 +584,11 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 						loop {
 							match bounds_iter.next().unwrap() {
 								syn::TypeParamBound::Trait(tr) => {
-									writeln!(w, "\ttype {} = crate::{};", t.ident, $type_resolver.resolve_path(&tr.path, Some(&gen_types))).unwrap();
+									write!(w, "\ttype {} = crate::{}", t.ident, $type_resolver.resolve_path(&tr.path, Some(&gen_types))).unwrap();
+									if ref_types.contains(&format!("{}", t.ident)) {
+										write!(w, "Ref").unwrap();
+									}
+									writeln!(w, ";").unwrap();
 									for bound in bounds_iter {
 										if let syn::TypeParamBound::Trait(t) = bound {
 											// We only allow for `Sized` here.
@@ -577,10 +631,15 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 			writeln!(w, "impl core::cmp::Eq for {} {{}}", trait_name).unwrap();
 			writeln!(w, "impl core::cmp::PartialEq for {} {{", trait_name).unwrap();
 			writeln!(w, "\tfn eq(&self, o: &Self) -> bool {{ (self.eq)(self.this_arg, o) }}\n}}").unwrap();
+			writeln!(w, "impl core::cmp::Eq for {}Ref {{}}", trait_name).unwrap();
+			writeln!(w, "impl core::cmp::PartialEq for {}Ref {{", trait_name).unwrap();
+			writeln!(w, "\tfn eq(&self, o: &Self) -> bool {{ (self.0.eq)(self.0.this_arg, &o.0) }}\n}}").unwrap();
 		},
 		("std::hash::Hash", _, _)|("core::hash::Hash", _, _) => {
 			writeln!(w, "impl core::hash::Hash for {} {{", trait_name).unwrap();
 			writeln!(w, "\tfn hash<H: core::hash::Hasher>(&self, hasher: &mut H) {{ hasher.write_u64((self.hash)(self.this_arg)) }}\n}}").unwrap();
+			writeln!(w, "impl core::hash::Hash for {}Ref {{", trait_name).unwrap();
+			writeln!(w, "\tfn hash<H: core::hash::Hasher>(&self, hasher: &mut H) {{ hasher.write_u64((self.0.hash)(self.0.this_arg)) }}\n}}").unwrap();
 		},
 		("Send", _, _) => {}, ("Sync", _, _) => {},
 		("Clone", _, _) => {
@@ -594,11 +653,20 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 			writeln!(w, "\tfn clone(&self) -> Self {{").unwrap();
 			writeln!(w, "\t\t{}_clone(self)", trait_name).unwrap();
 			writeln!(w, "\t}}\n}}").unwrap();
+			writeln!(w, "impl Clone for {}Ref {{", trait_name).unwrap();
+			writeln!(w, "\tfn clone(&self) -> Self {{").unwrap();
+			writeln!(w, "\t\tSelf({}_clone(&self.0))", trait_name).unwrap();
+			writeln!(w, "\t}}\n}}").unwrap();
 		},
 		("std::fmt::Debug", _, _)|("core::fmt::Debug", _, _) => {
 			writeln!(w, "impl core::fmt::Debug for {} {{", trait_name).unwrap();
 			writeln!(w, "\tfn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {{").unwrap();
 			writeln!(w, "\t\tf.write_str((self.debug_str)(self.this_arg).into_str())").unwrap();
+			writeln!(w, "\t}}").unwrap();
+			writeln!(w, "}}").unwrap();
+			writeln!(w, "impl core::fmt::Debug for {}Ref {{", trait_name).unwrap();
+			writeln!(w, "\tfn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {{").unwrap();
+			writeln!(w, "\t\tf.write_str((self.0.debug_str)(self.0.this_arg).into_str())").unwrap();
 			writeln!(w, "\t}}").unwrap();
 			writeln!(w, "}}").unwrap();
 		},
@@ -617,8 +685,15 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 						write!(w, " {}", $s).unwrap();
 						maybe_write_generics(w, &$supertrait.generics, $generic_args, types, false);
 						writeln!(w, " for {} {{", trait_name).unwrap();
-
 						impl_trait_for_c!($supertrait, format!(".{}", $i), &resolver, $generic_args);
+						writeln!(w, "}}").unwrap();
+
+						write!(w, "impl").unwrap();
+						maybe_write_lifetime_generics(w, &$supertrait.generics, types);
+						write!(w, " {}", $s).unwrap();
+						maybe_write_generics(w, &$supertrait.generics, $generic_args, types, false);
+						writeln!(w, " for {}Ref {{", trait_name).unwrap();
+						impl_trait_for_c!($supertrait, format!(".0.{}", $i), &resolver, $generic_args);
 						writeln!(w, "}}").unwrap();
 					}
 				}
@@ -646,12 +721,22 @@ fn writeln_trait<'a, 'b, W: std::io::Write>(w: &mut W, t: &'a syn::ItemTrait, ty
 		writeln!(w, " for {} {{", trait_name).unwrap();
 		impl_trait_for_c!(t, "", types, &syn::PathArguments::None);
 		writeln!(w, "}}\n").unwrap();
+
+		writeln!(w, "pub struct {}Ref({});", trait_name, trait_name).unwrap();
+		write!(w, "impl").unwrap();
+		maybe_write_lifetime_generics(w, &t.generics, types);
+		write!(w, " rust{}", t.ident).unwrap();
+		maybe_write_generics(w, &t.generics, &syn::PathArguments::None, types, false);
+		writeln!(w, " for {}Ref {{", trait_name).unwrap();
+		impl_trait_for_c!(t, ".0", types, &syn::PathArguments::None);
+		writeln!(w, "}}\n").unwrap();
+
 		writeln!(w, "// We're essentially a pointer already, or at least a set of pointers, so allow us to be used").unwrap();
 		writeln!(w, "// directly as a Deref trait in higher-level structs:").unwrap();
-		writeln!(w, "impl core::ops::Deref for {} {{\n\ttype Target = Self;", trait_name).unwrap();
-		writeln!(w, "\tfn deref(&self) -> &Self {{\n\t\tself\n\t}}\n}}").unwrap();
+		writeln!(w, "impl core::ops::Deref for {} {{\n\ttype Target = {}Ref;", trait_name, trait_name).unwrap();
+		writeln!(w, "\tfn deref(&self) -> &Self::Target {{\n\t\tunsafe {{ &*(self as *const _ as *const {}Ref) }}\n\t}}\n}}", trait_name).unwrap();
 		writeln!(w, "impl core::ops::DerefMut for {} {{", trait_name).unwrap();
-		writeln!(w, "\tfn deref_mut(&mut self) -> &mut Self {{\n\t\tself\n\t}}\n}}").unwrap();
+		writeln!(w, "\tfn deref_mut(&mut self) -> &mut {}Ref {{\n\t\tunsafe {{ &mut *(self as *mut _ as *mut {}Ref) }}\n\t}}\n}}", trait_name, trait_name).unwrap();
 	}
 
 	writeln!(w, "/// Calls the free function if one is set").unwrap();
@@ -689,15 +774,26 @@ fn writeln_opaque<W: std::io::Write>(w: &mut W, ident: &syn::Ident, struct_name:
 	writeln!(w, "\t/// this to be true and invalidate the object pointed to by inner.").unwrap();
 	writeln!(w, "\tpub is_owned: bool,").unwrap();
 	writeln!(w, "}}\n").unwrap();
+
+	writeln!(w, "impl core::ops::Deref for {} {{", struct_name).unwrap();
+	writeln!(w, "\ttype Target = native{};", struct_name).unwrap();
+	writeln!(w, "\tfn deref(&self) -> &Self::Target {{ unsafe {{ &*ObjOps::untweak_ptr(self.inner) }} }}").unwrap();
+	writeln!(w, "}}").unwrap();
+
+	writeln!(w, "unsafe impl core::marker::Send for {} {{ }}", struct_name).unwrap();
+	writeln!(w, "unsafe impl core::marker::Sync for {} {{ }}", struct_name).unwrap();
+
 	writeln!(w, "impl Drop for {} {{\n\tfn drop(&mut self) {{", struct_name).unwrap();
 	writeln!(w, "\t\tif self.is_owned && !<*mut native{}>::is_null(self.inner) {{", ident).unwrap();
 	writeln!(w, "\t\t\tlet _ = unsafe {{ Box::from_raw(ObjOps::untweak_ptr(self.inner)) }};\n\t\t}}\n\t}}\n}}").unwrap();
+
 	writeln!(w, "/// Frees any resources used by the {}, if is_owned is set and inner is non-NULL.", struct_name).unwrap();
 	writeln!(w, "#[no_mangle]\npub extern \"C\" fn {}_free(this_obj: {}) {{ }}", struct_name, struct_name).unwrap();
 	writeln!(w, "#[allow(unused)]").unwrap();
 	writeln!(w, "/// Used only if an object of this type is returned as a trait impl by a method").unwrap();
 	writeln!(w, "pub(crate) extern \"C\" fn {}_free_void(this_ptr: *mut c_void) {{", struct_name).unwrap();
 	writeln!(w, "\tlet _ = unsafe {{ Box::from_raw(this_ptr as *mut native{}) }};\n}}", struct_name).unwrap();
+
 	writeln!(w, "#[allow(unused)]").unwrap();
 	writeln!(w, "impl {} {{", struct_name).unwrap();
 	writeln!(w, "\tpub(crate) fn get_native_ref(&self) -> &'static native{} {{", struct_name).unwrap();
@@ -712,6 +808,9 @@ fn writeln_opaque<W: std::io::Write>(w: &mut W, ident: &syn::Ident, struct_name:
 	writeln!(w, "\t\tlet ret = ObjOps::untweak_ptr(self.inner);").unwrap();
 	writeln!(w, "\t\tself.inner = core::ptr::null_mut();").unwrap();
 	writeln!(w, "\t\tret").unwrap();
+	writeln!(w, "\t}}").unwrap();
+	writeln!(w, "\tpub(crate) fn as_ref_to(&self) -> Self {{").unwrap();
+	writeln!(w, "\t\tSelf {{ inner: self.inner, is_owned: false }}").unwrap();
 	writeln!(w, "\t}}\n}}").unwrap();
 
 	write_cpp_wrapper(cpp_headers, &format!("{}", ident), true, None);
@@ -1227,13 +1326,13 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 								if let syn::ReturnType::Type(_, rtype) = &$m.sig.output {
 									if let syn::Type::Reference(r) = &**rtype {
 										assert_eq!($m.sig.inputs.len(), 1); // Must only take self
-										writeln!(w, "extern \"C\" fn {}_{}_set_{}(trait_self_arg: &{}) {{", ident, $trait.ident, $m.sig.ident, $trait.ident).unwrap();
+										writeln!(w, "extern \"C\" fn {}_{}_set_{}(trait_self_arg: &crate::{}) {{", ident, $trait.ident, $m.sig.ident, $trait_path).unwrap();
 										writeln!(w, "\t// This is a bit race-y in the general case, but for our specific use-cases today, we're safe").unwrap();
 										writeln!(w, "\t// Specifically, we must ensure that the first time we're called it can never be in parallel").unwrap();
 										write!(w, "\tif ").unwrap();
 										$types.write_empty_rust_val_check(Some(&meth_gen_types), w, &*r.elem, &format!("unsafe {{ &*trait_self_arg.{}.get() }}", $m.sig.ident));
 										writeln!(w, " {{").unwrap();
-										writeln!(w, "\t\t*unsafe {{ &mut *(&*(trait_self_arg as *const {})).{}.get() }} = {}_{}_{}(trait_self_arg.this_arg).into();", $trait.ident, $m.sig.ident, ident, $trait.ident, $m.sig.ident).unwrap();
+										writeln!(w, "\t\t*unsafe {{ &mut *(&*(trait_self_arg as *const crate::{})).{}.get() }} = {}_{}_{}(trait_self_arg.this_arg).into();", $trait_path, $m.sig.ident, ident, $trait.ident, $m.sig.ident).unwrap();
 										writeln!(w, "\t}}").unwrap();
 										writeln!(w, "}}").unwrap();
 									}

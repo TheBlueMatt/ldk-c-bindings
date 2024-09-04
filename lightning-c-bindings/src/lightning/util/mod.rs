@@ -21,16 +21,15 @@ pub mod ser_macros;
 pub mod errors;
 pub mod ser;
 pub mod message_signing;
-pub mod invoice;
 pub mod persist;
 pub mod scid_utils;
-pub mod string;
 pub mod sweep;
 pub mod wakers;
 pub mod hash_tables;
 pub mod indexed_map;
 pub mod logger;
 pub mod config;
+pub mod string;
 mod fuzz_wrappers {
 
 use alloc::str::FromStr;
@@ -56,6 +55,18 @@ use alloc::{vec::Vec, boxed::Box};
 
 }
 mod atomic_counter {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}
+mod async_poll {
 
 use alloc::str::FromStr;
 use alloc::string::String;

@@ -40,6 +40,12 @@ pub struct InvoiceError {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for InvoiceError {
+	type Target = nativeInvoiceError;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for InvoiceError { }
+unsafe impl core::marker::Sync for InvoiceError { }
 impl Drop for InvoiceError {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeInvoiceError>::is_null(self.inner) {
@@ -70,6 +76,9 @@ impl InvoiceError {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The field in the [`InvoiceRequest`] or the [`Bolt12Invoice`] that contained an error.
 ///
@@ -96,13 +105,13 @@ pub extern "C" fn InvoiceError_set_erroneous_field(this_ptr: &mut InvoiceError, 
 }
 /// An explanation of the error.
 #[no_mangle]
-pub extern "C" fn InvoiceError_get_message(this_ptr: &InvoiceError) -> crate::lightning::util::string::UntrustedString {
+pub extern "C" fn InvoiceError_get_message(this_ptr: &InvoiceError) -> crate::lightning_types::string::UntrustedString {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().message;
-	crate::lightning::util::string::UntrustedString { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::util::string::UntrustedString<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::string::UntrustedString { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::string::UntrustedString<>) as *mut _) }, is_owned: false }
 }
 /// An explanation of the error.
 #[no_mangle]
-pub extern "C" fn InvoiceError_set_message(this_ptr: &mut InvoiceError, mut val: crate::lightning::util::string::UntrustedString) {
+pub extern "C" fn InvoiceError_set_message(this_ptr: &mut InvoiceError, mut val: crate::lightning_types::string::UntrustedString) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.message = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// Constructs a new InvoiceError given each field
@@ -110,7 +119,7 @@ pub extern "C" fn InvoiceError_set_message(this_ptr: &mut InvoiceError, mut val:
 /// Note that erroneous_field_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn InvoiceError_new(mut erroneous_field_arg: crate::lightning::offers::invoice_error::ErroneousField, mut message_arg: crate::lightning::util::string::UntrustedString) -> InvoiceError {
+pub extern "C" fn InvoiceError_new(mut erroneous_field_arg: crate::lightning::offers::invoice_error::ErroneousField, mut message_arg: crate::lightning_types::string::UntrustedString) -> InvoiceError {
 	let mut local_erroneous_field_arg = if erroneous_field_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(erroneous_field_arg.take_inner()) } }) };
 	InvoiceError { inner: ObjOps::heap_alloc(nativeInvoiceError {
 		erroneous_field: local_erroneous_field_arg,
@@ -162,6 +171,12 @@ pub struct ErroneousField {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ErroneousField {
+	type Target = nativeErroneousField;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ErroneousField { }
+unsafe impl core::marker::Sync for ErroneousField { }
 impl Drop for ErroneousField {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeErroneousField>::is_null(self.inner) {
@@ -191,6 +206,9 @@ impl ErroneousField {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The type number of the TLV field containing the error.
@@ -271,7 +289,7 @@ pub extern "C" fn InvoiceError_write(obj: &crate::lightning::offers::invoice_err
 }
 #[allow(unused)]
 pub(crate) extern "C" fn InvoiceError_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeInvoiceError) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::offers::invoice_error::nativeInvoiceError) })
 }
 #[no_mangle]
 /// Read a InvoiceError from a byte array, created by InvoiceError_write

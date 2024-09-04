@@ -37,6 +37,12 @@ pub struct NodeId {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for NodeId {
+	type Target = nativeNodeId;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for NodeId { }
+unsafe impl core::marker::Sync for NodeId { }
 impl Drop for NodeId {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeNodeId>::is_null(self.inner) {
@@ -67,6 +73,9 @@ impl NodeId {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 impl Clone for NodeId {
 	fn clone(&self) -> Self {
@@ -86,6 +95,15 @@ pub(crate) extern "C" fn NodeId_clone_void(this_ptr: *const c_void) -> *mut c_vo
 /// Creates a copy of the NodeId
 pub extern "C" fn NodeId_clone(orig: &NodeId) -> NodeId {
 	orig.clone()
+}
+/// Checks if two NodeIds contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn NodeId_eq(a: &NodeId, b: &NodeId) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
 /// Create a new NodeId from a public key
 #[must_use]
@@ -155,7 +173,7 @@ pub extern "C" fn NodeId_write(obj: &crate::lightning::routing::gossip::NodeId) 
 }
 #[allow(unused)]
 pub(crate) extern "C" fn NodeId_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeNodeId) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::gossip::nativeNodeId) })
 }
 #[no_mangle]
 /// Read a NodeId from a byte array, created by NodeId_write
@@ -184,6 +202,12 @@ pub struct NetworkGraph {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for NetworkGraph {
+	type Target = nativeNetworkGraph;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for NetworkGraph { }
+unsafe impl core::marker::Sync for NetworkGraph { }
 impl Drop for NetworkGraph {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeNetworkGraph>::is_null(self.inner) {
@@ -214,6 +238,9 @@ impl NetworkGraph {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 
 use lightning::routing::gossip::ReadOnlyNetworkGraph as nativeReadOnlyNetworkGraphImport;
@@ -235,6 +262,12 @@ pub struct ReadOnlyNetworkGraph {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ReadOnlyNetworkGraph {
+	type Target = nativeReadOnlyNetworkGraph;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ReadOnlyNetworkGraph { }
+unsafe impl core::marker::Sync for ReadOnlyNetworkGraph { }
 impl Drop for ReadOnlyNetworkGraph {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeReadOnlyNetworkGraph>::is_null(self.inner) {
@@ -265,6 +298,9 @@ impl ReadOnlyNetworkGraph {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Update to the [`NetworkGraph`] based on payment failure information conveyed via the Onion
 /// return packet by a node along the route. See [BOLT #4] for details.
@@ -274,12 +310,6 @@ impl ReadOnlyNetworkGraph {
 #[must_use]
 #[repr(C)]
 pub enum NetworkUpdate {
-	/// An error indicating a `channel_update` messages should be applied via
-	/// [`NetworkGraph::update_channel`].
-	ChannelUpdateMessage {
-		/// The update to apply via [`NetworkGraph::update_channel`].
-		msg: crate::lightning::ln::msgs::ChannelUpdate,
-	},
 	/// An error indicating that a channel failed to route a payment, which should be applied via
 	/// [`NetworkGraph::channel_failed_permanent`] if permanent.
 	ChannelFailure {
@@ -306,12 +336,6 @@ impl NetworkUpdate {
 	#[allow(unused)]
 	pub(crate) fn to_native(&self) -> nativeNetworkUpdate {
 		match self {
-			NetworkUpdate::ChannelUpdateMessage {ref msg, } => {
-				let mut msg_nonref = Clone::clone(msg);
-				nativeNetworkUpdate::ChannelUpdateMessage {
-					msg: *unsafe { Box::from_raw(msg_nonref.take_inner()) },
-				}
-			},
 			NetworkUpdate::ChannelFailure {ref short_channel_id, ref is_permanent, } => {
 				let mut short_channel_id_nonref = Clone::clone(short_channel_id);
 				let mut is_permanent_nonref = Clone::clone(is_permanent);
@@ -333,11 +357,6 @@ impl NetworkUpdate {
 	#[allow(unused)]
 	pub(crate) fn into_native(self) -> nativeNetworkUpdate {
 		match self {
-			NetworkUpdate::ChannelUpdateMessage {mut msg, } => {
-				nativeNetworkUpdate::ChannelUpdateMessage {
-					msg: *unsafe { Box::from_raw(msg.take_inner()) },
-				}
-			},
 			NetworkUpdate::ChannelFailure {mut short_channel_id, mut is_permanent, } => {
 				nativeNetworkUpdate::ChannelFailure {
 					short_channel_id: short_channel_id,
@@ -356,12 +375,6 @@ impl NetworkUpdate {
 	pub(crate) fn from_native(native: &NetworkUpdateImport) -> Self {
 		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeNetworkUpdate) };
 		match native {
-			nativeNetworkUpdate::ChannelUpdateMessage {ref msg, } => {
-				let mut msg_nonref = Clone::clone(msg);
-				NetworkUpdate::ChannelUpdateMessage {
-					msg: crate::lightning::ln::msgs::ChannelUpdate { inner: ObjOps::heap_alloc(msg_nonref), is_owned: true },
-				}
-			},
 			nativeNetworkUpdate::ChannelFailure {ref short_channel_id, ref is_permanent, } => {
 				let mut short_channel_id_nonref = Clone::clone(short_channel_id);
 				let mut is_permanent_nonref = Clone::clone(is_permanent);
@@ -383,11 +396,6 @@ impl NetworkUpdate {
 	#[allow(unused)]
 	pub(crate) fn native_into(native: nativeNetworkUpdate) -> Self {
 		match native {
-			nativeNetworkUpdate::ChannelUpdateMessage {mut msg, } => {
-				NetworkUpdate::ChannelUpdateMessage {
-					msg: crate::lightning::ln::msgs::ChannelUpdate { inner: ObjOps::heap_alloc(msg), is_owned: true },
-				}
-			},
 			nativeNetworkUpdate::ChannelFailure {mut short_channel_id, mut is_permanent, } => {
 				NetworkUpdate::ChannelFailure {
 					short_channel_id: short_channel_id,
@@ -420,13 +428,6 @@ pub(crate) extern "C" fn NetworkUpdate_clone_void(this_ptr: *const c_void) -> *m
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn NetworkUpdate_free_void(this_ptr: *mut c_void) {
 	let _ = unsafe { Box::from_raw(this_ptr as *mut NetworkUpdate) };
-}
-#[no_mangle]
-/// Utility method to constructs a new ChannelUpdateMessage-variant NetworkUpdate
-pub extern "C" fn NetworkUpdate_channel_update_message(msg: crate::lightning::ln::msgs::ChannelUpdate) -> NetworkUpdate {
-	NetworkUpdate::ChannelUpdateMessage {
-		msg,
-	}
 }
 #[no_mangle]
 /// Utility method to constructs a new ChannelFailure-variant NetworkUpdate
@@ -493,6 +494,12 @@ pub struct P2PGossipSync {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for P2PGossipSync {
+	type Target = nativeP2PGossipSync;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for P2PGossipSync { }
+unsafe impl core::marker::Sync for P2PGossipSync { }
 impl Drop for P2PGossipSync {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeP2PGossipSync>::is_null(self.inner) {
@@ -523,6 +530,9 @@ impl P2PGossipSync {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Creates a new tracker of the actual state of the network of channels and nodes,
 /// assuming an existing [`NetworkGraph`].
@@ -546,8 +556,6 @@ pub extern "C" fn P2PGossipSync_add_utxo_lookup(this_arg: &crate::lightning::rou
 }
 
 /// Handles any network updates originating from [`Event`]s.
-/// Note that this will skip applying any [`NetworkUpdate::ChannelUpdateMessage`] to avoid
-/// leaking possibly identifying information of the sender to the public network.
 ///
 /// [`Event`]: crate::events::Event
 #[no_mangle]
@@ -688,14 +696,14 @@ extern "C" fn P2PGossipSync_RoutingMessageHandler_processing_queue_high(this_arg
 	ret
 }
 #[must_use]
-extern "C" fn P2PGossipSync_RoutingMessageHandler_provided_node_features(this_arg: *const c_void) -> crate::lightning::ln::features::NodeFeatures {
+extern "C" fn P2PGossipSync_RoutingMessageHandler_provided_node_features(this_arg: *const c_void) -> crate::lightning_types::features::NodeFeatures {
 	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::provided_node_features(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, );
-	crate::lightning::ln::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
+	crate::lightning_types::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 #[must_use]
-extern "C" fn P2PGossipSync_RoutingMessageHandler_provided_init_features(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) -> crate::lightning::ln::features::InitFeatures {
+extern "C" fn P2PGossipSync_RoutingMessageHandler_provided_init_features(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures {
 	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::provided_init_features(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, &their_node_id.into_rust());
-	crate::lightning::ln::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
+	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 impl From<nativeP2PGossipSync> for crate::lightning::events::MessageSendEventsProvider {
@@ -746,6 +754,12 @@ pub struct ChannelUpdateInfo {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelUpdateInfo {
+	type Target = nativeChannelUpdateInfo;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelUpdateInfo { }
+unsafe impl core::marker::Sync for ChannelUpdateInfo { }
 impl Drop for ChannelUpdateInfo {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelUpdateInfo>::is_null(self.inner) {
@@ -776,41 +790,9 @@ impl ChannelUpdateInfo {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
-}
-/// When the last update to the channel direction was issued.
-/// Value is opaque, as set in the announcement.
-#[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_get_last_update(this_ptr: &ChannelUpdateInfo) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().last_update;
-	*inner_val
-}
-/// When the last update to the channel direction was issued.
-/// Value is opaque, as set in the announcement.
-#[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_set_last_update(this_ptr: &mut ChannelUpdateInfo, mut val: u32) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.last_update = val;
-}
-/// Whether the channel can be currently used for payments (in this one direction).
-#[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_get_enabled(this_ptr: &ChannelUpdateInfo) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().enabled;
-	*inner_val
-}
-/// Whether the channel can be currently used for payments (in this one direction).
-#[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_set_enabled(this_ptr: &mut ChannelUpdateInfo, mut val: bool) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.enabled = val;
-}
-/// The difference in CLTV values that you must have when routing through this channel.
-#[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_get_cltv_expiry_delta(this_ptr: &ChannelUpdateInfo) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
-	*inner_val
-}
-/// The difference in CLTV values that you must have when routing through this channel.
-#[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_set_cltv_expiry_delta(this_ptr: &mut ChannelUpdateInfo, mut val: u16) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.cltv_expiry_delta = val;
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// The minimum value, which must be relayed to the next hop via the channel
 #[no_mangle]
@@ -836,14 +818,49 @@ pub extern "C" fn ChannelUpdateInfo_set_htlc_maximum_msat(this_ptr: &mut Channel
 }
 /// Fees charged when the channel is used for routing
 #[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_get_fees(this_ptr: &ChannelUpdateInfo) -> crate::lightning::routing::gossip::RoutingFees {
+pub extern "C" fn ChannelUpdateInfo_get_fees(this_ptr: &ChannelUpdateInfo) -> crate::lightning_types::routing::RoutingFees {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().fees;
-	crate::lightning::routing::gossip::RoutingFees { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::routing::gossip::RoutingFees<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::routing::RoutingFees { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::routing::RoutingFees<>) as *mut _) }, is_owned: false }
 }
 /// Fees charged when the channel is used for routing
 #[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_set_fees(this_ptr: &mut ChannelUpdateInfo, mut val: crate::lightning::routing::gossip::RoutingFees) {
+pub extern "C" fn ChannelUpdateInfo_set_fees(this_ptr: &mut ChannelUpdateInfo, mut val: crate::lightning_types::routing::RoutingFees) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.fees = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// When the last update to the channel direction was issued.
+/// Value is opaque, as set in the announcement.
+#[no_mangle]
+pub extern "C" fn ChannelUpdateInfo_get_last_update(this_ptr: &ChannelUpdateInfo) -> u32 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().last_update;
+	*inner_val
+}
+/// When the last update to the channel direction was issued.
+/// Value is opaque, as set in the announcement.
+#[no_mangle]
+pub extern "C" fn ChannelUpdateInfo_set_last_update(this_ptr: &mut ChannelUpdateInfo, mut val: u32) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.last_update = val;
+}
+/// The difference in CLTV values that you must have when routing through this channel.
+#[no_mangle]
+pub extern "C" fn ChannelUpdateInfo_get_cltv_expiry_delta(this_ptr: &ChannelUpdateInfo) -> u16 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
+	*inner_val
+}
+/// The difference in CLTV values that you must have when routing through this channel.
+#[no_mangle]
+pub extern "C" fn ChannelUpdateInfo_set_cltv_expiry_delta(this_ptr: &mut ChannelUpdateInfo, mut val: u16) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.cltv_expiry_delta = val;
+}
+/// Whether the channel can be currently used for payments (in this one direction).
+#[no_mangle]
+pub extern "C" fn ChannelUpdateInfo_get_enabled(this_ptr: &ChannelUpdateInfo) -> bool {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().enabled;
+	*inner_val
+}
+/// Whether the channel can be currently used for payments (in this one direction).
+#[no_mangle]
+pub extern "C" fn ChannelUpdateInfo_set_enabled(this_ptr: &mut ChannelUpdateInfo, mut val: bool) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.enabled = val;
 }
 /// Most recent update for the channel received from the network
 /// Mostly redundant with the data we store in fields explicitly.
@@ -873,15 +890,15 @@ pub extern "C" fn ChannelUpdateInfo_set_last_update_message(this_ptr: &mut Chann
 /// Note that last_update_message_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelUpdateInfo_new(mut last_update_arg: u32, mut enabled_arg: bool, mut cltv_expiry_delta_arg: u16, mut htlc_minimum_msat_arg: u64, mut htlc_maximum_msat_arg: u64, mut fees_arg: crate::lightning::routing::gossip::RoutingFees, mut last_update_message_arg: crate::lightning::ln::msgs::ChannelUpdate) -> ChannelUpdateInfo {
+pub extern "C" fn ChannelUpdateInfo_new(mut htlc_minimum_msat_arg: u64, mut htlc_maximum_msat_arg: u64, mut fees_arg: crate::lightning_types::routing::RoutingFees, mut last_update_arg: u32, mut cltv_expiry_delta_arg: u16, mut enabled_arg: bool, mut last_update_message_arg: crate::lightning::ln::msgs::ChannelUpdate) -> ChannelUpdateInfo {
 	let mut local_last_update_message_arg = if last_update_message_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(last_update_message_arg.take_inner()) } }) };
 	ChannelUpdateInfo { inner: ObjOps::heap_alloc(nativeChannelUpdateInfo {
-		last_update: last_update_arg,
-		enabled: enabled_arg,
-		cltv_expiry_delta: cltv_expiry_delta_arg,
 		htlc_minimum_msat: htlc_minimum_msat_arg,
 		htlc_maximum_msat: htlc_maximum_msat_arg,
 		fees: *unsafe { Box::from_raw(fees_arg.take_inner()) },
+		last_update: last_update_arg,
+		cltv_expiry_delta: cltv_expiry_delta_arg,
+		enabled: enabled_arg,
 		last_update_message: local_last_update_message_arg,
 	}), is_owned: true }
 }
@@ -928,7 +945,7 @@ pub extern "C" fn ChannelUpdateInfo_write(obj: &crate::lightning::routing::gossi
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelUpdateInfo_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelUpdateInfo) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::gossip::nativeChannelUpdateInfo) })
 }
 #[no_mangle]
 /// Read a ChannelUpdateInfo from a byte array, created by ChannelUpdateInfo_write
@@ -958,6 +975,12 @@ pub struct ChannelInfo {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelInfo {
+	type Target = nativeChannelInfo;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelInfo { }
+unsafe impl core::marker::Sync for ChannelInfo { }
 impl Drop for ChannelInfo {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelInfo>::is_null(self.inner) {
@@ -988,16 +1011,19 @@ impl ChannelInfo {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Protocol features of a channel communicated during its announcement
 #[no_mangle]
-pub extern "C" fn ChannelInfo_get_features(this_ptr: &ChannelInfo) -> crate::lightning::ln::features::ChannelFeatures {
+pub extern "C" fn ChannelInfo_get_features(this_ptr: &ChannelInfo) -> crate::lightning_types::features::ChannelFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
-	crate::lightning::ln::features::ChannelFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::ChannelFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::ChannelFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::ChannelFeatures<>) as *mut _) }, is_owned: false }
 }
 /// Protocol features of a channel communicated during its announcement
 #[no_mangle]
-pub extern "C" fn ChannelInfo_set_features(this_ptr: &mut ChannelInfo, mut val: crate::lightning::ln::features::ChannelFeatures) {
+pub extern "C" fn ChannelInfo_set_features(this_ptr: &mut ChannelInfo, mut val: crate::lightning_types::features::ChannelFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// Source node of the first direction of a channel
@@ -1010,6 +1036,30 @@ pub extern "C" fn ChannelInfo_get_node_one(this_ptr: &ChannelInfo) -> crate::lig
 #[no_mangle]
 pub extern "C" fn ChannelInfo_set_node_one(this_ptr: &mut ChannelInfo, mut val: crate::lightning::routing::gossip::NodeId) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.node_one = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// Source node of the second direction of a channel
+#[no_mangle]
+pub extern "C" fn ChannelInfo_get_node_two(this_ptr: &ChannelInfo) -> crate::lightning::routing::gossip::NodeId {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().node_two;
+	crate::lightning::routing::gossip::NodeId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::routing::gossip::NodeId<>) as *mut _) }, is_owned: false }
+}
+/// Source node of the second direction of a channel
+#[no_mangle]
+pub extern "C" fn ChannelInfo_set_node_two(this_ptr: &mut ChannelInfo, mut val: crate::lightning::routing::gossip::NodeId) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.node_two = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// The channel capacity as seen on-chain, if chain lookup is available.
+#[no_mangle]
+pub extern "C" fn ChannelInfo_get_capacity_sats(this_ptr: &ChannelInfo) -> crate::c_types::derived::COption_u64Z {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().capacity_sats;
+	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
+	local_inner_val
+}
+/// The channel capacity as seen on-chain, if chain lookup is available.
+#[no_mangle]
+pub extern "C" fn ChannelInfo_set_capacity_sats(this_ptr: &mut ChannelInfo, mut val: crate::c_types::derived::COption_u64Z) {
+	let mut local_val = if val.is_some() { Some( { val.take() }) } else { None };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.capacity_sats = local_val;
 }
 /// Details about the first direction of a channel
 ///
@@ -1028,17 +1078,6 @@ pub extern "C" fn ChannelInfo_set_one_to_two(this_ptr: &mut ChannelInfo, mut val
 	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.one_to_two = local_val;
 }
-/// Source node of the second direction of a channel
-#[no_mangle]
-pub extern "C" fn ChannelInfo_get_node_two(this_ptr: &ChannelInfo) -> crate::lightning::routing::gossip::NodeId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().node_two;
-	crate::lightning::routing::gossip::NodeId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::routing::gossip::NodeId<>) as *mut _) }, is_owned: false }
-}
-/// Source node of the second direction of a channel
-#[no_mangle]
-pub extern "C" fn ChannelInfo_set_node_two(this_ptr: &mut ChannelInfo, mut val: crate::lightning::routing::gossip::NodeId) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.node_two = *unsafe { Box::from_raw(val.take_inner()) };
-}
 /// Details about the second direction of a channel
 ///
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
@@ -1055,19 +1094,6 @@ pub extern "C" fn ChannelInfo_get_two_to_one(this_ptr: &ChannelInfo) -> crate::l
 pub extern "C" fn ChannelInfo_set_two_to_one(this_ptr: &mut ChannelInfo, mut val: crate::lightning::routing::gossip::ChannelUpdateInfo) {
 	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.two_to_one = local_val;
-}
-/// The channel capacity as seen on-chain, if chain lookup is available.
-#[no_mangle]
-pub extern "C" fn ChannelInfo_get_capacity_sats(this_ptr: &ChannelInfo) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().capacity_sats;
-	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
-	local_inner_val
-}
-/// The channel capacity as seen on-chain, if chain lookup is available.
-#[no_mangle]
-pub extern "C" fn ChannelInfo_set_capacity_sats(this_ptr: &mut ChannelInfo, mut val: crate::c_types::derived::COption_u64Z) {
-	let mut local_val = if val.is_some() { Some( { val.take() }) } else { None };
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.capacity_sats = local_val;
 }
 /// An initial announcement of the channel
 /// Mostly redundant with the data we store in fields explicitly.
@@ -1146,7 +1172,7 @@ pub extern "C" fn ChannelInfo_write(obj: &crate::lightning::routing::gossip::Cha
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelInfo_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelInfo) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::gossip::nativeChannelInfo) })
 }
 #[no_mangle]
 /// Read a ChannelInfo from a byte array, created by ChannelInfo_write
@@ -1176,6 +1202,12 @@ pub struct DirectedChannelInfo {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for DirectedChannelInfo {
+	type Target = nativeDirectedChannelInfo;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for DirectedChannelInfo { }
+unsafe impl core::marker::Sync for DirectedChannelInfo { }
 impl Drop for DirectedChannelInfo {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeDirectedChannelInfo>::is_null(self.inner) {
@@ -1205,6 +1237,9 @@ impl DirectedChannelInfo {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for DirectedChannelInfo {
@@ -1507,160 +1542,35 @@ pub extern "C" fn EffectiveCapacity_as_msat(this_arg: &crate::lightning::routing
 	ret
 }
 
-
-use lightning::routing::gossip::RoutingFees as nativeRoutingFeesImport;
-pub(crate) type nativeRoutingFees = nativeRoutingFeesImport;
-
-/// Fees for routing via a given channel or a node
-#[must_use]
-#[repr(C)]
-pub struct RoutingFees {
-	/// A pointer to the opaque Rust object.
-
-	/// Nearly everywhere, inner must be non-null, however in places where
-	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeRoutingFees,
-	/// Indicates that this is the only struct which contains the same pointer.
-
-	/// Rust functions which take ownership of an object provided via an argument require
-	/// this to be true and invalidate the object pointed to by inner.
-	pub is_owned: bool,
-}
-
-impl Drop for RoutingFees {
-	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeRoutingFees>::is_null(self.inner) {
-			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
-		}
-	}
-}
-/// Frees any resources used by the RoutingFees, if is_owned is set and inner is non-NULL.
-#[no_mangle]
-pub extern "C" fn RoutingFees_free(this_obj: RoutingFees) { }
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn RoutingFees_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeRoutingFees) };
-}
-#[allow(unused)]
-impl RoutingFees {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeRoutingFees {
-		unsafe { &*ObjOps::untweak_ptr(self.inner) }
-	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeRoutingFees {
-		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
-	}
-	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeRoutingFees {
-		assert!(self.is_owned);
-		let ret = ObjOps::untweak_ptr(self.inner);
-		self.inner = core::ptr::null_mut();
-		ret
-	}
-}
-/// Flat routing fee in millisatoshis.
-#[no_mangle]
-pub extern "C" fn RoutingFees_get_base_msat(this_ptr: &RoutingFees) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().base_msat;
-	*inner_val
-}
-/// Flat routing fee in millisatoshis.
-#[no_mangle]
-pub extern "C" fn RoutingFees_set_base_msat(this_ptr: &mut RoutingFees, mut val: u32) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.base_msat = val;
-}
-/// Liquidity-based routing fee in millionths of a routed amount.
-/// In other words, 10000 is 1%.
-#[no_mangle]
-pub extern "C" fn RoutingFees_get_proportional_millionths(this_ptr: &RoutingFees) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().proportional_millionths;
-	*inner_val
-}
-/// Liquidity-based routing fee in millionths of a routed amount.
-/// In other words, 10000 is 1%.
-#[no_mangle]
-pub extern "C" fn RoutingFees_set_proportional_millionths(this_ptr: &mut RoutingFees, mut val: u32) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.proportional_millionths = val;
-}
-/// Constructs a new RoutingFees given each field
-#[must_use]
-#[no_mangle]
-pub extern "C" fn RoutingFees_new(mut base_msat_arg: u32, mut proportional_millionths_arg: u32) -> RoutingFees {
-	RoutingFees { inner: ObjOps::heap_alloc(nativeRoutingFees {
-		base_msat: base_msat_arg,
-		proportional_millionths: proportional_millionths_arg,
-	}), is_owned: true }
-}
-/// Checks if two RoutingFeess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn RoutingFees_eq(a: &RoutingFees, b: &RoutingFees) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-impl Clone for RoutingFees {
-	fn clone(&self) -> Self {
-		Self {
-			inner: if <*mut nativeRoutingFees>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
-			is_owned: true,
-		}
-	}
-}
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn RoutingFees_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRoutingFees)).clone() })) as *mut c_void
-}
-#[no_mangle]
-/// Creates a copy of the RoutingFees
-pub extern "C" fn RoutingFees_clone(orig: &RoutingFees) -> RoutingFees {
-	orig.clone()
-}
-/// Get a string which allows debug introspection of a RoutingFees object
-pub extern "C" fn RoutingFees_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::routing::gossip::RoutingFees }).into()}
-/// Generates a non-cryptographic 64-bit hash of the RoutingFees.
-#[no_mangle]
-pub extern "C" fn RoutingFees_hash(o: &RoutingFees) -> u64 {
-	if o.inner.is_null() { return 0; }
-	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
-	#[allow(deprecated)]
-	let mut hasher = core::hash::SipHasher::new();
-	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
-	core::hash::Hasher::finish(&hasher)
-}
 #[no_mangle]
 /// Serialize the RoutingFees object into a byte array which can be read by RoutingFees_read
-pub extern "C" fn RoutingFees_write(obj: &crate::lightning::routing::gossip::RoutingFees) -> crate::c_types::derived::CVec_u8Z {
+pub extern "C" fn RoutingFees_write(obj: &crate::lightning_types::routing::RoutingFees) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
 }
 #[allow(unused)]
 pub(crate) extern "C" fn RoutingFees_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeRoutingFees) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning_types::routing::nativeRoutingFees) })
 }
 #[no_mangle]
 /// Read a RoutingFees from a byte array, created by RoutingFees_write
 pub extern "C" fn RoutingFees_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_RoutingFeesDecodeErrorZ {
-	let res: Result<lightning::routing::gossip::RoutingFees, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::gossip::RoutingFees { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	let res: Result<lightning_types::routing::RoutingFees, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning_types::routing::RoutingFees { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
 
-use lightning::routing::gossip::NodeAnnouncementInfo as nativeNodeAnnouncementInfoImport;
-pub(crate) type nativeNodeAnnouncementInfo = nativeNodeAnnouncementInfoImport;
+use lightning::routing::gossip::NodeAnnouncementDetails as nativeNodeAnnouncementDetailsImport;
+pub(crate) type nativeNodeAnnouncementDetails = nativeNodeAnnouncementDetailsImport;
 
-/// Information received in the latest node_announcement from this node.
+/// Non-relayable information received in the latest node_announcement from this node.
 #[must_use]
 #[repr(C)]
-pub struct NodeAnnouncementInfo {
+pub struct NodeAnnouncementDetails {
 	/// A pointer to the opaque Rust object.
 
 	/// Nearly everywhere, inner must be non-null, however in places where
 	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeNodeAnnouncementInfo,
+	pub inner: *mut nativeNodeAnnouncementDetails,
 	/// Indicates that this is the only struct which contains the same pointer.
 
 	/// Rust functions which take ownership of an object provided via an argument require
@@ -1668,77 +1578,86 @@ pub struct NodeAnnouncementInfo {
 	pub is_owned: bool,
 }
 
-impl Drop for NodeAnnouncementInfo {
+impl core::ops::Deref for NodeAnnouncementDetails {
+	type Target = nativeNodeAnnouncementDetails;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for NodeAnnouncementDetails { }
+unsafe impl core::marker::Sync for NodeAnnouncementDetails { }
+impl Drop for NodeAnnouncementDetails {
 	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeNodeAnnouncementInfo>::is_null(self.inner) {
+		if self.is_owned && !<*mut nativeNodeAnnouncementDetails>::is_null(self.inner) {
 			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
 		}
 	}
 }
-/// Frees any resources used by the NodeAnnouncementInfo, if is_owned is set and inner is non-NULL.
+/// Frees any resources used by the NodeAnnouncementDetails, if is_owned is set and inner is non-NULL.
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_free(this_obj: NodeAnnouncementInfo) { }
+pub extern "C" fn NodeAnnouncementDetails_free(this_obj: NodeAnnouncementDetails) { }
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn NodeAnnouncementInfo_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeNodeAnnouncementInfo) };
+pub(crate) extern "C" fn NodeAnnouncementDetails_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeNodeAnnouncementDetails) };
 }
 #[allow(unused)]
-impl NodeAnnouncementInfo {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeNodeAnnouncementInfo {
+impl NodeAnnouncementDetails {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeNodeAnnouncementDetails {
 		unsafe { &*ObjOps::untweak_ptr(self.inner) }
 	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeNodeAnnouncementInfo {
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeNodeAnnouncementDetails {
 		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
 	}
 	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeNodeAnnouncementInfo {
+	pub(crate) fn take_inner(mut self) -> *mut nativeNodeAnnouncementDetails {
 		assert!(self.is_owned);
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// Protocol features the node announced support for
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_get_features(this_ptr: &NodeAnnouncementInfo) -> crate::lightning::ln::features::NodeFeatures {
+pub extern "C" fn NodeAnnouncementDetails_get_features(this_ptr: &NodeAnnouncementDetails) -> crate::lightning_types::features::NodeFeatures {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
-	crate::lightning::ln::features::NodeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::features::NodeFeatures<>) as *mut _) }, is_owned: false }
+	crate::lightning_types::features::NodeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::NodeFeatures<>) as *mut _) }, is_owned: false }
 }
 /// Protocol features the node announced support for
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_set_features(this_ptr: &mut NodeAnnouncementInfo, mut val: crate::lightning::ln::features::NodeFeatures) {
+pub extern "C" fn NodeAnnouncementDetails_set_features(this_ptr: &mut NodeAnnouncementDetails, mut val: crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.features = *unsafe { Box::from_raw(val.take_inner()) };
 }
 /// When the last known update to the node state was issued.
 /// Value is opaque, as set in the announcement.
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_get_last_update(this_ptr: &NodeAnnouncementInfo) -> u32 {
+pub extern "C" fn NodeAnnouncementDetails_get_last_update(this_ptr: &NodeAnnouncementDetails) -> u32 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().last_update;
 	*inner_val
 }
 /// When the last known update to the node state was issued.
 /// Value is opaque, as set in the announcement.
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_set_last_update(this_ptr: &mut NodeAnnouncementInfo, mut val: u32) {
+pub extern "C" fn NodeAnnouncementDetails_set_last_update(this_ptr: &mut NodeAnnouncementDetails, mut val: u32) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.last_update = val;
 }
 /// Color assigned to the node
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_get_rgb(this_ptr: &NodeAnnouncementInfo) -> *const [u8; 3] {
+pub extern "C" fn NodeAnnouncementDetails_get_rgb(this_ptr: &NodeAnnouncementDetails) -> *const [u8; 3] {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().rgb;
 	inner_val
 }
 /// Color assigned to the node
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_set_rgb(this_ptr: &mut NodeAnnouncementInfo, mut val: crate::c_types::ThreeBytes) {
+pub extern "C" fn NodeAnnouncementDetails_set_rgb(this_ptr: &mut NodeAnnouncementDetails, mut val: crate::c_types::ThreeBytes) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.rgb = val.data;
 }
 /// Moniker assigned to the node.
 /// May be invalid or malicious (eg control chars),
 /// should not be exposed to the user.
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_get_alias(this_ptr: &NodeAnnouncementInfo) -> crate::lightning::routing::gossip::NodeAlias {
+pub extern "C" fn NodeAnnouncementDetails_get_alias(this_ptr: &NodeAnnouncementDetails) -> crate::lightning::routing::gossip::NodeAlias {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().alias;
 	crate::lightning::routing::gossip::NodeAlias { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::routing::gossip::NodeAlias<>) as *mut _) }, is_owned: false }
 }
@@ -1746,51 +1665,41 @@ pub extern "C" fn NodeAnnouncementInfo_get_alias(this_ptr: &NodeAnnouncementInfo
 /// May be invalid or malicious (eg control chars),
 /// should not be exposed to the user.
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_set_alias(this_ptr: &mut NodeAnnouncementInfo, mut val: crate::lightning::routing::gossip::NodeAlias) {
+pub extern "C" fn NodeAnnouncementDetails_set_alias(this_ptr: &mut NodeAnnouncementDetails, mut val: crate::lightning::routing::gossip::NodeAlias) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.alias = *unsafe { Box::from_raw(val.take_inner()) };
 }
-/// An initial announcement of the node
-/// Mostly redundant with the data we store in fields explicitly.
-/// Everything else is useful only for sending out for initial routing sync.
-/// Not stored if contains excess data to prevent DoS.
+/// Internet-level addresses via which one can connect to the node
 ///
-/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+/// Returns a copy of the field.
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_get_announcement_message(this_ptr: &NodeAnnouncementInfo) -> crate::lightning::ln::msgs::NodeAnnouncement {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().announcement_message;
-	let mut local_inner_val = crate::lightning::ln::msgs::NodeAnnouncement { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::msgs::NodeAnnouncement<>) as *mut _ }, is_owned: false };
-	local_inner_val
+pub extern "C" fn NodeAnnouncementDetails_get_addresses(this_ptr: &NodeAnnouncementDetails) -> crate::c_types::derived::CVec_SocketAddressZ {
+	let mut inner_val = this_ptr.get_native_mut_ref().addresses.clone();
+	let mut local_inner_val = Vec::new(); for mut item in inner_val.drain(..) { local_inner_val.push( { crate::lightning::ln::msgs::SocketAddress::native_into(item) }); };
+	local_inner_val.into()
 }
-/// An initial announcement of the node
-/// Mostly redundant with the data we store in fields explicitly.
-/// Everything else is useful only for sending out for initial routing sync.
-/// Not stored if contains excess data to prevent DoS.
-///
-/// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+/// Internet-level addresses via which one can connect to the node
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_set_announcement_message(this_ptr: &mut NodeAnnouncementInfo, mut val: crate::lightning::ln::msgs::NodeAnnouncement) {
-	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.announcement_message = local_val;
+pub extern "C" fn NodeAnnouncementDetails_set_addresses(this_ptr: &mut NodeAnnouncementDetails, mut val: crate::c_types::derived::CVec_SocketAddressZ) {
+	let mut local_val = Vec::new(); for mut item in val.into_rust().drain(..) { local_val.push( { item.into_native() }); };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.addresses = local_val;
 }
-/// Constructs a new NodeAnnouncementInfo given each field
-///
-/// Note that announcement_message_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+/// Constructs a new NodeAnnouncementDetails given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn NodeAnnouncementInfo_new(mut features_arg: crate::lightning::ln::features::NodeFeatures, mut last_update_arg: u32, mut rgb_arg: crate::c_types::ThreeBytes, mut alias_arg: crate::lightning::routing::gossip::NodeAlias, mut announcement_message_arg: crate::lightning::ln::msgs::NodeAnnouncement) -> NodeAnnouncementInfo {
-	let mut local_announcement_message_arg = if announcement_message_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(announcement_message_arg.take_inner()) } }) };
-	NodeAnnouncementInfo { inner: ObjOps::heap_alloc(nativeNodeAnnouncementInfo {
+pub extern "C" fn NodeAnnouncementDetails_new(mut features_arg: crate::lightning_types::features::NodeFeatures, mut last_update_arg: u32, mut rgb_arg: crate::c_types::ThreeBytes, mut alias_arg: crate::lightning::routing::gossip::NodeAlias, mut addresses_arg: crate::c_types::derived::CVec_SocketAddressZ) -> NodeAnnouncementDetails {
+	let mut local_addresses_arg = Vec::new(); for mut item in addresses_arg.into_rust().drain(..) { local_addresses_arg.push( { item.into_native() }); };
+	NodeAnnouncementDetails { inner: ObjOps::heap_alloc(nativeNodeAnnouncementDetails {
 		features: *unsafe { Box::from_raw(features_arg.take_inner()) },
 		last_update: last_update_arg,
 		rgb: rgb_arg.data,
 		alias: *unsafe { Box::from_raw(alias_arg.take_inner()) },
-		announcement_message: local_announcement_message_arg,
+		addresses: local_addresses_arg,
 	}), is_owned: true }
 }
-impl Clone for NodeAnnouncementInfo {
+impl Clone for NodeAnnouncementDetails {
 	fn clone(&self) -> Self {
 		Self {
-			inner: if <*mut nativeNodeAnnouncementInfo>::is_null(self.inner) { core::ptr::null_mut() } else {
+			inner: if <*mut nativeNodeAnnouncementDetails>::is_null(self.inner) { core::ptr::null_mut() } else {
 				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
 			is_owned: true,
 		}
@@ -1798,49 +1707,219 @@ impl Clone for NodeAnnouncementInfo {
 }
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn NodeAnnouncementInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeNodeAnnouncementInfo)).clone() })) as *mut c_void
+pub(crate) extern "C" fn NodeAnnouncementDetails_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeNodeAnnouncementDetails)).clone() })) as *mut c_void
 }
 #[no_mangle]
+/// Creates a copy of the NodeAnnouncementDetails
+pub extern "C" fn NodeAnnouncementDetails_clone(orig: &NodeAnnouncementDetails) -> NodeAnnouncementDetails {
+	orig.clone()
+}
+/// Get a string which allows debug introspection of a NodeAnnouncementDetails object
+pub extern "C" fn NodeAnnouncementDetails_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::routing::gossip::NodeAnnouncementDetails }).into()}
+/// Checks if two NodeAnnouncementDetailss contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn NodeAnnouncementDetails_eq(a: &NodeAnnouncementDetails, b: &NodeAnnouncementDetails) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+/// Information received in the latest node_announcement from this node.
+#[derive(Clone)]
+#[must_use]
+#[repr(C)]
+pub enum NodeAnnouncementInfo {
+	/// An initial announcement of the node
+	/// Everything else is useful only for sending out for initial routing sync.
+	/// Not stored if contains excess data to prevent DoS.
+	Relayed(
+		crate::lightning::ln::msgs::NodeAnnouncement),
+	/// Non-relayable information received in the latest node_announcement from this node.
+	Local(
+		crate::lightning::routing::gossip::NodeAnnouncementDetails),
+}
+use lightning::routing::gossip::NodeAnnouncementInfo as NodeAnnouncementInfoImport;
+pub(crate) type nativeNodeAnnouncementInfo = NodeAnnouncementInfoImport;
+
+impl NodeAnnouncementInfo {
+	#[allow(unused)]
+	pub(crate) fn to_native(&self) -> nativeNodeAnnouncementInfo {
+		match self {
+			NodeAnnouncementInfo::Relayed (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeNodeAnnouncementInfo::Relayed (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
+			NodeAnnouncementInfo::Local (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeNodeAnnouncementInfo::Local (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn into_native(self) -> nativeNodeAnnouncementInfo {
+		match self {
+			NodeAnnouncementInfo::Relayed (mut a, ) => {
+				nativeNodeAnnouncementInfo::Relayed (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+			NodeAnnouncementInfo::Local (mut a, ) => {
+				nativeNodeAnnouncementInfo::Local (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn from_native(native: &NodeAnnouncementInfoImport) -> Self {
+		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeNodeAnnouncementInfo) };
+		match native {
+			nativeNodeAnnouncementInfo::Relayed (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				NodeAnnouncementInfo::Relayed (
+					crate::lightning::ln::msgs::NodeAnnouncement { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
+			nativeNodeAnnouncementInfo::Local (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				NodeAnnouncementInfo::Local (
+					crate::lightning::routing::gossip::NodeAnnouncementDetails { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn native_into(native: nativeNodeAnnouncementInfo) -> Self {
+		match native {
+			nativeNodeAnnouncementInfo::Relayed (mut a, ) => {
+				NodeAnnouncementInfo::Relayed (
+					crate::lightning::ln::msgs::NodeAnnouncement { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+			nativeNodeAnnouncementInfo::Local (mut a, ) => {
+				NodeAnnouncementInfo::Local (
+					crate::lightning::routing::gossip::NodeAnnouncementDetails { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+		}
+	}
+}
+/// Frees any resources used by the NodeAnnouncementInfo
+#[no_mangle]
+pub extern "C" fn NodeAnnouncementInfo_free(this_ptr: NodeAnnouncementInfo) { }
 /// Creates a copy of the NodeAnnouncementInfo
+#[no_mangle]
 pub extern "C" fn NodeAnnouncementInfo_clone(orig: &NodeAnnouncementInfo) -> NodeAnnouncementInfo {
 	orig.clone()
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn NodeAnnouncementInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const NodeAnnouncementInfo)).clone() })) as *mut c_void
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn NodeAnnouncementInfo_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut NodeAnnouncementInfo) };
+}
+#[no_mangle]
+/// Utility method to constructs a new Relayed-variant NodeAnnouncementInfo
+pub extern "C" fn NodeAnnouncementInfo_relayed(a: crate::lightning::ln::msgs::NodeAnnouncement) -> NodeAnnouncementInfo {
+	NodeAnnouncementInfo::Relayed(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new Local-variant NodeAnnouncementInfo
+pub extern "C" fn NodeAnnouncementInfo_local(a: crate::lightning::routing::gossip::NodeAnnouncementDetails) -> NodeAnnouncementInfo {
+	NodeAnnouncementInfo::Local(a, )
 }
 /// Get a string which allows debug introspection of a NodeAnnouncementInfo object
 pub extern "C" fn NodeAnnouncementInfo_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::routing::gossip::NodeAnnouncementInfo }).into()}
 /// Checks if two NodeAnnouncementInfos contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
 #[no_mangle]
 pub extern "C" fn NodeAnnouncementInfo_eq(a: &NodeAnnouncementInfo, b: &NodeAnnouncementInfo) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+	if &a.to_native() == &b.to_native() { true } else { false }
 }
+/// Protocol features the node announced support for
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeAnnouncementInfo_features(this_arg: &crate::lightning::routing::gossip::NodeAnnouncementInfo) -> crate::lightning_types::features::NodeFeatures {
+	let mut ret = this_arg.to_native().features();
+	crate::lightning_types::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// When the last known update to the node state was issued.
+///
+/// Value may or may not be a timestamp, depending on the policy of the origin node.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeAnnouncementInfo_last_update(this_arg: &crate::lightning::routing::gossip::NodeAnnouncementInfo) -> u32 {
+	let mut ret = this_arg.to_native().last_update();
+	ret
+}
+
+/// Color assigned to the node
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeAnnouncementInfo_rgb(this_arg: &crate::lightning::routing::gossip::NodeAnnouncementInfo) -> crate::c_types::ThreeBytes {
+	let mut ret = this_arg.to_native().rgb();
+	crate::c_types::ThreeBytes { data: ret }
+}
+
+/// Moniker assigned to the node.
+///
+/// May be invalid or malicious (eg control chars), should not be exposed to the user.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeAnnouncementInfo_alias(this_arg: &crate::lightning::routing::gossip::NodeAnnouncementInfo) -> crate::lightning::routing::gossip::NodeAlias {
+	let mut ret = this_arg.to_native().alias();
+	crate::lightning::routing::gossip::NodeAlias { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
 /// Internet-level addresses via which one can connect to the node
 #[must_use]
 #[no_mangle]
 pub extern "C" fn NodeAnnouncementInfo_addresses(this_arg: &crate::lightning::routing::gossip::NodeAnnouncementInfo) -> crate::c_types::derived::CVec_SocketAddressZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.addresses();
-	let mut local_ret_clone = Vec::new(); local_ret_clone.extend_from_slice(ret); let mut ret = local_ret_clone; let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::ln::msgs::SocketAddress::native_into(item) }); };
+	let mut ret = this_arg.to_native().addresses();
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::ln::msgs::SocketAddress::native_into(item) }); };
 	local_ret.into()
+}
+
+/// An initial announcement of the node
+///
+/// Not stored if contains excess data to prevent DoS.
+///
+/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeAnnouncementInfo_announcement_message(this_arg: &crate::lightning::routing::gossip::NodeAnnouncementInfo) -> crate::lightning::ln::msgs::NodeAnnouncement {
+	let mut ret = this_arg.to_native().announcement_message();
+	let mut local_ret = crate::lightning::ln::msgs::NodeAnnouncement { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
+	local_ret
 }
 
 #[no_mangle]
 /// Serialize the NodeAnnouncementInfo object into a byte array which can be read by NodeAnnouncementInfo_read
 pub extern "C" fn NodeAnnouncementInfo_write(obj: &crate::lightning::routing::gossip::NodeAnnouncementInfo) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+	crate::c_types::serialize_obj(&unsafe { &*obj }.to_native())
 }
 #[allow(unused)]
 pub(crate) extern "C" fn NodeAnnouncementInfo_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeNodeAnnouncementInfo) })
+	NodeAnnouncementInfo_write(unsafe { &*(obj as *const NodeAnnouncementInfo) })
 }
 #[no_mangle]
 /// Read a NodeAnnouncementInfo from a byte array, created by NodeAnnouncementInfo_write
 pub extern "C" fn NodeAnnouncementInfo_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_NodeAnnouncementInfoDecodeErrorZ {
 	let res: Result<lightning::routing::gossip::NodeAnnouncementInfo, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::gossip::NodeAnnouncementInfo { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::gossip::NodeAnnouncementInfo::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
 
@@ -1866,6 +1945,12 @@ pub struct NodeAlias {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for NodeAlias {
+	type Target = nativeNodeAlias;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for NodeAlias { }
+unsafe impl core::marker::Sync for NodeAlias { }
 impl Drop for NodeAlias {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeNodeAlias>::is_null(self.inner) {
@@ -1895,6 +1980,9 @@ impl NodeAlias {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -1967,7 +2055,7 @@ pub extern "C" fn NodeAlias_write(obj: &crate::lightning::routing::gossip::NodeA
 }
 #[allow(unused)]
 pub(crate) extern "C" fn NodeAlias_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeNodeAlias) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::gossip::nativeNodeAlias) })
 }
 #[no_mangle]
 /// Read a NodeAlias from a byte array, created by NodeAlias_write
@@ -1996,6 +2084,12 @@ pub struct NodeInfo {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for NodeInfo {
+	type Target = nativeNodeInfo;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for NodeInfo { }
+unsafe impl core::marker::Sync for NodeInfo { }
 impl Drop for NodeInfo {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeNodeInfo>::is_null(self.inner) {
@@ -2026,6 +2120,9 @@ impl NodeInfo {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 /// All valid channels a node has announced
 ///
@@ -2046,35 +2143,20 @@ pub extern "C" fn NodeInfo_set_channels(this_ptr: &mut NodeInfo, mut val: crate:
 /// Optional because we store a Node entry after learning about it from
 /// a channel announcement, but before receiving a node announcement.
 ///
-/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+/// Returns a copy of the field.
 #[no_mangle]
-pub extern "C" fn NodeInfo_get_announcement_info(this_ptr: &NodeInfo) -> crate::lightning::routing::gossip::NodeAnnouncementInfo {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().announcement_info;
-	let mut local_inner_val = crate::lightning::routing::gossip::NodeAnnouncementInfo { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::routing::gossip::NodeAnnouncementInfo<>) as *mut _ }, is_owned: false };
+pub extern "C" fn NodeInfo_get_announcement_info(this_ptr: &NodeInfo) -> crate::c_types::derived::COption_NodeAnnouncementInfoZ {
+	let mut inner_val = this_ptr.get_native_mut_ref().announcement_info.clone();
+	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_NodeAnnouncementInfoZ::None } else { crate::c_types::derived::COption_NodeAnnouncementInfoZ::Some( { crate::lightning::routing::gossip::NodeAnnouncementInfo::native_into(inner_val.unwrap()) }) };
 	local_inner_val
 }
 /// More information about a node from node_announcement.
 /// Optional because we store a Node entry after learning about it from
 /// a channel announcement, but before receiving a node announcement.
-///
-/// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn NodeInfo_set_announcement_info(this_ptr: &mut NodeInfo, mut val: crate::lightning::routing::gossip::NodeAnnouncementInfo) {
-	let mut local_val = if val.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(val.take_inner()) } }) };
+pub extern "C" fn NodeInfo_set_announcement_info(this_ptr: &mut NodeInfo, mut val: crate::c_types::derived::COption_NodeAnnouncementInfoZ) {
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { { val_opt.take() }.into_native() }})} };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.announcement_info = local_val;
-}
-/// Constructs a new NodeInfo given each field
-///
-/// Note that announcement_info_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
-#[must_use]
-#[no_mangle]
-pub extern "C" fn NodeInfo_new(mut channels_arg: crate::c_types::derived::CVec_u64Z, mut announcement_info_arg: crate::lightning::routing::gossip::NodeAnnouncementInfo) -> NodeInfo {
-	let mut local_channels_arg = Vec::new(); for mut item in channels_arg.into_rust().drain(..) { local_channels_arg.push( { item }); };
-	let mut local_announcement_info_arg = if announcement_info_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(announcement_info_arg.take_inner()) } }) };
-	NodeInfo { inner: ObjOps::heap_alloc(nativeNodeInfo {
-		channels: local_channels_arg,
-		announcement_info: local_announcement_info_arg,
-	}), is_owned: true }
 }
 impl Clone for NodeInfo {
 	fn clone(&self) -> Self {
@@ -2127,7 +2209,7 @@ pub extern "C" fn NodeInfo_write(obj: &crate::lightning::routing::gossip::NodeIn
 }
 #[allow(unused)]
 pub(crate) extern "C" fn NodeInfo_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeNodeInfo) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::gossip::nativeNodeInfo) })
 }
 #[no_mangle]
 /// Read a NodeInfo from a byte array, created by NodeInfo_write
@@ -2143,7 +2225,7 @@ pub extern "C" fn NetworkGraph_write(obj: &crate::lightning::routing::gossip::Ne
 }
 #[allow(unused)]
 pub(crate) extern "C" fn NetworkGraph_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeNetworkGraph) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::gossip::nativeNetworkGraph) })
 }
 #[no_mangle]
 /// Read a NetworkGraph from a byte array, created by NetworkGraph_write
@@ -2272,7 +2354,7 @@ pub extern "C" fn NetworkGraph_update_channel_from_unsigned_announcement(this_ar
 /// All other parameters as used in [`msgs::UnsignedChannelAnnouncement`] fields.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn NetworkGraph_add_channel_from_partial_announcement(this_arg: &crate::lightning::routing::gossip::NetworkGraph, mut short_channel_id: u64, mut timestamp: u64, mut features: crate::lightning::ln::features::ChannelFeatures, mut node_id_1: crate::c_types::PublicKey, mut node_id_2: crate::c_types::PublicKey) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
+pub extern "C" fn NetworkGraph_add_channel_from_partial_announcement(this_arg: &crate::lightning::routing::gossip::NetworkGraph, mut short_channel_id: u64, mut timestamp: u64, mut features: crate::lightning_types::features::ChannelFeatures, mut node_id_1: crate::c_types::PublicKey, mut node_id_2: crate::c_types::PublicKey) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.add_channel_from_partial_announcement(short_channel_id, timestamp, *unsafe { Box::from_raw(features.take_inner()) }, node_id_1.into_rust(), node_id_2.into_rust());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret

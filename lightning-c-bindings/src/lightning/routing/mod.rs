@@ -21,3 +21,15 @@ pub mod utxo;
 pub mod gossip;
 pub mod router;
 pub mod scoring;
+mod log_approx {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}

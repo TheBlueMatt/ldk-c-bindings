@@ -6,7 +6,10 @@
 // license as that which applies to the original source files from which this
 // source was automatically generated.
 
-//! Utilities to wrap untrusted strings and handle them (more) safely
+//!lightning_types
+//! Various types which are used in the lightning network.
+//!
+//! See the `lightning` crate for usage of these.
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -17,3 +20,7 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
+pub mod features;
+pub mod payment;
+pub mod routing;
+pub mod string;

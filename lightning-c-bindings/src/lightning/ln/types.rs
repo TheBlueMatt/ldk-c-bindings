@@ -7,6 +7,12 @@
 // source was automatically generated.
 
 //! Various wrapper types (most around 32-byte arrays) for use in lightning.
+//!
+//! Note that the re-exports of [`PaymentHash`], [`PaymentPreimage`], and [`PaymentSecret`] here
+//! are deprecated and will be removed in a future version. Instead, use them via
+//! [`lightning::types::payment`].
+//!
+//! [`lightning::types::payment`]: crate::types::payment
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -44,6 +50,12 @@ pub struct ChannelId {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelId {
+	type Target = nativeChannelId;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelId { }
+unsafe impl core::marker::Sync for ChannelId { }
 impl Drop for ChannelId {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelId>::is_null(self.inner) {
@@ -73,6 +85,9 @@ impl ChannelId {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 #[no_mangle]
@@ -208,7 +223,7 @@ pub extern "C" fn ChannelId_write(obj: &crate::lightning::ln::types::ChannelId) 
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ChannelId_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeChannelId) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::ln::types::nativeChannelId) })
 }
 #[no_mangle]
 /// Read a ChannelId from a byte array, created by ChannelId_write

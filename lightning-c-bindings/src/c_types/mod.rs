@@ -6,7 +6,8 @@ pub mod derived;
 use bitcoin::Transaction as BitcoinTransaction;
 use bitcoin::Witness as BitcoinWitness;
 use bitcoin::address;
-use bitcoin::address::WitnessProgram as BitcoinWitnessProgram;
+use bitcoin::WitnessProgram as BitcoinWitnessProgram;
+use bitcoin::WitnessVersion as BitcoinWitnessVersion;
 use bitcoin::key::TweakedPublicKey as BitcoinTweakedPublicKey;
 use bitcoin::key::XOnlyPublicKey;
 use bitcoin::hashes::Hash;
@@ -18,16 +19,13 @@ use bitcoin::secp256k1::Error as SecpError;
 use bitcoin::secp256k1::ecdsa::RecoveryId;
 use bitcoin::secp256k1::ecdsa::RecoverableSignature as SecpRecoverableSignature;
 use bitcoin::secp256k1::Scalar as SecpScalar;
-use bitcoin::bech32;
+use bech32;
 
 use core::convert::TryInto; // Bindings need at least rustc 1.34
 use alloc::borrow::ToOwned;
 use core::ffi::c_void;
 
-#[cfg(feature = "std")]
-pub(crate) use std::io::{self, Cursor, Read};
-#[cfg(feature = "no-std")]
-pub(crate) use core2::io::{self, Cursor, Read};
+pub(crate) use bitcoin::io::{self, Cursor, Read};
 #[cfg(feature = "no-std")]
 use alloc::{boxed::Box, vec::Vec, string::String};
 
@@ -90,12 +88,12 @@ impl Into<u128> for U128 {
 #[repr(C)]
 pub struct WitnessVersion(u8);
 
-impl From<address::WitnessVersion> for WitnessVersion {
-	fn from(o: address::WitnessVersion) -> Self { Self(o.to_num()) }
+impl From<BitcoinWitnessVersion> for WitnessVersion {
+	fn from(o: BitcoinWitnessVersion) -> Self { Self(o.to_num()) }
 }
-impl Into<address::WitnessVersion> for WitnessVersion {
-	fn into(self) -> address::WitnessVersion {
-		address::WitnessVersion::try_from(self.0).expect("WitnessVersion objects must be in the range 0..=16")
+impl Into<BitcoinWitnessVersion> for WitnessVersion {
+	fn into(self) -> BitcoinWitnessVersion {
+		BitcoinWitnessVersion::try_from(self.0).expect("WitnessVersion objects must be in the range 0..=16")
 	}
 }
 
@@ -116,7 +114,7 @@ impl WitnessProgram {
 	pub(crate) fn into_bitcoin(mut self) -> BitcoinWitnessProgram {
 		BitcoinWitnessProgram::new(
 			self.version.into(),
-			self.program.into_rust(),
+			self.program.as_slice(),
 		).expect("Program length was previously checked")
 	}
 }
@@ -322,6 +320,8 @@ pub enum Secp256k1Error {
 	InvalidPublicKeySum,
 	/// The only valid parity values are 0 or 1.
 	InvalidParityValue,
+	/// Invalid Elligator Swift Value
+	InvalidEllSwift,
 }
 impl Secp256k1Error {
 	pub(crate) fn from_rust(err: SecpError) -> Self {
@@ -336,6 +336,7 @@ impl Secp256k1Error {
 			SecpError::InvalidTweak => Secp256k1Error::InvalidTweak,
 			SecpError::NotEnoughMemory => Secp256k1Error::NotEnoughMemory,
 			SecpError::InvalidPublicKeySum => Secp256k1Error::InvalidPublicKeySum,
+			SecpError::InvalidEllSwift => Secp256k1Error::InvalidEllSwift,
 			SecpError::InvalidParityValue(_) => Secp256k1Error::InvalidParityValue,
 		}
 	}
@@ -352,6 +353,7 @@ impl Secp256k1Error {
 			Secp256k1Error::InvalidTweak => SecpError::InvalidTweak,
 			Secp256k1Error::NotEnoughMemory => SecpError::NotEnoughMemory,
 			Secp256k1Error::InvalidPublicKeySum => SecpError::InvalidPublicKeySum,
+			Secp256k1Error::InvalidEllSwift => SecpError::InvalidEllSwift,
 			Secp256k1Error::InvalidParityValue => SecpError::InvalidParityValue(invalid_parity),
 		}
 	}
@@ -460,11 +462,14 @@ impl IOError {
 			io::ErrorKind::Interrupted => IOError::Interrupted,
 			io::ErrorKind::Other => IOError::Other,
 			io::ErrorKind::UnexpectedEof => IOError::UnexpectedEof,
-			_ => IOError::Other,
 		}
 	}
-	pub(crate) fn from_rust(err: io::Error) -> Self {
+	pub(crate) fn from_bitcoin(err: io::Error) -> Self {
 		Self::from_rust_kind(err.kind())
+	}
+	#[cfg(feature = "std")]
+	pub(crate) fn from_rust(err: std::io::Error) -> Self {
+		Self::from_bitcoin(err.into())
 	}
 	pub(crate) fn to_rust_kind(&self) -> io::ErrorKind {
 		match self {
@@ -701,13 +706,13 @@ impl TxOut {
 	pub(crate) fn into_rust(mut self) -> ::bitcoin::blockdata::transaction::TxOut {
 		::bitcoin::blockdata::transaction::TxOut {
 			script_pubkey: self.script_pubkey.into_rust().into(),
-			value: self.value,
+			value: bitcoin::Amount::from_sat(self.value),
 		}
 	}
 	pub(crate) fn from_rust(txout: &::bitcoin::blockdata::transaction::TxOut) -> Self {
 		Self {
 			script_pubkey: derived::CVec_u8Z::from(txout.script_pubkey.clone().into_bytes()),
-			value: txout.value
+			value: txout.value.to_sat()
 		}
 	}
 }
@@ -764,7 +769,7 @@ impl u8slice {
 }
 pub(crate) fn reader_to_vec<R: Read>(r: &mut R) -> derived::CVec_u8Z {
 	let mut res = Vec::new();
-	r.read_to_end(&mut res).unwrap();
+	r.read_to_limit(&mut res, u64::MAX).unwrap();
 	derived::CVec_u8Z::from(res)
 }
 
@@ -872,6 +877,12 @@ impl Str {
 	#[cfg(feature = "std")]
 	pub(crate) fn into_pathbuf(mut self) -> std::path::PathBuf {
 		std::path::PathBuf::from(self.into_string())
+	}
+	pub(crate) fn from_rust(s: &str) -> Self {
+		s.into()
+	}
+	pub(crate) fn is_empty(&self) -> bool {
+		self.len == 0
 	}
 }
 impl Into<Str> for String {

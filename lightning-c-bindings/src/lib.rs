@@ -24,6 +24,7 @@ pub mod version;
 pub mod c_types;
 pub mod bitcoin;
 pub mod lightning;
+pub mod lightning_types;
 pub mod lightning_persister;
 pub mod lightning_background_processor;
 pub mod lightning_invoice;

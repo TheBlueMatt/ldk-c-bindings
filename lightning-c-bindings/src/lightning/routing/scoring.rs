@@ -48,11 +48,6 @@
 //! # }
 //! ```
 //!
-//! # Note
-//!
-//! Persisting when built with feature `no-std` and restoring without it, or vice versa, uses
-//! different types and thus is undefined.
-//!
 //! [`find_route`]: crate::routing::router::find_route
 
 use alloc::str::FromStr;
@@ -106,17 +101,25 @@ impl rustScoreLookUp for ScoreLookUp {
 	}
 }
 
+pub struct ScoreLookUpRef(ScoreLookUp);
+impl rustScoreLookUp for ScoreLookUpRef {
+	fn channel_penalty_msat(&self, mut candidate: &lightning::routing::router::CandidateRouteHop, mut usage: lightning::routing::scoring::ChannelUsage, mut score_params: &lightning::routing::scoring::ProbabilisticScoringFeeParameters) -> u64 {
+		let mut ret = (self.0.channel_penalty_msat)(self.0.this_arg, &crate::lightning::routing::router::CandidateRouteHop::from_native(candidate), crate::lightning::routing::scoring::ChannelUsage { inner: ObjOps::heap_alloc(usage), is_owned: true }, &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((score_params as *const lightning::routing::scoring::ProbabilisticScoringFeeParameters<>) as *mut _) }, is_owned: false });
+		ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for ScoreLookUp {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = ScoreLookUpRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const ScoreLookUpRef) }
 	}
 }
 impl core::ops::DerefMut for ScoreLookUp {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut ScoreLookUpRef {
+		unsafe { &mut *(self as *mut _ as *mut ScoreLookUpRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -186,17 +189,36 @@ impl rustScoreUpdate for ScoreUpdate {
 	}
 }
 
+pub struct ScoreUpdateRef(ScoreUpdate);
+impl rustScoreUpdate for ScoreUpdateRef {
+	fn payment_path_failed(&mut self, mut path: &lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: core::time::Duration) {
+		(self.0.payment_path_failed)(self.0.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, short_channel_id, duration_since_epoch.as_secs())
+	}
+	fn payment_path_successful(&mut self, mut path: &lightning::routing::router::Path, mut duration_since_epoch: core::time::Duration) {
+		(self.0.payment_path_successful)(self.0.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, duration_since_epoch.as_secs())
+	}
+	fn probe_failed(&mut self, mut path: &lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: core::time::Duration) {
+		(self.0.probe_failed)(self.0.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, short_channel_id, duration_since_epoch.as_secs())
+	}
+	fn probe_successful(&mut self, mut path: &lightning::routing::router::Path, mut duration_since_epoch: core::time::Duration) {
+		(self.0.probe_successful)(self.0.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, duration_since_epoch.as_secs())
+	}
+	fn time_passed(&mut self, mut duration_since_epoch: core::time::Duration) {
+		(self.0.time_passed)(self.0.this_arg, duration_since_epoch.as_secs())
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for ScoreUpdate {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = ScoreUpdateRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const ScoreUpdateRef) }
 	}
 }
 impl core::ops::DerefMut for ScoreUpdate {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut ScoreUpdateRef {
+		unsafe { &mut *(self as *mut _ as *mut ScoreUpdateRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -248,6 +270,12 @@ impl lightning::routing::scoring::ScoreLookUp for Score {
 		ret
 	}
 }
+impl lightning::routing::scoring::ScoreLookUp for ScoreRef {
+	fn channel_penalty_msat(&self, mut candidate: &lightning::routing::router::CandidateRouteHop, mut usage: lightning::routing::scoring::ChannelUsage, mut score_params: &lightning::routing::scoring::ProbabilisticScoringFeeParameters) -> u64 {
+		let mut ret = (self.0.ScoreLookUp.channel_penalty_msat)(self.0.ScoreLookUp.this_arg, &crate::lightning::routing::router::CandidateRouteHop::from_native(candidate), crate::lightning::routing::scoring::ChannelUsage { inner: ObjOps::heap_alloc(usage), is_owned: true }, &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((score_params as *const lightning::routing::scoring::ProbabilisticScoringFeeParameters<>) as *mut _) }, is_owned: false });
+		ret
+	}
+}
 impl lightning::routing::scoring::ScoreUpdate for Score {
 	fn payment_path_failed(&mut self, mut path: &lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: core::time::Duration) {
 		(self.ScoreUpdate.payment_path_failed)(self.ScoreUpdate.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, short_channel_id, duration_since_epoch.as_secs())
@@ -265,9 +293,32 @@ impl lightning::routing::scoring::ScoreUpdate for Score {
 		(self.ScoreUpdate.time_passed)(self.ScoreUpdate.this_arg, duration_since_epoch.as_secs())
 	}
 }
+impl lightning::routing::scoring::ScoreUpdate for ScoreRef {
+	fn payment_path_failed(&mut self, mut path: &lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: core::time::Duration) {
+		(self.0.ScoreUpdate.payment_path_failed)(self.0.ScoreUpdate.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, short_channel_id, duration_since_epoch.as_secs())
+	}
+	fn payment_path_successful(&mut self, mut path: &lightning::routing::router::Path, mut duration_since_epoch: core::time::Duration) {
+		(self.0.ScoreUpdate.payment_path_successful)(self.0.ScoreUpdate.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, duration_since_epoch.as_secs())
+	}
+	fn probe_failed(&mut self, mut path: &lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: core::time::Duration) {
+		(self.0.ScoreUpdate.probe_failed)(self.0.ScoreUpdate.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, short_channel_id, duration_since_epoch.as_secs())
+	}
+	fn probe_successful(&mut self, mut path: &lightning::routing::router::Path, mut duration_since_epoch: core::time::Duration) {
+		(self.0.ScoreUpdate.probe_successful)(self.0.ScoreUpdate.this_arg, &crate::lightning::routing::router::Path { inner: unsafe { ObjOps::nonnull_ptr_to_inner((path as *const lightning::routing::router::Path<>) as *mut _) }, is_owned: false }, duration_since_epoch.as_secs())
+	}
+	fn time_passed(&mut self, mut duration_since_epoch: core::time::Duration) {
+		(self.0.ScoreUpdate.time_passed)(self.0.ScoreUpdate.this_arg, duration_since_epoch.as_secs())
+	}
+}
 impl lightning::util::ser::Writeable for Score {
 	fn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {
 		let vec = (self.write)(self.this_arg);
+		w.write_all(vec.as_slice())
+	}
+}
+impl lightning::util::ser::Writeable for ScoreRef {
+	fn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {
+		let vec = (self.0.write)(self.0.this_arg);
 		w.write_all(vec.as_slice())
 	}
 }
@@ -276,17 +327,21 @@ use lightning::routing::scoring::Score as rustScore;
 impl rustScore for Score {
 }
 
+pub struct ScoreRef(Score);
+impl rustScore for ScoreRef {
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for Score {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = ScoreRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const ScoreRef) }
 	}
 }
 impl core::ops::DerefMut for Score {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut ScoreRef {
+		unsafe { &mut *(self as *mut _ as *mut ScoreRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -334,8 +389,8 @@ pub(crate) fn LockableScore_clone_fields(orig: &LockableScore) -> LockableScore 
 
 use lightning::routing::scoring::LockableScore as rustLockableScore;
 impl<'a> rustLockableScore<'a, > for LockableScore {
-	type ScoreUpdate = crate::lightning::routing::scoring::ScoreUpdate;
-	type ScoreLookUp = crate::lightning::routing::scoring::ScoreLookUp;
+	type ScoreUpdate = crate::lightning::routing::scoring::ScoreUpdateRef;
+	type ScoreLookUp = crate::lightning::routing::scoring::ScoreLookUpRef;
 	type WriteLocked = crate::lightning::routing::scoring::ScoreUpdate;
 	type ReadLocked = crate::lightning::routing::scoring::ScoreLookUp;
 	fn read_lock(&'a self) -> crate::lightning::routing::scoring::ScoreLookUp {
@@ -348,17 +403,33 @@ impl<'a> rustLockableScore<'a, > for LockableScore {
 	}
 }
 
+pub struct LockableScoreRef(LockableScore);
+impl<'a> rustLockableScore<'a, > for LockableScoreRef {
+	type ScoreUpdate = crate::lightning::routing::scoring::ScoreUpdateRef;
+	type ScoreLookUp = crate::lightning::routing::scoring::ScoreLookUpRef;
+	type WriteLocked = crate::lightning::routing::scoring::ScoreUpdate;
+	type ReadLocked = crate::lightning::routing::scoring::ScoreLookUp;
+	fn read_lock(&'a self) -> crate::lightning::routing::scoring::ScoreLookUp {
+		let mut ret = (self.0.read_lock)(self.0.this_arg);
+		ret
+	}
+	fn write_lock(&'a self) -> crate::lightning::routing::scoring::ScoreUpdate {
+		let mut ret = (self.0.write_lock)(self.0.this_arg);
+		ret
+	}
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for LockableScore {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = LockableScoreRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const LockableScoreRef) }
 	}
 }
 impl core::ops::DerefMut for LockableScore {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut LockableScoreRef {
+		unsafe { &mut *(self as *mut _ as *mut LockableScoreRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -400,8 +471,8 @@ pub(crate) fn WriteableScore_clone_fields(orig: &WriteableScore) -> WriteableSco
 	}
 }
 impl<'a> lightning::routing::scoring::LockableScore<'a, > for WriteableScore {
-	type ScoreUpdate = crate::lightning::routing::scoring::ScoreUpdate;
-	type ScoreLookUp = crate::lightning::routing::scoring::ScoreLookUp;
+	type ScoreUpdate = crate::lightning::routing::scoring::ScoreUpdateRef;
+	type ScoreLookUp = crate::lightning::routing::scoring::ScoreLookUpRef;
 	type WriteLocked = crate::lightning::routing::scoring::ScoreUpdate;
 	type ReadLocked = crate::lightning::routing::scoring::ScoreLookUp;
 	fn read_lock(&'a self) -> crate::lightning::routing::scoring::ScoreLookUp {
@@ -413,9 +484,29 @@ impl<'a> lightning::routing::scoring::LockableScore<'a, > for WriteableScore {
 		ret
 	}
 }
+impl<'a> lightning::routing::scoring::LockableScore<'a, > for WriteableScoreRef {
+	type ScoreUpdate = crate::lightning::routing::scoring::ScoreUpdateRef;
+	type ScoreLookUp = crate::lightning::routing::scoring::ScoreLookUpRef;
+	type WriteLocked = crate::lightning::routing::scoring::ScoreUpdate;
+	type ReadLocked = crate::lightning::routing::scoring::ScoreLookUp;
+	fn read_lock(&'a self) -> crate::lightning::routing::scoring::ScoreLookUp {
+		let mut ret = (self.0.LockableScore.read_lock)(self.0.LockableScore.this_arg);
+		ret
+	}
+	fn write_lock(&'a self) -> crate::lightning::routing::scoring::ScoreUpdate {
+		let mut ret = (self.0.LockableScore.write_lock)(self.0.LockableScore.this_arg);
+		ret
+	}
+}
 impl lightning::util::ser::Writeable for WriteableScore {
 	fn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {
 		let vec = (self.write)(self.this_arg);
+		w.write_all(vec.as_slice())
+	}
+}
+impl lightning::util::ser::Writeable for WriteableScoreRef {
+	fn write<W: lightning::util::ser::Writer>(&self, w: &mut W) -> Result<(), crate::c_types::io::Error> {
+		let vec = (self.0.write)(self.0.this_arg);
 		w.write_all(vec.as_slice())
 	}
 }
@@ -424,17 +515,21 @@ use lightning::routing::scoring::WriteableScore as rustWriteableScore;
 impl<'a> rustWriteableScore<'a, > for WriteableScore {
 }
 
+pub struct WriteableScoreRef(WriteableScore);
+impl<'a> rustWriteableScore<'a, > for WriteableScoreRef {
+}
+
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
 impl core::ops::Deref for WriteableScore {
-	type Target = Self;
-	fn deref(&self) -> &Self {
-		self
+	type Target = WriteableScoreRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const WriteableScoreRef) }
 	}
 }
 impl core::ops::DerefMut for WriteableScore {
-	fn deref_mut(&mut self) -> &mut Self {
-		self
+	fn deref_mut(&mut self) -> &mut WriteableScoreRef {
+		unsafe { &mut *(self as *mut _ as *mut WriteableScoreRef) }
 	}
 }
 /// Calls the free function if one is set
@@ -467,6 +562,12 @@ pub struct MultiThreadedLockableScore {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for MultiThreadedLockableScore {
+	type Target = nativeMultiThreadedLockableScore;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for MultiThreadedLockableScore { }
+unsafe impl core::marker::Sync for MultiThreadedLockableScore { }
 impl Drop for MultiThreadedLockableScore {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeMultiThreadedLockableScore>::is_null(self.inner) {
@@ -496,6 +597,9 @@ impl MultiThreadedLockableScore {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl From<nativeMultiThreadedLockableScore> for crate::lightning::routing::scoring::LockableScore {
@@ -538,7 +642,7 @@ pub extern "C" fn MultiThreadedLockableScore_write(obj: &crate::lightning::routi
 }
 #[allow(unused)]
 pub(crate) extern "C" fn MultiThreadedLockableScore_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeMultiThreadedLockableScore) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::scoring::nativeMultiThreadedLockableScore) })
 }
 impl From<nativeMultiThreadedLockableScore> for crate::lightning::routing::scoring::WriteableScore {
 	fn from(obj: nativeMultiThreadedLockableScore) -> Self {
@@ -596,6 +700,12 @@ pub struct MultiThreadedScoreLockRead {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for MultiThreadedScoreLockRead {
+	type Target = nativeMultiThreadedScoreLockRead;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for MultiThreadedScoreLockRead { }
+unsafe impl core::marker::Sync for MultiThreadedScoreLockRead { }
 impl Drop for MultiThreadedScoreLockRead {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeMultiThreadedScoreLockRead>::is_null(self.inner) {
@@ -626,6 +736,9 @@ impl MultiThreadedScoreLockRead {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 
 use lightning::routing::scoring::MultiThreadedScoreLockWrite as nativeMultiThreadedScoreLockWriteImport;
@@ -647,6 +760,12 @@ pub struct MultiThreadedScoreLockWrite {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for MultiThreadedScoreLockWrite {
+	type Target = nativeMultiThreadedScoreLockWrite;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for MultiThreadedScoreLockWrite { }
+unsafe impl core::marker::Sync for MultiThreadedScoreLockWrite { }
 impl Drop for MultiThreadedScoreLockWrite {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeMultiThreadedScoreLockWrite>::is_null(self.inner) {
@@ -676,6 +795,9 @@ impl MultiThreadedScoreLockWrite {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl From<nativeMultiThreadedScoreLockRead> for crate::lightning::routing::scoring::ScoreLookUp {
@@ -712,7 +834,7 @@ pub extern "C" fn MultiThreadedScoreLockWrite_write(obj: &crate::lightning::rout
 }
 #[allow(unused)]
 pub(crate) extern "C" fn MultiThreadedScoreLockWrite_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeMultiThreadedScoreLockWrite) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::scoring::nativeMultiThreadedScoreLockWrite) })
 }
 impl From<nativeMultiThreadedScoreLockWrite> for crate::lightning::routing::scoring::ScoreUpdate {
 	fn from(obj: nativeMultiThreadedScoreLockWrite) -> Self {
@@ -775,6 +897,12 @@ pub struct ChannelUsage {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ChannelUsage {
+	type Target = nativeChannelUsage;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelUsage { }
+unsafe impl core::marker::Sync for ChannelUsage { }
 impl Drop for ChannelUsage {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeChannelUsage>::is_null(self.inner) {
@@ -804,6 +932,9 @@ impl ChannelUsage {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// The amount to send through the channel, denominated in millisatoshis.
@@ -893,6 +1024,12 @@ pub struct FixedPenaltyScorer {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for FixedPenaltyScorer {
+	type Target = nativeFixedPenaltyScorer;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for FixedPenaltyScorer { }
+unsafe impl core::marker::Sync for FixedPenaltyScorer { }
 impl Drop for FixedPenaltyScorer {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeFixedPenaltyScorer>::is_null(self.inner) {
@@ -922,6 +1059,9 @@ impl FixedPenaltyScorer {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 impl Clone for FixedPenaltyScorer {
@@ -1026,7 +1166,7 @@ pub extern "C" fn FixedPenaltyScorer_write(obj: &crate::lightning::routing::scor
 }
 #[allow(unused)]
 pub(crate) extern "C" fn FixedPenaltyScorer_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeFixedPenaltyScorer) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::scoring::nativeFixedPenaltyScorer) })
 }
 #[no_mangle]
 /// Read a FixedPenaltyScorer from a byte array, created by FixedPenaltyScorer_write
@@ -1086,6 +1226,12 @@ pub struct ProbabilisticScorer {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ProbabilisticScorer {
+	type Target = nativeProbabilisticScorer;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ProbabilisticScorer { }
+unsafe impl core::marker::Sync for ProbabilisticScorer { }
 impl Drop for ProbabilisticScorer {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeProbabilisticScorer>::is_null(self.inner) {
@@ -1116,6 +1262,9 @@ impl ProbabilisticScorer {
 		self.inner = core::ptr::null_mut();
 		ret
 	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
 
 use lightning::routing::scoring::ProbabilisticScoringFeeParameters as nativeProbabilisticScoringFeeParametersImport;
@@ -1143,6 +1292,12 @@ pub struct ProbabilisticScoringFeeParameters {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ProbabilisticScoringFeeParameters {
+	type Target = nativeProbabilisticScoringFeeParameters;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ProbabilisticScoringFeeParameters { }
+unsafe impl core::marker::Sync for ProbabilisticScoringFeeParameters { }
 impl Drop for ProbabilisticScoringFeeParameters {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeProbabilisticScoringFeeParameters>::is_null(self.inner) {
@@ -1172,6 +1327,9 @@ impl ProbabilisticScoringFeeParameters {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// A fixed penalty in msats to apply to each channel.
@@ -1601,6 +1759,12 @@ pub struct ProbabilisticScoringDecayParameters {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ProbabilisticScoringDecayParameters {
+	type Target = nativeProbabilisticScoringDecayParameters;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ProbabilisticScoringDecayParameters { }
+unsafe impl core::marker::Sync for ProbabilisticScoringDecayParameters { }
 impl Drop for ProbabilisticScoringDecayParameters {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeProbabilisticScoringDecayParameters>::is_null(self.inner) {
@@ -1630,6 +1794,9 @@ impl ProbabilisticScoringDecayParameters {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// If we aren't learning any new datapoints for a channel, the historical liquidity bounds
@@ -1925,18 +2092,6 @@ pub extern "C" fn ProbabilisticScorer_as_Score(this_arg: &ProbabilisticScorer) -
 }
 
 
-mod approx {
-
-use alloc::str::FromStr;
-use alloc::string::String;
-use core::ffi::c_void;
-use core::convert::Infallible;
-use bitcoin::hashes::Hash;
-use crate::c_types::*;
-#[cfg(feature="no-std")]
-use alloc::{vec::Vec, boxed::Box};
-
-}
 mod bucketed_history {
 
 use alloc::str::FromStr;
@@ -1956,7 +2111,7 @@ pub extern "C" fn ProbabilisticScorer_write(obj: &crate::lightning::routing::sco
 }
 #[allow(unused)]
 pub(crate) extern "C" fn ProbabilisticScorer_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const nativeProbabilisticScorer) })
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::scoring::nativeProbabilisticScorer) })
 }
 #[no_mangle]
 /// Read a ProbabilisticScorer from a byte array, created by ProbabilisticScorer_write

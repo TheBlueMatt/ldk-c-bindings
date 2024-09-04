@@ -40,6 +40,12 @@ pub struct ExpandedKey {
 	pub is_owned: bool,
 }
 
+impl core::ops::Deref for ExpandedKey {
+	type Target = nativeExpandedKey;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ExpandedKey { }
+unsafe impl core::marker::Sync for ExpandedKey { }
 impl Drop for ExpandedKey {
 	fn drop(&mut self) {
 		if self.is_owned && !<*mut nativeExpandedKey>::is_null(self.inner) {
@@ -69,6 +75,9 @@ impl ExpandedKey {
 		let ret = ObjOps::untweak_ptr(self.inner);
 		self.inner = core::ptr::null_mut();
 		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
 	}
 }
 /// Create a  new [`ExpandedKey`] for generating an inbound payment hash and secret.
