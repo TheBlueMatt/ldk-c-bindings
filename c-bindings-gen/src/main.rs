@@ -2217,7 +2217,7 @@ fn convert_file<'a, 'b>(libast: &'a FullLibraryAST, crate_types: &CrateTypes<'a>
 			writeln!(out, "pub mod {};", m).unwrap();
 		}
 
-		eprintln!("Converting {} entries...", module);
+		eprintln!("\n\n\nConverting {} entries...\n", module);
 
 		let import_resolver = ImportResolver::new(orig_crate, libast, module, items);
 		let mut type_resolver = TypeResolver::new(module, import_resolver, crate_types);
