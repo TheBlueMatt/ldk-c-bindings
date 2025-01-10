@@ -1,0 +1,6 @@
+{
+   Apparently rust stdlib accesses uninitialized values while debug'ing a duration
+   Memcheck:Cond
+   ...
+   fun:_ZN57_$LT$core..time..Duration$u20$as$u20$core..fmt..Debug$*
+}
