@@ -7,6 +7,10 @@
 // source was automatically generated.
 
 //! Utilities to wrap untrusted strings and handle them (more) safely
+//!
+//! These re-exports are deprecated in favor of [`lightning::types::string`].
+//!
+//! [`lightning::types::string`]: crate::types::string
 
 use alloc::str::FromStr;
 use alloc::string::String;

@@ -26,14 +26,6 @@
 //!
 //! * `std`
 //! * `grind_signatures`
-//! * `no-std ` - exposes write trait implementations from the `core2` crate (at least one of `no-std` or `std` are required)
-//! * Skip logging of messages at levels below the given log level:
-//!     * `max_level_off`
-//!     * `max_level_error`
-//!     * `max_level_warn`
-//!     * `max_level_info`
-//!     * `max_level_debug`
-//!     * `max_level_trace`
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -89,18 +81,6 @@ use alloc::{vec::Vec, boxed::Box};
 
 }
 }
-mod poly1305 {
-
-use alloc::str::FromStr;
-use alloc::string::String;
-use core::ffi::c_void;
-use core::convert::Infallible;
-use bitcoin::hashes::Hash;
-use crate::c_types::*;
-#[cfg(feature="no-std")]
-use alloc::{vec::Vec, boxed::Box};
-
-}
 mod chacha20poly1305rfc {
 
 use alloc::str::FromStr;
@@ -124,6 +104,18 @@ use crate::c_types::*;
 use alloc::{vec::Vec, boxed::Box};
 
 }
+}
+mod poly1305 {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
 }
 mod streams {
 

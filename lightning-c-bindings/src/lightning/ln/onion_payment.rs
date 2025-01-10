@@ -179,8 +179,8 @@ pub extern "C" fn InboundHTLCErr_eq(a: &InboundHTLCErr, b: &InboundHTLCErr) -> b
 ///
 /// [`Event::PaymentClaimable`]: crate::events::Event::PaymentClaimable
 #[no_mangle]
-pub extern "C" fn peel_payment_onion(msg: &crate::lightning::ln::msgs::UpdateAddHTLC, mut node_signer: crate::lightning::sign::NodeSigner, mut logger: crate::lightning::util::logger::Logger, mut cur_height: u32, mut accept_mpp_keysend: bool, mut allow_skimmed_fees: bool) -> crate::c_types::derived::CResult_PendingHTLCInfoInboundHTLCErrZ {
-	let mut ret = lightning::ln::onion_payment::peel_payment_onion(msg.get_native_ref(), node_signer, logger, secp256k1::global::SECP256K1, cur_height, accept_mpp_keysend, allow_skimmed_fees);
+pub extern "C" fn peel_payment_onion(msg: &crate::lightning::ln::msgs::UpdateAddHTLC, mut node_signer: crate::lightning::sign::NodeSigner, mut logger: crate::lightning::util::logger::Logger, mut cur_height: u32, mut allow_skimmed_fees: bool) -> crate::c_types::derived::CResult_PendingHTLCInfoInboundHTLCErrZ {
+	let mut ret = lightning::ln::onion_payment::peel_payment_onion(msg.get_native_ref(), node_signer, logger, secp256k1::global::SECP256K1, cur_height, allow_skimmed_fees);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::ln::channelmanager::PendingHTLCInfo { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::onion_payment::InboundHTLCErr { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }

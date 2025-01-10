@@ -29,10 +29,10 @@ pub struct AsyncPaymentsMessageHandler {
 	/// the held funds.
 	///
 	/// Note that responder (or a relevant inner pointer) may be NULL or all-0s to represent None
-	pub held_htlc_available: extern "C" fn (this_arg: *const c_void, message: crate::lightning::onion_message::async_payments::HeldHtlcAvailable, responder: crate::lightning::onion_message::messenger::Responder) -> crate::c_types::derived::COption_C2Tuple_ReleaseHeldHtlcResponseInstructionZZ,
+	pub handle_held_htlc_available: extern "C" fn (this_arg: *const c_void, message: crate::lightning::onion_message::async_payments::HeldHtlcAvailable, responder: crate::lightning::onion_message::messenger::Responder) -> crate::c_types::derived::COption_C2Tuple_ReleaseHeldHtlcResponseInstructionZZ,
 	/// Handle a [`ReleaseHeldHtlc`] message. If authentication of the message succeeds, an HTLC
 	/// should be released to the corresponding payee.
-	pub release_held_htlc: extern "C" fn (this_arg: *const c_void, message: crate::lightning::onion_message::async_payments::ReleaseHeldHtlc),
+	pub handle_release_held_htlc: extern "C" fn (this_arg: *const c_void, message: crate::lightning::onion_message::async_payments::ReleaseHeldHtlc, context: crate::lightning::blinded_path::message::AsyncPaymentsContext),
 	/// Release any [`AsyncPaymentsMessage`]s that need to be sent.
 	///
 	/// Typically, this is used for messages initiating an async payment flow rather than in response
@@ -48,8 +48,8 @@ unsafe impl Sync for AsyncPaymentsMessageHandler {}
 pub(crate) fn AsyncPaymentsMessageHandler_clone_fields(orig: &AsyncPaymentsMessageHandler) -> AsyncPaymentsMessageHandler {
 	AsyncPaymentsMessageHandler {
 		this_arg: orig.this_arg,
-		held_htlc_available: Clone::clone(&orig.held_htlc_available),
-		release_held_htlc: Clone::clone(&orig.release_held_htlc),
+		handle_held_htlc_available: Clone::clone(&orig.handle_held_htlc_available),
+		handle_release_held_htlc: Clone::clone(&orig.handle_release_held_htlc),
 		release_pending_messages: Clone::clone(&orig.release_pending_messages),
 		free: Clone::clone(&orig.free),
 	}
@@ -57,14 +57,14 @@ pub(crate) fn AsyncPaymentsMessageHandler_clone_fields(orig: &AsyncPaymentsMessa
 
 use lightning::onion_message::async_payments::AsyncPaymentsMessageHandler as rustAsyncPaymentsMessageHandler;
 impl rustAsyncPaymentsMessageHandler for AsyncPaymentsMessageHandler {
-	fn held_htlc_available(&self, mut message: lightning::onion_message::async_payments::HeldHtlcAvailable, mut responder: Option<lightning::onion_message::messenger::Responder>) -> Option<(lightning::onion_message::async_payments::ReleaseHeldHtlc, lightning::onion_message::messenger::ResponseInstruction)> {
+	fn handle_held_htlc_available(&self, mut message: lightning::onion_message::async_payments::HeldHtlcAvailable, mut responder: Option<lightning::onion_message::messenger::Responder>) -> Option<(lightning::onion_message::async_payments::ReleaseHeldHtlc, lightning::onion_message::messenger::ResponseInstruction)> {
 		let mut local_responder = crate::lightning::onion_message::messenger::Responder { inner: if responder.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((responder.unwrap())) } }, is_owned: true };
-		let mut ret = (self.held_htlc_available)(self.this_arg, crate::lightning::onion_message::async_payments::HeldHtlcAvailable { inner: ObjOps::heap_alloc(message), is_owned: true }, local_responder);
+		let mut ret = (self.handle_held_htlc_available)(self.this_arg, crate::lightning::onion_message::async_payments::HeldHtlcAvailable { inner: ObjOps::heap_alloc(message), is_owned: true }, local_responder);
 		let mut local_ret = if ret.is_some() { Some( { let (mut orig_ret_0_0, mut orig_ret_0_1) = ret.take().to_rust(); let mut local_ret_0 = (*unsafe { Box::from_raw(orig_ret_0_0.take_inner()) }, *unsafe { Box::from_raw(orig_ret_0_1.take_inner()) }); local_ret_0 }) } else { None };
 		local_ret
 	}
-	fn release_held_htlc(&self, mut message: lightning::onion_message::async_payments::ReleaseHeldHtlc) {
-		(self.release_held_htlc)(self.this_arg, crate::lightning::onion_message::async_payments::ReleaseHeldHtlc { inner: ObjOps::heap_alloc(message), is_owned: true })
+	fn handle_release_held_htlc(&self, mut message: lightning::onion_message::async_payments::ReleaseHeldHtlc, mut context: lightning::blinded_path::message::AsyncPaymentsContext) {
+		(self.handle_release_held_htlc)(self.this_arg, crate::lightning::onion_message::async_payments::ReleaseHeldHtlc { inner: ObjOps::heap_alloc(message), is_owned: true }, crate::lightning::blinded_path::message::AsyncPaymentsContext::native_into(context))
 	}
 	fn release_pending_messages(&self) -> Vec<(lightning::onion_message::async_payments::AsyncPaymentsMessage, lightning::onion_message::messenger::MessageSendInstructions)> {
 		let mut ret = (self.release_pending_messages)(self.this_arg);
@@ -75,14 +75,14 @@ impl rustAsyncPaymentsMessageHandler for AsyncPaymentsMessageHandler {
 
 pub struct AsyncPaymentsMessageHandlerRef(AsyncPaymentsMessageHandler);
 impl rustAsyncPaymentsMessageHandler for AsyncPaymentsMessageHandlerRef {
-	fn held_htlc_available(&self, mut message: lightning::onion_message::async_payments::HeldHtlcAvailable, mut responder: Option<lightning::onion_message::messenger::Responder>) -> Option<(lightning::onion_message::async_payments::ReleaseHeldHtlc, lightning::onion_message::messenger::ResponseInstruction)> {
+	fn handle_held_htlc_available(&self, mut message: lightning::onion_message::async_payments::HeldHtlcAvailable, mut responder: Option<lightning::onion_message::messenger::Responder>) -> Option<(lightning::onion_message::async_payments::ReleaseHeldHtlc, lightning::onion_message::messenger::ResponseInstruction)> {
 		let mut local_responder = crate::lightning::onion_message::messenger::Responder { inner: if responder.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((responder.unwrap())) } }, is_owned: true };
-		let mut ret = (self.0.held_htlc_available)(self.0.this_arg, crate::lightning::onion_message::async_payments::HeldHtlcAvailable { inner: ObjOps::heap_alloc(message), is_owned: true }, local_responder);
+		let mut ret = (self.0.handle_held_htlc_available)(self.0.this_arg, crate::lightning::onion_message::async_payments::HeldHtlcAvailable { inner: ObjOps::heap_alloc(message), is_owned: true }, local_responder);
 		let mut local_ret = if ret.is_some() { Some( { let (mut orig_ret_0_0, mut orig_ret_0_1) = ret.take().to_rust(); let mut local_ret_0 = (*unsafe { Box::from_raw(orig_ret_0_0.take_inner()) }, *unsafe { Box::from_raw(orig_ret_0_1.take_inner()) }); local_ret_0 }) } else { None };
 		local_ret
 	}
-	fn release_held_htlc(&self, mut message: lightning::onion_message::async_payments::ReleaseHeldHtlc) {
-		(self.0.release_held_htlc)(self.0.this_arg, crate::lightning::onion_message::async_payments::ReleaseHeldHtlc { inner: ObjOps::heap_alloc(message), is_owned: true })
+	fn handle_release_held_htlc(&self, mut message: lightning::onion_message::async_payments::ReleaseHeldHtlc, mut context: lightning::blinded_path::message::AsyncPaymentsContext) {
+		(self.0.handle_release_held_htlc)(self.0.this_arg, crate::lightning::onion_message::async_payments::ReleaseHeldHtlc { inner: ObjOps::heap_alloc(message), is_owned: true }, crate::lightning::blinded_path::message::AsyncPaymentsContext::native_into(context))
 	}
 	fn release_pending_messages(&self) -> Vec<(lightning::onion_message::async_payments::AsyncPaymentsMessage, lightning::onion_message::messenger::MessageSendInstructions)> {
 		let mut ret = (self.0.release_pending_messages)(self.0.this_arg);
@@ -292,23 +292,11 @@ impl HeldHtlcAvailable {
 		Self { inner: self.inner, is_owned: false }
 	}
 }
-/// The secret that will be used by the recipient of this message to release the held HTLC.
-#[no_mangle]
-pub extern "C" fn HeldHtlcAvailable_get_payment_release_secret(this_ptr: &HeldHtlcAvailable) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_release_secret;
-	inner_val
-}
-/// The secret that will be used by the recipient of this message to release the held HTLC.
-#[no_mangle]
-pub extern "C" fn HeldHtlcAvailable_set_payment_release_secret(this_ptr: &mut HeldHtlcAvailable, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_release_secret = val.data;
-}
 /// Constructs a new HeldHtlcAvailable given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn HeldHtlcAvailable_new(mut payment_release_secret_arg: crate::c_types::ThirtyTwoBytes) -> HeldHtlcAvailable {
+pub extern "C" fn HeldHtlcAvailable_new() -> HeldHtlcAvailable {
 	HeldHtlcAvailable { inner: ObjOps::heap_alloc(nativeHeldHtlcAvailable {
-		payment_release_secret: payment_release_secret_arg.data,
 	}), is_owned: true }
 }
 impl Clone for HeldHtlcAvailable {
@@ -393,25 +381,11 @@ impl ReleaseHeldHtlc {
 		Self { inner: self.inner, is_owned: false }
 	}
 }
-/// Used to release the HTLC held upstream if it matches the corresponding
-/// [`HeldHtlcAvailable::payment_release_secret`].
-#[no_mangle]
-pub extern "C" fn ReleaseHeldHtlc_get_payment_release_secret(this_ptr: &ReleaseHeldHtlc) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_release_secret;
-	inner_val
-}
-/// Used to release the HTLC held upstream if it matches the corresponding
-/// [`HeldHtlcAvailable::payment_release_secret`].
-#[no_mangle]
-pub extern "C" fn ReleaseHeldHtlc_set_payment_release_secret(this_ptr: &mut ReleaseHeldHtlc, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_release_secret = val.data;
-}
 /// Constructs a new ReleaseHeldHtlc given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ReleaseHeldHtlc_new(mut payment_release_secret_arg: crate::c_types::ThirtyTwoBytes) -> ReleaseHeldHtlc {
+pub extern "C" fn ReleaseHeldHtlc_new() -> ReleaseHeldHtlc {
 	ReleaseHeldHtlc { inner: ObjOps::heap_alloc(nativeReleaseHeldHtlc {
-		payment_release_secret: payment_release_secret_arg.data,
 	}), is_owned: true }
 }
 impl Clone for ReleaseHeldHtlc {

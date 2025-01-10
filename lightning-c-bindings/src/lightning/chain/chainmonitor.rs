@@ -152,6 +152,13 @@ pub struct Persist {
 	///
 	/// Archiving the data in a backup location (rather than deleting it fully) is useful for
 	/// hedging against data loss in case of unexpected failure.
+	///
+	/// Note that if a crash occurs during the archiving process, and its implementation is not
+	/// atomic, a state may emerge with the archival operation only being partially complete. In
+	/// that scenario, the monitor may still be loaded on startup pending successful completion of
+	/// the archive process. Additionally, because the archive operation could be retried on
+	/// restart, this method must in that case be idempotent, ensuring it can handle scenarios where
+	/// the monitor already exists in the archive.
 	pub archive_persisted_channel: extern "C" fn (this_arg: *const c_void, channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint),
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.

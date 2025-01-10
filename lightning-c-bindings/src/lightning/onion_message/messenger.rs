@@ -20,7 +20,7 @@ use alloc::{vec::Vec, boxed::Box};
 
 
 use lightning::onion_message::messenger::OnionMessenger as nativeOnionMessengerImport;
-pub(crate) type nativeOnionMessenger = nativeOnionMessengerImport<crate::lightning::sign::EntropySource, crate::lightning::sign::NodeSigner, crate::lightning::util::logger::Logger, crate::lightning::blinded_path::NodeIdLookUp, crate::lightning::onion_message::messenger::MessageRouter, crate::lightning::onion_message::offers::OffersMessageHandler, crate::lightning::onion_message::async_payments::AsyncPaymentsMessageHandler, crate::lightning::onion_message::messenger::CustomOnionMessageHandler, >;
+pub(crate) type nativeOnionMessenger = nativeOnionMessengerImport<crate::lightning::sign::EntropySource, crate::lightning::sign::NodeSigner, crate::lightning::util::logger::Logger, crate::lightning::blinded_path::NodeIdLookUp, crate::lightning::onion_message::messenger::MessageRouter, crate::lightning::onion_message::offers::OffersMessageHandler, crate::lightning::onion_message::async_payments::AsyncPaymentsMessageHandler, crate::lightning::onion_message::dns_resolution::DNSResolverMessageHandler, crate::lightning::onion_message::messenger::CustomOnionMessageHandler, >;
 
 /// A sender, receiver and forwarder of [`OnionMessage`]s.
 ///
@@ -92,14 +92,16 @@ pub(crate) type nativeOnionMessenger = nativeOnionMessengerImport<crate::lightni
 /// # let custom_message_handler = IgnoringMessageHandler {};
 /// # let offers_message_handler = IgnoringMessageHandler {};
 /// # let async_payments_message_handler = IgnoringMessageHandler {};
+/// # let dns_resolution_message_handler = IgnoringMessageHandler {};
 /// // Create the onion messenger. This must use the same `keys_manager` as is passed to your
 /// // ChannelManager.
 /// let onion_messenger = OnionMessenger::new(
 ///     &keys_manager, &keys_manager, logger, &node_id_lookup, message_router,
-///     &offers_message_handler, &async_payments_message_handler, &custom_message_handler
+///     &offers_message_handler, &async_payments_message_handler, &dns_resolution_message_handler,
+///     &custom_message_handler,
 /// );
 ///
-/// # #[derive(Debug, Clone)]
+/// # #[derive(Clone, Debug)]
 /// # struct YourCustomMessage {}
 /// impl Writeable for YourCustomMessage {
 /// \tfn write<W: Writer>(&self, w: &mut W) -> Result<(), io::Error> {
@@ -400,6 +402,15 @@ pub(crate) extern "C" fn ResponseInstruction_clone_void(this_ptr: *const c_void)
 pub extern "C" fn ResponseInstruction_clone(orig: &ResponseInstruction) -> ResponseInstruction {
 	orig.clone()
 }
+/// Converts this [`ResponseInstruction`] into a [`MessageSendInstructions`] so that it can be
+/// used to send the response via a normal message sending method.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ResponseInstruction_into_instructions(mut this_arg: crate::lightning::onion_message::messenger::ResponseInstruction) -> crate::lightning::onion_message::messenger::MessageSendInstructions {
+	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).into_instructions();
+	crate::lightning::onion_message::messenger::MessageSendInstructions::native_into(ret)
+}
+
 /// Instructions for how and where to send a message.
 #[derive(Clone)]
 #[must_use]
@@ -1767,8 +1778,8 @@ pub extern "C" fn peel_onion_message(msg: &crate::lightning::ln::msgs::OnionMess
 /// their respective handlers.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn OnionMessenger_new(mut entropy_source: crate::lightning::sign::EntropySource, mut node_signer: crate::lightning::sign::NodeSigner, mut logger: crate::lightning::util::logger::Logger, mut node_id_lookup: crate::lightning::blinded_path::NodeIdLookUp, mut message_router: crate::lightning::onion_message::messenger::MessageRouter, mut offers_handler: crate::lightning::onion_message::offers::OffersMessageHandler, mut async_payments_handler: crate::lightning::onion_message::async_payments::AsyncPaymentsMessageHandler, mut custom_handler: crate::lightning::onion_message::messenger::CustomOnionMessageHandler) -> crate::lightning::onion_message::messenger::OnionMessenger {
-	let mut ret = lightning::onion_message::messenger::OnionMessenger::new(entropy_source, node_signer, logger, node_id_lookup, message_router, offers_handler, async_payments_handler, custom_handler);
+pub extern "C" fn OnionMessenger_new(mut entropy_source: crate::lightning::sign::EntropySource, mut node_signer: crate::lightning::sign::NodeSigner, mut logger: crate::lightning::util::logger::Logger, mut node_id_lookup: crate::lightning::blinded_path::NodeIdLookUp, mut message_router: crate::lightning::onion_message::messenger::MessageRouter, mut offers_handler: crate::lightning::onion_message::offers::OffersMessageHandler, mut async_payments_handler: crate::lightning::onion_message::async_payments::AsyncPaymentsMessageHandler, mut dns_resolver: crate::lightning::onion_message::dns_resolution::DNSResolverMessageHandler, mut custom_handler: crate::lightning::onion_message::messenger::CustomOnionMessageHandler) -> crate::lightning::onion_message::messenger::OnionMessenger {
+	let mut ret = lightning::onion_message::messenger::OnionMessenger::new(entropy_source, node_signer, logger, node_id_lookup, message_router, offers_handler, async_payments_handler, dns_resolver, custom_handler);
 	crate::lightning::onion_message::messenger::OnionMessenger { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
@@ -1795,8 +1806,8 @@ pub extern "C" fn OnionMessenger_new(mut entropy_source: crate::lightning::sign:
 /// peers.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn OnionMessenger_new_with_offline_peer_interception(mut entropy_source: crate::lightning::sign::EntropySource, mut node_signer: crate::lightning::sign::NodeSigner, mut logger: crate::lightning::util::logger::Logger, mut node_id_lookup: crate::lightning::blinded_path::NodeIdLookUp, mut message_router: crate::lightning::onion_message::messenger::MessageRouter, mut offers_handler: crate::lightning::onion_message::offers::OffersMessageHandler, mut async_payments_handler: crate::lightning::onion_message::async_payments::AsyncPaymentsMessageHandler, mut custom_handler: crate::lightning::onion_message::messenger::CustomOnionMessageHandler) -> crate::lightning::onion_message::messenger::OnionMessenger {
-	let mut ret = lightning::onion_message::messenger::OnionMessenger::new_with_offline_peer_interception(entropy_source, node_signer, logger, node_id_lookup, message_router, offers_handler, async_payments_handler, custom_handler);
+pub extern "C" fn OnionMessenger_new_with_offline_peer_interception(mut entropy_source: crate::lightning::sign::EntropySource, mut node_signer: crate::lightning::sign::NodeSigner, mut logger: crate::lightning::util::logger::Logger, mut node_id_lookup: crate::lightning::blinded_path::NodeIdLookUp, mut message_router: crate::lightning::onion_message::messenger::MessageRouter, mut offers_handler: crate::lightning::onion_message::offers::OffersMessageHandler, mut async_payments_handler: crate::lightning::onion_message::async_payments::AsyncPaymentsMessageHandler, mut dns_resolver: crate::lightning::onion_message::dns_resolution::DNSResolverMessageHandler, mut custom_handler: crate::lightning::onion_message::messenger::CustomOnionMessageHandler) -> crate::lightning::onion_message::messenger::OnionMessenger {
+	let mut ret = lightning::onion_message::messenger::OnionMessenger::new_with_offline_peer_interception(entropy_source, node_signer, logger, node_id_lookup, message_router, offers_handler, async_payments_handler, dns_resolver, custom_handler);
 	crate::lightning::onion_message::messenger::OnionMessenger { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
@@ -1904,7 +1915,7 @@ pub extern "C" fn OnionMessenger_as_OnionMessageHandler(this_arg: &OnionMessenge
 }
 
 extern "C" fn OnionMessenger_OnionMessageHandler_handle_onion_message(this_arg: *const c_void, mut peer_node_id: crate::c_types::PublicKey, msg: &crate::lightning::ln::msgs::OnionMessage) {
-	<nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::handle_onion_message(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, &peer_node_id.into_rust(), msg.get_native_ref())
+	<nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::handle_onion_message(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, peer_node_id.into_rust(), msg.get_native_ref())
 }
 #[must_use]
 extern "C" fn OnionMessenger_OnionMessageHandler_next_onion_message_for_peer(this_arg: *const c_void, mut peer_node_id: crate::c_types::PublicKey) -> crate::lightning::ln::msgs::OnionMessage {
@@ -1914,12 +1925,12 @@ extern "C" fn OnionMessenger_OnionMessageHandler_next_onion_message_for_peer(thi
 }
 #[must_use]
 extern "C" fn OnionMessenger_OnionMessageHandler_peer_connected(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, init: &crate::lightning::ln::msgs::Init, mut inbound: bool) -> crate::c_types::derived::CResult_NoneNoneZ {
-	let mut ret = <nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::peer_connected(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, &their_node_id.into_rust(), init.get_native_ref(), inbound);
+	let mut ret = <nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::peer_connected(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, their_node_id.into_rust(), init.get_native_ref(), inbound);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 extern "C" fn OnionMessenger_OnionMessageHandler_peer_disconnected(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) {
-	<nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::peer_disconnected(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, &their_node_id.into_rust())
+	<nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::peer_disconnected(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, their_node_id.into_rust())
 }
 extern "C" fn OnionMessenger_OnionMessageHandler_timer_tick_occurred(this_arg: *const c_void) {
 	<nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::timer_tick_occurred(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, )
@@ -1931,7 +1942,7 @@ extern "C" fn OnionMessenger_OnionMessageHandler_provided_node_features(this_arg
 }
 #[must_use]
 extern "C" fn OnionMessenger_OnionMessageHandler_provided_init_features(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures {
-	let mut ret = <nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::provided_init_features(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, &their_node_id.into_rust());
+	let mut ret = <nativeOnionMessenger as lightning::ln::msgs::OnionMessageHandler>::provided_init_features(unsafe { &mut *(this_arg as *mut nativeOnionMessenger) }, their_node_id.into_rust());
 	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 

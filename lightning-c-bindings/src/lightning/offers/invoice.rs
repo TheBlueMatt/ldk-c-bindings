@@ -15,7 +15,7 @@
 //! The payment recipient must include a [`PaymentHash`], so as to reveal the preimage upon payment
 //! receipt, and one or more [`BlindedPaymentPath`]s for the payer to use when sending the payment.
 //!
-//! ```
+//! ```ignore
 //! extern crate bitcoin;
 //! extern crate lightning;
 //!
@@ -27,7 +27,7 @@
 //! use lightning::offers::refund::Refund;
 //! use lightning::util::ser::Writeable;
 //!
-//! # use lightning::ln::types::PaymentHash;
+//! # use lightning::types::payment::PaymentHash;
 //! # use lightning::offers::invoice::{ExplicitSigningPubkey, InvoiceBuilder};
 //! # use lightning::blinded_path::payment::{BlindedPayInfo, BlindedPaymentPath};
 //! #
@@ -240,8 +240,7 @@ impl InvoiceWithDerivedSigningPubkeyBuilder {
 		Self { inner: self.inner, is_owned: false }
 	}
 }
-/// Builds an unsigned [`Bolt12Invoice`] after checking for valid semantics. It can be signed by
-/// [`UnsignedBolt12Invoice::sign`].
+/// Builds an unsigned [`Bolt12Invoice`] after checking for valid semantics.
 #[must_use]
 #[no_mangle]
 pub extern "C" fn InvoiceWithExplicitSigningPubkeyBuilder_build(mut this_arg: crate::lightning::offers::invoice::InvoiceWithExplicitSigningPubkeyBuilder) -> crate::c_types::derived::CResult_UnsignedBolt12InvoiceBolt12SemanticErrorZ {
@@ -614,6 +613,20 @@ pub extern "C" fn Bolt12Invoice_clone(orig: &Bolt12Invoice) -> Bolt12Invoice {
 /// Get a string which allows debug introspection of a Bolt12Invoice object
 pub extern "C" fn Bolt12Invoice_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::invoice::Bolt12Invoice }).into()}
+/// Paths to the recipient originating from publicly reachable nodes, including information
+/// needed for routing payments across them.
+///
+/// Blinded paths provide recipient privacy by obfuscating its node id. Note, however, that this
+/// privacy is lost if a public node id is used for
+///[`UnsignedBolt12Invoice::signing_pubkey`].
+#[must_use]
+#[no_mangle]
+pub extern "C" fn UnsignedBolt12Invoice_payment_paths(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> crate::c_types::derived::CVec_BlindedPaymentPathZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payment_paths();
+	let mut local_ret_clone = Vec::new(); local_ret_clone.extend_from_slice(ret); let mut ret = local_ret_clone; let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::blinded_path::payment::BlindedPaymentPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+	local_ret.into()
+}
+
 /// Duration since the Unix epoch when the invoice was created.
 #[must_use]
 #[no_mangle]
@@ -623,7 +636,7 @@ pub extern "C" fn UnsignedBolt12Invoice_created_at(this_arg: &crate::lightning::
 }
 
 /// Duration since
-///[`Bolt12Invoice::created_at`]
+///[`UnsignedBolt12Invoice::created_at`]
 /// when the invoice has expired and therefore should no longer be paid.
 #[must_use]
 #[no_mangle]
@@ -658,7 +671,19 @@ pub extern "C" fn UnsignedBolt12Invoice_invoice_features(this_arg: &crate::light
 	crate::lightning_types::features::Bolt12InvoiceFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning_types::features::Bolt12InvoiceFeatures<>) as *mut _) }, is_owned: false }
 }
 
-/// The public key corresponding to the key used to sign the invoice.
+/// A typically transient public key corresponding to the key used to sign the invoice.
+///
+/// If the invoices was created in response to an [`Offer`], then this will be:
+/// - [`Offer::issuer_signing_pubkey`] if it's `Some`, otherwise
+/// - the final blinded node id from a [`BlindedMessagePath`] in [`Offer::paths`] if `None`.
+///
+/// If the invoice was created in response to a [`Refund`], then it is a valid pubkey chosen by
+/// the recipient.
+///
+/// [`Offer`]: crate::offers::offer::Offer
+/// [`Offer::issuer_signing_pubkey`]: crate::offers::offer::Offer::issuer_signing_pubkey
+/// [`Offer::paths`]: crate::offers::offer::Offer::paths
+/// [`Refund`]: crate::offers::refund::Refund
 #[must_use]
 #[no_mangle]
 pub extern "C" fn UnsignedBolt12Invoice_signing_pubkey(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> crate::c_types::PublicKey {
@@ -810,6 +835,22 @@ pub extern "C" fn UnsignedBolt12Invoice_supported_quantity(this_arg: &crate::lig
 	local_ret
 }
 
+/// The public key used by the recipient to sign invoices.
+///
+/// From [`Offer::issuer_signing_pubkey`] and may be `None`; also `None` if the invoice was
+/// created in response to a [`Refund`].
+///
+/// [`Offer::issuer_signing_pubkey`]: crate::offers::offer::Offer::issuer_signing_pubkey
+///
+/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[must_use]
+#[no_mangle]
+pub extern "C" fn UnsignedBolt12Invoice_issuer_signing_pubkey(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> crate::c_types::PublicKey {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.issuer_signing_pubkey();
+	let mut local_ret = if ret.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(ret.unwrap())) } };
+	local_ret
+}
+
 /// An unpredictable series of bytes from the payer.
 ///
 /// From [`InvoiceRequest::payer_metadata`] or [`Refund::payer_metadata`].
@@ -848,8 +889,8 @@ pub extern "C" fn UnsignedBolt12Invoice_quantity(this_arg: &crate::lightning::of
 /// [`message_paths`]: Self::message_paths
 #[must_use]
 #[no_mangle]
-pub extern "C" fn UnsignedBolt12Invoice_payer_id(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> crate::c_types::PublicKey {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payer_id();
+pub extern "C" fn UnsignedBolt12Invoice_payer_signing_pubkey(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> crate::c_types::PublicKey {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payer_signing_pubkey();
 	crate::c_types::PublicKey::from_rust(&ret)
 }
 
@@ -880,6 +921,20 @@ pub extern "C" fn UnsignedBolt12Invoice_payment_hash(this_arg: &crate::lightning
 pub extern "C" fn UnsignedBolt12Invoice_amount_msats(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> u64 {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.amount_msats();
 	ret
+}
+
+/// Paths to the recipient originating from publicly reachable nodes, including information
+/// needed for routing payments across them.
+///
+/// Blinded paths provide recipient privacy by obfuscating its node id. Note, however, that this
+/// privacy is lost if a public node id is used for
+///[`Bolt12Invoice::signing_pubkey`].
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12Invoice_payment_paths(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::c_types::derived::CVec_BlindedPaymentPathZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payment_paths();
+	let mut local_ret_clone = Vec::new(); local_ret_clone.extend_from_slice(ret); let mut ret = local_ret_clone; let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::blinded_path::payment::BlindedPaymentPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+	local_ret.into()
 }
 
 /// Duration since the Unix epoch when the invoice was created.
@@ -926,7 +981,19 @@ pub extern "C" fn Bolt12Invoice_invoice_features(this_arg: &crate::lightning::of
 	crate::lightning_types::features::Bolt12InvoiceFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning_types::features::Bolt12InvoiceFeatures<>) as *mut _) }, is_owned: false }
 }
 
-/// The public key corresponding to the key used to sign the invoice.
+/// A typically transient public key corresponding to the key used to sign the invoice.
+///
+/// If the invoices was created in response to an [`Offer`], then this will be:
+/// - [`Offer::issuer_signing_pubkey`] if it's `Some`, otherwise
+/// - the final blinded node id from a [`BlindedMessagePath`] in [`Offer::paths`] if `None`.
+///
+/// If the invoice was created in response to a [`Refund`], then it is a valid pubkey chosen by
+/// the recipient.
+///
+/// [`Offer`]: crate::offers::offer::Offer
+/// [`Offer::issuer_signing_pubkey`]: crate::offers::offer::Offer::issuer_signing_pubkey
+/// [`Offer::paths`]: crate::offers::offer::Offer::paths
+/// [`Refund`]: crate::offers::refund::Refund
 #[must_use]
 #[no_mangle]
 pub extern "C" fn Bolt12Invoice_signing_pubkey(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::c_types::PublicKey {
@@ -1078,6 +1145,22 @@ pub extern "C" fn Bolt12Invoice_supported_quantity(this_arg: &crate::lightning::
 	local_ret
 }
 
+/// The public key used by the recipient to sign invoices.
+///
+/// From [`Offer::issuer_signing_pubkey`] and may be `None`; also `None` if the invoice was
+/// created in response to a [`Refund`].
+///
+/// [`Offer::issuer_signing_pubkey`]: crate::offers::offer::Offer::issuer_signing_pubkey
+///
+/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12Invoice_issuer_signing_pubkey(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::c_types::PublicKey {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.issuer_signing_pubkey();
+	let mut local_ret = if ret.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(ret.unwrap())) } };
+	local_ret
+}
+
 /// An unpredictable series of bytes from the payer.
 ///
 /// From [`InvoiceRequest::payer_metadata`] or [`Refund::payer_metadata`].
@@ -1116,8 +1199,8 @@ pub extern "C" fn Bolt12Invoice_quantity(this_arg: &crate::lightning::offers::in
 /// [`message_paths`]: Self::message_paths
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Bolt12Invoice_payer_id(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::c_types::PublicKey {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payer_id();
+pub extern "C" fn Bolt12Invoice_payer_signing_pubkey(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::c_types::PublicKey {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payer_signing_pubkey();
 	crate::c_types::PublicKey::from_rust(&ret)
 }
 

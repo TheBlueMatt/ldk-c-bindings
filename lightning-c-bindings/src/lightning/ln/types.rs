@@ -7,12 +7,6 @@
 // source was automatically generated.
 
 //! Various wrapper types (most around 32-byte arrays) for use in lightning.
-//!
-//! Note that the re-exports of [`PaymentHash`], [`PaymentPreimage`], and [`PaymentSecret`] here
-//! are deprecated and will be removed in a future version. Instead, use them via
-//! [`lightning::types::payment`].
-//!
-//! [`lightning::types::payment`]: crate::types::payment
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -126,9 +120,6 @@ pub(crate) extern "C" fn ChannelId_clone_void(this_ptr: *const c_void) -> *mut c
 pub extern "C" fn ChannelId_clone(orig: &ChannelId) -> ChannelId {
 	orig.clone()
 }
-/// Get a string which allows debug introspection of a ChannelId object
-pub extern "C" fn ChannelId_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::types::ChannelId }).into()}
 /// Checks if two ChannelIds contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
 /// Two objects with NULL inner values will be considered "equal" here.
@@ -231,9 +222,4 @@ pub extern "C" fn ChannelId_read(ser: crate::c_types::u8slice) -> crate::c_types
 	let res: Result<lightning::ln::types::ChannelId, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
-}
-#[no_mangle]
-/// Get the string representation of a ChannelId object
-pub extern "C" fn ChannelId_to_str(o: &crate::lightning::ln::types::ChannelId) -> Str {
-	alloc::format!("{}", o.get_native_ref()).into()
 }

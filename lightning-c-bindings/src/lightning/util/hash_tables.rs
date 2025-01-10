@@ -6,9 +6,8 @@
 // license as that which applies to the original source files from which this
 // source was automatically generated.
 
-//! Generally LDK uses `std`'s `HashMap`s, however when building for no-std, LDK uses `hashbrown`'s
-//! `HashMap`s with the `std` `SipHasher` and uses `getrandom` to opportunistically randomize it,
-//! if randomization is available.
+//! Generally LDK uses `hashbrown`'s `HashMap`s with the `std` `SipHasher` and uses `getrandom` to
+//! opportunistically randomize it, if randomization is available.
 //!
 //! This module simply re-exports the `HashMap` used in LDK for public consumption.
 
@@ -21,7 +20,7 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
-mod std_hashtables {
+mod hashbrown_tables {
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -32,4 +31,16 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
+mod hasher {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}
 }

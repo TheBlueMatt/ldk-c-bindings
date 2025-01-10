@@ -630,20 +630,23 @@ pub extern "C" fn P2PGossipSync_as_RoutingMessageHandler(this_arg: &P2PGossipSyn
 }
 
 #[must_use]
-extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_node_announcement(this_arg: *const c_void, msg: &crate::lightning::ln::msgs::NodeAnnouncement) -> crate::c_types::derived::CResult_boolLightningErrorZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_node_announcement(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, msg.get_native_ref());
+extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_node_announcement(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, msg: &crate::lightning::ln::msgs::NodeAnnouncement) -> crate::c_types::derived::CResult_boolLightningErrorZ {
+	let mut local_their_node_id = if their_node_id.is_null() { None } else { Some( { their_node_id.into_rust() }) };
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_node_announcement(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, local_their_node_id, msg.get_native_ref());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { o }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
 #[must_use]
-extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_channel_announcement(this_arg: *const c_void, msg: &crate::lightning::ln::msgs::ChannelAnnouncement) -> crate::c_types::derived::CResult_boolLightningErrorZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_channel_announcement(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, msg.get_native_ref());
+extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_channel_announcement(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, msg: &crate::lightning::ln::msgs::ChannelAnnouncement) -> crate::c_types::derived::CResult_boolLightningErrorZ {
+	let mut local_their_node_id = if their_node_id.is_null() { None } else { Some( { their_node_id.into_rust() }) };
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_channel_announcement(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, local_their_node_id, msg.get_native_ref());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { o }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
 #[must_use]
-extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_channel_update(this_arg: *const c_void, msg: &crate::lightning::ln::msgs::ChannelUpdate) -> crate::c_types::derived::CResult_boolLightningErrorZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_channel_update(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, msg.get_native_ref());
+extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_channel_update(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, msg: &crate::lightning::ln::msgs::ChannelUpdate) -> crate::c_types::derived::CResult_boolLightningErrorZ {
+	let mut local_their_node_id = if their_node_id.is_null() { None } else { Some( { their_node_id.into_rust() }) };
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_channel_update(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, local_their_node_id, msg.get_native_ref());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { o }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
@@ -662,31 +665,31 @@ extern "C" fn P2PGossipSync_RoutingMessageHandler_get_next_node_announcement(thi
 }
 #[must_use]
 extern "C" fn P2PGossipSync_RoutingMessageHandler_peer_connected(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, init: &crate::lightning::ln::msgs::Init, mut inbound: bool) -> crate::c_types::derived::CResult_NoneNoneZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::peer_connected(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, &their_node_id.into_rust(), init.get_native_ref(), inbound);
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::peer_connected(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust(), init.get_native_ref(), inbound);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 #[must_use]
 extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_reply_channel_range(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, mut msg: crate::lightning::ln::msgs::ReplyChannelRange) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_reply_channel_range(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, &their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_reply_channel_range(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
 #[must_use]
 extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_reply_short_channel_ids_end(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, mut msg: crate::lightning::ln::msgs::ReplyShortChannelIdsEnd) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_reply_short_channel_ids_end(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, &their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_reply_short_channel_ids_end(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
 #[must_use]
 extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_query_channel_range(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, mut msg: crate::lightning::ln::msgs::QueryChannelRange) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_query_channel_range(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, &their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_query_channel_range(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
 #[must_use]
 extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_query_short_channel_ids(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, mut msg: crate::lightning::ln::msgs::QueryShortChannelIds) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_query_short_channel_ids(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, &their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_query_short_channel_ids(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
@@ -702,7 +705,7 @@ extern "C" fn P2PGossipSync_RoutingMessageHandler_provided_node_features(this_ar
 }
 #[must_use]
 extern "C" fn P2PGossipSync_RoutingMessageHandler_provided_init_features(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::provided_init_features(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, &their_node_id.into_rust());
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::provided_init_features(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust());
 	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
@@ -2390,7 +2393,7 @@ pub extern "C" fn NetworkGraph_node_failed_permanent(this_arg: &crate::lightning
 /// in the map for a while so that these can be resynced from gossip in the future.
 ///
 /// This method is only available with the `std` feature. See
-/// [`NetworkGraph::remove_stale_channels_and_tracking_with_time`] for `no-std` use.
+/// [`NetworkGraph::remove_stale_channels_and_tracking_with_time`] for non-`std` use.
 #[no_mangle]
 pub extern "C" fn NetworkGraph_remove_stale_channels_and_tracking(this_arg: &crate::lightning::routing::gossip::NetworkGraph) {
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.remove_stale_channels_and_tracking()
@@ -2407,8 +2410,8 @@ pub extern "C" fn NetworkGraph_remove_stale_channels_and_tracking(this_arg: &cra
 /// This method will also cause us to stop tracking removed nodes and channels if they have been
 /// in the map for a while so that these can be resynced from gossip in the future.
 ///
-/// This function takes the current unix time as an argument. For users with the `std` feature
-/// enabled, [`NetworkGraph::remove_stale_channels_and_tracking`] may be preferable.
+///This function takes the current unix time as an argument. For users with the `std` feature
+///enabled, [`NetworkGraph::remove_stale_channels_and_tracking`] may be preferable.
 #[no_mangle]
 pub extern "C" fn NetworkGraph_remove_stale_channels_and_tracking_with_time(this_arg: &crate::lightning::routing::gossip::NetworkGraph, mut current_time_unix: u64) {
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.remove_stale_channels_and_tracking_with_time(current_time_unix)
@@ -2421,7 +2424,7 @@ pub extern "C" fn NetworkGraph_remove_stale_channels_and_tracking_with_time(this
 /// [`RoutingMessageHandler`] implementation to call it indirectly. This may be useful to accept
 /// routing messages from a source using a protocol other than the lightning P2P protocol.
 ///
-/// If built with `no-std`, any updates with a timestamp more than two weeks in the past or
+/// If not built with `std`, any updates with a timestamp more than two weeks in the past or
 /// materially in the future will be rejected.
 #[must_use]
 #[no_mangle]
@@ -2435,7 +2438,7 @@ pub extern "C" fn NetworkGraph_update_channel(this_arg: &crate::lightning::routi
 /// of the channel without verifying the associated signatures. Because we aren't given the
 /// associated signatures here we cannot relay the channel update to any of our peers.
 ///
-/// If built with `no-std`, any updates with a timestamp more than two weeks in the past or
+/// If not built with `std`, any updates with a timestamp more than two weeks in the past or
 /// materially in the future will be rejected.
 #[must_use]
 #[no_mangle]
@@ -2449,7 +2452,7 @@ pub extern "C" fn NetworkGraph_update_channel_unsigned(this_arg: &crate::lightni
 ///
 /// This checks whether the update currently is applicable by [`Self::update_channel`].
 ///
-/// If built with `no-std`, any updates with a timestamp more than two weeks in the past or
+/// If not built with `std`, any updates with a timestamp more than two weeks in the past or
 /// materially in the future will be rejected.
 #[must_use]
 #[no_mangle]

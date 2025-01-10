@@ -502,6 +502,17 @@ pub enum MessageContext {
 	/// [`OffersMessage`]: crate::onion_message::offers::OffersMessage
 	Offers(
 		crate::lightning::blinded_path::message::OffersContext),
+	/// Context specific to an [`AsyncPaymentsMessage`].
+	///
+	/// [`AsyncPaymentsMessage`]: crate::onion_message::async_payments::AsyncPaymentsMessage
+	AsyncPayments(
+		crate::lightning::blinded_path::message::AsyncPaymentsContext),
+	/// Represents a context for a blinded path used in a reply path when requesting a DNSSEC proof
+	/// in a [`DNSResolverMessage`].
+	///
+	/// [`DNSResolverMessage`]: crate::onion_message::dns_resolution::DNSResolverMessage
+	DNSResolver(
+		crate::lightning::blinded_path::message::DNSResolverContext),
 	/// Context specific to a [`CustomOnionMessageHandler::CustomMessage`].
 	///
 	/// [`CustomOnionMessageHandler::CustomMessage`]: crate::onion_message::messenger::CustomOnionMessageHandler::CustomMessage
@@ -521,6 +532,18 @@ impl MessageContext {
 					a_nonref.into_native(),
 				)
 			},
+			MessageContext::AsyncPayments (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeMessageContext::AsyncPayments (
+					a_nonref.into_native(),
+				)
+			},
+			MessageContext::DNSResolver (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeMessageContext::DNSResolver (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
 			MessageContext::Custom (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				let mut local_a_nonref = Vec::new(); for mut item in a_nonref.into_rust().drain(..) { local_a_nonref.push( { item }); };
@@ -536,6 +559,16 @@ impl MessageContext {
 			MessageContext::Offers (mut a, ) => {
 				nativeMessageContext::Offers (
 					a.into_native(),
+				)
+			},
+			MessageContext::AsyncPayments (mut a, ) => {
+				nativeMessageContext::AsyncPayments (
+					a.into_native(),
+				)
+			},
+			MessageContext::DNSResolver (mut a, ) => {
+				nativeMessageContext::DNSResolver (
+					*unsafe { Box::from_raw(a.take_inner()) },
 				)
 			},
 			MessageContext::Custom (mut a, ) => {
@@ -556,6 +589,18 @@ impl MessageContext {
 					crate::lightning::blinded_path::message::OffersContext::native_into(a_nonref),
 				)
 			},
+			nativeMessageContext::AsyncPayments (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				MessageContext::AsyncPayments (
+					crate::lightning::blinded_path::message::AsyncPaymentsContext::native_into(a_nonref),
+				)
+			},
+			nativeMessageContext::DNSResolver (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				MessageContext::DNSResolver (
+					crate::lightning::blinded_path::message::DNSResolverContext { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
 			nativeMessageContext::Custom (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				let mut local_a_nonref = Vec::new(); for mut item in a_nonref.drain(..) { local_a_nonref.push( { item }); };
@@ -571,6 +616,16 @@ impl MessageContext {
 			nativeMessageContext::Offers (mut a, ) => {
 				MessageContext::Offers (
 					crate::lightning::blinded_path::message::OffersContext::native_into(a),
+				)
+			},
+			nativeMessageContext::AsyncPayments (mut a, ) => {
+				MessageContext::AsyncPayments (
+					crate::lightning::blinded_path::message::AsyncPaymentsContext::native_into(a),
+				)
+			},
+			nativeMessageContext::DNSResolver (mut a, ) => {
+				MessageContext::DNSResolver (
+					crate::lightning::blinded_path::message::DNSResolverContext { inner: ObjOps::heap_alloc(a), is_owned: true },
 				)
 			},
 			nativeMessageContext::Custom (mut a, ) => {
@@ -604,6 +659,16 @@ pub(crate) extern "C" fn MessageContext_free_void(this_ptr: *mut c_void) {
 /// Utility method to constructs a new Offers-variant MessageContext
 pub extern "C" fn MessageContext_offers(a: crate::lightning::blinded_path::message::OffersContext) -> MessageContext {
 	MessageContext::Offers(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new AsyncPayments-variant MessageContext
+pub extern "C" fn MessageContext_async_payments(a: crate::lightning::blinded_path::message::AsyncPaymentsContext) -> MessageContext {
+	MessageContext::AsyncPayments(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new DNSResolver-variant MessageContext
+pub extern "C" fn MessageContext_dnsresolver(a: crate::lightning::blinded_path::message::DNSResolverContext) -> MessageContext {
+	MessageContext::DNSResolver(a, )
 }
 #[no_mangle]
 /// Utility method to constructs a new Custom-variant MessageContext
@@ -676,6 +741,17 @@ pub enum OffersContext {
 		///
 		/// [`Bolt12Invoice::payment_hash`]: crate::offers::invoice::Bolt12Invoice::payment_hash
 		payment_hash: crate::c_types::ThirtyTwoBytes,
+		/// A nonce used for authenticating that a received [`InvoiceError`] is for a valid
+		/// sent [`Bolt12Invoice`].
+		///
+		/// [`InvoiceError`]: crate::offers::invoice_error::InvoiceError
+		/// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
+		nonce: crate::lightning::offers::nonce::Nonce,
+		/// Authentication code for the [`PaymentHash`], which should be checked when the context is
+		/// used to log the received [`InvoiceError`].
+		///
+		/// [`InvoiceError`]: crate::offers::invoice_error::InvoiceError
+		hmac: crate::c_types::ThirtyTwoBytes,
 	},
 }
 use lightning::blinded_path::message::OffersContext as OffersContextImport;
@@ -702,10 +778,14 @@ impl OffersContext {
 					hmac: local_hmac_nonref,
 				}
 			},
-			OffersContext::InboundPayment {ref payment_hash, } => {
+			OffersContext::InboundPayment {ref payment_hash, ref nonce, ref hmac, } => {
 				let mut payment_hash_nonref = Clone::clone(payment_hash);
+				let mut nonce_nonref = Clone::clone(nonce);
+				let mut hmac_nonref = Clone::clone(hmac);
 				nativeOffersContext::InboundPayment {
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
+					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash_nonref.data),
+					nonce: *unsafe { Box::from_raw(nonce_nonref.take_inner()) },
+					hmac: hmac_nonref.data,
 				}
 			},
 		}
@@ -726,9 +806,11 @@ impl OffersContext {
 					hmac: local_hmac,
 				}
 			},
-			OffersContext::InboundPayment {mut payment_hash, } => {
+			OffersContext::InboundPayment {mut payment_hash, mut nonce, mut hmac, } => {
 				nativeOffersContext::InboundPayment {
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
+					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash.data),
+					nonce: *unsafe { Box::from_raw(nonce.take_inner()) },
+					hmac: hmac.data,
 				}
 			},
 		}
@@ -754,10 +836,14 @@ impl OffersContext {
 					hmac: local_hmac_nonref,
 				}
 			},
-			nativeOffersContext::InboundPayment {ref payment_hash, } => {
+			nativeOffersContext::InboundPayment {ref payment_hash, ref nonce, ref hmac, } => {
 				let mut payment_hash_nonref = Clone::clone(payment_hash);
+				let mut nonce_nonref = Clone::clone(nonce);
+				let mut hmac_nonref = Clone::clone(hmac);
 				OffersContext::InboundPayment {
 					payment_hash: crate::c_types::ThirtyTwoBytes { data: payment_hash_nonref.0 },
+					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce_nonref), is_owned: true },
+					hmac: crate::c_types::ThirtyTwoBytes { data: hmac_nonref },
 				}
 			},
 		}
@@ -778,9 +864,11 @@ impl OffersContext {
 					hmac: local_hmac,
 				}
 			},
-			nativeOffersContext::InboundPayment {mut payment_hash, } => {
+			nativeOffersContext::InboundPayment {mut payment_hash, mut nonce, mut hmac, } => {
 				OffersContext::InboundPayment {
 					payment_hash: crate::c_types::ThirtyTwoBytes { data: payment_hash.0 },
+					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce), is_owned: true },
+					hmac: crate::c_types::ThirtyTwoBytes { data: hmac },
 				}
 			},
 		}
@@ -822,9 +910,11 @@ pub extern "C" fn OffersContext_outbound_payment(payment_id: crate::c_types::Thi
 }
 #[no_mangle]
 /// Utility method to constructs a new InboundPayment-variant OffersContext
-pub extern "C" fn OffersContext_inbound_payment(payment_hash: crate::c_types::ThirtyTwoBytes) -> OffersContext {
+pub extern "C" fn OffersContext_inbound_payment(payment_hash: crate::c_types::ThirtyTwoBytes, nonce: crate::lightning::offers::nonce::Nonce, hmac: crate::c_types::ThirtyTwoBytes) -> OffersContext {
 	OffersContext::InboundPayment {
 		payment_hash,
+		nonce,
+		hmac,
 	}
 }
 /// Get a string which allows debug introspection of a OffersContext object
@@ -836,6 +926,128 @@ pub extern "C" fn OffersContext_debug_str_void(o: *const c_void) -> Str {
 pub extern "C" fn OffersContext_eq(a: &OffersContext, b: &OffersContext) -> bool {
 	if &a.to_native() == &b.to_native() { true } else { false }
 }
+/// Contains data specific to an [`AsyncPaymentsMessage`].
+///
+/// [`AsyncPaymentsMessage`]: crate::onion_message::async_payments::AsyncPaymentsMessage
+#[derive(Clone)]
+#[must_use]
+#[repr(C)]
+pub enum AsyncPaymentsContext {
+	/// Context contained within the reply [`BlindedMessagePath`] we put in outbound
+	/// [`HeldHtlcAvailable`] messages, provided back to us in corresponding [`ReleaseHeldHtlc`]
+	/// messages.
+	///
+	/// [`HeldHtlcAvailable`]: crate::onion_message::async_payments::HeldHtlcAvailable
+	/// [`ReleaseHeldHtlc`]: crate::onion_message::async_payments::ReleaseHeldHtlc
+	OutboundPayment {
+		/// ID used when payment to the originating [`Offer`] was initiated. Useful for us to identify
+		/// which of our pending outbound payments should be released to its often-offline payee.
+		///
+		/// [`Offer`]: crate::offers::offer::Offer
+		payment_id: crate::c_types::ThirtyTwoBytes,
+		/// A nonce used for authenticating that a [`ReleaseHeldHtlc`] message is valid for a preceding
+		/// [`HeldHtlcAvailable`] message.
+		///
+		/// [`ReleaseHeldHtlc`]: crate::onion_message::async_payments::ReleaseHeldHtlc
+		/// [`HeldHtlcAvailable`]: crate::onion_message::async_payments::HeldHtlcAvailable
+		nonce: crate::lightning::offers::nonce::Nonce,
+		/// Authentication code for the [`PaymentId`].
+		///
+		/// Prevents the recipient from being able to deanonymize us by creating a blinded path to us
+		/// containing the expected [`PaymentId`].
+		hmac: crate::c_types::ThirtyTwoBytes,
+	},
+}
+use lightning::blinded_path::message::AsyncPaymentsContext as AsyncPaymentsContextImport;
+pub(crate) type nativeAsyncPaymentsContext = AsyncPaymentsContextImport;
+
+impl AsyncPaymentsContext {
+	#[allow(unused)]
+	pub(crate) fn to_native(&self) -> nativeAsyncPaymentsContext {
+		match self {
+			AsyncPaymentsContext::OutboundPayment {ref payment_id, ref nonce, ref hmac, } => {
+				let mut payment_id_nonref = Clone::clone(payment_id);
+				let mut nonce_nonref = Clone::clone(nonce);
+				let mut hmac_nonref = Clone::clone(hmac);
+				nativeAsyncPaymentsContext::OutboundPayment {
+					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id_nonref.data),
+					nonce: *unsafe { Box::from_raw(nonce_nonref.take_inner()) },
+					hmac: hmac_nonref.data,
+				}
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn into_native(self) -> nativeAsyncPaymentsContext {
+		match self {
+			AsyncPaymentsContext::OutboundPayment {mut payment_id, mut nonce, mut hmac, } => {
+				nativeAsyncPaymentsContext::OutboundPayment {
+					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id.data),
+					nonce: *unsafe { Box::from_raw(nonce.take_inner()) },
+					hmac: hmac.data,
+				}
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn from_native(native: &AsyncPaymentsContextImport) -> Self {
+		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeAsyncPaymentsContext) };
+		match native {
+			nativeAsyncPaymentsContext::OutboundPayment {ref payment_id, ref nonce, ref hmac, } => {
+				let mut payment_id_nonref = Clone::clone(payment_id);
+				let mut nonce_nonref = Clone::clone(nonce);
+				let mut hmac_nonref = Clone::clone(hmac);
+				AsyncPaymentsContext::OutboundPayment {
+					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id_nonref.0 },
+					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce_nonref), is_owned: true },
+					hmac: crate::c_types::ThirtyTwoBytes { data: hmac_nonref },
+				}
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn native_into(native: nativeAsyncPaymentsContext) -> Self {
+		match native {
+			nativeAsyncPaymentsContext::OutboundPayment {mut payment_id, mut nonce, mut hmac, } => {
+				AsyncPaymentsContext::OutboundPayment {
+					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id.0 },
+					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce), is_owned: true },
+					hmac: crate::c_types::ThirtyTwoBytes { data: hmac },
+				}
+			},
+		}
+	}
+}
+/// Frees any resources used by the AsyncPaymentsContext
+#[no_mangle]
+pub extern "C" fn AsyncPaymentsContext_free(this_ptr: AsyncPaymentsContext) { }
+/// Creates a copy of the AsyncPaymentsContext
+#[no_mangle]
+pub extern "C" fn AsyncPaymentsContext_clone(orig: &AsyncPaymentsContext) -> AsyncPaymentsContext {
+	orig.clone()
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn AsyncPaymentsContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const AsyncPaymentsContext)).clone() })) as *mut c_void
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn AsyncPaymentsContext_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut AsyncPaymentsContext) };
+}
+#[no_mangle]
+/// Utility method to constructs a new OutboundPayment-variant AsyncPaymentsContext
+pub extern "C" fn AsyncPaymentsContext_outbound_payment(payment_id: crate::c_types::ThirtyTwoBytes, nonce: crate::lightning::offers::nonce::Nonce, hmac: crate::c_types::ThirtyTwoBytes) -> AsyncPaymentsContext {
+	AsyncPaymentsContext::OutboundPayment {
+		payment_id,
+		nonce,
+		hmac,
+	}
+}
+/// Get a string which allows debug introspection of a AsyncPaymentsContext object
+pub extern "C" fn AsyncPaymentsContext_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::message::AsyncPaymentsContext }).into()}
 #[no_mangle]
 /// Serialize the MessageContext object into a byte array which can be read by MessageContext_read
 pub extern "C" fn MessageContext_write(obj: &crate::lightning::blinded_path::message::MessageContext) -> crate::c_types::derived::CVec_u8Z {
@@ -866,5 +1078,167 @@ pub(crate) extern "C" fn OffersContext_write_void(obj: *const c_void) -> crate::
 pub extern "C" fn OffersContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_OffersContextDecodeErrorZ {
 	let res: Result<lightning::blinded_path::message::OffersContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::message::OffersContext::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
+/// Serialize the AsyncPaymentsContext object into a byte array which can be read by AsyncPaymentsContext_read
+pub extern "C" fn AsyncPaymentsContext_write(obj: &crate::lightning::blinded_path::message::AsyncPaymentsContext) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(&unsafe { &*obj }.to_native())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn AsyncPaymentsContext_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	AsyncPaymentsContext_write(unsafe { &*(obj as *const AsyncPaymentsContext) })
+}
+#[no_mangle]
+/// Read a AsyncPaymentsContext from a byte array, created by AsyncPaymentsContext_write
+pub extern "C" fn AsyncPaymentsContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_AsyncPaymentsContextDecodeErrorZ {
+	let res: Result<lightning::blinded_path::message::AsyncPaymentsContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::message::AsyncPaymentsContext::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+
+use lightning::blinded_path::message::DNSResolverContext as nativeDNSResolverContextImport;
+pub(crate) type nativeDNSResolverContext = nativeDNSResolverContextImport;
+
+/// Contains a simple nonce for use in a blinded path's context.
+///
+/// Such a context is required when receiving a [`DNSSECProof`] message.
+///
+/// [`DNSSECProof`]: crate::onion_message::dns_resolution::DNSSECProof
+#[must_use]
+#[repr(C)]
+pub struct DNSResolverContext {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeDNSResolverContext,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for DNSResolverContext {
+	type Target = nativeDNSResolverContext;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for DNSResolverContext { }
+unsafe impl core::marker::Sync for DNSResolverContext { }
+impl Drop for DNSResolverContext {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeDNSResolverContext>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the DNSResolverContext, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn DNSResolverContext_free(this_obj: DNSResolverContext) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn DNSResolverContext_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeDNSResolverContext) };
+}
+#[allow(unused)]
+impl DNSResolverContext {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeDNSResolverContext {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeDNSResolverContext {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeDNSResolverContext {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// A nonce which uniquely describes a DNS resolution.
+///
+/// When we receive a DNSSEC proof message, we should check that it was sent over the blinded
+/// path we included in the request by comparing a stored nonce with this one.
+#[no_mangle]
+pub extern "C" fn DNSResolverContext_get_nonce(this_ptr: &DNSResolverContext) -> *const [u8; 16] {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().nonce;
+	inner_val
+}
+/// A nonce which uniquely describes a DNS resolution.
+///
+/// When we receive a DNSSEC proof message, we should check that it was sent over the blinded
+/// path we included in the request by comparing a stored nonce with this one.
+#[no_mangle]
+pub extern "C" fn DNSResolverContext_set_nonce(this_ptr: &mut DNSResolverContext, mut val: crate::c_types::SixteenBytes) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.nonce = val.data;
+}
+/// Constructs a new DNSResolverContext given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn DNSResolverContext_new(mut nonce_arg: crate::c_types::SixteenBytes) -> DNSResolverContext {
+	DNSResolverContext { inner: ObjOps::heap_alloc(nativeDNSResolverContext {
+		nonce: nonce_arg.data,
+	}), is_owned: true }
+}
+impl Clone for DNSResolverContext {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeDNSResolverContext>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn DNSResolverContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeDNSResolverContext)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the DNSResolverContext
+pub extern "C" fn DNSResolverContext_clone(orig: &DNSResolverContext) -> DNSResolverContext {
+	orig.clone()
+}
+/// Get a string which allows debug introspection of a DNSResolverContext object
+pub extern "C" fn DNSResolverContext_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::message::DNSResolverContext }).into()}
+/// Generates a non-cryptographic 64-bit hash of the DNSResolverContext.
+#[no_mangle]
+pub extern "C" fn DNSResolverContext_hash(o: &DNSResolverContext) -> u64 {
+	if o.inner.is_null() { return 0; }
+	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
+	#[allow(deprecated)]
+	let mut hasher = core::hash::SipHasher::new();
+	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
+	core::hash::Hasher::finish(&hasher)
+}
+/// Checks if two DNSResolverContexts contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn DNSResolverContext_eq(a: &DNSResolverContext, b: &DNSResolverContext) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+#[no_mangle]
+/// Serialize the DNSResolverContext object into a byte array which can be read by DNSResolverContext_read
+pub extern "C" fn DNSResolverContext_write(obj: &crate::lightning::blinded_path::message::DNSResolverContext) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn DNSResolverContext_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::blinded_path::message::nativeDNSResolverContext) })
+}
+#[no_mangle]
+/// Read a DNSResolverContext from a byte array, created by DNSResolverContext_write
+pub extern "C" fn DNSResolverContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_DNSResolverContextDecodeErrorZ {
+	let res: Result<lightning::blinded_path::message::DNSResolverContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::message::DNSResolverContext { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }

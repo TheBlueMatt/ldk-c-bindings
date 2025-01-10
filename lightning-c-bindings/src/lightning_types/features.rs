@@ -48,6 +48,8 @@
 //!     (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md#route-blinding) for more information).
 //! - `ShutdownAnySegwit` - requires/supports that future segwit versions are allowed in `shutdown`
 //!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
+//! - `DualFund` - requires/supports V2 channel establishment
+//!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#channel-establishment-v2) for more information).
 //! - `OnionMessages` - requires/supports forwarding onion messages
 //!     (see [BOLT-7](https://github.com/lightning/bolts/pull/759/files) for more information).
 //! - `ChannelType` - node supports the channel_type field in open/accept
@@ -66,6 +68,8 @@
 //!     (see the [`Keysend` feature assignment proposal](https://github.com/lightning/bolts/issues/605#issuecomment-606679798) for more information).
 //! - `Trampoline` - supports receiving and forwarding Trampoline payments
 //!     (see the [`Trampoline` feature proposal](https://github.com/lightning/bolts/pull/836) for more information).
+//! - `DnsResolver` - supports resolving DNS names to TXT DNSSEC proofs for BIP 353 payments
+//!     (see [bLIP 32](https://github.com/lightning/blips/blob/master/blip-0032.md) for more information).
 //!
 //! LDK knows about the following features, but does not support them:
 //! - `AnchorsNonzeroFeeHtlcTx` - the initial version of anchor outputs, which was later found to be
@@ -985,6 +989,62 @@ pub extern "C" fn NodeFeatures_requires_shutdown_anysegwit(this_arg: &crate::lig
 
 /// Set this feature as optional.
 #[no_mangle]
+pub extern "C" fn InitFeatures_set_dual_fund_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_dual_fund_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_dual_fund_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_dual_fund_required()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_dual_fund(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_dual_fund();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_dual_fund_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_dual_fund_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_dual_fund_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_dual_fund_required()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_dual_fund(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_dual_fund();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_dual_fund(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_dual_fund();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_dual_fund(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_dual_fund();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
 pub extern "C" fn InitFeatures_set_taproot_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_taproot_optional()
 }
@@ -1463,6 +1523,26 @@ pub extern "C" fn Bolt11InvoiceFeatures_supports_trampoline_routing(this_arg: &c
 	ret
 }
 
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn Bolt12InvoiceFeatures_set_trampoline_routing_optional(this_arg: &mut crate::lightning_types::features::Bolt12InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt12InvoiceFeatures)) }.set_trampoline_routing_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn Bolt12InvoiceFeatures_set_trampoline_routing_required(this_arg: &mut crate::lightning_types::features::Bolt12InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt12InvoiceFeatures)) }.set_trampoline_routing_required()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12InvoiceFeatures_supports_trampoline_routing(this_arg: &crate::lightning_types::features::Bolt12InvoiceFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_trampoline_routing();
+	ret
+}
+
 /// Checks if this feature is required.
 #[must_use]
 #[no_mangle]
@@ -1484,6 +1564,42 @@ pub extern "C" fn NodeFeatures_requires_trampoline_routing(this_arg: &crate::lig
 #[no_mangle]
 pub extern "C" fn Bolt11InvoiceFeatures_requires_trampoline_routing(this_arg: &crate::lightning_types::features::Bolt11InvoiceFeatures) -> bool {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_trampoline_routing();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12InvoiceFeatures_requires_trampoline_routing(this_arg: &crate::lightning_types::features::Bolt12InvoiceFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_trampoline_routing();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_dns_resolution_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_dns_resolution_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_dns_resolution_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_dns_resolution_required()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_dns_resolution(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_dns_resolution();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_dns_resolution(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_dns_resolution();
 	ret
 }
 

@@ -1107,7 +1107,7 @@ pub extern "C" fn HTLCDescriptor_get_preimage(this_ptr: &HTLCDescriptor) -> crat
 /// taken.
 #[no_mangle]
 pub extern "C" fn HTLCDescriptor_set_preimage(this_ptr: &mut HTLCDescriptor, mut val: crate::c_types::derived::COption_ThirtyTwoBytesZ) {
-	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentPreimage({ val_opt.take() }.data) }})} };
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::lightning::types::payment::PaymentPreimage({ val_opt.take() }.data) }})} };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.preimage = local_val;
 }
 /// The counterparty's signature required to spend the HTLC output.
@@ -1125,7 +1125,7 @@ pub extern "C" fn HTLCDescriptor_set_counterparty_sig(this_ptr: &mut HTLCDescrip
 #[must_use]
 #[no_mangle]
 pub extern "C" fn HTLCDescriptor_new(mut channel_derivation_parameters_arg: crate::lightning::sign::ChannelDerivationParameters, mut commitment_txid_arg: crate::c_types::ThirtyTwoBytes, mut per_commitment_number_arg: u64, mut per_commitment_point_arg: crate::c_types::PublicKey, mut feerate_per_kw_arg: u32, mut htlc_arg: crate::lightning::ln::chan_utils::HTLCOutputInCommitment, mut preimage_arg: crate::c_types::derived::COption_ThirtyTwoBytesZ, mut counterparty_sig_arg: crate::c_types::ECDSASignature) -> HTLCDescriptor {
-	let mut local_preimage_arg = { /*preimage_arg*/ let preimage_arg_opt = preimage_arg; if preimage_arg_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentPreimage({ preimage_arg_opt.take() }.data) }})} };
+	let mut local_preimage_arg = { /*preimage_arg*/ let preimage_arg_opt = preimage_arg; if preimage_arg_opt.is_none() { None } else { Some({ { ::lightning::types::payment::PaymentPreimage({ preimage_arg_opt.take() }.data) }})} };
 	HTLCDescriptor { inner: ObjOps::heap_alloc(nativeHTLCDescriptor {
 		channel_derivation_parameters: *unsafe { Box::from_raw(channel_derivation_parameters_arg.take_inner()) },
 		commitment_txid: ::bitcoin::hash_types::Txid::from_slice(&commitment_txid_arg.data[..]).unwrap(),
@@ -1248,9 +1248,12 @@ pub extern "C" fn HTLCDescriptor_derive_channel_signer(this_arg: &crate::lightni
 /// A trait to handle Lightning channel key material without concretizing the channel type or
 /// the signature mechanism.
 ///
-/// Several methods allow error types to be returned to support async signing. This feature
-/// is not yet complete, and panics may occur in certain situations when returning errors
-/// for these methods.
+/// Several methods allow errors to be returned to support async signing. In such cases, the
+/// signing operation can be replayed by calling [`ChannelManager::signer_unblocked`] once the
+/// result is ready, at which point the channel operation will resume. Methods which allow for
+/// async results are explicitly documented as such
+///
+/// [`ChannelManager::signer_unblocked`]: crate::ln::channelmanager::ChannelManager::signer_unblocked
 #[repr(C)]
 pub struct ChannelSigner {
 	/// An opaque pointer which is passed to your function implementations as an argument.
@@ -1260,10 +1263,9 @@ pub struct ChannelSigner {
 	///
 	/// Note that the commitment number starts at `(1 << 48) - 1` and counts backwards.
 	///
-	/// If the signer returns `Err`, then the user is responsible for either force-closing the channel
-	/// or calling `ChannelManager::signer_unblocked` (this method is only available when the
-	/// `async_signing` cfg flag is enabled) once the signature is ready.
-	///
+	/// This method is *not* asynchronous. This method is expected to always return `Ok`
+	/// immediately after we reconnect to peers, and returning an `Err` may lead to an immediate
+	/// `panic`. This method will be made asynchronous in a future release.
 	pub get_per_commitment_point: extern "C" fn (this_arg: *const c_void, idx: u64) -> crate::c_types::derived::CResult_PublicKeyNoneZ,
 	/// Gets the commitment secret for a specific commitment number as part of the revocation process
 	///
@@ -1273,6 +1275,12 @@ pub struct ChannelSigner {
 	/// May be called more than once for the same index.
 	///
 	/// Note that the commitment number starts at `(1 << 48) - 1` and counts backwards.
+	///
+	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
+	/// signature and should be retried later. Once the signer is ready to provide a signature after
+	/// previously returning an `Err`, [`ChannelManager::signer_unblocked`] must be called.
+	///
+	/// [`ChannelManager::signer_unblocked`]: crate::ln::channelmanager::ChannelManager::signer_unblocked
 	pub release_commitment_secret: extern "C" fn (this_arg: *const c_void, idx: u64) -> crate::c_types::derived::CResult__u832NoneZ,
 	/// Validate the counterparty's signatures on the holder commitment transaction and HTLCs.
 	///
@@ -1287,13 +1295,23 @@ pub struct ChannelSigner {
 	///
 	/// Note that all the relevant preimages will be provided, but there may also be additional
 	/// irrelevant or duplicate preimages.
+	///
+	/// This method is *not* asynchronous. If an `Err` is returned, the channel will be immediately
+	/// closed. If you wish to make this operation asynchronous, you should instead return `Ok(())`
+	/// and pause future signing operations until this validation completes.
 	pub validate_holder_commitment: extern "C" fn (this_arg: *const c_void, holder_tx: &crate::lightning::ln::chan_utils::HolderCommitmentTransaction, outbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ) -> crate::c_types::derived::CResult_NoneNoneZ,
 	/// Validate the counterparty's revocation.
 	///
 	/// This is required in order for the signer to make sure that the state has moved
 	/// forward and it is safe to sign the next counterparty commitment.
+	///
+	/// This method is *not* asynchronous. If an `Err` is returned, the channel will be immediately
+	/// closed. If you wish to make this operation asynchronous, you should instead return `Ok(())`
+	/// and pause future signing operations until this validation completes.
 	pub validate_counterparty_revocation: extern "C" fn (this_arg: *const c_void, idx: u64, secret: *const [u8; 32]) -> crate::c_types::derived::CResult_NoneNoneZ,
 	/// Returns the holder's channel public keys and basepoints.
+	///
+	/// This method is *not* asynchronous. Instead, the value must be cached locally.
 	pub pubkeys: core::cell::UnsafeCell<crate::lightning::ln::chan_utils::ChannelPublicKeys>,
 	/// Fill in the pubkeys field as a reference to it will be given to Rust after this returns
 	/// Note that this takes a pointer to this object, not the this_ptr like other methods do
@@ -1302,6 +1320,8 @@ pub struct ChannelSigner {
 	/// Returns an arbitrary identifier describing the set of keys which are provided back to you in
 	/// some [`SpendableOutputDescriptor`] types. This should be sufficient to identify this
 	/// [`EcdsaChannelSigner`] object uniquely and lookup or re-derive its keys.
+	///
+	/// This method is *not* asynchronous. Instead, the value must be cached locally.
 	pub channel_keys_id: extern "C" fn (this_arg: *const c_void) -> crate::c_types::ThirtyTwoBytes,
 	/// Set the counterparty static channel data, including basepoints,
 	/// `counterparty_selected`/`holder_selected_contest_delay` and funding outpoint.
@@ -1576,7 +1596,7 @@ pub struct NodeSigner {
 	/// An opaque pointer which is passed to your function implementations as an argument.
 	/// This has no meaning in the LDK, and can be NULL or any other value.
 	pub this_arg: *mut c_void,
-	/// Get secret key material as bytes for use in encrypting and decrypting inbound payment data.
+	/// Get the [`ExpandedKey`] for use in encrypting and decrypting inbound payment data.
 	///
 	/// If the implementor of this trait supports [phantom node payments], then every node that is
 	/// intended to be included in the phantom invoice route hints must return the same value from
@@ -1585,7 +1605,7 @@ pub struct NodeSigner {
 	/// This method must return the same value each time it is called.
 	///
 	/// [phantom node payments]: PhantomKeysManager
-	pub get_inbound_payment_key_material: extern "C" fn (this_arg: *const c_void) -> crate::c_types::ThirtyTwoBytes,
+	pub get_inbound_payment_key: extern "C" fn (this_arg: *const c_void) -> crate::lightning::ln::inbound_payment::ExpandedKey,
 	/// Get node id based on the provided [`Recipient`].
 	///
 	/// This method must return the same value each time it is called with a given [`Recipient`]
@@ -1614,22 +1634,7 @@ pub struct NodeSigner {
 	///
 	/// Errors if the [`Recipient`] variant is not supported by the implementation.
 	pub sign_invoice: extern "C" fn (this_arg: *const c_void, invoice: &crate::lightning_invoice::RawBolt11Invoice, recipient: crate::lightning::sign::Recipient) -> crate::c_types::derived::CResult_RecoverableSignatureNoneZ,
-	/// Signs the [`TaggedHash`] of a BOLT 12 invoice request.
-	///
-	/// May be called by a function passed to [`UnsignedInvoiceRequest::sign`] where
-	/// `invoice_request` is the callee.
-	///
-	/// Implementors may check that the `invoice_request` is expected rather than blindly signing
-	/// the tagged hash. An `Ok` result should sign `invoice_request.tagged_hash().as_digest()` with
-	/// the node's signing key or an ephemeral key to preserve privacy, whichever is associated with
-	/// [`UnsignedInvoiceRequest::payer_id`].
-	///
-	/// [`TaggedHash`]: crate::offers::merkle::TaggedHash
-	pub sign_bolt12_invoice_request: extern "C" fn (this_arg: *const c_void, invoice_request: &crate::lightning::offers::invoice_request::UnsignedInvoiceRequest) -> crate::c_types::derived::CResult_SchnorrSignatureNoneZ,
 	/// Signs the [`TaggedHash`] of a BOLT 12 invoice.
-	///
-	/// May be called by a function passed to [`UnsignedBolt12Invoice::sign`] where `invoice` is the
-	/// callee.
 	///
 	/// Implementors may check that the `invoice` is expected rather than blindly signing the tagged
 	/// hash. An `Ok` result should sign `invoice.tagged_hash().as_digest()` with the node's signing
@@ -1655,11 +1660,10 @@ unsafe impl Sync for NodeSigner {}
 pub(crate) fn NodeSigner_clone_fields(orig: &NodeSigner) -> NodeSigner {
 	NodeSigner {
 		this_arg: orig.this_arg,
-		get_inbound_payment_key_material: Clone::clone(&orig.get_inbound_payment_key_material),
+		get_inbound_payment_key: Clone::clone(&orig.get_inbound_payment_key),
 		get_node_id: Clone::clone(&orig.get_node_id),
 		ecdh: Clone::clone(&orig.ecdh),
 		sign_invoice: Clone::clone(&orig.sign_invoice),
-		sign_bolt12_invoice_request: Clone::clone(&orig.sign_bolt12_invoice_request),
 		sign_bolt12_invoice: Clone::clone(&orig.sign_bolt12_invoice),
 		sign_gossip_message: Clone::clone(&orig.sign_gossip_message),
 		free: Clone::clone(&orig.free),
@@ -1668,9 +1672,9 @@ pub(crate) fn NodeSigner_clone_fields(orig: &NodeSigner) -> NodeSigner {
 
 use lightning::sign::NodeSigner as rustNodeSigner;
 impl rustNodeSigner for NodeSigner {
-	fn get_inbound_payment_key_material(&self) -> lightning::sign::KeyMaterial {
-		let mut ret = (self.get_inbound_payment_key_material)(self.this_arg);
-		::lightning::sign::KeyMaterial(ret.data)
+	fn get_inbound_payment_key(&self) -> lightning::ln::inbound_payment::ExpandedKey {
+		let mut ret = (self.get_inbound_payment_key)(self.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
 	}
 	fn get_node_id(&self, mut recipient: lightning::sign::Recipient) -> Result<bitcoin::secp256k1::PublicKey, ()> {
 		let mut ret = (self.get_node_id)(self.this_arg, crate::lightning::sign::Recipient::native_into(recipient));
@@ -1688,11 +1692,6 @@ impl rustNodeSigner for NodeSigner {
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_bolt12_invoice_request(&self, mut invoice_request: &lightning::offers::invoice_request::UnsignedInvoiceRequest) -> Result<bitcoin::secp256k1::schnorr::Signature, ()> {
-		let mut ret = (self.sign_bolt12_invoice_request)(self.this_arg, &crate::lightning::offers::invoice_request::UnsignedInvoiceRequest { inner: unsafe { ObjOps::nonnull_ptr_to_inner((invoice_request as *const lightning::offers::invoice_request::UnsignedInvoiceRequest<>) as *mut _) }, is_owned: false });
-		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
 	fn sign_bolt12_invoice(&self, mut invoice: &lightning::offers::invoice::UnsignedBolt12Invoice) -> Result<bitcoin::secp256k1::schnorr::Signature, ()> {
 		let mut ret = (self.sign_bolt12_invoice)(self.this_arg, &crate::lightning::offers::invoice::UnsignedBolt12Invoice { inner: unsafe { ObjOps::nonnull_ptr_to_inner((invoice as *const lightning::offers::invoice::UnsignedBolt12Invoice<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
@@ -1707,9 +1706,9 @@ impl rustNodeSigner for NodeSigner {
 
 pub struct NodeSignerRef(NodeSigner);
 impl rustNodeSigner for NodeSignerRef {
-	fn get_inbound_payment_key_material(&self) -> lightning::sign::KeyMaterial {
-		let mut ret = (self.0.get_inbound_payment_key_material)(self.0.this_arg);
-		::lightning::sign::KeyMaterial(ret.data)
+	fn get_inbound_payment_key(&self) -> lightning::ln::inbound_payment::ExpandedKey {
+		let mut ret = (self.0.get_inbound_payment_key)(self.0.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
 	}
 	fn get_node_id(&self, mut recipient: lightning::sign::Recipient) -> Result<bitcoin::secp256k1::PublicKey, ()> {
 		let mut ret = (self.0.get_node_id)(self.0.this_arg, crate::lightning::sign::Recipient::native_into(recipient));
@@ -1724,11 +1723,6 @@ impl rustNodeSigner for NodeSignerRef {
 	}
 	fn sign_invoice(&self, mut invoice: &lightning_invoice::RawBolt11Invoice, mut recipient: lightning::sign::Recipient) -> Result<bitcoin::secp256k1::ecdsa::RecoverableSignature, ()> {
 		let mut ret = (self.0.sign_invoice)(self.0.this_arg, &crate::lightning_invoice::RawBolt11Invoice { inner: unsafe { ObjOps::nonnull_ptr_to_inner((invoice as *const lightning_invoice::RawBolt11Invoice<>) as *mut _) }, is_owned: false }, crate::lightning::sign::Recipient::native_into(recipient));
-		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn sign_bolt12_invoice_request(&self, mut invoice_request: &lightning::offers::invoice_request::UnsignedInvoiceRequest) -> Result<bitcoin::secp256k1::schnorr::Signature, ()> {
-		let mut ret = (self.0.sign_bolt12_invoice_request)(self.0.this_arg, &crate::lightning::offers::invoice_request::UnsignedInvoiceRequest { inner: unsafe { ObjOps::nonnull_ptr_to_inner((invoice_request as *const lightning::offers::invoice_request::UnsignedInvoiceRequest<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
@@ -2200,9 +2194,6 @@ pub extern "C" fn InMemorySigner_get_commitment_seed(this_ptr: &InMemorySigner) 
 pub extern "C" fn InMemorySigner_set_commitment_seed(this_ptr: &mut InMemorySigner, mut val: crate::c_types::ThirtyTwoBytes) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.commitment_seed = val.data;
 }
-/// Get a string which allows debug introspection of a InMemorySigner object
-pub extern "C" fn InMemorySigner_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::sign::InMemorySigner }).into()}
 impl Clone for InMemorySigner {
 	fn clone(&self) -> Self {
 		Self {
@@ -2432,7 +2423,7 @@ extern "C" fn InMemorySigner_ChannelSigner_release_commitment_secret(this_arg: *
 }
 #[must_use]
 extern "C" fn InMemorySigner_ChannelSigner_validate_holder_commitment(this_arg: *const c_void, holder_tx: &crate::lightning::ln::chan_utils::HolderCommitmentTransaction, mut outbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ) -> crate::c_types::derived::CResult_NoneNoneZ {
-	let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.into_rust().drain(..) { local_outbound_htlc_preimages.push( { ::lightning::ln::types::PaymentPreimage(item.data) }); };
+	let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.into_rust().drain(..) { local_outbound_htlc_preimages.push( { ::lightning::types::payment::PaymentPreimage(item.data) }); };
 	let mut ret = <nativeInMemorySigner as lightning::sign::ChannelSigner>::validate_holder_commitment(unsafe { &mut *(this_arg as *mut nativeInMemorySigner) }, holder_tx.get_native_ref(), local_outbound_htlc_preimages);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
@@ -2490,6 +2481,7 @@ pub extern "C" fn InMemorySigner_as_EcdsaChannelSigner(this_arg: &InMemorySigner
 		sign_closing_transaction: InMemorySigner_EcdsaChannelSigner_sign_closing_transaction,
 		sign_holder_anchor_input: InMemorySigner_EcdsaChannelSigner_sign_holder_anchor_input,
 		sign_channel_announcement_with_funding_key: InMemorySigner_EcdsaChannelSigner_sign_channel_announcement_with_funding_key,
+		sign_splicing_funding_input: InMemorySigner_EcdsaChannelSigner_sign_splicing_funding_input,
 		ChannelSigner: crate::lightning::sign::ChannelSigner {
 			this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
 			free: None,
@@ -2509,8 +2501,8 @@ pub extern "C" fn InMemorySigner_as_EcdsaChannelSigner(this_arg: &InMemorySigner
 
 #[must_use]
 extern "C" fn InMemorySigner_EcdsaChannelSigner_sign_counterparty_commitment(this_arg: *const c_void, commitment_tx: &crate::lightning::ln::chan_utils::CommitmentTransaction, mut inbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ, mut outbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ) -> crate::c_types::derived::CResult_C2Tuple_ECDSASignatureCVec_ECDSASignatureZZNoneZ {
-	let mut local_inbound_htlc_preimages = Vec::new(); for mut item in inbound_htlc_preimages.into_rust().drain(..) { local_inbound_htlc_preimages.push( { ::lightning::ln::types::PaymentPreimage(item.data) }); };
-	let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.into_rust().drain(..) { local_outbound_htlc_preimages.push( { ::lightning::ln::types::PaymentPreimage(item.data) }); };
+	let mut local_inbound_htlc_preimages = Vec::new(); for mut item in inbound_htlc_preimages.into_rust().drain(..) { local_inbound_htlc_preimages.push( { ::lightning::types::payment::PaymentPreimage(item.data) }); };
+	let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.into_rust().drain(..) { local_outbound_htlc_preimages.push( { ::lightning::types::payment::PaymentPreimage(item.data) }); };
 	let mut ret = <nativeInMemorySigner as lightning::sign::ecdsa::EcdsaChannelSigner>::sign_counterparty_commitment(unsafe { &mut *(this_arg as *mut nativeInMemorySigner) }, commitment_tx.get_native_ref(), local_inbound_htlc_preimages, local_outbound_htlc_preimages, secp256k1::global::SECP256K1);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let (mut orig_ret_0_0, mut orig_ret_0_1) = o; let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.drain(..) { local_orig_ret_0_1.push( { crate::c_types::ECDSASignature::from_rust(&item) }); }; let mut local_ret_0 = (crate::c_types::ECDSASignature::from_rust(&orig_ret_0_0), local_orig_ret_0_1.into()).into(); local_ret_0 }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
@@ -2560,6 +2552,12 @@ extern "C" fn InMemorySigner_EcdsaChannelSigner_sign_holder_anchor_input(this_ar
 #[must_use]
 extern "C" fn InMemorySigner_EcdsaChannelSigner_sign_channel_announcement_with_funding_key(this_arg: *const c_void, msg: &crate::lightning::ln::msgs::UnsignedChannelAnnouncement) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ {
 	let mut ret = <nativeInMemorySigner as lightning::sign::ecdsa::EcdsaChannelSigner>::sign_channel_announcement_with_funding_key(unsafe { &mut *(this_arg as *mut nativeInMemorySigner) }, msg.get_native_ref(), secp256k1::global::SECP256K1);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::ECDSASignature::from_rust(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	local_ret
+}
+#[must_use]
+extern "C" fn InMemorySigner_EcdsaChannelSigner_sign_splicing_funding_input(this_arg: *const c_void, mut tx: crate::c_types::Transaction, mut input_index: usize, mut input_value: u64) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ {
+	let mut ret = <nativeInMemorySigner as lightning::sign::ecdsa::EcdsaChannelSigner>::sign_splicing_funding_input(unsafe { &mut *(this_arg as *mut nativeInMemorySigner) }, &tx.into_bitcoin(), input_index, input_value, secp256k1::global::SECP256K1);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::ECDSASignature::from_rust(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
@@ -2760,20 +2758,19 @@ pub extern "C" fn KeysManager_as_NodeSigner(this_arg: &KeysManager) -> crate::li
 	crate::lightning::sign::NodeSigner {
 		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
 		free: None,
-		get_inbound_payment_key_material: KeysManager_NodeSigner_get_inbound_payment_key_material,
+		get_inbound_payment_key: KeysManager_NodeSigner_get_inbound_payment_key,
 		get_node_id: KeysManager_NodeSigner_get_node_id,
 		ecdh: KeysManager_NodeSigner_ecdh,
 		sign_invoice: KeysManager_NodeSigner_sign_invoice,
-		sign_bolt12_invoice_request: KeysManager_NodeSigner_sign_bolt12_invoice_request,
 		sign_bolt12_invoice: KeysManager_NodeSigner_sign_bolt12_invoice,
 		sign_gossip_message: KeysManager_NodeSigner_sign_gossip_message,
 	}
 }
 
 #[must_use]
-extern "C" fn KeysManager_NodeSigner_get_inbound_payment_key_material(this_arg: *const c_void) -> crate::c_types::ThirtyTwoBytes {
-	let mut ret = <nativeKeysManager as lightning::sign::NodeSigner>::get_inbound_payment_key_material(unsafe { &mut *(this_arg as *mut nativeKeysManager) }, );
-	crate::c_types::ThirtyTwoBytes { data: ret.0 }
+extern "C" fn KeysManager_NodeSigner_get_inbound_payment_key(this_arg: *const c_void) -> crate::lightning::ln::inbound_payment::ExpandedKey {
+	let mut ret = <nativeKeysManager as lightning::sign::NodeSigner>::get_inbound_payment_key(unsafe { &mut *(this_arg as *mut nativeKeysManager) }, );
+	crate::lightning::ln::inbound_payment::ExpandedKey { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 #[must_use]
 extern "C" fn KeysManager_NodeSigner_get_node_id(this_arg: *const c_void, mut recipient: crate::lightning::sign::Recipient) -> crate::c_types::derived::CResult_PublicKeyNoneZ {
@@ -2792,12 +2789,6 @@ extern "C" fn KeysManager_NodeSigner_ecdh(this_arg: *const c_void, mut recipient
 extern "C" fn KeysManager_NodeSigner_sign_invoice(this_arg: *const c_void, invoice: &crate::lightning_invoice::RawBolt11Invoice, mut recipient: crate::lightning::sign::Recipient) -> crate::c_types::derived::CResult_RecoverableSignatureNoneZ {
 	let mut ret = <nativeKeysManager as lightning::sign::NodeSigner>::sign_invoice(unsafe { &mut *(this_arg as *mut nativeKeysManager) }, invoice.get_native_ref(), recipient.into_native());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::RecoverableSignature::from_rust(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-#[must_use]
-extern "C" fn KeysManager_NodeSigner_sign_bolt12_invoice_request(this_arg: *const c_void, invoice_request: &crate::lightning::offers::invoice_request::UnsignedInvoiceRequest) -> crate::c_types::derived::CResult_SchnorrSignatureNoneZ {
-	let mut ret = <nativeKeysManager as lightning::sign::NodeSigner>::sign_bolt12_invoice_request(unsafe { &mut *(this_arg as *mut nativeKeysManager) }, invoice_request.get_native_ref());
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::SchnorrSignature::from_rust(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 #[must_use]
@@ -3016,20 +3007,19 @@ pub extern "C" fn PhantomKeysManager_as_NodeSigner(this_arg: &PhantomKeysManager
 	crate::lightning::sign::NodeSigner {
 		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
 		free: None,
-		get_inbound_payment_key_material: PhantomKeysManager_NodeSigner_get_inbound_payment_key_material,
+		get_inbound_payment_key: PhantomKeysManager_NodeSigner_get_inbound_payment_key,
 		get_node_id: PhantomKeysManager_NodeSigner_get_node_id,
 		ecdh: PhantomKeysManager_NodeSigner_ecdh,
 		sign_invoice: PhantomKeysManager_NodeSigner_sign_invoice,
-		sign_bolt12_invoice_request: PhantomKeysManager_NodeSigner_sign_bolt12_invoice_request,
 		sign_bolt12_invoice: PhantomKeysManager_NodeSigner_sign_bolt12_invoice,
 		sign_gossip_message: PhantomKeysManager_NodeSigner_sign_gossip_message,
 	}
 }
 
 #[must_use]
-extern "C" fn PhantomKeysManager_NodeSigner_get_inbound_payment_key_material(this_arg: *const c_void) -> crate::c_types::ThirtyTwoBytes {
-	let mut ret = <nativePhantomKeysManager as lightning::sign::NodeSigner>::get_inbound_payment_key_material(unsafe { &mut *(this_arg as *mut nativePhantomKeysManager) }, );
-	crate::c_types::ThirtyTwoBytes { data: ret.0 }
+extern "C" fn PhantomKeysManager_NodeSigner_get_inbound_payment_key(this_arg: *const c_void) -> crate::lightning::ln::inbound_payment::ExpandedKey {
+	let mut ret = <nativePhantomKeysManager as lightning::sign::NodeSigner>::get_inbound_payment_key(unsafe { &mut *(this_arg as *mut nativePhantomKeysManager) }, );
+	crate::lightning::ln::inbound_payment::ExpandedKey { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 #[must_use]
 extern "C" fn PhantomKeysManager_NodeSigner_get_node_id(this_arg: *const c_void, mut recipient: crate::lightning::sign::Recipient) -> crate::c_types::derived::CResult_PublicKeyNoneZ {
@@ -3048,12 +3038,6 @@ extern "C" fn PhantomKeysManager_NodeSigner_ecdh(this_arg: *const c_void, mut re
 extern "C" fn PhantomKeysManager_NodeSigner_sign_invoice(this_arg: *const c_void, invoice: &crate::lightning_invoice::RawBolt11Invoice, mut recipient: crate::lightning::sign::Recipient) -> crate::c_types::derived::CResult_RecoverableSignatureNoneZ {
 	let mut ret = <nativePhantomKeysManager as lightning::sign::NodeSigner>::sign_invoice(unsafe { &mut *(this_arg as *mut nativePhantomKeysManager) }, invoice.get_native_ref(), recipient.into_native());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::RecoverableSignature::from_rust(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-#[must_use]
-extern "C" fn PhantomKeysManager_NodeSigner_sign_bolt12_invoice_request(this_arg: *const c_void, invoice_request: &crate::lightning::offers::invoice_request::UnsignedInvoiceRequest) -> crate::c_types::derived::CResult_SchnorrSignatureNoneZ {
-	let mut ret = <nativePhantomKeysManager as lightning::sign::NodeSigner>::sign_bolt12_invoice_request(unsafe { &mut *(this_arg as *mut nativePhantomKeysManager) }, invoice_request.get_native_ref());
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::SchnorrSignature::from_rust(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 #[must_use]
@@ -3257,9 +3241,6 @@ impl RandomBytes {
 		Self { inner: self.inner, is_owned: false }
 	}
 }
-/// Get a string which allows debug introspection of a RandomBytes object
-pub extern "C" fn RandomBytes_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::sign::RandomBytes }).into()}
 /// Creates a new instance using the given seed.
 #[must_use]
 #[no_mangle]

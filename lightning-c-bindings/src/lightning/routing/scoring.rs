@@ -1334,7 +1334,13 @@ impl ProbabilisticScoringFeeParameters {
 }
 /// A fixed penalty in msats to apply to each channel.
 ///
-/// Default value: 500 msat
+/// In testing, a value of roughly 1/10th of [`historical_liquidity_penalty_multiplier_msat`]
+/// (implying scaling all estimated probabilities down by a factor of ~79%) resulted in the
+/// most accurate total success probabilities.
+///
+/// Default value: 1,024 msat (i.e. we're willing to pay 1 sat to avoid each additional hop).
+///
+/// [`historical_liquidity_penalty_multiplier_msat`]: Self::historical_liquidity_penalty_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_base_penalty_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().base_penalty_msat;
@@ -1342,42 +1348,60 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_get_base_penalty_msat(this_p
 }
 /// A fixed penalty in msats to apply to each channel.
 ///
-/// Default value: 500 msat
+/// In testing, a value of roughly 1/10th of [`historical_liquidity_penalty_multiplier_msat`]
+/// (implying scaling all estimated probabilities down by a factor of ~79%) resulted in the
+/// most accurate total success probabilities.
+///
+/// Default value: 1,024 msat (i.e. we're willing to pay 1 sat to avoid each additional hop).
+///
+/// [`historical_liquidity_penalty_multiplier_msat`]: Self::historical_liquidity_penalty_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_set_base_penalty_msat(this_ptr: &mut ProbabilisticScoringFeeParameters, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.base_penalty_msat = val;
 }
-/// A multiplier used with the total amount flowing over a channel to calculate a fixed penalty
-/// applied to each channel, in excess of the [`base_penalty_msat`].
+/// A multiplier used with the payment amount to calculate a fixed penalty applied to each
+/// channel, in excess of the [`base_penalty_msat`].
 ///
 /// The purpose of the amount penalty is to avoid having fees dominate the channel cost (i.e.,
 /// fees plus penalty) for large payments. The penalty is computed as the product of this
-/// multiplier and `2^30`ths of the total amount flowing over a channel (i.e. the payment
-/// amount plus the amount of any other HTLCs flowing we sent over the same channel).
+/// multiplier and `2^30`ths of the payment amount.
 ///
 /// ie `base_penalty_amount_multiplier_msat * amount_msat / 2^30`
 ///
-/// Default value: 8,192 msat
+/// In testing, a value of roughly ~100x (1/10th * 2^10) of
+/// [`historical_liquidity_penalty_amount_multiplier_msat`] (implying scaling all estimated
+/// probabilities down by a factor of ~79%) resulted in the most accurate total success
+/// probabilities.
+///
+/// Default value: 131,072 msat (i.e. we're willing to pay 0.125bps to avoid each additional
+///                              hop).
 ///
 /// [`base_penalty_msat`]: Self::base_penalty_msat
+/// [`historical_liquidity_penalty_amount_multiplier_msat`]: Self::historical_liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_base_penalty_amount_multiplier_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().base_penalty_amount_multiplier_msat;
 	*inner_val
 }
-/// A multiplier used with the total amount flowing over a channel to calculate a fixed penalty
-/// applied to each channel, in excess of the [`base_penalty_msat`].
+/// A multiplier used with the payment amount to calculate a fixed penalty applied to each
+/// channel, in excess of the [`base_penalty_msat`].
 ///
 /// The purpose of the amount penalty is to avoid having fees dominate the channel cost (i.e.,
 /// fees plus penalty) for large payments. The penalty is computed as the product of this
-/// multiplier and `2^30`ths of the total amount flowing over a channel (i.e. the payment
-/// amount plus the amount of any other HTLCs flowing we sent over the same channel).
+/// multiplier and `2^30`ths of the payment amount.
 ///
 /// ie `base_penalty_amount_multiplier_msat * amount_msat / 2^30`
 ///
-/// Default value: 8,192 msat
+/// In testing, a value of roughly ~100x (1/10th * 2^10) of
+/// [`historical_liquidity_penalty_amount_multiplier_msat`] (implying scaling all estimated
+/// probabilities down by a factor of ~79%) resulted in the most accurate total success
+/// probabilities.
+///
+/// Default value: 131,072 msat (i.e. we're willing to pay 0.125bps to avoid each additional
+///                              hop).
 ///
 /// [`base_penalty_msat`]: Self::base_penalty_msat
+/// [`historical_liquidity_penalty_amount_multiplier_msat`]: Self::historical_liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_set_base_penalty_amount_multiplier_msat(this_ptr: &mut ProbabilisticScoringFeeParameters, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.base_penalty_amount_multiplier_msat = val;
@@ -1395,9 +1419,14 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_base_penalty_amount_mult
 ///
 /// `-log10(success_probability) * liquidity_penalty_multiplier_msat`
 ///
-/// Default value: 30,000 msat
+/// In testing, this scoring model performs much worse than the historical scoring model
+/// configured with the [`historical_liquidity_penalty_multiplier_msat`] and thus is disabled
+/// by default.
+///
+/// Default value: 0 msat
 ///
 /// [`liquidity_offset_half_life`]: ProbabilisticScoringDecayParameters::liquidity_offset_half_life
+/// [`historical_liquidity_penalty_multiplier_msat`]: Self::historical_liquidity_penalty_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_liquidity_penalty_multiplier_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().liquidity_penalty_multiplier_msat;
@@ -1416,21 +1445,26 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_get_liquidity_penalty_multip
 ///
 /// `-log10(success_probability) * liquidity_penalty_multiplier_msat`
 ///
-/// Default value: 30,000 msat
+/// In testing, this scoring model performs much worse than the historical scoring model
+/// configured with the [`historical_liquidity_penalty_multiplier_msat`] and thus is disabled
+/// by default.
+///
+/// Default value: 0 msat
 ///
 /// [`liquidity_offset_half_life`]: ProbabilisticScoringDecayParameters::liquidity_offset_half_life
+/// [`historical_liquidity_penalty_multiplier_msat`]: Self::historical_liquidity_penalty_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_set_liquidity_penalty_multiplier_msat(this_ptr: &mut ProbabilisticScoringFeeParameters, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.liquidity_penalty_multiplier_msat = val;
 }
-/// A multiplier used in conjunction with the total amount flowing over a channel and the
-/// negative `log10` of the channel's success probability for the payment, as determined by our
-/// latest estimates of the channel's liquidity, to determine the amount penalty.
+/// A multiplier used in conjunction with the payment amount and the negative `log10` of the
+/// channel's success probability for the total amount flowing over a channel, as determined by
+/// our latest estimates of the channel's liquidity, to determine the amount penalty.
 ///
 /// The purpose of the amount penalty is to avoid having fees dominate the channel cost (i.e.,
 /// fees plus penalty) for large payments. The penalty is computed as the product of this
-/// multiplier and `2^20`ths of the amount flowing over this channel, weighted by the negative
-/// `log10` of the success probability.
+/// multiplier and `2^20`ths of the payment amount, weighted by the negative `log10` of the
+/// success probability.
 ///
 /// `-log10(success_probability) * liquidity_penalty_amount_multiplier_msat * amount_msat / 2^20`
 ///
@@ -1440,20 +1474,26 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_liquidity_penalty_multip
 /// probabilities, the multiplier will have a decreasing effect as the negative `log10` will
 /// fall below `1`.
 ///
-/// Default value: 192 msat
+/// In testing, this scoring model performs much worse than the historical scoring model
+/// configured with the [`historical_liquidity_penalty_amount_multiplier_msat`] and thus is
+/// disabled by default.
+///
+/// Default value: 0 msat
+///
+/// [`historical_liquidity_penalty_amount_multiplier_msat`]: Self::historical_liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_liquidity_penalty_amount_multiplier_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().liquidity_penalty_amount_multiplier_msat;
 	*inner_val
 }
-/// A multiplier used in conjunction with the total amount flowing over a channel and the
-/// negative `log10` of the channel's success probability for the payment, as determined by our
-/// latest estimates of the channel's liquidity, to determine the amount penalty.
+/// A multiplier used in conjunction with the payment amount and the negative `log10` of the
+/// channel's success probability for the total amount flowing over a channel, as determined by
+/// our latest estimates of the channel's liquidity, to determine the amount penalty.
 ///
 /// The purpose of the amount penalty is to avoid having fees dominate the channel cost (i.e.,
 /// fees plus penalty) for large payments. The penalty is computed as the product of this
-/// multiplier and `2^20`ths of the amount flowing over this channel, weighted by the negative
-/// `log10` of the success probability.
+/// multiplier and `2^20`ths of the payment amount, weighted by the negative `log10` of the
+/// success probability.
 ///
 /// `-log10(success_probability) * liquidity_penalty_amount_multiplier_msat * amount_msat / 2^20`
 ///
@@ -1463,7 +1503,13 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_get_liquidity_penalty_amount
 /// probabilities, the multiplier will have a decreasing effect as the negative `log10` will
 /// fall below `1`.
 ///
-/// Default value: 192 msat
+/// In testing, this scoring model performs much worse than the historical scoring model
+/// configured with the [`historical_liquidity_penalty_amount_multiplier_msat`] and thus is
+/// disabled by default.
+///
+/// Default value: 0 msat
+///
+/// [`historical_liquidity_penalty_amount_multiplier_msat`]: Self::historical_liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_set_liquidity_penalty_amount_multiplier_msat(this_ptr: &mut ProbabilisticScoringFeeParameters, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.liquidity_penalty_amount_multiplier_msat = val;
@@ -1479,7 +1525,8 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_liquidity_penalty_amount
 /// track which of several buckets those bounds fall into, exponentially decaying the
 /// probability of each bucket as new samples are added.
 ///
-/// Default value: 10,000 msat
+/// Default value: 10,000 msat (i.e. willing to pay 1 sat to avoid an 80% probability channel,
+///                            or 6 sats to avoid a 25% probability channel).
 ///
 /// [`liquidity_penalty_multiplier_msat`]: Self::liquidity_penalty_multiplier_msat
 #[no_mangle]
@@ -1498,22 +1545,22 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_get_historical_liquidity_pen
 /// track which of several buckets those bounds fall into, exponentially decaying the
 /// probability of each bucket as new samples are added.
 ///
-/// Default value: 10,000 msat
+/// Default value: 10,000 msat (i.e. willing to pay 1 sat to avoid an 80% probability channel,
+///                            or 6 sats to avoid a 25% probability channel).
 ///
 /// [`liquidity_penalty_multiplier_msat`]: Self::liquidity_penalty_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_set_historical_liquidity_penalty_multiplier_msat(this_ptr: &mut ProbabilisticScoringFeeParameters, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.historical_liquidity_penalty_multiplier_msat = val;
 }
-/// A multiplier used in conjunction with the total amount flowing over a channel and the
-/// negative `log10` of the channel's success probability for the payment, as determined based
-/// on the history of our estimates of the channel's available liquidity, to determine a
+/// A multiplier used in conjunction with the payment amount and the negative `log10` of the
+/// channel's success probability for the total amount flowing over a channel, as determined
+/// based on the history of our estimates of the channel's available liquidity, to determine a
 /// penalty.
 ///
 /// The purpose of the amount penalty is to avoid having fees dominate the channel cost for
 /// large payments. The penalty is computed as the product of this multiplier and `2^20`ths
-/// of the amount flowing over this channel, weighted by the negative `log10` of the success
-/// probability.
+/// of the payment amount, weighted by the negative `log10` of the success probability.
 ///
 /// This penalty is similar to [`liquidity_penalty_amount_multiplier_msat`], however, instead
 /// of using only our latest estimate for the current liquidity available in the channel, it
@@ -1522,7 +1569,9 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_historical_liquidity_pen
 /// channel, we track which of several buckets those bounds fall into, exponentially decaying
 /// the probability of each bucket as new samples are added.
 ///
-/// Default value: 64 msat
+/// Default value: 1,250 msat (i.e. willing to pay about 0.125 bps per hop to avoid 78%
+///                            probability channels, or 0.5bps to avoid a 38% probability
+///                            channel).
 ///
 /// [`liquidity_penalty_amount_multiplier_msat`]: Self::liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
@@ -1530,15 +1579,14 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_get_historical_liquidity_pen
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().historical_liquidity_penalty_amount_multiplier_msat;
 	*inner_val
 }
-/// A multiplier used in conjunction with the total amount flowing over a channel and the
-/// negative `log10` of the channel's success probability for the payment, as determined based
-/// on the history of our estimates of the channel's available liquidity, to determine a
+/// A multiplier used in conjunction with the payment amount and the negative `log10` of the
+/// channel's success probability for the total amount flowing over a channel, as determined
+/// based on the history of our estimates of the channel's available liquidity, to determine a
 /// penalty.
 ///
 /// The purpose of the amount penalty is to avoid having fees dominate the channel cost for
 /// large payments. The penalty is computed as the product of this multiplier and `2^20`ths
-/// of the amount flowing over this channel, weighted by the negative `log10` of the success
-/// probability.
+/// of the payment amount, weighted by the negative `log10` of the success probability.
 ///
 /// This penalty is similar to [`liquidity_penalty_amount_multiplier_msat`], however, instead
 /// of using only our latest estimate for the current liquidity available in the channel, it
@@ -1547,7 +1595,9 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_get_historical_liquidity_pen
 /// channel, we track which of several buckets those bounds fall into, exponentially decaying
 /// the probability of each bucket as new samples are added.
 ///
-/// Default value: 64 msat
+/// Default value: 1,250 msat (i.e. willing to pay about 0.125 bps per hop to avoid 78%
+///                            probability channels, or 0.5bps to avoid a 38% probability
+///                            channel).
 ///
 /// [`liquidity_penalty_amount_multiplier_msat`]: Self::liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
@@ -1843,11 +1893,11 @@ pub extern "C" fn ProbabilisticScoringDecayParameters_set_historical_no_updates_
 /// liquidity bounds are 200,000 sats and 600,000 sats, after this amount of time the upper
 /// and lower liquidity bounds will be decayed to 100,000 and 800,000 sats.
 ///
-/// Default value: 6 hours
+/// Default value: 30 minutes
 ///
 /// # Note
 ///
-/// When built with the `no-std` feature, time will never elapse. Therefore, the channel
+/// When not built with the `std` feature, time will never elapse. Therefore, the channel
 /// liquidity knowledge will never decay except when the bounds cross.
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringDecayParameters_get_liquidity_offset_half_life(this_ptr: &ProbabilisticScoringDecayParameters) -> u64 {
@@ -1867,11 +1917,11 @@ pub extern "C" fn ProbabilisticScoringDecayParameters_get_liquidity_offset_half_
 /// liquidity bounds are 200,000 sats and 600,000 sats, after this amount of time the upper
 /// and lower liquidity bounds will be decayed to 100,000 and 800,000 sats.
 ///
-/// Default value: 6 hours
+/// Default value: 30 minutes
 ///
 /// # Note
 ///
-/// When built with the `no-std` feature, time will never elapse. Therefore, the channel
+/// When not built with the `std` feature, time will never elapse. Therefore, the channel
 /// liquidity knowledge will never decay except when the bounds cross.
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringDecayParameters_set_liquidity_offset_half_life(this_ptr: &mut ProbabilisticScoringDecayParameters, mut val: u64) {
@@ -1977,13 +2027,32 @@ pub extern "C" fn ProbabilisticScorer_historical_estimated_channel_liquidity_pro
 /// with `scid` towards the given `target` node, based on the historical estimated liquidity
 /// bounds.
 ///
+/// Returns `None` if:
+///  - the given channel is not in the network graph, the provided `target` is not a party to
+///    the channel, or we don't have forwarding parameters for either direction in the channel.
+///  - `allow_fallback_estimation` is *not* set and there is no (or insufficient) historical
+///    data for the given channel.
+///
 /// These are the same bounds as returned by
 /// [`Self::historical_estimated_channel_liquidity_probabilities`] (but not those returned by
 /// [`Self::estimated_channel_liquidity_range`]).
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ProbabilisticScorer_historical_estimated_payment_success_probability(this_arg: &crate::lightning::routing::scoring::ProbabilisticScorer, mut scid: u64, target: &crate::lightning::routing::gossip::NodeId, mut amount_msat: u64, params: &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters) -> crate::c_types::derived::COption_f64Z {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.historical_estimated_payment_success_probability(scid, target.get_native_ref(), amount_msat, params.get_native_ref());
+pub extern "C" fn ProbabilisticScorer_historical_estimated_payment_success_probability(this_arg: &crate::lightning::routing::scoring::ProbabilisticScorer, mut scid: u64, target: &crate::lightning::routing::gossip::NodeId, mut amount_msat: u64, params: &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters, mut allow_fallback_estimation: bool) -> crate::c_types::derived::COption_f64Z {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.historical_estimated_payment_success_probability(scid, target.get_native_ref(), amount_msat, params.get_native_ref(), allow_fallback_estimation);
+	let mut local_ret = if ret.is_none() { crate::c_types::derived::COption_f64Z::None } else { crate::c_types::derived::COption_f64Z::Some( { ret.unwrap() }) };
+	local_ret
+}
+
+/// Query the probability of payment success sending the given `amount_msat` over the channel
+/// with `scid` towards the given `target` node, based on the live estimated liquidity bounds.
+///
+/// This will return `Some` for any channel which is present in the [`NetworkGraph`], including
+/// if we have no bound information beside the channel's capacity.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ProbabilisticScorer_live_estimated_payment_success_probability(this_arg: &crate::lightning::routing::scoring::ProbabilisticScorer, mut scid: u64, target: &crate::lightning::routing::gossip::NodeId, mut amount_msat: u64, params: &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters) -> crate::c_types::derived::COption_f64Z {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.live_estimated_payment_success_probability(scid, target.get_native_ref(), amount_msat, params.get_native_ref());
 	let mut local_ret = if ret.is_none() { crate::c_types::derived::COption_f64Z::None } else { crate::c_types::derived::COption_f64Z::Some( { ret.unwrap() }) };
 	local_ret
 }

@@ -116,7 +116,7 @@ pub extern "C" fn Bolt12ParseError_debug_str_void(o: *const c_void) -> Str {
 #[must_use]
 #[repr(C)]
 pub enum Bolt12SemanticError {
-	/// The current [`std::time::SystemTime`] is past the offer or invoice's expiration.
+	/// The current system time is past the offer or invoice's expiration.
 	AlreadyExpired,
 	/// The provided chain hash does not correspond to a supported chain.
 	UnsupportedChain,
@@ -124,7 +124,7 @@ pub enum Bolt12SemanticError {
 	UnexpectedChain,
 	/// An amount was expected but was missing.
 	MissingAmount,
-	/// The amount exceeded the total bitcoin supply.
+	/// The amount exceeded the total bitcoin supply or didn't match an expected amount.
 	InvalidAmount,
 	/// An amount was provided but was not sufficient in value.
 	InsufficientAmount,
@@ -138,12 +138,10 @@ pub enum Bolt12SemanticError {
 	UnexpectedFeatures,
 	/// A required description was not provided.
 	MissingDescription,
-	/// A signing pubkey was not provided.
-	MissingSigningPubkey,
-	/// A signing pubkey was provided but a different one was expected.
-	InvalidSigningPubkey,
-	/// A signing pubkey was provided but was not expected.
-	UnexpectedSigningPubkey,
+	/// An issuer's signing pubkey was not provided.
+	MissingIssuerSigningPubkey,
+	/// An issuer's signing pubkey was provided but was not expected.
+	UnexpectedIssuerSigningPubkey,
 	/// A quantity was expected but was missing.
 	MissingQuantity,
 	/// An unsupported quantity was provided.
@@ -156,8 +154,8 @@ pub enum Bolt12SemanticError {
 	UnexpectedMetadata,
 	/// Payer metadata was expected but was missing.
 	MissingPayerMetadata,
-	/// A payer id was expected but was missing.
-	MissingPayerId,
+	/// A payer signing pubkey was expected but was missing.
+	MissingPayerSigningPubkey,
 	/// The payment id for a refund or request is already in use.
 	DuplicatePaymentId,
 	/// Blinded paths were expected but were missing.
@@ -172,8 +170,17 @@ pub enum Bolt12SemanticError {
 	MissingPaymentHash,
 	/// An invoice payment hash was provided but was not expected.
 	UnexpectedPaymentHash,
+	/// A signing pubkey was not provided.
+	MissingSigningPubkey,
+	/// A signing pubkey was provided but a different one was expected.
+	InvalidSigningPubkey,
 	/// A signature was expected but was missing.
 	MissingSignature,
+	/// A Human Readable Name was provided but was not expected (i.e. was included in a
+	/// [`Refund`]).
+	///
+	/// [`Refund`]: super::refund::Refund
+	UnexpectedHumanReadableName,
 }
 use lightning::offers::parse::Bolt12SemanticError as Bolt12SemanticErrorImport;
 pub(crate) type nativeBolt12SemanticError = Bolt12SemanticErrorImport;
@@ -193,16 +200,15 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::UnknownRequiredFeatures => nativeBolt12SemanticError::UnknownRequiredFeatures,
 			Bolt12SemanticError::UnexpectedFeatures => nativeBolt12SemanticError::UnexpectedFeatures,
 			Bolt12SemanticError::MissingDescription => nativeBolt12SemanticError::MissingDescription,
-			Bolt12SemanticError::MissingSigningPubkey => nativeBolt12SemanticError::MissingSigningPubkey,
-			Bolt12SemanticError::InvalidSigningPubkey => nativeBolt12SemanticError::InvalidSigningPubkey,
-			Bolt12SemanticError::UnexpectedSigningPubkey => nativeBolt12SemanticError::UnexpectedSigningPubkey,
+			Bolt12SemanticError::MissingIssuerSigningPubkey => nativeBolt12SemanticError::MissingIssuerSigningPubkey,
+			Bolt12SemanticError::UnexpectedIssuerSigningPubkey => nativeBolt12SemanticError::UnexpectedIssuerSigningPubkey,
 			Bolt12SemanticError::MissingQuantity => nativeBolt12SemanticError::MissingQuantity,
 			Bolt12SemanticError::InvalidQuantity => nativeBolt12SemanticError::InvalidQuantity,
 			Bolt12SemanticError::UnexpectedQuantity => nativeBolt12SemanticError::UnexpectedQuantity,
 			Bolt12SemanticError::InvalidMetadata => nativeBolt12SemanticError::InvalidMetadata,
 			Bolt12SemanticError::UnexpectedMetadata => nativeBolt12SemanticError::UnexpectedMetadata,
 			Bolt12SemanticError::MissingPayerMetadata => nativeBolt12SemanticError::MissingPayerMetadata,
-			Bolt12SemanticError::MissingPayerId => nativeBolt12SemanticError::MissingPayerId,
+			Bolt12SemanticError::MissingPayerSigningPubkey => nativeBolt12SemanticError::MissingPayerSigningPubkey,
 			Bolt12SemanticError::DuplicatePaymentId => nativeBolt12SemanticError::DuplicatePaymentId,
 			Bolt12SemanticError::MissingPaths => nativeBolt12SemanticError::MissingPaths,
 			Bolt12SemanticError::UnexpectedPaths => nativeBolt12SemanticError::UnexpectedPaths,
@@ -210,7 +216,10 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::MissingCreationTime => nativeBolt12SemanticError::MissingCreationTime,
 			Bolt12SemanticError::MissingPaymentHash => nativeBolt12SemanticError::MissingPaymentHash,
 			Bolt12SemanticError::UnexpectedPaymentHash => nativeBolt12SemanticError::UnexpectedPaymentHash,
+			Bolt12SemanticError::MissingSigningPubkey => nativeBolt12SemanticError::MissingSigningPubkey,
+			Bolt12SemanticError::InvalidSigningPubkey => nativeBolt12SemanticError::InvalidSigningPubkey,
 			Bolt12SemanticError::MissingSignature => nativeBolt12SemanticError::MissingSignature,
+			Bolt12SemanticError::UnexpectedHumanReadableName => nativeBolt12SemanticError::UnexpectedHumanReadableName,
 		}
 	}
 	#[allow(unused)]
@@ -227,16 +236,15 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::UnknownRequiredFeatures => nativeBolt12SemanticError::UnknownRequiredFeatures,
 			Bolt12SemanticError::UnexpectedFeatures => nativeBolt12SemanticError::UnexpectedFeatures,
 			Bolt12SemanticError::MissingDescription => nativeBolt12SemanticError::MissingDescription,
-			Bolt12SemanticError::MissingSigningPubkey => nativeBolt12SemanticError::MissingSigningPubkey,
-			Bolt12SemanticError::InvalidSigningPubkey => nativeBolt12SemanticError::InvalidSigningPubkey,
-			Bolt12SemanticError::UnexpectedSigningPubkey => nativeBolt12SemanticError::UnexpectedSigningPubkey,
+			Bolt12SemanticError::MissingIssuerSigningPubkey => nativeBolt12SemanticError::MissingIssuerSigningPubkey,
+			Bolt12SemanticError::UnexpectedIssuerSigningPubkey => nativeBolt12SemanticError::UnexpectedIssuerSigningPubkey,
 			Bolt12SemanticError::MissingQuantity => nativeBolt12SemanticError::MissingQuantity,
 			Bolt12SemanticError::InvalidQuantity => nativeBolt12SemanticError::InvalidQuantity,
 			Bolt12SemanticError::UnexpectedQuantity => nativeBolt12SemanticError::UnexpectedQuantity,
 			Bolt12SemanticError::InvalidMetadata => nativeBolt12SemanticError::InvalidMetadata,
 			Bolt12SemanticError::UnexpectedMetadata => nativeBolt12SemanticError::UnexpectedMetadata,
 			Bolt12SemanticError::MissingPayerMetadata => nativeBolt12SemanticError::MissingPayerMetadata,
-			Bolt12SemanticError::MissingPayerId => nativeBolt12SemanticError::MissingPayerId,
+			Bolt12SemanticError::MissingPayerSigningPubkey => nativeBolt12SemanticError::MissingPayerSigningPubkey,
 			Bolt12SemanticError::DuplicatePaymentId => nativeBolt12SemanticError::DuplicatePaymentId,
 			Bolt12SemanticError::MissingPaths => nativeBolt12SemanticError::MissingPaths,
 			Bolt12SemanticError::UnexpectedPaths => nativeBolt12SemanticError::UnexpectedPaths,
@@ -244,7 +252,10 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::MissingCreationTime => nativeBolt12SemanticError::MissingCreationTime,
 			Bolt12SemanticError::MissingPaymentHash => nativeBolt12SemanticError::MissingPaymentHash,
 			Bolt12SemanticError::UnexpectedPaymentHash => nativeBolt12SemanticError::UnexpectedPaymentHash,
+			Bolt12SemanticError::MissingSigningPubkey => nativeBolt12SemanticError::MissingSigningPubkey,
+			Bolt12SemanticError::InvalidSigningPubkey => nativeBolt12SemanticError::InvalidSigningPubkey,
 			Bolt12SemanticError::MissingSignature => nativeBolt12SemanticError::MissingSignature,
+			Bolt12SemanticError::UnexpectedHumanReadableName => nativeBolt12SemanticError::UnexpectedHumanReadableName,
 		}
 	}
 	#[allow(unused)]
@@ -262,16 +273,15 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::UnknownRequiredFeatures => Bolt12SemanticError::UnknownRequiredFeatures,
 			nativeBolt12SemanticError::UnexpectedFeatures => Bolt12SemanticError::UnexpectedFeatures,
 			nativeBolt12SemanticError::MissingDescription => Bolt12SemanticError::MissingDescription,
-			nativeBolt12SemanticError::MissingSigningPubkey => Bolt12SemanticError::MissingSigningPubkey,
-			nativeBolt12SemanticError::InvalidSigningPubkey => Bolt12SemanticError::InvalidSigningPubkey,
-			nativeBolt12SemanticError::UnexpectedSigningPubkey => Bolt12SemanticError::UnexpectedSigningPubkey,
+			nativeBolt12SemanticError::MissingIssuerSigningPubkey => Bolt12SemanticError::MissingIssuerSigningPubkey,
+			nativeBolt12SemanticError::UnexpectedIssuerSigningPubkey => Bolt12SemanticError::UnexpectedIssuerSigningPubkey,
 			nativeBolt12SemanticError::MissingQuantity => Bolt12SemanticError::MissingQuantity,
 			nativeBolt12SemanticError::InvalidQuantity => Bolt12SemanticError::InvalidQuantity,
 			nativeBolt12SemanticError::UnexpectedQuantity => Bolt12SemanticError::UnexpectedQuantity,
 			nativeBolt12SemanticError::InvalidMetadata => Bolt12SemanticError::InvalidMetadata,
 			nativeBolt12SemanticError::UnexpectedMetadata => Bolt12SemanticError::UnexpectedMetadata,
 			nativeBolt12SemanticError::MissingPayerMetadata => Bolt12SemanticError::MissingPayerMetadata,
-			nativeBolt12SemanticError::MissingPayerId => Bolt12SemanticError::MissingPayerId,
+			nativeBolt12SemanticError::MissingPayerSigningPubkey => Bolt12SemanticError::MissingPayerSigningPubkey,
 			nativeBolt12SemanticError::DuplicatePaymentId => Bolt12SemanticError::DuplicatePaymentId,
 			nativeBolt12SemanticError::MissingPaths => Bolt12SemanticError::MissingPaths,
 			nativeBolt12SemanticError::UnexpectedPaths => Bolt12SemanticError::UnexpectedPaths,
@@ -279,7 +289,10 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::MissingCreationTime => Bolt12SemanticError::MissingCreationTime,
 			nativeBolt12SemanticError::MissingPaymentHash => Bolt12SemanticError::MissingPaymentHash,
 			nativeBolt12SemanticError::UnexpectedPaymentHash => Bolt12SemanticError::UnexpectedPaymentHash,
+			nativeBolt12SemanticError::MissingSigningPubkey => Bolt12SemanticError::MissingSigningPubkey,
+			nativeBolt12SemanticError::InvalidSigningPubkey => Bolt12SemanticError::InvalidSigningPubkey,
 			nativeBolt12SemanticError::MissingSignature => Bolt12SemanticError::MissingSignature,
+			nativeBolt12SemanticError::UnexpectedHumanReadableName => Bolt12SemanticError::UnexpectedHumanReadableName,
 		}
 	}
 	#[allow(unused)]
@@ -296,16 +309,15 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::UnknownRequiredFeatures => Bolt12SemanticError::UnknownRequiredFeatures,
 			nativeBolt12SemanticError::UnexpectedFeatures => Bolt12SemanticError::UnexpectedFeatures,
 			nativeBolt12SemanticError::MissingDescription => Bolt12SemanticError::MissingDescription,
-			nativeBolt12SemanticError::MissingSigningPubkey => Bolt12SemanticError::MissingSigningPubkey,
-			nativeBolt12SemanticError::InvalidSigningPubkey => Bolt12SemanticError::InvalidSigningPubkey,
-			nativeBolt12SemanticError::UnexpectedSigningPubkey => Bolt12SemanticError::UnexpectedSigningPubkey,
+			nativeBolt12SemanticError::MissingIssuerSigningPubkey => Bolt12SemanticError::MissingIssuerSigningPubkey,
+			nativeBolt12SemanticError::UnexpectedIssuerSigningPubkey => Bolt12SemanticError::UnexpectedIssuerSigningPubkey,
 			nativeBolt12SemanticError::MissingQuantity => Bolt12SemanticError::MissingQuantity,
 			nativeBolt12SemanticError::InvalidQuantity => Bolt12SemanticError::InvalidQuantity,
 			nativeBolt12SemanticError::UnexpectedQuantity => Bolt12SemanticError::UnexpectedQuantity,
 			nativeBolt12SemanticError::InvalidMetadata => Bolt12SemanticError::InvalidMetadata,
 			nativeBolt12SemanticError::UnexpectedMetadata => Bolt12SemanticError::UnexpectedMetadata,
 			nativeBolt12SemanticError::MissingPayerMetadata => Bolt12SemanticError::MissingPayerMetadata,
-			nativeBolt12SemanticError::MissingPayerId => Bolt12SemanticError::MissingPayerId,
+			nativeBolt12SemanticError::MissingPayerSigningPubkey => Bolt12SemanticError::MissingPayerSigningPubkey,
 			nativeBolt12SemanticError::DuplicatePaymentId => Bolt12SemanticError::DuplicatePaymentId,
 			nativeBolt12SemanticError::MissingPaths => Bolt12SemanticError::MissingPaths,
 			nativeBolt12SemanticError::UnexpectedPaths => Bolt12SemanticError::UnexpectedPaths,
@@ -313,7 +325,10 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::MissingCreationTime => Bolt12SemanticError::MissingCreationTime,
 			nativeBolt12SemanticError::MissingPaymentHash => Bolt12SemanticError::MissingPaymentHash,
 			nativeBolt12SemanticError::UnexpectedPaymentHash => Bolt12SemanticError::UnexpectedPaymentHash,
+			nativeBolt12SemanticError::MissingSigningPubkey => Bolt12SemanticError::MissingSigningPubkey,
+			nativeBolt12SemanticError::InvalidSigningPubkey => Bolt12SemanticError::InvalidSigningPubkey,
 			nativeBolt12SemanticError::MissingSignature => Bolt12SemanticError::MissingSignature,
+			nativeBolt12SemanticError::UnexpectedHumanReadableName => Bolt12SemanticError::UnexpectedHumanReadableName,
 		}
 	}
 }
@@ -377,17 +392,13 @@ pub extern "C" fn Bolt12SemanticError_unexpected_features() -> Bolt12SemanticErr
 pub extern "C" fn Bolt12SemanticError_missing_description() -> Bolt12SemanticError {
 	Bolt12SemanticError::MissingDescription}
 #[no_mangle]
-/// Utility method to constructs a new MissingSigningPubkey-variant Bolt12SemanticError
-pub extern "C" fn Bolt12SemanticError_missing_signing_pubkey() -> Bolt12SemanticError {
-	Bolt12SemanticError::MissingSigningPubkey}
+/// Utility method to constructs a new MissingIssuerSigningPubkey-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_missing_issuer_signing_pubkey() -> Bolt12SemanticError {
+	Bolt12SemanticError::MissingIssuerSigningPubkey}
 #[no_mangle]
-/// Utility method to constructs a new InvalidSigningPubkey-variant Bolt12SemanticError
-pub extern "C" fn Bolt12SemanticError_invalid_signing_pubkey() -> Bolt12SemanticError {
-	Bolt12SemanticError::InvalidSigningPubkey}
-#[no_mangle]
-/// Utility method to constructs a new UnexpectedSigningPubkey-variant Bolt12SemanticError
-pub extern "C" fn Bolt12SemanticError_unexpected_signing_pubkey() -> Bolt12SemanticError {
-	Bolt12SemanticError::UnexpectedSigningPubkey}
+/// Utility method to constructs a new UnexpectedIssuerSigningPubkey-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_unexpected_issuer_signing_pubkey() -> Bolt12SemanticError {
+	Bolt12SemanticError::UnexpectedIssuerSigningPubkey}
 #[no_mangle]
 /// Utility method to constructs a new MissingQuantity-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_missing_quantity() -> Bolt12SemanticError {
@@ -413,9 +424,9 @@ pub extern "C" fn Bolt12SemanticError_unexpected_metadata() -> Bolt12SemanticErr
 pub extern "C" fn Bolt12SemanticError_missing_payer_metadata() -> Bolt12SemanticError {
 	Bolt12SemanticError::MissingPayerMetadata}
 #[no_mangle]
-/// Utility method to constructs a new MissingPayerId-variant Bolt12SemanticError
-pub extern "C" fn Bolt12SemanticError_missing_payer_id() -> Bolt12SemanticError {
-	Bolt12SemanticError::MissingPayerId}
+/// Utility method to constructs a new MissingPayerSigningPubkey-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_missing_payer_signing_pubkey() -> Bolt12SemanticError {
+	Bolt12SemanticError::MissingPayerSigningPubkey}
 #[no_mangle]
 /// Utility method to constructs a new DuplicatePaymentId-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_duplicate_payment_id() -> Bolt12SemanticError {
@@ -445,9 +456,21 @@ pub extern "C" fn Bolt12SemanticError_missing_payment_hash() -> Bolt12SemanticEr
 pub extern "C" fn Bolt12SemanticError_unexpected_payment_hash() -> Bolt12SemanticError {
 	Bolt12SemanticError::UnexpectedPaymentHash}
 #[no_mangle]
+/// Utility method to constructs a new MissingSigningPubkey-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_missing_signing_pubkey() -> Bolt12SemanticError {
+	Bolt12SemanticError::MissingSigningPubkey}
+#[no_mangle]
+/// Utility method to constructs a new InvalidSigningPubkey-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_invalid_signing_pubkey() -> Bolt12SemanticError {
+	Bolt12SemanticError::InvalidSigningPubkey}
+#[no_mangle]
 /// Utility method to constructs a new MissingSignature-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_missing_signature() -> Bolt12SemanticError {
 	Bolt12SemanticError::MissingSignature}
+#[no_mangle]
+/// Utility method to constructs a new UnexpectedHumanReadableName-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_unexpected_human_readable_name() -> Bolt12SemanticError {
+	Bolt12SemanticError::UnexpectedHumanReadableName}
 /// Get a string which allows debug introspection of a Bolt12SemanticError object
 pub extern "C" fn Bolt12SemanticError_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::parse::Bolt12SemanticError }).into()}

@@ -887,7 +887,7 @@ pub extern "C" fn HTLCOutputInCommitment_get_payment_hash(this_ptr: &HTLCOutputI
 /// The hash of the preimage which unlocks this HTLC.
 #[no_mangle]
 pub extern "C" fn HTLCOutputInCommitment_set_payment_hash(this_ptr: &mut HTLCOutputInCommitment, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_hash = ::lightning::ln::types::PaymentHash(val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_hash = ::lightning::types::payment::PaymentHash(val.data);
 }
 /// The position within the commitment transactions' outputs. This may be None if the value is
 /// below the dust limit (in which case no output appears in the commitment transaction and the
@@ -915,7 +915,7 @@ pub extern "C" fn HTLCOutputInCommitment_new(mut offered_arg: bool, mut amount_m
 		offered: offered_arg,
 		amount_msat: amount_msat_arg,
 		cltv_expiry: cltv_expiry_arg,
-		payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_arg.data),
+		payment_hash: ::lightning::types::payment::PaymentHash(payment_hash_arg.data),
 		transaction_output_index: local_transaction_output_index_arg,
 	}), is_owned: true }
 }
@@ -1008,7 +1008,7 @@ pub extern "C" fn build_htlc_transaction(commitment_txid: *const [u8; 32], mut f
 /// Returns the witness required to satisfy and spend a HTLC input.
 #[no_mangle]
 pub extern "C" fn build_htlc_input_witness(mut local_sig: crate::c_types::ECDSASignature, mut remote_sig: crate::c_types::ECDSASignature, mut preimage: crate::c_types::derived::COption_ThirtyTwoBytesZ, mut redeem_script: crate::c_types::u8slice, channel_type_features: &crate::lightning_types::features::ChannelTypeFeatures) -> crate::c_types::Witness {
-	let mut local_preimage = { /*preimage*/ let preimage_opt = preimage; if preimage_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentPreimage({ preimage_opt.take() }.data) }})} };
+	let mut local_preimage = { /*preimage*/ let preimage_opt = preimage; if preimage_opt.is_none() { None } else { Some({ { ::lightning::types::payment::PaymentPreimage({ preimage_opt.take() }.data) }})} };
 	let mut ret = lightning::ln::chan_utils::build_htlc_input_witness(&local_sig.into_rust(), &remote_sig.into_rust(), &local_preimage, ::bitcoin::script::Script::from_bytes(redeem_script.to_slice()), channel_type_features.get_native_ref());
 	crate::c_types::Witness::from_bitcoin(&ret)
 }

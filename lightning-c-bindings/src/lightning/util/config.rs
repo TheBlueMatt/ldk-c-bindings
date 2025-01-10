@@ -1882,35 +1882,6 @@ pub extern "C" fn UserConfig_get_accept_intercept_htlcs(this_ptr: &UserConfig) -
 pub extern "C" fn UserConfig_set_accept_intercept_htlcs(this_ptr: &mut UserConfig, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.accept_intercept_htlcs = val;
 }
-/// If this is set to `false`, when receiving a keysend payment we'll fail it if it has multiple
-/// parts. If this is set to `true`, we'll accept the payment.
-///
-/// Setting this to `true` will break backwards compatibility upon downgrading to an LDK
-/// version prior to 0.0.116 while receiving an MPP keysend. If we have already received an MPP
-/// keysend, downgrading will cause us to fail to deserialize [`ChannelManager`].
-///
-/// Default value: `false`
-///
-/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
-#[no_mangle]
-pub extern "C" fn UserConfig_get_accept_mpp_keysend(this_ptr: &UserConfig) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().accept_mpp_keysend;
-	*inner_val
-}
-/// If this is set to `false`, when receiving a keysend payment we'll fail it if it has multiple
-/// parts. If this is set to `true`, we'll accept the payment.
-///
-/// Setting this to `true` will break backwards compatibility upon downgrading to an LDK
-/// version prior to 0.0.116 while receiving an MPP keysend. If we have already received an MPP
-/// keysend, downgrading will cause us to fail to deserialize [`ChannelManager`].
-///
-/// Default value: `false`
-///
-/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
-#[no_mangle]
-pub extern "C" fn UserConfig_set_accept_mpp_keysend(this_ptr: &mut UserConfig, mut val: bool) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.accept_mpp_keysend = val;
-}
 /// If this is set to `true`, the user needs to manually pay [`Bolt12Invoice`]s when received.
 ///
 /// When set to `true`, [`Event::InvoiceReceived`] will be generated for each received
@@ -1949,7 +1920,7 @@ pub extern "C" fn UserConfig_set_manually_handle_bolt12_invoices(this_ptr: &mut 
 /// Constructs a new UserConfig given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn UserConfig_new(mut channel_handshake_config_arg: crate::lightning::util::config::ChannelHandshakeConfig, mut channel_handshake_limits_arg: crate::lightning::util::config::ChannelHandshakeLimits, mut channel_config_arg: crate::lightning::util::config::ChannelConfig, mut accept_forwards_to_priv_channels_arg: bool, mut accept_inbound_channels_arg: bool, mut manually_accept_inbound_channels_arg: bool, mut accept_intercept_htlcs_arg: bool, mut accept_mpp_keysend_arg: bool, mut manually_handle_bolt12_invoices_arg: bool) -> UserConfig {
+pub extern "C" fn UserConfig_new(mut channel_handshake_config_arg: crate::lightning::util::config::ChannelHandshakeConfig, mut channel_handshake_limits_arg: crate::lightning::util::config::ChannelHandshakeLimits, mut channel_config_arg: crate::lightning::util::config::ChannelConfig, mut accept_forwards_to_priv_channels_arg: bool, mut accept_inbound_channels_arg: bool, mut manually_accept_inbound_channels_arg: bool, mut accept_intercept_htlcs_arg: bool, mut manually_handle_bolt12_invoices_arg: bool) -> UserConfig {
 	UserConfig { inner: ObjOps::heap_alloc(nativeUserConfig {
 		channel_handshake_config: *unsafe { Box::from_raw(channel_handshake_config_arg.take_inner()) },
 		channel_handshake_limits: *unsafe { Box::from_raw(channel_handshake_limits_arg.take_inner()) },
@@ -1958,7 +1929,6 @@ pub extern "C" fn UserConfig_new(mut channel_handshake_config_arg: crate::lightn
 		accept_inbound_channels: accept_inbound_channels_arg,
 		manually_accept_inbound_channels: manually_accept_inbound_channels_arg,
 		accept_intercept_htlcs: accept_intercept_htlcs_arg,
-		accept_mpp_keysend: accept_mpp_keysend_arg,
 		manually_handle_bolt12_invoices: manually_handle_bolt12_invoices_arg,
 	}), is_owned: true }
 }

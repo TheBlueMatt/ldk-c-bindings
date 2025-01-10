@@ -7,8 +7,8 @@
 // source was automatically generated.
 
 //! Utilities that take care of tasks that (1) need to happen periodically to keep Rust-Lightning
-//! running properly, and (2) either can or should be run in the background. See docs for
-//! [`BackgroundProcessor`] for more details on the nitty-gritty.
+//! running properly, and (2) either can or should be run in the background.
+//!See docs for [`BackgroundProcessor`] for more details.
 
 use alloc::str::FromStr;
 use alloc::string::String;

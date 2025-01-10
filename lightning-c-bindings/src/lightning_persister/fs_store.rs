@@ -142,3 +142,39 @@ extern "C" fn FilesystemStore_KVStore_list(this_arg: *const c_void, mut primary_
 	local_ret
 }
 
+impl From<nativeFilesystemStore> for crate::lightning::util::persist::MigratableKVStore {
+	fn from(obj: nativeFilesystemStore) -> Self {
+		let rust_obj = crate::lightning_persister::fs_store::FilesystemStore { inner: ObjOps::heap_alloc(obj), is_owned: true };
+		let mut ret = FilesystemStore_as_MigratableKVStore(&rust_obj);
+		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
+		core::mem::forget(rust_obj);
+		ret.free = Some(FilesystemStore_free_void);
+		ret
+	}
+}
+/// Constructs a new MigratableKVStore which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned MigratableKVStore must be freed before this_arg is
+#[no_mangle]
+pub extern "C" fn FilesystemStore_as_MigratableKVStore(this_arg: &FilesystemStore) -> crate::lightning::util::persist::MigratableKVStore {
+	crate::lightning::util::persist::MigratableKVStore {
+		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+		free: None,
+		list_all_keys: FilesystemStore_MigratableKVStore_list_all_keys,
+		KVStore: crate::lightning::util::persist::KVStore {
+			this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+			free: None,
+			read: FilesystemStore_KVStore_read,
+			write: FilesystemStore_KVStore_write,
+			remove: FilesystemStore_KVStore_remove,
+			list: FilesystemStore_KVStore_list,
+		},
+	}
+}
+
+#[must_use]
+extern "C" fn FilesystemStore_MigratableKVStore_list_all_keys(this_arg: *const c_void) -> crate::c_types::derived::CResult_CVec_C3Tuple_StrStrStrZZIOErrorZ {
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::MigratableKVStore>::list_all_keys(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, );
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1, mut orig_ret_0_0_2) = item; let mut local_ret_0_0 = (orig_ret_0_0_0.into(), orig_ret_0_0_1.into(), orig_ret_0_0_2.into()).into(); local_ret_0_0 }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
+	local_ret
+}
+
