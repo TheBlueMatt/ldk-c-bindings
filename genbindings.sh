@@ -199,7 +199,7 @@ function drop_crate() {
 
 echo > /tmp/crate-source.txt
 if [ "$2" = "true" ]; then
-	add_crate lightning lightning --features=std
+	add_crate lightning lightning --features=std,dnssec
 	add_crate lightning-types lightning_types
 	add_crate "lightning-persister" "lightning_persister"
 	add_crate "lightning-background-processor" "lightning_background_processor" --features=std,lightning/std
@@ -207,11 +207,11 @@ if [ "$2" = "true" ]; then
 	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync" --features=std,lightning/std
 	CARGO_BUILD_ARGS="--features=std"
 else
-	add_crate lightning lightning --features=no-std
+	add_crate lightning lightning --features=dnssec
 	add_crate lightning-types lightning_types
 	drop_crate "lightning-persister"
-	add_crate "lightning-background-processor" "lightning_background_processor" --features=lightning/no-std
-	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync" --features=lightning/no-std
+	add_crate "lightning-background-processor" "lightning_background_processor"
+	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync"
 	add_crate "lightning-invoice" "lightning_invoice"
 	CARGO_BUILD_ARGS="--features=no-std"
 fi
