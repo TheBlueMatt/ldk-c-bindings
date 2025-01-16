@@ -124,9 +124,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: macos-11
-          - platform: macos-12
           - platform: macos-13
+          - platform: macos-latest
     runs-on: ${{ matrix.platform }}
     env:
       TOOLCHAIN: stable
