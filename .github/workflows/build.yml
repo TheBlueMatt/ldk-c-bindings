@@ -9,7 +9,7 @@ jobs:
       matrix:
         # Ubuntu's version of rustc uses its own LLVM instead of being a real native package.
         # This leaves us with an incompatible LLVM version when linking. Instead, use a real OS.
-        distro: [ "debian:bookworm", "fedora:39" ]
+        distro: [ "debian:bookworm", "fedora:41" ]
     runs-on: ubuntu-latest
     container: ${{ matrix.distro }}
     env:
@@ -22,7 +22,7 @@ jobs:
           apt-get -y dist-upgrade
           apt-get -y install cargo libstd-rust-dev-wasm32 wasi-libc valgrind lld git g++ clang wget
       - name: Install native Rust toolchain, Valgrind, and build utilitis
-        if: "matrix.distro == 'fedora:39'"
+        if: "matrix.distro == 'fedora:41'"
         run: |
           dnf -y install cargo rust-std-static-wasm32-wasi valgrind lld git g++ clang wget which diffutils
       - name: Checkout source code
