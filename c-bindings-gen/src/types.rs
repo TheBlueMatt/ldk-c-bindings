@@ -736,9 +736,12 @@ impl<'mod_lifetime, 'crate_lft: 'mod_lifetime> ImportResolver<'mod_lifetime, 'cr
 				// is actually a pub(.*) use statement and map it to the real path.
 				let path_tmp = path.clone();
 				let crate_name = path_tmp.splitn(2, "::").next().unwrap();
-				let mut module_riter = path_tmp.rsplitn(2, "::");
-				let obj = module_riter.next().unwrap();
-				if let Some(module_path) = module_riter.next() {
+				let mut module_part_iter = path_tmp.split("::");
+				let mut pos = module_part_iter.next().unwrap().len();
+				while let Some(obj) = module_part_iter.next() {
+					let module_path = &path_tmp[..pos];
+					pos += 2 + obj.len();
+
 					if let Some(m) = self.library.modules.get(module_path) {
 						for item in m.items.iter() {
 							if let syn::Item::Use(syn::ItemUse { vis, tree, .. }) = item {
@@ -753,6 +756,21 @@ impl<'mod_lifetime, 'crate_lft: 'mod_lifetime> ImportResolver<'mod_lifetime, 'cr
 													path = use_path;
 												}
 										});
+									},
+									syn::Visibility::Inherited => {},
+								}
+							} else if let syn::Item::ExternCrate(syn::ItemExternCrate { vis, ident, rename, .. }) = item {
+								match vis {
+									syn::Visibility::Public(_)|
+									syn::Visibility::Crate(_)|
+									syn::Visibility::Restricted(_) => {
+										if let Some((_, ident)) = rename {
+											if ident != obj { continue; }
+										} else {
+											if ident != obj { continue; }
+										}
+
+										path = format!("{}", ident) + &path_tmp[pos..];
 									},
 									syn::Visibility::Inherited => {},
 								}
@@ -845,8 +863,9 @@ impl FullLibraryAST {
 				syn::Item::Mod(_) => panic!("--pretty=expanded output should never have non-body modules"),
 				syn::Item::ExternCrate(c) => {
 					if export_status(&c.attrs) == ExportStatus::Export {
-						self.dependencies.insert(c.ident);
+						self.dependencies.insert(c.ident.clone());
 					}
+					non_mod_items.push(syn::Item::ExternCrate(c));
 				},
 				_ => { non_mod_items.push(item); }
 			}
@@ -1128,15 +1147,15 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 				if !is_ref => Some("crate::c_types::ThirtyTwoBytes"),
 			"bitcoin::secp256k1::Message" if !is_ref => Some("crate::c_types::ThirtyTwoBytes"),
 			"bitcoin::secp256k1::Message" if is_ref => Some("*const [u8; 32]"),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash"
-			|"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
-			|"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret"
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash"
+			|"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
+			|"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret"
 			|"lightning::ln::channelmanager::PaymentId"|"lightning::ln::channelmanager::InterceptId"
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if is_ref => Some("*const [u8; 32]"),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash"
-			|"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
-			|"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret"
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash"
+			|"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
+			|"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret"
 			|"lightning::ln::channelmanager::PaymentId"|"lightning::ln::channelmanager::InterceptId"
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some("crate::c_types::ThirtyTwoBytes"),
@@ -1251,11 +1270,11 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"bitcoin::constants::ChainHash" => Some("::bitcoin::constants::ChainHash::from(&"),
 			"bitcoin::hashes::sha256::Hash" if is_ref => Some("&::bitcoin::hashes::sha256::Hash::from_slice(&unsafe { &*"),
 			"bitcoin::hashes::sha256::Hash" => Some("::bitcoin::hashes::sha256::Hash::from_slice(&"),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash" if !is_ref => Some("::lightning::ln::types::PaymentHash("),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash" if is_ref => Some("&::lightning::ln::types::PaymentHash(unsafe { *"),
-			"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage" if !is_ref => Some("::lightning::ln::types::PaymentPreimage("),
-			"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage" if is_ref => Some("&::lightning::ln::types::PaymentPreimage(unsafe { *"),
-			"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret" if !is_ref => Some("::lightning::ln::types::PaymentSecret("),
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash" if !is_ref => Some("::lightning::types::payment::PaymentHash("),
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash" if is_ref => Some("&::lightning::types::payment::PaymentHash(unsafe { *"),
+			"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage" if !is_ref => Some("::lightning::types::payment::PaymentPreimage("),
+			"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage" if is_ref => Some("&::lightning::types::payment::PaymentPreimage(unsafe { *"),
+			"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret" if !is_ref => Some("::lightning::types::payment::PaymentSecret("),
 			"lightning::ln::channelmanager::PaymentId" if !is_ref => Some("::lightning::ln::channelmanager::PaymentId("),
 			"lightning::ln::channelmanager::PaymentId" if is_ref=> Some("&::lightning::ln::channelmanager::PaymentId( unsafe { *"),
 			"lightning::ln::channelmanager::InterceptId" if !is_ref => Some("::lightning::ln::channelmanager::InterceptId("),
@@ -1362,15 +1381,15 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"bitcoin::hash_types::BlockHash"|"bitcoin::BlockHash" if !is_ref => Some(".data[..]).unwrap()"),
 			"bitcoin::constants::ChainHash" if !is_ref => Some(".data)"),
 			"bitcoin::hashes::sha256::Hash" => Some(" }[..]).unwrap()"),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash"
-			|"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
-			|"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret"
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash"
+			|"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
+			|"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret"
 			|"lightning::ln::channelmanager::PaymentId"|"lightning::ln::channelmanager::InterceptId"
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some(".data)"),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash"
-			|"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
-			|"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret"
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash"
+			|"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
+			|"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret"
 			|"lightning::ln::channelmanager::PaymentId"|"lightning::ln::channelmanager::InterceptId"
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if is_ref => Some(" })"),
@@ -1410,6 +1429,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"[u8; 32]" if is_ref => Some(""),
 			"[u8; 20]" if !is_ref => Some("crate::c_types::TwentyBytes { data: "),
 			"[u8; 16]" if !is_ref => Some("crate::c_types::SixteenBytes { data: "),
+			"[u8; 16]" if is_ref => Some(""),
 			"[u8; 12]" if !is_ref => Some("crate::c_types::TwelveBytes { data: "),
 			"[u8; 4]" if !is_ref => Some("crate::c_types::FourBytes { data: "),
 			"[u8; 3]" if !is_ref => Some("crate::c_types::ThreeBytes { data: "),
@@ -1492,15 +1512,15 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 				if !is_ref => Some("crate::c_types::ThirtyTwoBytes { data: *"),
 			"bitcoin::secp256k1::Message" if !is_ref => Some("crate::c_types::ThirtyTwoBytes { data: "),
 			"bitcoin::secp256k1::Message" if is_ref => Some(""),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash"
-			|"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
-			|"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret"
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash"
+			|"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
+			|"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret"
 			|"lightning::ln::channelmanager::PaymentId"|"lightning::ln::channelmanager::InterceptId"
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if is_ref => Some("&"),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash"
-			|"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
-			|"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret"
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash"
+			|"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
+			|"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret"
 			|"lightning::ln::channelmanager::PaymentId"|"lightning::ln::channelmanager::InterceptId"
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some("crate::c_types::ThirtyTwoBytes { data: "),
@@ -1523,6 +1543,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"[u8; 32]" if !is_ref => Some(" }"),
 			"[u8; 32]" if is_ref => Some(""),
 			"[u8; 20]" if !is_ref => Some(" }"),
+			"[u8; 16]" if is_ref => Some(""),
 			"[u8; 16]" if !is_ref => Some(" }"),
 			"[u8; 12]" if !is_ref => Some(" }"),
 			"[u8; 4]" if !is_ref => Some(" }"),
@@ -1601,15 +1622,15 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 				if !is_ref => Some(".as_ref() }"),
 			"bitcoin::secp256k1::Message" if !is_ref => Some(".as_ref().clone() }"),
 			"bitcoin::secp256k1::Message" if is_ref => Some(".as_ref()"),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash"
-			|"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
-			|"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret"
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash"
+			|"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
+			|"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret"
 			|"lightning::ln::channelmanager::PaymentId"|"lightning::ln::channelmanager::InterceptId"
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if is_ref => Some(".0"),
-			"lightning::ln::types::PaymentHash"|"lightning_types::payment::PaymentHash"
-			|"lightning::ln::types::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
-			|"lightning::ln::types::PaymentSecret"|"lightning_types::payment::PaymentSecret"
+			"lightning::types::payment::PaymentHash"|"lightning_types::payment::PaymentHash"
+			|"lightning::types::payment::PaymentPreimage"|"lightning_types::payment::PaymentPreimage"
+			|"lightning::types::payment::PaymentSecret"|"lightning_types::payment::PaymentSecret"
 			|"lightning::ln::channelmanager::PaymentId"|"lightning::ln::channelmanager::InterceptId"
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some(".0 }"),

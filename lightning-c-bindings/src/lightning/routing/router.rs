@@ -25,8 +25,10 @@ pub(crate) type nativeDefaultRouter = nativeDefaultRouterImport<&'static lightni
 ///
 /// # Privacy
 ///
-/// Implements [`MessageRouter`] by delegating to [`DefaultMessageRouter`]. See those docs for
-/// privacy implications.
+/// Creating [`BlindedPaymentPath`]s may affect privacy since, if a suitable path cannot be found,
+/// it will create a one-hop path using the recipient as the introduction node if it is a announced
+/// node. Otherwise, there is no way to find a path to the introduction node in order to send a
+/// payment, and thus an `Err` is returned.
 #[must_use]
 #[repr(C)]
 pub struct DefaultRouter {
@@ -110,13 +112,6 @@ pub extern "C" fn DefaultRouter_as_Router(this_arg: &DefaultRouter) -> crate::li
 		find_route: DefaultRouter_Router_find_route,
 		find_route_with_id: DefaultRouter_Router_find_route_with_id,
 		create_blinded_payment_paths: DefaultRouter_Router_create_blinded_payment_paths,
-		MessageRouter: crate::lightning::onion_message::messenger::MessageRouter {
-			this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
-			free: None,
-			find_path: DefaultRouter_MessageRouter_find_path,
-			create_blinded_paths: DefaultRouter_MessageRouter_create_blinded_paths,
-			create_compact_blinded_paths: DefaultRouter_MessageRouter_create_compact_blinded_paths,
-		},
 	}
 }
 
@@ -130,7 +125,7 @@ extern "C" fn DefaultRouter_Router_find_route(this_arg: *const c_void, mut payer
 #[must_use]
 extern "C" fn DefaultRouter_Router_find_route_with_id(this_arg: *const c_void, mut payer: crate::c_types::PublicKey, route_params: &crate::lightning::routing::router::RouteParameters, first_hops: *mut crate::c_types::derived::CVec_ChannelDetailsZ, mut inflight_htlcs: crate::lightning::routing::router::InFlightHtlcs, mut _payment_hash: crate::c_types::ThirtyTwoBytes, mut _payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_RouteLightningErrorZ {
 	let mut local_first_hops_base = if first_hops == core::ptr::null_mut() { None } else { Some( { let mut local_first_hops_0 = Vec::new(); for mut item in unsafe { &mut *first_hops }.as_slice().iter() { local_first_hops_0.push( { item.get_native_ref() }); }; local_first_hops_0 }) }; let mut local_first_hops = local_first_hops_base.as_ref().map(|a| &a[..]);
-	let mut ret = <nativeDefaultRouter as lightning::routing::router::Router>::find_route_with_id(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, &payer.into_rust(), route_params.get_native_ref(), local_first_hops, *unsafe { Box::from_raw(inflight_htlcs.take_inner()) }, ::lightning::ln::types::PaymentHash(_payment_hash.data), ::lightning::ln::channelmanager::PaymentId(_payment_id.data));
+	let mut ret = <nativeDefaultRouter as lightning::routing::router::Router>::find_route_with_id(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, &payer.into_rust(), route_params.get_native_ref(), local_first_hops, *unsafe { Box::from_raw(inflight_htlcs.take_inner()) }, ::lightning::types::payment::PaymentHash(_payment_hash.data), ::lightning::ln::channelmanager::PaymentId(_payment_id.data));
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::router::Route { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
@@ -139,51 +134,6 @@ extern "C" fn DefaultRouter_Router_create_blinded_payment_paths(this_arg: *const
 	let mut local_first_hops = Vec::new(); for mut item in first_hops.into_rust().drain(..) { local_first_hops.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	let mut ret = <nativeDefaultRouter as lightning::routing::router::Router>::create_blinded_payment_paths(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, recipient.into_rust(), local_first_hops, *unsafe { Box::from_raw(tlvs.take_inner()) }, amount_msats, secp256k1::global::SECP256K1);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { crate::lightning::blinded_path::payment::BlindedPaymentPath { inner: ObjOps::heap_alloc(item), is_owned: true } }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-
-impl From<nativeDefaultRouter> for crate::lightning::onion_message::messenger::MessageRouter {
-	fn from(obj: nativeDefaultRouter) -> Self {
-		let rust_obj = crate::lightning::routing::router::DefaultRouter { inner: ObjOps::heap_alloc(obj), is_owned: true };
-		let mut ret = DefaultRouter_as_MessageRouter(&rust_obj);
-		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
-		core::mem::forget(rust_obj);
-		ret.free = Some(DefaultRouter_free_void);
-		ret
-	}
-}
-/// Constructs a new MessageRouter which calls the relevant methods on this_arg.
-/// This copies the `inner` pointer in this_arg and thus the returned MessageRouter must be freed before this_arg is
-#[no_mangle]
-pub extern "C" fn DefaultRouter_as_MessageRouter(this_arg: &DefaultRouter) -> crate::lightning::onion_message::messenger::MessageRouter {
-	crate::lightning::onion_message::messenger::MessageRouter {
-		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
-		free: None,
-		find_path: DefaultRouter_MessageRouter_find_path,
-		create_blinded_paths: DefaultRouter_MessageRouter_create_blinded_paths,
-		create_compact_blinded_paths: DefaultRouter_MessageRouter_create_compact_blinded_paths,
-	}
-}
-
-#[must_use]
-extern "C" fn DefaultRouter_MessageRouter_find_path(this_arg: *const c_void, mut sender: crate::c_types::PublicKey, mut peers: crate::c_types::derived::CVec_PublicKeyZ, mut destination: crate::lightning::onion_message::messenger::Destination) -> crate::c_types::derived::CResult_OnionMessagePathNoneZ {
-	let mut local_peers = Vec::new(); for mut item in peers.into_rust().drain(..) { local_peers.push( { item.into_rust() }); };
-	let mut ret = <nativeDefaultRouter as lightning::onion_message::messenger::MessageRouter>::find_path(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, sender.into_rust(), local_peers, destination.into_native());
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::onion_message::messenger::OnionMessagePath { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-#[must_use]
-extern "C" fn DefaultRouter_MessageRouter_create_blinded_paths(this_arg: *const c_void, mut recipient: crate::c_types::PublicKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut peers: crate::c_types::derived::CVec_PublicKeyZ) -> crate::c_types::derived::CResult_CVec_BlindedMessagePathZNoneZ {
-	let mut local_peers = Vec::new(); for mut item in peers.into_rust().drain(..) { local_peers.push( { item.into_rust() }); };
-	let mut ret = <nativeDefaultRouter as lightning::onion_message::messenger::MessageRouter>::create_blinded_paths(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, recipient.into_rust(), context.into_native(), local_peers, secp256k1::global::SECP256K1);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(item), is_owned: true } }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-#[must_use]
-extern "C" fn DefaultRouter_MessageRouter_create_compact_blinded_paths(this_arg: *const c_void, mut recipient: crate::c_types::PublicKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut peers: crate::c_types::derived::CVec_MessageForwardNodeZ) -> crate::c_types::derived::CResult_CVec_BlindedMessagePathZNoneZ {
-	let mut local_peers = Vec::new(); for mut item in peers.into_rust().drain(..) { local_peers.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
-	let mut ret = <nativeDefaultRouter as lightning::onion_message::messenger::MessageRouter>::create_compact_blinded_paths(unsafe { &mut *(this_arg as *mut nativeDefaultRouter) }, recipient.into_rust(), context.into_native(), local_peers, secp256k1::global::SECP256K1);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(item), is_owned: true } }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 
@@ -214,8 +164,6 @@ pub struct Router {
 	/// are assumed to be with the `recipient`'s peers. The payment secret and any constraints are
 	/// given in `tlvs`.
 	pub create_blinded_payment_paths: extern "C" fn (this_arg: *const c_void, recipient: crate::c_types::PublicKey, first_hops: crate::c_types::derived::CVec_ChannelDetailsZ, tlvs: crate::lightning::blinded_path::payment::ReceiveTlvs, amount_msats: u64) -> crate::c_types::derived::CResult_CVec_BlindedPaymentPathZNoneZ,
-	/// Implementation of MessageRouter for this object.
-	pub MessageRouter: crate::lightning::onion_message::messenger::MessageRouter,
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
 	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
@@ -229,48 +177,7 @@ pub(crate) fn Router_clone_fields(orig: &Router) -> Router {
 		find_route: Clone::clone(&orig.find_route),
 		find_route_with_id: Clone::clone(&orig.find_route_with_id),
 		create_blinded_payment_paths: Clone::clone(&orig.create_blinded_payment_paths),
-		MessageRouter: crate::lightning::onion_message::messenger::MessageRouter_clone_fields(&orig.MessageRouter),
 		free: Clone::clone(&orig.free),
-	}
-}
-impl lightning::onion_message::messenger::MessageRouter for Router {
-	fn find_path(&self, mut sender: bitcoin::secp256k1::PublicKey, mut peers: Vec<bitcoin::secp256k1::PublicKey>, mut destination: lightning::onion_message::messenger::Destination) -> Result<lightning::onion_message::messenger::OnionMessagePath, ()> {
-		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::c_types::PublicKey::from_rust(&item) }); };
-		let mut ret = (self.MessageRouter.find_path)(self.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&sender), local_peers.into(), crate::lightning::onion_message::messenger::Destination::native_into(destination));
-		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn create_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut context: lightning::blinded_path::message::MessageContext, mut peers: Vec<bitcoin::secp256k1::PublicKey>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::message::BlindedMessagePath>, ()> {
-		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::c_types::PublicKey::from_rust(&item) }); };
-		let mut ret = (self.MessageRouter.create_blinded_paths)(self.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), crate::lightning::blinded_path::message::MessageContext::native_into(context), local_peers.into());
-		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn create_compact_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut context: lightning::blinded_path::message::MessageContext, mut peers: Vec<lightning::blinded_path::message::MessageForwardNode>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::message::BlindedMessagePath>, ()> {
-		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::lightning::blinded_path::message::MessageForwardNode { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
-		let mut ret = (self.MessageRouter.create_compact_blinded_paths)(self.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), crate::lightning::blinded_path::message::MessageContext::native_into(context), local_peers.into());
-		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-}
-impl lightning::onion_message::messenger::MessageRouter for RouterRef {
-	fn find_path(&self, mut sender: bitcoin::secp256k1::PublicKey, mut peers: Vec<bitcoin::secp256k1::PublicKey>, mut destination: lightning::onion_message::messenger::Destination) -> Result<lightning::onion_message::messenger::OnionMessagePath, ()> {
-		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::c_types::PublicKey::from_rust(&item) }); };
-		let mut ret = (self.0.MessageRouter.find_path)(self.0.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&sender), local_peers.into(), crate::lightning::onion_message::messenger::Destination::native_into(destination));
-		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn create_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut context: lightning::blinded_path::message::MessageContext, mut peers: Vec<bitcoin::secp256k1::PublicKey>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::message::BlindedMessagePath>, ()> {
-		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::c_types::PublicKey::from_rust(&item) }); };
-		let mut ret = (self.0.MessageRouter.create_blinded_paths)(self.0.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), crate::lightning::blinded_path::message::MessageContext::native_into(context), local_peers.into());
-		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn create_compact_blinded_paths<T:bitcoin::secp256k1::Signing + bitcoin::secp256k1::Verification>(&self, mut recipient: bitcoin::secp256k1::PublicKey, mut context: lightning::blinded_path::message::MessageContext, mut peers: Vec<lightning::blinded_path::message::MessageForwardNode>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<T>) -> Result<Vec<lightning::blinded_path::message::BlindedMessagePath>, ()> {
-		let mut local_peers = Vec::new(); for mut item in peers.drain(..) { local_peers.push( { crate::lightning::blinded_path::message::MessageForwardNode { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
-		let mut ret = (self.0.MessageRouter.create_compact_blinded_paths)(self.0.MessageRouter.this_arg, crate::c_types::PublicKey::from_rust(&recipient), crate::lightning::blinded_path::message::MessageContext::native_into(context), local_peers.into());
-		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
 	}
 }
 

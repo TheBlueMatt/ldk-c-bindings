@@ -173,8 +173,8 @@ pub(crate) extern "C" fn RefundMaybeWithDerivedMetadataBuilder_clone_void(this_p
 pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_clone(orig: &RefundMaybeWithDerivedMetadataBuilder) -> RefundMaybeWithDerivedMetadataBuilder {
 	orig.clone()
 }
-/// Creates a new builder for a refund using the [`Refund::payer_id`] for the public node id to
-/// send to if no [`Refund::paths`] are set. Otherwise, it may be a transient pubkey.
+/// Creates a new builder for a refund using the `signing_pubkey` for the public node id to send
+/// to if no [`Refund::paths`] are set. Otherwise, `signing_pubkey` may be a transient pubkey.
 ///
 /// Additionally, sets the required (empty) [`Refund::description`], [`Refund::payer_metadata`],
 /// and [`Refund::amount_msats`].
@@ -188,9 +188,9 @@ pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_clone(orig: &RefundMaybe
 /// [`ChannelManager::create_refund_builder`]: crate::ln::channelmanager::ChannelManager::create_refund_builder
 #[must_use]
 #[no_mangle]
-pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_new(mut metadata: crate::c_types::derived::CVec_u8Z, mut payer_id: crate::c_types::PublicKey, mut amount_msats: u64) -> crate::c_types::derived::CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_new(mut metadata: crate::c_types::derived::CVec_u8Z, mut signing_pubkey: crate::c_types::PublicKey, mut amount_msats: u64) -> crate::c_types::derived::CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
 	let mut local_metadata = Vec::new(); for mut item in metadata.into_rust().drain(..) { local_metadata.push( { item }); };
-	let mut ret = lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder::new(local_metadata, payer_id.into_rust(), amount_msats);
+	let mut ret = lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder::new(local_metadata, signing_pubkey.into_rust(), amount_msats);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
 	local_ret
 }
@@ -214,8 +214,8 @@ pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_new(mut metadata: crate:
 /// [`ExpandedKey`]: crate::ln::inbound_payment::ExpandedKey
 #[must_use]
 #[no_mangle]
-pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_deriving_payer_id(mut node_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut amount_msats: u64, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
-	let mut ret = lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder::deriving_payer_id(node_id.into_rust(), expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, secp256k1::global::SECP256K1, amount_msats, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
+pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_deriving_signing_pubkey(mut node_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut amount_msats: u64, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_RefundMaybeWithDerivedMetadataBuilderBolt12SemanticErrorZ {
+	let mut ret = lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder::deriving_signing_pubkey(node_id.into_rust(), expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, secp256k1::global::SECP256K1, amount_msats, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::refund::RefundMaybeWithDerivedMetadataBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
 	local_ret
 }
@@ -230,8 +230,8 @@ pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_description(mut this_arg
 	() /*ret*/
 }
 
-/// Sets the [`Refund::absolute_expiry`] as seconds since the Unix epoch. Any expiry that has
-/// already passed is valid and can be checked for using [`Refund::is_expired`].
+/// Sets the [`Refund::absolute_expiry`] as seconds since the Unix epoch.
+///Any expiry that has already passed is valid and can be checked for using [`Refund::is_expired`].
 ///
 /// Successive calls to this method will override the previous setting.
 #[must_use]
@@ -252,7 +252,7 @@ pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_issuer(mut this_arg: cra
 }
 
 /// Adds a blinded path to [`Refund::paths`]. Must include at least one path if only connected
-/// by private channels or if [`Refund::payer_id`] is not a public node id.
+/// by private channels or if [`Refund::payer_signing_pubkey`] is not a public node id.
 ///
 /// Successive calls to this method will add another blinded path. Caller is responsible for not
 /// adding duplicate paths.
@@ -457,9 +457,9 @@ pub extern "C" fn Refund_paths(this_arg: &crate::lightning::offers::refund::Refu
 }
 
 /// An unpredictable series of bytes, typically containing information about the derivation of
-/// [`payer_id`].
+/// [`payer_signing_pubkey`].
 ///
-/// [`payer_id`]: Self::payer_id
+/// [`payer_signing_pubkey`]: Self::payer_signing_pubkey
 #[must_use]
 #[no_mangle]
 pub extern "C" fn Refund_payer_metadata(this_arg: &crate::lightning::offers::refund::Refund) -> crate::c_types::u8slice {
@@ -509,8 +509,8 @@ pub extern "C" fn Refund_quantity(this_arg: &crate::lightning::offers::refund::R
 /// [`paths`]: Self::paths
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Refund_payer_id(this_arg: &crate::lightning::offers::refund::Refund) -> crate::c_types::PublicKey {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payer_id();
+pub extern "C" fn Refund_payer_signing_pubkey(this_arg: &crate::lightning::offers::refund::Refund) -> crate::c_types::PublicKey {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.payer_signing_pubkey();
 	crate::c_types::PublicKey::from_rust(&ret)
 }
 

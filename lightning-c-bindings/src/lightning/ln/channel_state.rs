@@ -257,7 +257,7 @@ pub extern "C" fn InboundHTLCDetails_get_payment_hash(this_ptr: &InboundHTLCDeta
 /// The payment hash.
 #[no_mangle]
 pub extern "C" fn InboundHTLCDetails_set_payment_hash(this_ptr: &mut InboundHTLCDetails, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_hash = ::lightning::ln::types::PaymentHash(val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_hash = ::lightning::types::payment::PaymentHash(val.data);
 }
 /// The state of the HTLC in the state machine.
 ///
@@ -328,7 +328,7 @@ pub extern "C" fn InboundHTLCDetails_new(mut htlc_id_arg: u64, mut amount_msat_a
 		htlc_id: htlc_id_arg,
 		amount_msat: amount_msat_arg,
 		cltv_expiry: cltv_expiry_arg,
-		payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_arg.data),
+		payment_hash: ::lightning::types::payment::PaymentHash(payment_hash_arg.data),
 		state: local_state_arg,
 		is_dust: is_dust_arg,
 	}), is_owned: true }
@@ -614,7 +614,7 @@ pub extern "C" fn OutboundHTLCDetails_get_payment_hash(this_ptr: &OutboundHTLCDe
 /// The payment hash.
 #[no_mangle]
 pub extern "C" fn OutboundHTLCDetails_set_payment_hash(this_ptr: &mut OutboundHTLCDetails, mut val: crate::c_types::ThirtyTwoBytes) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_hash = ::lightning::ln::types::PaymentHash(val.data);
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_hash = ::lightning::types::payment::PaymentHash(val.data);
 }
 /// The state of the HTLC in the state machine.
 ///
@@ -700,7 +700,7 @@ pub extern "C" fn OutboundHTLCDetails_new(mut htlc_id_arg: crate::c_types::deriv
 		htlc_id: local_htlc_id_arg,
 		amount_msat: amount_msat_arg,
 		cltv_expiry: cltv_expiry_arg,
-		payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_arg.data),
+		payment_hash: ::lightning::types::payment::PaymentHash(payment_hash_arg.data),
 		state: local_state_arg,
 		skimmed_fee_msat: local_skimmed_fee_msat_arg,
 		is_dust: is_dust_arg,
@@ -1424,41 +1424,10 @@ pub extern "C" fn ChannelDetails_set_feerate_sat_per_1000_weight(this_ptr: &mut 
 	let mut local_val = if val.is_some() { Some( { val.take() }) } else { None };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.feerate_sat_per_1000_weight = local_val;
 }
-/// Our total balance.  This is the amount we would get if we close the channel.
-/// This value is not exact. Due to various in-flight changes and feerate changes, exactly this
-/// amount is not likely to be recoverable on close.
-///
-/// This does not include any pending HTLCs which are not yet fully resolved (and, thus, whose
-/// balance is not available for inclusion in new outbound HTLCs). This further does not include
-/// any pending outgoing HTLCs which are awaiting some other resolution to be sent.
-/// This does not consider any on-chain fees.
-///
-/// See also [`ChannelDetails::outbound_capacity_msat`]
-#[no_mangle]
-pub extern "C" fn ChannelDetails_get_balance_msat(this_ptr: &ChannelDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().balance_msat;
-	*inner_val
-}
-/// Our total balance.  This is the amount we would get if we close the channel.
-/// This value is not exact. Due to various in-flight changes and feerate changes, exactly this
-/// amount is not likely to be recoverable on close.
-///
-/// This does not include any pending HTLCs which are not yet fully resolved (and, thus, whose
-/// balance is not available for inclusion in new outbound HTLCs). This further does not include
-/// any pending outgoing HTLCs which are awaiting some other resolution to be sent.
-/// This does not consider any on-chain fees.
-///
-/// See also [`ChannelDetails::outbound_capacity_msat`]
-#[no_mangle]
-pub extern "C" fn ChannelDetails_set_balance_msat(this_ptr: &mut ChannelDetails, mut val: u64) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.balance_msat = val;
-}
 /// The available outbound capacity for sending HTLCs to the remote peer. This does not include
 /// any pending HTLCs which are not yet fully resolved (and, thus, whose balance is not
 /// available for inclusion in new outbound HTLCs). This further does not include any pending
 /// outgoing HTLCs which are awaiting some other resolution to be sent.
-///
-/// See also [`ChannelDetails::balance_msat`]
 ///
 /// This value is not exact. Due to various in-flight changes, feerate changes, and our
 /// conflict-avoidance policy, exactly this amount is not likely to be spendable. However, we
@@ -1473,8 +1442,6 @@ pub extern "C" fn ChannelDetails_get_outbound_capacity_msat(this_ptr: &ChannelDe
 /// available for inclusion in new outbound HTLCs). This further does not include any pending
 /// outgoing HTLCs which are awaiting some other resolution to be sent.
 ///
-/// See also [`ChannelDetails::balance_msat`]
-///
 /// This value is not exact. Due to various in-flight changes, feerate changes, and our
 /// conflict-avoidance policy, exactly this amount is not likely to be spendable. However, we
 /// should be able to spend nearly this amount.
@@ -1487,8 +1454,8 @@ pub extern "C" fn ChannelDetails_set_outbound_capacity_msat(this_ptr: &mut Chann
 /// the current state and per-HTLC limit(s). This is intended for use when routing, allowing us
 /// to use a limit as close as possible to the HTLC limit we can currently send.
 ///
-/// See also [`ChannelDetails::next_outbound_htlc_minimum_msat`],
-/// [`ChannelDetails::balance_msat`], and [`ChannelDetails::outbound_capacity_msat`].
+/// See also [`ChannelDetails::next_outbound_htlc_minimum_msat`] and
+/// [`ChannelDetails::outbound_capacity_msat`].
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_next_outbound_htlc_limit_msat(this_ptr: &ChannelDetails) -> u64 {
 	let mut inner_val = &mut this_ptr.get_native_mut_ref().next_outbound_htlc_limit_msat;
@@ -1499,8 +1466,8 @@ pub extern "C" fn ChannelDetails_get_next_outbound_htlc_limit_msat(this_ptr: &Ch
 /// the current state and per-HTLC limit(s). This is intended for use when routing, allowing us
 /// to use a limit as close as possible to the HTLC limit we can currently send.
 ///
-/// See also [`ChannelDetails::next_outbound_htlc_minimum_msat`],
-/// [`ChannelDetails::balance_msat`], and [`ChannelDetails::outbound_capacity_msat`].
+/// See also [`ChannelDetails::next_outbound_htlc_minimum_msat`] and
+/// [`ChannelDetails::outbound_capacity_msat`].
 #[no_mangle]
 pub extern "C" fn ChannelDetails_set_next_outbound_htlc_limit_msat(this_ptr: &mut ChannelDetails, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.next_outbound_htlc_limit_msat = val;
@@ -1793,7 +1760,7 @@ pub extern "C" fn ChannelDetails_set_pending_outbound_htlcs(this_ptr: &mut Chann
 /// Note that config_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut counterparty_arg: crate::lightning::ln::channel_state::ChannelCounterparty, mut funding_txo_arg: crate::lightning::chain::transaction::OutPoint, mut channel_type_arg: crate::lightning_types::features::ChannelTypeFeatures, mut short_channel_id_arg: crate::c_types::derived::COption_u64Z, mut outbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut inbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut channel_value_satoshis_arg: u64, mut unspendable_punishment_reserve_arg: crate::c_types::derived::COption_u64Z, mut user_channel_id_arg: crate::c_types::U128, mut feerate_sat_per_1000_weight_arg: crate::c_types::derived::COption_u32Z, mut balance_msat_arg: u64, mut outbound_capacity_msat_arg: u64, mut next_outbound_htlc_limit_msat_arg: u64, mut next_outbound_htlc_minimum_msat_arg: u64, mut inbound_capacity_msat_arg: u64, mut confirmations_required_arg: crate::c_types::derived::COption_u32Z, mut confirmations_arg: crate::c_types::derived::COption_u32Z, mut force_close_spend_delay_arg: crate::c_types::derived::COption_u16Z, mut is_outbound_arg: bool, mut is_channel_ready_arg: bool, mut channel_shutdown_state_arg: crate::c_types::derived::COption_ChannelShutdownStateZ, mut is_usable_arg: bool, mut is_announced_arg: bool, mut inbound_htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut inbound_htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z, mut config_arg: crate::lightning::util::config::ChannelConfig, mut pending_inbound_htlcs_arg: crate::c_types::derived::CVec_InboundHTLCDetailsZ, mut pending_outbound_htlcs_arg: crate::c_types::derived::CVec_OutboundHTLCDetailsZ) -> ChannelDetails {
+pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut counterparty_arg: crate::lightning::ln::channel_state::ChannelCounterparty, mut funding_txo_arg: crate::lightning::chain::transaction::OutPoint, mut channel_type_arg: crate::lightning_types::features::ChannelTypeFeatures, mut short_channel_id_arg: crate::c_types::derived::COption_u64Z, mut outbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut inbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut channel_value_satoshis_arg: u64, mut unspendable_punishment_reserve_arg: crate::c_types::derived::COption_u64Z, mut user_channel_id_arg: crate::c_types::U128, mut feerate_sat_per_1000_weight_arg: crate::c_types::derived::COption_u32Z, mut outbound_capacity_msat_arg: u64, mut next_outbound_htlc_limit_msat_arg: u64, mut next_outbound_htlc_minimum_msat_arg: u64, mut inbound_capacity_msat_arg: u64, mut confirmations_required_arg: crate::c_types::derived::COption_u32Z, mut confirmations_arg: crate::c_types::derived::COption_u32Z, mut force_close_spend_delay_arg: crate::c_types::derived::COption_u16Z, mut is_outbound_arg: bool, mut is_channel_ready_arg: bool, mut channel_shutdown_state_arg: crate::c_types::derived::COption_ChannelShutdownStateZ, mut is_usable_arg: bool, mut is_announced_arg: bool, mut inbound_htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut inbound_htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z, mut config_arg: crate::lightning::util::config::ChannelConfig, mut pending_inbound_htlcs_arg: crate::c_types::derived::CVec_InboundHTLCDetailsZ, mut pending_outbound_htlcs_arg: crate::c_types::derived::CVec_OutboundHTLCDetailsZ) -> ChannelDetails {
 	let mut local_funding_txo_arg = if funding_txo_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(funding_txo_arg.take_inner()) } }) };
 	let mut local_channel_type_arg = if channel_type_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_type_arg.take_inner()) } }) };
 	let mut local_short_channel_id_arg = if short_channel_id_arg.is_some() { Some( { short_channel_id_arg.take() }) } else { None };
@@ -1822,7 +1789,6 @@ pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::t
 		unspendable_punishment_reserve: local_unspendable_punishment_reserve_arg,
 		user_channel_id: user_channel_id_arg.into(),
 		feerate_sat_per_1000_weight: local_feerate_sat_per_1000_weight_arg,
-		balance_msat: balance_msat_arg,
 		outbound_capacity_msat: outbound_capacity_msat_arg,
 		next_outbound_htlc_limit_msat: next_outbound_htlc_limit_msat_arg,
 		next_outbound_htlc_minimum_msat: next_outbound_htlc_minimum_msat_arg,

@@ -24,14 +24,21 @@ use alloc::{vec::Vec, boxed::Box};
 /// policies in order to be secure. Please refer to the [VLS Policy
 /// Controls](https://gitlab.com/lightning-signer/validating-lightning-signer/-/blob/main/docs/policy-controls.md)
 /// for an example of such policies.
+///
+/// Like [`ChannelSigner`], many of the methods allow errors to be returned to support async
+/// signing. In such cases, the signing operation can be replayed by calling
+/// [`ChannelManager::signer_unblocked`] or [`ChainMonitor::signer_unblocked`] (see individual
+/// method documentation for which method should be called) once the result is ready, at which
+/// point the channel operation will resume.
+///
+/// [`ChannelManager::signer_unblocked`]: crate::ln::channelmanager::ChannelManager::signer_unblocked
+/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
 #[repr(C)]
 pub struct EcdsaChannelSigner {
 	/// An opaque pointer which is passed to your function implementations as an argument.
 	/// This has no meaning in the LDK, and can be NULL or any other value.
 	pub this_arg: *mut c_void,
 	/// Create a signature for a counterparty's commitment transaction and associated HTLC transactions.
-	///
-	/// Note that if signing fails or is rejected, the channel will be force-closed.
 	///
 	/// Policy checks should be implemented in this function, including checking the amount
 	/// sent to us and checking the HTLCs.
@@ -43,6 +50,12 @@ pub struct EcdsaChannelSigner {
 	///
 	/// Note that all the relevant preimages will be provided, but there may also be additional
 	/// irrelevant or duplicate preimages.
+	///
+	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
+	/// signature and should be retried later. Once the signer is ready to provide a signature after
+	/// previously returning an `Err`, [`ChannelManager::signer_unblocked`] must be called.
+	///
+	/// [`ChannelManager::signer_unblocked`]: crate::ln::channelmanager::ChannelManager::signer_unblocked
 	pub sign_counterparty_commitment: extern "C" fn (this_arg: *const c_void, commitment_tx: &crate::lightning::ln::chan_utils::CommitmentTransaction, inbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ, outbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ) -> crate::c_types::derived::CResult_C2Tuple_ECDSASignatureCVec_ECDSASignatureZZNoneZ,
 	/// Creates a signature for a holder's commitment transaction.
 	///
@@ -57,9 +70,10 @@ pub struct EcdsaChannelSigner {
 	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
 	/// signature and should be retried later. Once the signer is ready to provide a signature after
 	/// previously returning an `Err`, [`ChannelMonitor::signer_unblocked`] must be called on its
-	/// monitor.
+	/// monitor or [`ChainMonitor::signer_unblocked`] called to attempt unblocking all monitors.
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
+	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
 	pub sign_holder_commitment: extern "C" fn (this_arg: *const c_void, commitment_tx: &crate::lightning::ln::chan_utils::HolderCommitmentTransaction) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Create a signature for the given input in a transaction spending an HTLC transaction output
 	/// or a commitment transaction `to_local` output when our counterparty broadcasts an old state.
@@ -79,9 +93,10 @@ pub struct EcdsaChannelSigner {
 	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
 	/// signature and should be retried later. Once the signer is ready to provide a signature after
 	/// previously returning an `Err`, [`ChannelMonitor::signer_unblocked`] must be called on its
-	/// monitor.
+	/// monitor or [`ChainMonitor::signer_unblocked`] called to attempt unblocking all monitors.
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
+	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
 	pub sign_justice_revoked_output: extern "C" fn (this_arg: *const c_void, justice_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_key: *const [u8; 32]) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Create a signature for the given input in a transaction spending a commitment transaction
 	/// HTLC output when our counterparty broadcasts an old state.
@@ -105,9 +120,10 @@ pub struct EcdsaChannelSigner {
 	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
 	/// signature and should be retried later. Once the signer is ready to provide a signature after
 	/// previously returning an `Err`, [`ChannelMonitor::signer_unblocked`] must be called on its
-	/// monitor.
+	/// monitor or [`ChainMonitor::signer_unblocked`] called to attempt unblocking all monitors.
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
+	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
 	pub sign_justice_revoked_htlc: extern "C" fn (this_arg: *const c_void, justice_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_key: *const [u8; 32], htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Computes the signature for a commitment transaction's HTLC output used as an input within
 	/// `htlc_tx`, which spends the commitment transaction at index `input`. The signature returned
@@ -120,11 +136,12 @@ pub struct EcdsaChannelSigner {
 	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
 	/// signature and should be retried later. Once the signer is ready to provide a signature after
 	/// previously returning an `Err`, [`ChannelMonitor::signer_unblocked`] must be called on its
-	/// monitor.
+	/// monitor or [`ChainMonitor::signer_unblocked`] called to attempt unblocking all monitors.
 	///
 	/// [`EcdsaSighashType::All`]: bitcoin::sighash::EcdsaSighashType::All
 	/// [`ChannelMonitor`]: crate::chain::channelmonitor::ChannelMonitor
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
+	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
 	pub sign_holder_htlc_transaction: extern "C" fn (this_arg: *const c_void, htlc_tx: crate::c_types::Transaction, input: usize, htlc_descriptor: &crate::lightning::sign::HTLCDescriptor) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Create a signature for a claiming transaction for a HTLC output on a counterparty's commitment
 	/// transaction, either offered or received.
@@ -147,14 +164,21 @@ pub struct EcdsaChannelSigner {
 	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
 	/// signature and should be retried later. Once the signer is ready to provide a signature after
 	/// previously returning an `Err`, [`ChannelMonitor::signer_unblocked`] must be called on its
-	/// monitor.
+	/// monitor or [`ChainMonitor::signer_unblocked`] called to attempt unblocking all monitors.
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
+	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
 	pub sign_counterparty_htlc_transaction: extern "C" fn (this_arg: *const c_void, htlc_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_point: crate::c_types::PublicKey, htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Create a signature for a (proposed) closing transaction.
 	///
 	/// Note that, due to rounding, there may be one \"missing\" satoshi, and either party may have
 	/// chosen to forgo their output as dust.
+	///
+	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
+	/// signature and should be retried later. Once the signer is ready to provide a signature after
+	/// previously returning an `Err`, [`ChannelManager::signer_unblocked`] must be called.
+	///
+	/// [`ChannelManager::signer_unblocked`]: crate::ln::channelmanager::ChannelManager::signer_unblocked
 	pub sign_closing_transaction: extern "C" fn (this_arg: *const c_void, closing_tx: &crate::lightning::ln::chan_utils::ClosingTransaction) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Computes the signature for a commitment transaction's anchor output used as an
 	/// input within `anchor_tx`, which spends the commitment transaction, at index `input`.
@@ -162,9 +186,10 @@ pub struct EcdsaChannelSigner {
 	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
 	/// signature and should be retried later. Once the signer is ready to provide a signature after
 	/// previously returning an `Err`, [`ChannelMonitor::signer_unblocked`] must be called on its
-	/// monitor.
+	/// monitor or [`ChainMonitor::signer_unblocked`] called to attempt unblocking all monitors.
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
+	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
 	pub sign_holder_anchor_input: extern "C" fn (this_arg: *const c_void, anchor_tx: crate::c_types::Transaction, input: usize) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Signs a channel announcement message with our funding key proving it comes from one of the
 	/// channel participants.
@@ -172,12 +197,25 @@ pub struct EcdsaChannelSigner {
 	/// Channel announcements also require a signature from each node's network key. Our node
 	/// signature is computed through [`NodeSigner::sign_gossip_message`].
 	///
-	/// Note that if this fails or is rejected, the channel will not be publicly announced and
-	/// our counterparty may (though likely will not) close the channel on us for violating the
-	/// protocol.
+	/// This method is *not* asynchronous. If an `Err` is returned, the channel will not be
+	/// publicly announced and our counterparty may (though likely will not) close the channel on
+	/// us for violating the protocol.
 	///
 	/// [`NodeSigner::sign_gossip_message`]: crate::sign::NodeSigner::sign_gossip_message
 	pub sign_channel_announcement_with_funding_key: extern "C" fn (this_arg: *const c_void, msg: &crate::lightning::ln::msgs::UnsignedChannelAnnouncement) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	/// Signs the input of a splicing funding transaction with our funding key.
+	///
+	/// In splicing, the previous funding transaction output is spent as the input of
+	/// the new funding transaction, and is a 2-of-2 multisig.
+	///
+	/// `input_index`: The index of the input within the new funding transaction `tx`,
+	///    spending the previous funding transaction's output
+	///
+	/// `input_value`: The value of the previous funding transaction output.
+	///
+	/// This method is *not* asynchronous. If an `Err` is returned, the channel will be immediately
+	/// closed.
+	pub sign_splicing_funding_input: extern "C" fn (this_arg: *const c_void, tx: crate::c_types::Transaction, input_index: usize, input_value: u64) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Implementation of ChannelSigner for this object.
 	pub ChannelSigner: crate::lightning::sign::ChannelSigner,
 	/// Called, if set, after this EcdsaChannelSigner has been cloned into a duplicate object.
@@ -203,6 +241,7 @@ pub(crate) fn EcdsaChannelSigner_clone_fields(orig: &EcdsaChannelSigner) -> Ecds
 		sign_closing_transaction: Clone::clone(&orig.sign_closing_transaction),
 		sign_holder_anchor_input: Clone::clone(&orig.sign_holder_anchor_input),
 		sign_channel_announcement_with_funding_key: Clone::clone(&orig.sign_channel_announcement_with_funding_key),
+		sign_splicing_funding_input: Clone::clone(&orig.sign_splicing_funding_input),
 		ChannelSigner: crate::lightning::sign::ChannelSigner_clone_fields(&orig.ChannelSigner),
 		cloned: Clone::clone(&orig.cloned),
 		free: Clone::clone(&orig.free),
@@ -347,6 +386,11 @@ impl rustEcdsaChannelSigner for EcdsaChannelSigner {
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
+	fn sign_splicing_funding_input(&self, mut tx: &bitcoin::transaction::Transaction, mut input_index: usize, mut input_value: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.sign_splicing_funding_input)(self.this_arg, crate::c_types::Transaction::from_bitcoin(tx), input_index, input_value);
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
 }
 
 pub struct EcdsaChannelSignerRef(EcdsaChannelSigner);
@@ -395,6 +439,11 @@ impl rustEcdsaChannelSigner for EcdsaChannelSignerRef {
 	}
 	fn sign_channel_announcement_with_funding_key(&self, mut msg: &lightning::ln::msgs::UnsignedChannelAnnouncement, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
 		let mut ret = (self.0.sign_channel_announcement_with_funding_key)(self.0.this_arg, &crate::lightning::ln::msgs::UnsignedChannelAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UnsignedChannelAnnouncement<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_splicing_funding_input(&self, mut tx: &bitcoin::transaction::Transaction, mut input_index: usize, mut input_value: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.sign_splicing_funding_input)(self.0.this_arg, crate::c_types::Transaction::from_bitcoin(tx), input_index, input_value);
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}

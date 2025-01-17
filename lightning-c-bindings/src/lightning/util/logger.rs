@@ -9,9 +9,8 @@
 //! Log traits live here, which are called throughout the library to provide useful information for
 //! debugging purposes.
 //!
-//! There is currently 2 ways to filter log messages. First one, by using compilation features, e.g \"max_level_off\".
-//! The second one, client-side by implementing check against Record Level field.
-//! Each module may have its own Logger or share one.
+//! Log messages should be filtered client-side by implementing check against a given [`Record`]'s
+//! [`Level`] field. Each module may have its own Logger or share one.
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -336,7 +335,7 @@ pub extern "C" fn Record_get_payment_hash(this_ptr: &Record) -> crate::c_types::
 /// `None` for logs which are not directly related to a payment.
 #[no_mangle]
 pub extern "C" fn Record_set_payment_hash(this_ptr: &mut Record, mut val: crate::c_types::derived::COption_ThirtyTwoBytesZ) {
-	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentHash({ val_opt.take() }.data) }})} };
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::lightning::types::payment::PaymentHash({ val_opt.take() }.data) }})} };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_hash = local_val;
 }
 /// Constructs a new Record given each field
@@ -348,7 +347,7 @@ pub extern "C" fn Record_set_payment_hash(this_ptr: &mut Record, mut val: crate:
 pub extern "C" fn Record_new(mut level_arg: crate::lightning::util::logger::Level, mut peer_id_arg: crate::c_types::PublicKey, mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut args_arg: crate::c_types::Str, mut module_path_arg: crate::c_types::Str, mut file_arg: crate::c_types::Str, mut line_arg: u32, mut payment_hash_arg: crate::c_types::derived::COption_ThirtyTwoBytesZ) -> Record {
 	let mut local_peer_id_arg = if peer_id_arg.is_null() { None } else { Some( { peer_id_arg.into_rust() }) };
 	let mut local_channel_id_arg = if channel_id_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_id_arg.take_inner()) } }) };
-	let mut local_payment_hash_arg = { /*payment_hash_arg*/ let payment_hash_arg_opt = payment_hash_arg; if payment_hash_arg_opt.is_none() { None } else { Some({ { ::lightning::ln::types::PaymentHash({ payment_hash_arg_opt.take() }.data) }})} };
+	let mut local_payment_hash_arg = { /*payment_hash_arg*/ let payment_hash_arg_opt = payment_hash_arg; if payment_hash_arg_opt.is_none() { None } else { Some({ { ::lightning::types::payment::PaymentHash({ payment_hash_arg_opt.take() }.data) }})} };
 	Record { inner: ObjOps::heap_alloc(nativeRecord {
 		level: level_arg.into_native(),
 		peer_id: local_peer_id_arg,

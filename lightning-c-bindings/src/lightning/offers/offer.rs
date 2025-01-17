@@ -181,9 +181,6 @@ pub(crate) extern "C" fn OfferId_clone_void(this_ptr: *const c_void) -> *mut c_v
 pub extern "C" fn OfferId_clone(orig: &OfferId) -> OfferId {
 	orig.clone()
 }
-/// Get a string which allows debug introspection of a OfferId object
-pub extern "C" fn OfferId_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::offer::OfferId }).into()}
 /// Checks if two OfferIds contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
 /// Two objects with NULL inner values will be considered "equal" here.
@@ -375,8 +372,8 @@ pub(crate) extern "C" fn OfferWithDerivedMetadataBuilder_clone_void(this_ptr: *c
 pub extern "C" fn OfferWithDerivedMetadataBuilder_clone(orig: &OfferWithDerivedMetadataBuilder) -> OfferWithDerivedMetadataBuilder {
 	orig.clone()
 }
-/// Creates a new builder for an offer using the [`Offer::signing_pubkey`] for signing invoices.
-/// The associated secret key must be remembered while the offer is valid.
+/// Creates a new builder for an offer using the `signing_pubkey` for signing invoices. The
+/// associated secret key must be remembered while the offer is valid.
 ///
 /// Use a different pubkey per offer to avoid correlating offers.
 ///
@@ -429,8 +426,8 @@ pub extern "C" fn OfferWithExplicitMetadataBuilder_amount_msats(mut this_arg: cr
 	() /*ret*/
 }
 
-/// Sets the [`Offer::absolute_expiry`] as seconds since the Unix epoch. Any expiry that has
-/// already passed is valid and can be checked for using [`Offer::is_expired`].
+/// Sets the [`Offer::absolute_expiry`] as seconds since the Unix epoch.
+///Any expiry that has already passed is valid and can be checked for using [`Offer::is_expired`].
 ///
 /// Successive calls to this method will override the previous setting.
 #[must_use]
@@ -461,7 +458,7 @@ pub extern "C" fn OfferWithExplicitMetadataBuilder_issuer(mut this_arg: crate::l
 }
 
 /// Adds a blinded path to [`Offer::paths`]. Must include at least one path if only connected by
-/// private channels or if [`Offer::signing_pubkey`] is not a public node id.
+/// private channels or if [`Offer::issuer_signing_pubkey`] is not a public node id.
 ///
 /// Successive calls to this method will add another blinded path. Caller is responsible for not
 /// adding duplicate paths.
@@ -495,7 +492,7 @@ pub extern "C" fn OfferWithExplicitMetadataBuilder_build(mut this_arg: crate::li
 /// Similar to [`OfferBuilder::new`] except, if [`OfferBuilder::path`] is called, the signing
 /// pubkey is derived from the given [`ExpandedKey`] and [`Nonce`]. This provides recipient
 /// privacy by using a different signing pubkey for each offer. Otherwise, the provided
-/// `node_id` is used for the signing pubkey.
+/// `node_id` is used for [`Offer::issuer_signing_pubkey`].
 ///
 /// Also, sets the metadata when [`OfferBuilder::build`] is called such that it can be used by
 /// [`InvoiceRequest::verify_using_metadata`] to determine if the request was produced for the
@@ -536,8 +533,8 @@ pub extern "C" fn OfferWithDerivedMetadataBuilder_amount_msats(mut this_arg: cra
 	() /*ret*/
 }
 
-/// Sets the [`Offer::absolute_expiry`] as seconds since the Unix epoch. Any expiry that has
-/// already passed is valid and can be checked for using [`Offer::is_expired`].
+/// Sets the [`Offer::absolute_expiry`] as seconds since the Unix epoch.
+///Any expiry that has already passed is valid and can be checked for using [`Offer::is_expired`].
 ///
 /// Successive calls to this method will override the previous setting.
 #[must_use]
@@ -568,7 +565,7 @@ pub extern "C" fn OfferWithDerivedMetadataBuilder_issuer(mut this_arg: crate::li
 }
 
 /// Adds a blinded path to [`Offer::paths`]. Must include at least one path if only connected by
-/// private channels or if [`Offer::signing_pubkey`] is not a public node id.
+/// private channels or if [`Offer::issuer_signing_pubkey`] is not a public node id.
 ///
 /// Successive calls to this method will add another blinded path. Caller is responsible for not
 /// adding duplicate paths.
@@ -784,13 +781,23 @@ pub extern "C" fn Offer_supported_quantity(this_arg: &crate::lightning::offers::
 	crate::lightning::offers::offer::Quantity::native_into(ret)
 }
 
-/// The public key used by the recipient to sign invoices.
+/// The public key corresponding to the key used by the recipient to sign invoices.
+/// - If [`Offer::paths`] is empty, MUST be `Some` and contain the recipient's node id for
+///   sending an [`InvoiceRequest`].
+/// - If [`Offer::paths`] is not empty, MAY be `Some` and contain a transient id.
+/// - If `None`, the signing pubkey will be the final blinded node id from the
+///   [`BlindedMessagePath`] in [`Offer::paths`] used to send the [`InvoiceRequest`].
+///
+/// See also [`Bolt12Invoice::signing_pubkey`].
+///
+/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+/// [`Bolt12Invoice::signing_pubkey`]: crate::offers::invoice::Bolt12Invoice::signing_pubkey
 ///
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Offer_signing_pubkey(this_arg: &crate::lightning::offers::offer::Offer) -> crate::c_types::PublicKey {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.signing_pubkey();
+pub extern "C" fn Offer_issuer_signing_pubkey(this_arg: &crate::lightning::offers::offer::Offer) -> crate::c_types::PublicKey {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.issuer_signing_pubkey();
 	let mut local_ret = if ret.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(ret.unwrap())) } };
 	local_ret
 }
@@ -845,63 +852,27 @@ pub extern "C" fn Offer_expects_quantity(this_arg: &crate::lightning::offers::of
 	ret
 }
 
-/// Similar to [`Offer::request_invoice`] except it:
-/// - derives the [`InvoiceRequest::payer_id`] such that a different key can be used for each
-///   request,
-/// - sets [`InvoiceRequest::payer_metadata`] when [`InvoiceRequestBuilder::build`] is called
-///   such that it can be used by [`Bolt12Invoice::verify_using_metadata`] to determine if the
-///   invoice was requested using a base [`ExpandedKey`] from which the payer id was derived,
-///   and
+/// Creates an [`InvoiceRequestBuilder`] for the offer, which
+/// - derives the [`InvoiceRequest::payer_signing_pubkey`] such that a different key can be used
+///   for each request in order to protect the sender's privacy,
+/// - sets [`InvoiceRequest::payer_metadata`] when [`InvoiceRequestBuilder::build_and_sign`] is
+///   called such that it can be used by [`Bolt12Invoice::verify_using_metadata`] to determine
+///   if the invoice was requested using a base [`ExpandedKey`] from which the payer id was
+///   derived, and
 /// - includes the [`PaymentId`] encrypted in [`InvoiceRequest::payer_metadata`] so that it can
 ///   be used when sending the payment for the requested invoice.
 ///
-/// Useful to protect the sender's privacy.
+/// Errors if the offer contains unknown required features.
 ///
-/// [`InvoiceRequest::payer_id`]: crate::offers::invoice_request::InvoiceRequest::payer_id
+/// [`InvoiceRequest::payer_signing_pubkey`]: crate::offers::invoice_request::InvoiceRequest::payer_signing_pubkey
 /// [`InvoiceRequest::payer_metadata`]: crate::offers::invoice_request::InvoiceRequest::payer_metadata
 /// [`Bolt12Invoice::verify_using_metadata`]: crate::offers::invoice::Bolt12Invoice::verify_using_metadata
 /// [`ExpandedKey`]: crate::ln::inbound_payment::ExpandedKey
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Offer_request_invoice_deriving_payer_id(this_arg: &crate::lightning::offers::offer::Offer, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_InvoiceRequestWithDerivedPayerIdBuilderBolt12SemanticErrorZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice_deriving_payer_id(expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, secp256k1::global::SECP256K1, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerIdBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
-	local_ret
-}
-
-/// Similar to [`Offer::request_invoice_deriving_payer_id`] except uses `payer_id` for the
-/// [`InvoiceRequest::payer_id`] instead of deriving a different key for each request.
-///
-/// Useful for recurring payments using the same `payer_id` with different invoices.
-///
-/// [`InvoiceRequest::payer_id`]: crate::offers::invoice_request::InvoiceRequest::payer_id
-#[must_use]
-#[no_mangle]
-pub extern "C" fn Offer_request_invoice_deriving_metadata(this_arg: &crate::lightning::offers::offer::Offer, mut payer_id: crate::c_types::PublicKey, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice_deriving_metadata(payer_id.into_rust(), expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::invoice_request::InvoiceRequestWithExplicitPayerIdBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
-	local_ret
-}
-
-/// Creates an [`InvoiceRequestBuilder`] for the offer with the given `metadata` and `payer_id`,
-/// which will be reflected in the `Bolt12Invoice` response.
-///
-/// The `metadata` is useful for including information about the derivation of `payer_id` such
-/// that invoice response handling can be stateless. Also serves as payer-provided entropy while
-/// hashing in the signature calculation.
-///
-/// This should not leak any information such as by using a simple BIP-32 derivation path.
-/// Otherwise, payments may be correlated.
-///
-/// Errors if the offer contains unknown required features.
-///
-/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
-#[must_use]
-#[no_mangle]
-pub extern "C" fn Offer_request_invoice(this_arg: &crate::lightning::offers::offer::Offer, mut metadata: crate::c_types::derived::CVec_u8Z, mut payer_id: crate::c_types::PublicKey) -> crate::c_types::derived::CResult_InvoiceRequestWithExplicitPayerIdBuilderBolt12SemanticErrorZ {
-	let mut local_metadata = Vec::new(); for mut item in metadata.into_rust().drain(..) { local_metadata.push( { item }); };
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice(local_metadata, payer_id.into_rust());
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::invoice_request::InvoiceRequestWithExplicitPayerIdBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
+pub extern "C" fn Offer_request_invoice(this_arg: &crate::lightning::offers::offer::Offer, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_InvoiceRequestWithDerivedPayerSigningPubkeyBuilderBolt12SemanticErrorZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice(expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, secp256k1::global::SECP256K1, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerSigningPubkeyBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
 	local_ret
 }
 
@@ -942,7 +913,7 @@ pub enum Amount {
 		/// The amount in millisatoshi.
 		amount_msats: u64,
 	},
-	/// An amount of currency specified using ISO 4712.
+	/// An amount of currency specified using ISO 4217.
 	Currency {
 		/// The currency that the amount is denominated in.
 		iso4217_code: crate::c_types::ThreeBytes,

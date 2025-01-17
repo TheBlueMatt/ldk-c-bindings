@@ -40,9 +40,10 @@ LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ monitors_pending_
 	return empty_htlc_vec;
 }
 
-void never_handle_event(const void *this_arg, const struct LDKEvent event) {
+LDKCResult_NoneReplayEventZ never_handle_event(const void *this_arg, const struct LDKEvent event) {
 	// Note that we never actually generate any events to handle in the code below.
 	assert(false);
+	return CResult_NoneReplayEventZ_ok();
 }
 
 LDKCResult_RouteLightningErrorZ do_find_route(const void *this_arg, LDKPublicKey payer, const LDKRouteParameters *route_params, LDKCVec_ChannelDetailsZ *first_hops, const LDKInFlightHtlcs inflight_htlcs) {
@@ -94,6 +95,14 @@ int main() {
 		.free = NULL,
 	};
 
+	LDKMessageRouter msg_router = {
+		.this_arg = NULL,
+		.find_path = NULL,
+		.create_blinded_paths = NULL,
+		.create_compact_blinded_paths = NULL,
+		.free = NULL,
+	};
+
 	LDKKeysManager keys = KeysManager_new(&node_seed, 0, 0);
 	LDKEntropySource entropy_source = KeysManager_as_EntropySource(&keys);
 	LDKNodeSigner node_signer = KeysManager_as_NodeSigner(&keys);
@@ -103,7 +112,7 @@ int main() {
 	LDKThirtyTwoBytes chain_tip;
 	memset(&chain_tip, 0, 32);
 	LDKChainParameters chain = ChainParameters_new(net, BestBlock_new(chain_tip, 0));
-	LDKChannelManager cm = ChannelManager_new(fee_est, mon, broadcast, router, logger, entropy_source, node_signer, signer_provider, config, chain, 42);
+	LDKChannelManager cm = ChannelManager_new(fee_est, mon, broadcast, router, msg_router, logger, entropy_source, node_signer, signer_provider, config, chain, 42);
 
 	LDKCVec_ChannelDetailsZ channels = ChannelManager_list_channels(&cm);
 	assert((unsigned long)channels.data < 4096); // There's an offset, but it should still be an offset against null in the 0 page

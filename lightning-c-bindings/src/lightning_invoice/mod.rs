@@ -61,7 +61,7 @@ pub extern "C" fn SiPrefix_from_str(s: crate::c_types::Str) -> crate::c_types::d
 		},
 		Err(e) => {
 			crate::c_types::CResultTempl::err(
-				crate::lightning_invoice::Bolt11ParseError::native_into(e)
+				crate::lightning_invoice::Bolt11ParseError { inner: ObjOps::heap_alloc(e), is_owned: true }
 			)
 		},
 	}.into()
@@ -93,7 +93,7 @@ pub extern "C" fn SignedRawBolt11Invoice_from_str(s: crate::c_types::Str) -> cra
 		},
 		Err(e) => {
 			crate::c_types::CResultTempl::err(
-				crate::lightning_invoice::Bolt11ParseError::native_into(e)
+				crate::lightning_invoice::Bolt11ParseError { inner: ObjOps::heap_alloc(e), is_owned: true }
 			)
 		},
 	}.into()
@@ -101,7 +101,7 @@ pub extern "C" fn SignedRawBolt11Invoice_from_str(s: crate::c_types::Str) -> cra
 #[no_mangle]
 /// Get the string representation of a Bolt11ParseError object
 pub extern "C" fn Bolt11ParseError_to_str(o: &crate::lightning_invoice::Bolt11ParseError) -> Str {
-	alloc::format!("{}", &o.to_native()).into()
+	alloc::format!("{}", o.get_native_ref()).into()
 }
 #[no_mangle]
 /// Get the string representation of a ParseOrSemanticError object
@@ -165,330 +165,98 @@ use crate::c_types::*;
 use alloc::{vec::Vec, boxed::Box};
 
 }
+
+use lightning_invoice::Bolt11ParseError as nativeBolt11ParseErrorImport;
+pub(crate) type nativeBolt11ParseError = nativeBolt11ParseErrorImport;
+
 /// Errors that indicate what is wrong with the invoice. They have some granularity for debug
 /// reasons, but should generally result in an \"invalid BOLT11 invoice\" message for the user.
-#[derive(Clone)]
 #[must_use]
 #[repr(C)]
-pub enum Bolt11ParseError {
-	Bech32Error(
-		crate::c_types::Bech32Error),
-	ParseAmountError(
-		crate::c_types::Error),
-	MalformedSignature(
-		crate::c_types::Secp256k1Error),
-	BadPrefix,
-	UnknownCurrency,
-	UnknownSiPrefix,
-	MalformedHRP,
-	TooShortDataPart,
-	UnexpectedEndOfTaggedFields,
-	DescriptionDecodeError(
-		crate::c_types::Error),
-	PaddingError,
-	IntegerOverflowError,
-	InvalidSegWitProgramLength,
-	InvalidPubKeyHashLength,
-	InvalidScriptHashLength,
-	InvalidRecoveryId,
-	InvalidSliceLength(
-		crate::c_types::Str),
-	/// Not an error, but used internally to signal that a part of the invoice should be ignored
-	/// according to BOLT11
-	Skip,
-}
-use lightning_invoice::Bolt11ParseError as Bolt11ParseErrorImport;
-pub(crate) type nativeBolt11ParseError = Bolt11ParseErrorImport;
+pub struct Bolt11ParseError {
+	/// A pointer to the opaque Rust object.
 
-impl Bolt11ParseError {
-	#[allow(unused)]
-	pub(crate) fn to_native(&self) -> nativeBolt11ParseError {
-		match self {
-			Bolt11ParseError::Bech32Error (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				nativeBolt11ParseError::Bech32Error (
-					a_nonref.into_rust(),
-				)
-			},
-			Bolt11ParseError::ParseAmountError (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				nativeBolt11ParseError::ParseAmountError (
-					u8::from_str_radix(" a", 10).unwrap_err() /*a_nonref*/,
-				)
-			},
-			Bolt11ParseError::MalformedSignature (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				nativeBolt11ParseError::MalformedSignature (
-					a_nonref.into_rust(),
-				)
-			},
-			Bolt11ParseError::BadPrefix => nativeBolt11ParseError::BadPrefix,
-			Bolt11ParseError::UnknownCurrency => nativeBolt11ParseError::UnknownCurrency,
-			Bolt11ParseError::UnknownSiPrefix => nativeBolt11ParseError::UnknownSiPrefix,
-			Bolt11ParseError::MalformedHRP => nativeBolt11ParseError::MalformedHRP,
-			Bolt11ParseError::TooShortDataPart => nativeBolt11ParseError::TooShortDataPart,
-			Bolt11ParseError::UnexpectedEndOfTaggedFields => nativeBolt11ParseError::UnexpectedEndOfTaggedFields,
-			Bolt11ParseError::DescriptionDecodeError (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				nativeBolt11ParseError::DescriptionDecodeError (
-					core::str::from_utf8(&[0xff]).unwrap_err() /*a_nonref*/,
-				)
-			},
-			Bolt11ParseError::PaddingError => nativeBolt11ParseError::PaddingError,
-			Bolt11ParseError::IntegerOverflowError => nativeBolt11ParseError::IntegerOverflowError,
-			Bolt11ParseError::InvalidSegWitProgramLength => nativeBolt11ParseError::InvalidSegWitProgramLength,
-			Bolt11ParseError::InvalidPubKeyHashLength => nativeBolt11ParseError::InvalidPubKeyHashLength,
-			Bolt11ParseError::InvalidScriptHashLength => nativeBolt11ParseError::InvalidScriptHashLength,
-			Bolt11ParseError::InvalidRecoveryId => nativeBolt11ParseError::InvalidRecoveryId,
-			Bolt11ParseError::InvalidSliceLength (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				nativeBolt11ParseError::InvalidSliceLength (
-					a_nonref.into_string(),
-				)
-			},
-			Bolt11ParseError::Skip => nativeBolt11ParseError::Skip,
-		}
-	}
-	#[allow(unused)]
-	pub(crate) fn into_native(self) -> nativeBolt11ParseError {
-		match self {
-			Bolt11ParseError::Bech32Error (mut a, ) => {
-				nativeBolt11ParseError::Bech32Error (
-					a.into_rust(),
-				)
-			},
-			Bolt11ParseError::ParseAmountError (mut a, ) => {
-				nativeBolt11ParseError::ParseAmountError (
-					u8::from_str_radix(" a", 10).unwrap_err() /*a*/,
-				)
-			},
-			Bolt11ParseError::MalformedSignature (mut a, ) => {
-				nativeBolt11ParseError::MalformedSignature (
-					a.into_rust(),
-				)
-			},
-			Bolt11ParseError::BadPrefix => nativeBolt11ParseError::BadPrefix,
-			Bolt11ParseError::UnknownCurrency => nativeBolt11ParseError::UnknownCurrency,
-			Bolt11ParseError::UnknownSiPrefix => nativeBolt11ParseError::UnknownSiPrefix,
-			Bolt11ParseError::MalformedHRP => nativeBolt11ParseError::MalformedHRP,
-			Bolt11ParseError::TooShortDataPart => nativeBolt11ParseError::TooShortDataPart,
-			Bolt11ParseError::UnexpectedEndOfTaggedFields => nativeBolt11ParseError::UnexpectedEndOfTaggedFields,
-			Bolt11ParseError::DescriptionDecodeError (mut a, ) => {
-				nativeBolt11ParseError::DescriptionDecodeError (
-					core::str::from_utf8(&[0xff]).unwrap_err() /*a*/,
-				)
-			},
-			Bolt11ParseError::PaddingError => nativeBolt11ParseError::PaddingError,
-			Bolt11ParseError::IntegerOverflowError => nativeBolt11ParseError::IntegerOverflowError,
-			Bolt11ParseError::InvalidSegWitProgramLength => nativeBolt11ParseError::InvalidSegWitProgramLength,
-			Bolt11ParseError::InvalidPubKeyHashLength => nativeBolt11ParseError::InvalidPubKeyHashLength,
-			Bolt11ParseError::InvalidScriptHashLength => nativeBolt11ParseError::InvalidScriptHashLength,
-			Bolt11ParseError::InvalidRecoveryId => nativeBolt11ParseError::InvalidRecoveryId,
-			Bolt11ParseError::InvalidSliceLength (mut a, ) => {
-				nativeBolt11ParseError::InvalidSliceLength (
-					a.into_string(),
-				)
-			},
-			Bolt11ParseError::Skip => nativeBolt11ParseError::Skip,
-		}
-	}
-	#[allow(unused)]
-	pub(crate) fn from_native(native: &Bolt11ParseErrorImport) -> Self {
-		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeBolt11ParseError) };
-		match native {
-			nativeBolt11ParseError::Bech32Error (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				Bolt11ParseError::Bech32Error (
-					crate::c_types::Bech32Error::from_rust(a_nonref),
-				)
-			},
-			nativeBolt11ParseError::ParseAmountError (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				Bolt11ParseError::ParseAmountError (
-					crate::c_types::Error { _dummy: 0 } /*a_nonref*/,
-				)
-			},
-			nativeBolt11ParseError::MalformedSignature (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				Bolt11ParseError::MalformedSignature (
-					crate::c_types::Secp256k1Error::from_rust(a_nonref),
-				)
-			},
-			nativeBolt11ParseError::BadPrefix => Bolt11ParseError::BadPrefix,
-			nativeBolt11ParseError::UnknownCurrency => Bolt11ParseError::UnknownCurrency,
-			nativeBolt11ParseError::UnknownSiPrefix => Bolt11ParseError::UnknownSiPrefix,
-			nativeBolt11ParseError::MalformedHRP => Bolt11ParseError::MalformedHRP,
-			nativeBolt11ParseError::TooShortDataPart => Bolt11ParseError::TooShortDataPart,
-			nativeBolt11ParseError::UnexpectedEndOfTaggedFields => Bolt11ParseError::UnexpectedEndOfTaggedFields,
-			nativeBolt11ParseError::DescriptionDecodeError (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				Bolt11ParseError::DescriptionDecodeError (
-					crate::c_types::Error { _dummy: 0 } /*a_nonref*/,
-				)
-			},
-			nativeBolt11ParseError::PaddingError => Bolt11ParseError::PaddingError,
-			nativeBolt11ParseError::IntegerOverflowError => Bolt11ParseError::IntegerOverflowError,
-			nativeBolt11ParseError::InvalidSegWitProgramLength => Bolt11ParseError::InvalidSegWitProgramLength,
-			nativeBolt11ParseError::InvalidPubKeyHashLength => Bolt11ParseError::InvalidPubKeyHashLength,
-			nativeBolt11ParseError::InvalidScriptHashLength => Bolt11ParseError::InvalidScriptHashLength,
-			nativeBolt11ParseError::InvalidRecoveryId => Bolt11ParseError::InvalidRecoveryId,
-			nativeBolt11ParseError::InvalidSliceLength (ref a, ) => {
-				let mut a_nonref = Clone::clone(a);
-				Bolt11ParseError::InvalidSliceLength (
-					a_nonref.into(),
-				)
-			},
-			nativeBolt11ParseError::Skip => Bolt11ParseError::Skip,
-		}
-	}
-	#[allow(unused)]
-	pub(crate) fn native_into(native: nativeBolt11ParseError) -> Self {
-		match native {
-			nativeBolt11ParseError::Bech32Error (mut a, ) => {
-				Bolt11ParseError::Bech32Error (
-					crate::c_types::Bech32Error::from_rust(a),
-				)
-			},
-			nativeBolt11ParseError::ParseAmountError (mut a, ) => {
-				Bolt11ParseError::ParseAmountError (
-					crate::c_types::Error { _dummy: 0 } /*a*/,
-				)
-			},
-			nativeBolt11ParseError::MalformedSignature (mut a, ) => {
-				Bolt11ParseError::MalformedSignature (
-					crate::c_types::Secp256k1Error::from_rust(a),
-				)
-			},
-			nativeBolt11ParseError::BadPrefix => Bolt11ParseError::BadPrefix,
-			nativeBolt11ParseError::UnknownCurrency => Bolt11ParseError::UnknownCurrency,
-			nativeBolt11ParseError::UnknownSiPrefix => Bolt11ParseError::UnknownSiPrefix,
-			nativeBolt11ParseError::MalformedHRP => Bolt11ParseError::MalformedHRP,
-			nativeBolt11ParseError::TooShortDataPart => Bolt11ParseError::TooShortDataPart,
-			nativeBolt11ParseError::UnexpectedEndOfTaggedFields => Bolt11ParseError::UnexpectedEndOfTaggedFields,
-			nativeBolt11ParseError::DescriptionDecodeError (mut a, ) => {
-				Bolt11ParseError::DescriptionDecodeError (
-					crate::c_types::Error { _dummy: 0 } /*a*/,
-				)
-			},
-			nativeBolt11ParseError::PaddingError => Bolt11ParseError::PaddingError,
-			nativeBolt11ParseError::IntegerOverflowError => Bolt11ParseError::IntegerOverflowError,
-			nativeBolt11ParseError::InvalidSegWitProgramLength => Bolt11ParseError::InvalidSegWitProgramLength,
-			nativeBolt11ParseError::InvalidPubKeyHashLength => Bolt11ParseError::InvalidPubKeyHashLength,
-			nativeBolt11ParseError::InvalidScriptHashLength => Bolt11ParseError::InvalidScriptHashLength,
-			nativeBolt11ParseError::InvalidRecoveryId => Bolt11ParseError::InvalidRecoveryId,
-			nativeBolt11ParseError::InvalidSliceLength (mut a, ) => {
-				Bolt11ParseError::InvalidSliceLength (
-					a.into(),
-				)
-			},
-			nativeBolt11ParseError::Skip => Bolt11ParseError::Skip,
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeBolt11ParseError,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for Bolt11ParseError {
+	type Target = nativeBolt11ParseError;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Bolt11ParseError { }
+unsafe impl core::marker::Sync for Bolt11ParseError { }
+impl Drop for Bolt11ParseError {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeBolt11ParseError>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
 		}
 	}
 }
-/// Frees any resources used by the Bolt11ParseError
+/// Frees any resources used by the Bolt11ParseError, if is_owned is set and inner is non-NULL.
 #[no_mangle]
-pub extern "C" fn Bolt11ParseError_free(this_ptr: Bolt11ParseError) { }
-/// Creates a copy of the Bolt11ParseError
-#[no_mangle]
-pub extern "C" fn Bolt11ParseError_clone(orig: &Bolt11ParseError) -> Bolt11ParseError {
-	orig.clone()
-}
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn Bolt11ParseError_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const Bolt11ParseError)).clone() })) as *mut c_void
-}
+pub extern "C" fn Bolt11ParseError_free(this_obj: Bolt11ParseError) { }
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt11ParseError_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut Bolt11ParseError) };
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeBolt11ParseError) };
 }
-#[no_mangle]
-/// Utility method to constructs a new Bech32Error-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_bech32_error(a: crate::c_types::Bech32Error) -> Bolt11ParseError {
-	Bolt11ParseError::Bech32Error(a, )
+#[allow(unused)]
+impl Bolt11ParseError {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeBolt11ParseError {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeBolt11ParseError {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeBolt11ParseError {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
 }
-#[no_mangle]
-/// Utility method to constructs a new ParseAmountError-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_parse_amount_error(a: crate::c_types::Error) -> Bolt11ParseError {
-	Bolt11ParseError::ParseAmountError(a, )
-}
-#[no_mangle]
-/// Utility method to constructs a new MalformedSignature-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_malformed_signature(a: crate::c_types::Secp256k1Error) -> Bolt11ParseError {
-	Bolt11ParseError::MalformedSignature(a, )
-}
-#[no_mangle]
-/// Utility method to constructs a new BadPrefix-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_bad_prefix() -> Bolt11ParseError {
-	Bolt11ParseError::BadPrefix}
-#[no_mangle]
-/// Utility method to constructs a new UnknownCurrency-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_unknown_currency() -> Bolt11ParseError {
-	Bolt11ParseError::UnknownCurrency}
-#[no_mangle]
-/// Utility method to constructs a new UnknownSiPrefix-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_unknown_si_prefix() -> Bolt11ParseError {
-	Bolt11ParseError::UnknownSiPrefix}
-#[no_mangle]
-/// Utility method to constructs a new MalformedHRP-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_malformed_hrp() -> Bolt11ParseError {
-	Bolt11ParseError::MalformedHRP}
-#[no_mangle]
-/// Utility method to constructs a new TooShortDataPart-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_too_short_data_part() -> Bolt11ParseError {
-	Bolt11ParseError::TooShortDataPart}
-#[no_mangle]
-/// Utility method to constructs a new UnexpectedEndOfTaggedFields-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_unexpected_end_of_tagged_fields() -> Bolt11ParseError {
-	Bolt11ParseError::UnexpectedEndOfTaggedFields}
-#[no_mangle]
-/// Utility method to constructs a new DescriptionDecodeError-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_description_decode_error(a: crate::c_types::Error) -> Bolt11ParseError {
-	Bolt11ParseError::DescriptionDecodeError(a, )
-}
-#[no_mangle]
-/// Utility method to constructs a new PaddingError-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_padding_error() -> Bolt11ParseError {
-	Bolt11ParseError::PaddingError}
-#[no_mangle]
-/// Utility method to constructs a new IntegerOverflowError-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_integer_overflow_error() -> Bolt11ParseError {
-	Bolt11ParseError::IntegerOverflowError}
-#[no_mangle]
-/// Utility method to constructs a new InvalidSegWitProgramLength-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_invalid_seg_wit_program_length() -> Bolt11ParseError {
-	Bolt11ParseError::InvalidSegWitProgramLength}
-#[no_mangle]
-/// Utility method to constructs a new InvalidPubKeyHashLength-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_invalid_pub_key_hash_length() -> Bolt11ParseError {
-	Bolt11ParseError::InvalidPubKeyHashLength}
-#[no_mangle]
-/// Utility method to constructs a new InvalidScriptHashLength-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_invalid_script_hash_length() -> Bolt11ParseError {
-	Bolt11ParseError::InvalidScriptHashLength}
-#[no_mangle]
-/// Utility method to constructs a new InvalidRecoveryId-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_invalid_recovery_id() -> Bolt11ParseError {
-	Bolt11ParseError::InvalidRecoveryId}
-#[no_mangle]
-/// Utility method to constructs a new InvalidSliceLength-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_invalid_slice_length(a: crate::c_types::Str) -> Bolt11ParseError {
-	Bolt11ParseError::InvalidSliceLength(a, )
-}
-#[no_mangle]
-/// Utility method to constructs a new Skip-variant Bolt11ParseError
-pub extern "C" fn Bolt11ParseError_skip() -> Bolt11ParseError {
-	Bolt11ParseError::Skip}
 /// Checks if two Bolt11ParseErrors contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
 #[no_mangle]
 pub extern "C" fn Bolt11ParseError_eq(a: &Bolt11ParseError, b: &Bolt11ParseError) -> bool {
-	if &a.to_native() == &b.to_native() { true } else { false }
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
 /// Get a string which allows debug introspection of a Bolt11ParseError object
 pub extern "C" fn Bolt11ParseError_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning_invoice::Bolt11ParseError }).into()}
+impl Clone for Bolt11ParseError {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeBolt11ParseError>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt11ParseError_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt11ParseError)).clone() })) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the Bolt11ParseError
+pub extern "C" fn Bolt11ParseError_clone(orig: &Bolt11ParseError) -> Bolt11ParseError {
+	orig.clone()
+}
 /// Indicates that something went wrong while parsing or validating the invoice. Parsing errors
 /// should be mostly seen as opaque and are only there for debugging reasons. Semantic errors
 /// like wrong signatures, missing fields etc. could mean that someone tampered with the invoice.
@@ -513,7 +281,7 @@ impl ParseOrSemanticError {
 			ParseOrSemanticError::ParseError (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				nativeParseOrSemanticError::ParseError (
-					a_nonref.into_native(),
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
 				)
 			},
 			ParseOrSemanticError::SemanticError (ref a, ) => {
@@ -529,7 +297,7 @@ impl ParseOrSemanticError {
 		match self {
 			ParseOrSemanticError::ParseError (mut a, ) => {
 				nativeParseOrSemanticError::ParseError (
-					a.into_native(),
+					*unsafe { Box::from_raw(a.take_inner()) },
 				)
 			},
 			ParseOrSemanticError::SemanticError (mut a, ) => {
@@ -546,7 +314,7 @@ impl ParseOrSemanticError {
 			nativeParseOrSemanticError::ParseError (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				ParseOrSemanticError::ParseError (
-					crate::lightning_invoice::Bolt11ParseError::native_into(a_nonref),
+					crate::lightning_invoice::Bolt11ParseError { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
 				)
 			},
 			nativeParseOrSemanticError::SemanticError (ref a, ) => {
@@ -562,7 +330,7 @@ impl ParseOrSemanticError {
 		match native {
 			nativeParseOrSemanticError::ParseError (mut a, ) => {
 				ParseOrSemanticError::ParseError (
-					crate::lightning_invoice::Bolt11ParseError::native_into(a),
+					crate::lightning_invoice::Bolt11ParseError { inner: ObjOps::heap_alloc(a), is_owned: true },
 				)
 			},
 			nativeParseOrSemanticError::SemanticError (mut a, ) => {
@@ -737,6 +505,131 @@ pub extern "C" fn Bolt11Invoice_hash(o: &Bolt11Invoice) -> u64 {
 	let mut hasher = core::hash::SipHasher::new();
 	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
 	core::hash::Hasher::finish(&hasher)
+}
+/// Represents the description of an invoice which has to be either a directly included string or
+/// a hash of a description provided out of band.
+#[derive(Clone)]
+#[must_use]
+#[repr(C)]
+pub enum Bolt11InvoiceDescription {
+	/// Description of what the invoice is for
+	Direct(
+		crate::lightning_invoice::Description),
+	/// Hash of the description of what the invoice is for
+	Hash(
+		crate::lightning_invoice::Sha256),
+}
+use lightning_invoice::Bolt11InvoiceDescription as Bolt11InvoiceDescriptionImport;
+pub(crate) type nativeBolt11InvoiceDescription = Bolt11InvoiceDescriptionImport;
+
+impl Bolt11InvoiceDescription {
+	#[allow(unused)]
+	pub(crate) fn to_native(&self) -> nativeBolt11InvoiceDescription {
+		match self {
+			Bolt11InvoiceDescription::Direct (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeBolt11InvoiceDescription::Direct (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
+			Bolt11InvoiceDescription::Hash (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeBolt11InvoiceDescription::Hash (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn into_native(self) -> nativeBolt11InvoiceDescription {
+		match self {
+			Bolt11InvoiceDescription::Direct (mut a, ) => {
+				nativeBolt11InvoiceDescription::Direct (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+			Bolt11InvoiceDescription::Hash (mut a, ) => {
+				nativeBolt11InvoiceDescription::Hash (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn from_native(native: &Bolt11InvoiceDescriptionImport) -> Self {
+		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeBolt11InvoiceDescription) };
+		match native {
+			nativeBolt11InvoiceDescription::Direct (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				Bolt11InvoiceDescription::Direct (
+					crate::lightning_invoice::Description { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
+			nativeBolt11InvoiceDescription::Hash (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				Bolt11InvoiceDescription::Hash (
+					crate::lightning_invoice::Sha256 { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn native_into(native: nativeBolt11InvoiceDescription) -> Self {
+		match native {
+			nativeBolt11InvoiceDescription::Direct (mut a, ) => {
+				Bolt11InvoiceDescription::Direct (
+					crate::lightning_invoice::Description { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+			nativeBolt11InvoiceDescription::Hash (mut a, ) => {
+				Bolt11InvoiceDescription::Hash (
+					crate::lightning_invoice::Sha256 { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+		}
+	}
+}
+/// Frees any resources used by the Bolt11InvoiceDescription
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceDescription_free(this_ptr: Bolt11InvoiceDescription) { }
+/// Creates a copy of the Bolt11InvoiceDescription
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceDescription_clone(orig: &Bolt11InvoiceDescription) -> Bolt11InvoiceDescription {
+	orig.clone()
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt11InvoiceDescription_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const Bolt11InvoiceDescription)).clone() })) as *mut c_void
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt11InvoiceDescription_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut Bolt11InvoiceDescription) };
+}
+#[no_mangle]
+/// Utility method to constructs a new Direct-variant Bolt11InvoiceDescription
+pub extern "C" fn Bolt11InvoiceDescription_direct(a: crate::lightning_invoice::Description) -> Bolt11InvoiceDescription {
+	Bolt11InvoiceDescription::Direct(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new Hash-variant Bolt11InvoiceDescription
+pub extern "C" fn Bolt11InvoiceDescription_hash(a: crate::lightning_invoice::Sha256) -> Bolt11InvoiceDescription {
+	Bolt11InvoiceDescription::Hash(a, )
+}
+/// Checks if two Bolt11InvoiceDescriptions contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceDescription_eq(a: &Bolt11InvoiceDescription, b: &Bolt11InvoiceDescription) -> bool {
+	if &a.to_native() == &b.to_native() { true } else { false }
+}
+/// Get a string which allows debug introspection of a Bolt11InvoiceDescription object
+pub extern "C" fn Bolt11InvoiceDescription_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning_invoice::Bolt11InvoiceDescription }).into()}
+#[no_mangle]
+/// Get the string representation of a Bolt11InvoiceDescription object
+pub extern "C" fn Bolt11InvoiceDescription_to_str(o: &crate::lightning_invoice::Bolt11InvoiceDescription) -> Str {
+	alloc::format!("{}", &o.to_native()).into()
 }
 
 use lightning_invoice::SignedRawBolt11Invoice as nativeSignedRawBolt11InvoiceImport;
@@ -2834,6 +2727,14 @@ pub extern "C" fn Description_new(mut description: crate::c_types::Str) -> crate
 	let mut ret = lightning_invoice::Description::new(description.into_string());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning_invoice::Description { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning_invoice::CreationError::native_into(e) }).into() };
 	local_ret
+}
+
+/// Creates an empty `Description`.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Description_empty() -> crate::lightning_invoice::Description {
+	let mut ret = lightning_invoice::Description::empty();
+	crate::lightning_invoice::Description { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// Returns the underlying description [`UntrustedString`]

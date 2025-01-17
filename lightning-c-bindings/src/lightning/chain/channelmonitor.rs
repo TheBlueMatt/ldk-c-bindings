@@ -102,11 +102,9 @@ impl ChannelMonitorUpdate {
 /// [`ChannelMonitorUpdateStatus::InProgress`] have been applied to all copies of a given
 /// ChannelMonitor when ChannelManager::channel_monitor_updated is called.
 ///
-/// The only instances we allow where update_id values are not strictly increasing have a
-/// special update ID of [`CLOSED_CHANNEL_UPDATE_ID`]. This update ID is used for updates that
-/// will force close the channel by broadcasting the latest commitment transaction or
-/// special post-force-close updates, like providing preimages necessary to claim outputs on the
-/// broadcast commitment transaction. See its docs for more details.
+/// Note that for [`ChannelMonitorUpdate`]s generated on LDK versions prior to 0.1 after the
+/// channel was closed, this value may be [`u64::MAX`]. In that case, multiple updates may
+/// appear with the same ID, and all should be replayed.
 ///
 /// [`ChannelMonitorUpdateStatus::InProgress`]: super::ChannelMonitorUpdateStatus::InProgress
 #[no_mangle]
@@ -122,11 +120,9 @@ pub extern "C" fn ChannelMonitorUpdate_get_update_id(this_ptr: &ChannelMonitorUp
 /// [`ChannelMonitorUpdateStatus::InProgress`] have been applied to all copies of a given
 /// ChannelMonitor when ChannelManager::channel_monitor_updated is called.
 ///
-/// The only instances we allow where update_id values are not strictly increasing have a
-/// special update ID of [`CLOSED_CHANNEL_UPDATE_ID`]. This update ID is used for updates that
-/// will force close the channel by broadcasting the latest commitment transaction or
-/// special post-force-close updates, like providing preimages necessary to claim outputs on the
-/// broadcast commitment transaction. See its docs for more details.
+/// Note that for [`ChannelMonitorUpdate`]s generated on LDK versions prior to 0.1 after the
+/// channel was closed, this value may be [`u64::MAX`]. In that case, multiple updates may
+/// appear with the same ID, and all should be replayed.
 ///
 /// [`ChannelMonitorUpdateStatus::InProgress`]: super::ChannelMonitorUpdateStatus::InProgress
 #[no_mangle]
@@ -187,17 +183,6 @@ pub extern "C" fn ChannelMonitorUpdate_eq(a: &ChannelMonitorUpdate, b: &ChannelM
 	if a.inner.is_null() || b.inner.is_null() { return false; }
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
-/// The update ID used for a [`ChannelMonitorUpdate`] that is either:
-///
-///\t(1) attempting to force close the channel by broadcasting our latest commitment transaction or
-///\t(2) providing a preimage (after the channel has been force closed) from a forward link that
-///\t\tallows us to spend an HTLC output on this channel's (the backward link's) broadcasted
-///\t\tcommitment transaction.
-///
-/// No other [`ChannelMonitorUpdate`]s are allowed after force-close.
-
-#[no_mangle]
-pub static CLOSED_CHANNEL_UPDATE_ID: u64 = lightning::chain::channelmonitor::CLOSED_CHANNEL_UPDATE_ID;
 #[no_mangle]
 /// Serialize the ChannelMonitorUpdate object into a byte array which can be read by ChannelMonitorUpdate_read
 pub extern "C" fn ChannelMonitorUpdate_write(obj: &crate::lightning::chain::channelmonitor::ChannelMonitorUpdate) -> crate::c_types::derived::CVec_u8Z {
@@ -846,8 +831,8 @@ impl Balance {
 				nativeBalance::ContentiousClaimable {
 					amount_satoshis: amount_satoshis_nonref,
 					timeout_height: timeout_height_nonref,
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
-					payment_preimage: ::lightning::ln::types::PaymentPreimage(payment_preimage_nonref.data),
+					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash_nonref.data),
+					payment_preimage: ::lightning::types::payment::PaymentPreimage(payment_preimage_nonref.data),
 				}
 			},
 			Balance::MaybeTimeoutClaimableHTLC {ref amount_satoshis, ref claimable_height, ref payment_hash, ref outbound_payment, } => {
@@ -858,7 +843,7 @@ impl Balance {
 				nativeBalance::MaybeTimeoutClaimableHTLC {
 					amount_satoshis: amount_satoshis_nonref,
 					claimable_height: claimable_height_nonref,
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
+					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash_nonref.data),
 					outbound_payment: outbound_payment_nonref,
 				}
 			},
@@ -869,7 +854,7 @@ impl Balance {
 				nativeBalance::MaybePreimageClaimableHTLC {
 					amount_satoshis: amount_satoshis_nonref,
 					expiry_height: expiry_height_nonref,
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash_nonref.data),
+					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash_nonref.data),
 				}
 			},
 			Balance::CounterpartyRevokedOutputClaimable {ref amount_satoshis, } => {
@@ -904,15 +889,15 @@ impl Balance {
 				nativeBalance::ContentiousClaimable {
 					amount_satoshis: amount_satoshis,
 					timeout_height: timeout_height,
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
-					payment_preimage: ::lightning::ln::types::PaymentPreimage(payment_preimage.data),
+					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash.data),
+					payment_preimage: ::lightning::types::payment::PaymentPreimage(payment_preimage.data),
 				}
 			},
 			Balance::MaybeTimeoutClaimableHTLC {mut amount_satoshis, mut claimable_height, mut payment_hash, mut outbound_payment, } => {
 				nativeBalance::MaybeTimeoutClaimableHTLC {
 					amount_satoshis: amount_satoshis,
 					claimable_height: claimable_height,
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
+					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash.data),
 					outbound_payment: outbound_payment,
 				}
 			},
@@ -920,7 +905,7 @@ impl Balance {
 				nativeBalance::MaybePreimageClaimableHTLC {
 					amount_satoshis: amount_satoshis,
 					expiry_height: expiry_height,
-					payment_hash: ::lightning::ln::types::PaymentHash(payment_hash.data),
+					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash.data),
 				}
 			},
 			Balance::CounterpartyRevokedOutputClaimable {mut amount_satoshis, } => {
@@ -1268,6 +1253,8 @@ pub extern "C" fn ChannelMonitor_update_monitor(this_arg: &crate::lightning::cha
 
 /// Gets the update_id from the latest ChannelMonitorUpdate which was applied to this
 /// ChannelMonitor.
+///
+/// Note that for channels closed prior to LDK 0.1, this may return [`u64::MAX`].
 #[must_use]
 #[no_mangle]
 pub extern "C" fn ChannelMonitor_get_latest_update_id(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> u64 {
@@ -1337,8 +1324,8 @@ pub extern "C" fn ChannelMonitor_get_and_clear_pending_monitor_events(this_arg: 
 /// [`BumpTransaction`]: crate::events::Event::BumpTransaction
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelMonitor_process_pending_events(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, handler: &crate::lightning::events::EventHandler) -> crate::c_types::derived::CResult_NoneReplayEventZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.process_pending_events(handler);
+pub extern "C" fn ChannelMonitor_process_pending_events(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, handler: &crate::lightning::events::EventHandler, logger: &crate::lightning::util::logger::Logger) -> crate::c_types::derived::CResult_NoneReplayEventZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.process_pending_events(handler, logger);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::events::ReplayEvent { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }
@@ -1585,15 +1572,24 @@ pub extern "C" fn ChannelMonitor_get_spendable_outputs(this_arg: &crate::lightni
 }
 
 /// Checks if the monitor is fully resolved. Resolved monitor is one that has claimed all of
-/// its outputs and balances (i.e. [`Self::get_claimable_balances`] returns an empty set).
+/// its outputs and balances (i.e. [`Self::get_claimable_balances`] returns an empty set) and
+/// which does not have any payment preimages for HTLCs which are still pending on other
+/// channels.
 ///
-/// This function returns true only if [`Self::get_claimable_balances`] has been empty for at least
+/// Additionally may update state to track when the balances set became empty.
+///
+/// This function returns a tuple of two booleans, the first indicating whether the monitor is
+/// fully resolved, and the second whether the monitor needs persistence to ensure it is
+/// reliably marked as resolved within 4032 blocks.
+///
+/// The first boolean is true only if [`Self::get_claimable_balances`] has been empty for at least
 /// 4032 blocks as an additional protection against any bugs resulting in spuriously empty balance sets.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelMonitor_is_fully_resolved(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, logger: &crate::lightning::util::logger::Logger) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.is_fully_resolved(logger);
-	ret
+pub extern "C" fn ChannelMonitor_check_and_update_full_resolution_status(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, logger: &crate::lightning::util::logger::Logger) -> crate::c_types::derived::C2Tuple_boolboolZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.check_and_update_full_resolution_status(logger);
+	let (mut orig_ret_0, mut orig_ret_1) = ret; let mut local_ret = (orig_ret_0, orig_ret_1).into();
+	local_ret
 }
 
 /// Gets the balances in this channel which are either claimable by us if we were to

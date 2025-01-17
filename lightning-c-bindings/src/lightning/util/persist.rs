@@ -177,6 +177,141 @@ impl Drop for KVStore {
 		}
 	}
 }
+/// Provides additional interface methods that are required for [`KVStore`]-to-[`KVStore`]
+/// data migration.
+#[repr(C)]
+pub struct MigratableKVStore {
+	/// An opaque pointer which is passed to your function implementations as an argument.
+	/// This has no meaning in the LDK, and can be NULL or any other value.
+	pub this_arg: *mut c_void,
+	/// Returns *all* known keys as a list of `primary_namespace`, `secondary_namespace`, `key` tuples.
+	///
+	/// This is useful for migrating data from [`KVStore`] implementation to [`KVStore`]
+	/// implementation.
+	///
+	/// Must exhaustively return all entries known to the store to ensure no data is missed, but
+	/// may return the items in arbitrary order.
+	pub list_all_keys: extern "C" fn (this_arg: *const c_void) -> crate::c_types::derived::CResult_CVec_C3Tuple_StrStrStrZZIOErrorZ,
+	/// Implementation of KVStore for this object.
+	pub KVStore: crate::lightning::util::persist::KVStore,
+	/// Frees any resources associated with this object given its this_arg pointer.
+	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
+	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
+}
+unsafe impl Send for MigratableKVStore {}
+unsafe impl Sync for MigratableKVStore {}
+#[allow(unused)]
+pub(crate) fn MigratableKVStore_clone_fields(orig: &MigratableKVStore) -> MigratableKVStore {
+	MigratableKVStore {
+		this_arg: orig.this_arg,
+		list_all_keys: Clone::clone(&orig.list_all_keys),
+		KVStore: crate::lightning::util::persist::KVStore_clone_fields(&orig.KVStore),
+		free: Clone::clone(&orig.free),
+	}
+}
+impl lightning::util::persist::KVStore for MigratableKVStore {
+	fn read(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str) -> Result<Vec<u8>, lightning::io::Error> {
+		let mut ret = (self.KVStore.read)(self.KVStore.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { item }); }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn write(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str, mut buf: &[u8]) -> Result<(), lightning::io::Error> {
+		let mut local_buf = crate::c_types::u8slice::from_slice(buf);
+		let mut ret = (self.KVStore.write)(self.KVStore.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into(), local_buf);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn remove(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str, mut lazy: bool) -> Result<(), lightning::io::Error> {
+		let mut ret = (self.KVStore.remove)(self.KVStore.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into(), lazy);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn list(&self, mut primary_namespace: &str, mut secondary_namespace: &str) -> Result<Vec<String>, lightning::io::Error> {
+		let mut ret = (self.KVStore.list)(self.KVStore.this_arg, primary_namespace.into(), secondary_namespace.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { item.into_string() }); }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+}
+impl lightning::util::persist::KVStore for MigratableKVStoreRef {
+	fn read(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str) -> Result<Vec<u8>, lightning::io::Error> {
+		let mut ret = (self.0.KVStore.read)(self.0.KVStore.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { item }); }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn write(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str, mut buf: &[u8]) -> Result<(), lightning::io::Error> {
+		let mut local_buf = crate::c_types::u8slice::from_slice(buf);
+		let mut ret = (self.0.KVStore.write)(self.0.KVStore.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into(), local_buf);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn remove(&self, mut primary_namespace: &str, mut secondary_namespace: &str, mut key: &str, mut lazy: bool) -> Result<(), lightning::io::Error> {
+		let mut ret = (self.0.KVStore.remove)(self.0.KVStore.this_arg, primary_namespace.into(), secondary_namespace.into(), key.into(), lazy);
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+	fn list(&self, mut primary_namespace: &str, mut secondary_namespace: &str) -> Result<Vec<String>, lightning::io::Error> {
+		let mut ret = (self.0.KVStore.list)(self.0.KVStore.this_arg, primary_namespace.into(), secondary_namespace.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { item.into_string() }); }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+}
+
+use lightning::util::persist::MigratableKVStore as rustMigratableKVStore;
+impl rustMigratableKVStore for MigratableKVStore {
+	fn list_all_keys(&self) -> Result<Vec<(String, String, String)>, lightning::io::Error> {
+		let mut ret = (self.list_all_keys)(self.this_arg);
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1, mut orig_ret_0_0_2) = item.to_rust(); let mut local_ret_0_0 = (orig_ret_0_0_0.into_string(), orig_ret_0_0_1.into_string(), orig_ret_0_0_2.into_string()); local_ret_0_0 }); }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+}
+
+pub struct MigratableKVStoreRef(MigratableKVStore);
+impl rustMigratableKVStore for MigratableKVStoreRef {
+	fn list_all_keys(&self) -> Result<Vec<(String, String, String)>, lightning::io::Error> {
+		let mut ret = (self.0.list_all_keys)(self.0.this_arg);
+		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1, mut orig_ret_0_0_2) = item.to_rust(); let mut local_ret_0_0 = (orig_ret_0_0_0.into_string(), orig_ret_0_0_1.into_string(), orig_ret_0_0_2.into_string()); local_ret_0_0 }); }; local_ret_0 }), false => Err( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) }).to_rust() })};
+		local_ret
+	}
+}
+
+// We're essentially a pointer already, or at least a set of pointers, so allow us to be used
+// directly as a Deref trait in higher-level structs:
+impl core::ops::Deref for MigratableKVStore {
+	type Target = MigratableKVStoreRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const MigratableKVStoreRef) }
+	}
+}
+impl core::ops::DerefMut for MigratableKVStore {
+	fn deref_mut(&mut self) -> &mut MigratableKVStoreRef {
+		unsafe { &mut *(self as *mut _ as *mut MigratableKVStoreRef) }
+	}
+}
+/// Calls the free function if one is set
+#[no_mangle]
+pub extern "C" fn MigratableKVStore_free(this_ptr: MigratableKVStore) { }
+impl Drop for MigratableKVStore {
+	fn drop(&mut self) {
+		if let Some(f) = self.free {
+			f(self.this_arg);
+		}
+	}
+}
+/// Migrates all data from one store to another.
+///
+/// This operation assumes that `target_store` is empty, i.e., any data present under copied keys
+/// might get overriden. User must ensure `source_store` is not modified during operation,
+/// otherwise no consistency guarantees can be given.
+///
+/// Will abort and return an error if any IO operation fails. Note that in this case the
+/// `target_store` might get left in an intermediate state.
+#[no_mangle]
+pub extern "C" fn migrate_kv_store_data(source_store: &mut crate::lightning::util::persist::MigratableKVStore, target_store: &mut crate::lightning::util::persist::MigratableKVStore) -> crate::c_types::derived::CResult_NoneIOErrorZ {
+	let mut ret = lightning::util::persist::migrate_kv_store_data::<crate::lightning::util::persist::MigratableKVStore, crate::lightning::util::persist::MigratableKVStore, >(source_store, target_store);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
+	local_ret
+}
+
 /// Trait that handles persisting a [`ChannelManager`], [`NetworkGraph`], and [`WriteableScore`] to disk.
 ///
 /// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
@@ -532,5 +667,255 @@ extern "C" fn MonitorUpdatingPersister_Persist_update_persisted_channel(this_arg
 }
 extern "C" fn MonitorUpdatingPersister_Persist_archive_persisted_channel(this_arg: *const c_void, mut channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint) {
 	<nativeMonitorUpdatingPersister as lightning::chain::chainmonitor::Persist<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::archive_persisted_channel(unsafe { &mut *(this_arg as *mut nativeMonitorUpdatingPersister) }, *unsafe { Box::from_raw(channel_funding_outpoint.take_inner()) })
+}
+
+
+use lightning::util::persist::MonitorName as nativeMonitorNameImport;
+pub(crate) type nativeMonitorName = nativeMonitorNameImport;
+
+/// A struct representing a name for a channel monitor.
+///
+/// `MonitorName` is primarily used within the [`MonitorUpdatingPersister`]
+/// in functions that store or retrieve channel monitor snapshots.
+/// It provides a consistent way to generate a unique key for channel
+/// monitors based on their funding outpoints.
+///
+/// While users of the Lightning Dev Kit library generally won't need
+/// to interact with [`MonitorName`] directly, it can be useful for:
+/// - Custom persistence implementations
+/// - Debugging or logging channel monitor operations
+/// - Extending the functionality of the `MonitorUpdatingPersister`
+/// # Examples
+///
+/// ```
+/// use std::str::FromStr;
+///
+/// use bitcoin::Txid;
+///
+/// use lightning::util::persist::MonitorName;
+/// use lightning::chain::transaction::OutPoint;
+///
+/// let outpoint = OutPoint {
+///\t txid: Txid::from_str(\"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef\").unwrap(),
+///\t index: 1,
+/// };
+/// let monitor_name = MonitorName::from(outpoint);
+/// assert_eq!(monitor_name.as_str(), \"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef_1\");
+///
+/// // Using MonitorName to generate a storage key
+/// let storage_key = format!(\"channel_monitors/{}\", monitor_name.as_str());
+/// ```
+#[must_use]
+#[repr(C)]
+pub struct MonitorName {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeMonitorName,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for MonitorName {
+	type Target = nativeMonitorName;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for MonitorName { }
+unsafe impl core::marker::Sync for MonitorName { }
+impl Drop for MonitorName {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeMonitorName>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the MonitorName, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn MonitorName_free(this_obj: MonitorName) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn MonitorName_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeMonitorName) };
+}
+#[allow(unused)]
+impl MonitorName {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeMonitorName {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeMonitorName {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeMonitorName {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// Get a string which allows debug introspection of a MonitorName object
+pub extern "C" fn MonitorName_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::util::persist::MonitorName }).into()}
+/// Constructs a [`MonitorName`], after verifying that an [`OutPoint`] can
+/// be formed from the given `name`.
+/// This method is useful if you have a String and you want to verify that
+/// it's a valid storage key for a channel monitor.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn MonitorName_new(mut name: crate::c_types::Str) -> crate::c_types::derived::CResult_MonitorNameIOErrorZ {
+	let mut ret = lightning::util::persist::MonitorName::new(name.into_string());
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::persist::MonitorName { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
+	local_ret
+}
+
+/// Convert this monitor name to a str.
+/// This method is particularly useful when you need to use the monitor name
+/// as a key in a key-value store or when logging.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn MonitorName_as_str(this_arg: &crate::lightning::util::persist::MonitorName) -> crate::c_types::Str {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.as_str();
+	ret.into()
+}
+
+
+use lightning::util::persist::UpdateName as nativeUpdateNameImport;
+pub(crate) type nativeUpdateName = nativeUpdateNameImport;
+
+/// A struct representing a name for a channel monitor update.
+///
+/// [`UpdateName`] is primarily used within the [`MonitorUpdatingPersister`] in
+/// functions that store or retrieve partial updates to channel monitors. It
+/// provides a consistent way to generate and parse unique identifiers for
+/// monitor updates based on their sequence number.
+///
+/// The name is derived from the update's sequence ID, which is a monotonically
+/// increasing u64 value. This format allows for easy ordering of updates and
+/// efficient storage and retrieval in key-value stores.
+///
+/// # Usage
+///
+/// While users of the Lightning Dev Kit library generally won't need to
+/// interact with `UpdateName` directly, it still can be useful for custom
+/// persistence implementations. The u64 value is the update_id that can be
+/// compared with [ChannelMonitor::get_latest_update_id] to check if this update
+/// has been applied to the channel monitor or not, which is useful for pruning
+/// stale channel monitor updates off persistence.
+///
+/// # Examples
+///
+/// ```
+/// use lightning::util::persist::UpdateName;
+///
+/// let update_id: u64 = 42;
+/// let update_name = UpdateName::from(update_id);
+/// assert_eq!(update_name.as_str(), \"42\");
+///
+/// // Using UpdateName to generate a storage key
+/// let monitor_name = \"some_monitor_name\";
+/// let storage_key = format!(\"channel_monitor_updates/{}/{}\", monitor_name, update_name.as_str());
+/// ```
+#[must_use]
+#[repr(C)]
+pub struct UpdateName {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeUpdateName,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for UpdateName {
+	type Target = nativeUpdateName;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for UpdateName { }
+unsafe impl core::marker::Sync for UpdateName { }
+impl Drop for UpdateName {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeUpdateName>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the UpdateName, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn UpdateName_free(this_obj: UpdateName) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn UpdateName_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeUpdateName) };
+}
+#[allow(unused)]
+impl UpdateName {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeUpdateName {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeUpdateName {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeUpdateName {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+#[no_mangle]
+pub extern "C" fn UpdateName_get_a(this_ptr: &UpdateName) -> u64 {
+	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	*inner_val
+}
+#[no_mangle]
+pub extern "C" fn UpdateName_set_a(this_ptr: &mut UpdateName, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.0 = val;
+}
+/// Get a string which allows debug introspection of a UpdateName object
+pub extern "C" fn UpdateName_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::util::persist::UpdateName }).into()}
+/// Constructs an [`UpdateName`], after verifying that an update sequence ID
+/// can be derived from the given `name`.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn UpdateName_new(mut name: crate::c_types::Str) -> crate::c_types::derived::CResult_UpdateNameIOErrorZ {
+	let mut ret = lightning::util::persist::UpdateName::new(name.into_string());
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::persist::UpdateName { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
+	local_ret
+}
+
+/// Convert this update name to a string slice.
+///
+/// This method is particularly useful when you need to use the update name
+/// as part of a key in a key-value store or when logging.
+///
+/// # Examples
+///
+/// ```
+/// use lightning::util::persist::UpdateName;
+///
+/// let update_name = UpdateName::from(42);
+/// assert_eq!(update_name.as_str(), \"42\");
+/// ```
+#[must_use]
+#[no_mangle]
+pub extern "C" fn UpdateName_as_str(this_arg: &crate::lightning::util::persist::UpdateName) -> crate::c_types::Str {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.as_str();
+	ret.into()
 }
 

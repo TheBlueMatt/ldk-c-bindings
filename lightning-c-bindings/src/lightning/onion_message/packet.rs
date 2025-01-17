@@ -197,6 +197,9 @@ pub enum ParsedOnionMessageContents {
 	/// A message related to BOLT 12 Offers.
 	Offers(
 		crate::lightning::onion_message::offers::OffersMessage),
+	/// A message requesting or providing a DNSSEC proof
+	DNSResolver(
+		crate::lightning::onion_message::dns_resolution::DNSResolverMessage),
 	/// A custom onion message specified by the user.
 	Custom(
 		crate::lightning::onion_message::packet::OnionMessageContents),
@@ -214,6 +217,12 @@ impl ParsedOnionMessageContents {
 					a_nonref.into_native(),
 				)
 			},
+			ParsedOnionMessageContents::DNSResolver (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeParsedOnionMessageContents::DNSResolver (
+					a_nonref.into_native(),
+				)
+			},
 			ParsedOnionMessageContents::Custom (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				nativeParsedOnionMessageContents::Custom (
@@ -227,6 +236,11 @@ impl ParsedOnionMessageContents {
 		match self {
 			ParsedOnionMessageContents::Offers (mut a, ) => {
 				nativeParsedOnionMessageContents::Offers (
+					a.into_native(),
+				)
+			},
+			ParsedOnionMessageContents::DNSResolver (mut a, ) => {
+				nativeParsedOnionMessageContents::DNSResolver (
 					a.into_native(),
 				)
 			},
@@ -247,6 +261,12 @@ impl ParsedOnionMessageContents {
 					crate::lightning::onion_message::offers::OffersMessage::native_into(a_nonref),
 				)
 			},
+			nativeParsedOnionMessageContents::DNSResolver (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				ParsedOnionMessageContents::DNSResolver (
+					crate::lightning::onion_message::dns_resolution::DNSResolverMessage::native_into(a_nonref),
+				)
+			},
 			nativeParsedOnionMessageContents::Custom (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				ParsedOnionMessageContents::Custom (
@@ -261,6 +281,11 @@ impl ParsedOnionMessageContents {
 			nativeParsedOnionMessageContents::Offers (mut a, ) => {
 				ParsedOnionMessageContents::Offers (
 					crate::lightning::onion_message::offers::OffersMessage::native_into(a),
+				)
+			},
+			nativeParsedOnionMessageContents::DNSResolver (mut a, ) => {
+				ParsedOnionMessageContents::DNSResolver (
+					crate::lightning::onion_message::dns_resolution::DNSResolverMessage::native_into(a),
 				)
 			},
 			nativeParsedOnionMessageContents::Custom (mut a, ) => {
@@ -293,6 +318,11 @@ pub(crate) extern "C" fn ParsedOnionMessageContents_free_void(this_ptr: *mut c_v
 /// Utility method to constructs a new Offers-variant ParsedOnionMessageContents
 pub extern "C" fn ParsedOnionMessageContents_offers(a: crate::lightning::onion_message::offers::OffersMessage) -> ParsedOnionMessageContents {
 	ParsedOnionMessageContents::Offers(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new DNSResolver-variant ParsedOnionMessageContents
+pub extern "C" fn ParsedOnionMessageContents_dnsresolver(a: crate::lightning::onion_message::dns_resolution::DNSResolverMessage) -> ParsedOnionMessageContents {
+	ParsedOnionMessageContents::DNSResolver(a, )
 }
 #[no_mangle]
 /// Utility method to constructs a new Custom-variant ParsedOnionMessageContents
