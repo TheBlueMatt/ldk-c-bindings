@@ -36,6 +36,8 @@ cd "$ORIG_PWD"
 HOST_PLATFORM="$(rustc --version --verbose | grep "host:" | awk '{ print $2 }')"
 ENV_TARGET=$(echo $HOST_PLATFORM | sed 's/-/_/g')
 
+RUSTC_MINOR_VERSION=$(rustc --version | awk '{ split($2,a,"."); print a[2] }')
+
 # Set path to include our rustc wrapper as well as cbindgen
 export LDK_RUSTC_PATH="$(which rustc)"
 export RUSTC="$(pwd)/deterministic-build-wrappers/rustc"
@@ -571,17 +573,23 @@ if [ "$CLANGPP" != "" ]; then
 	export CRATE_CC_NO_DEFAULTS=true
 fi
 
-if [ "$2" = "false" -a "$(rustc --print target-list | grep wasm32-wasi)" != "" ]; then
+WASM_TARGET="wasm32-wasi"
+WASM_NAME="wasm32_wasi"
+# In rust 1.84, the wasi target was renamed
+[ "$RUSTC_MINOR_VERSION" -ge 84 ] && WASM_TARGET="wasm32-wasip1"
+[ "$RUSTC_MINOR_VERSION" -ge 84 ] && WASM_NAME="wasm32_wasip1"
+
+if [ "$2" = "false" -a "$(rustc --print target-list | grep $WASM_TARGET)" != "" ]; then
 	# Test to see if clang supports wasm32 as a target (which is needed to build rust-secp256k1)
 	echo "int main() {}" > genbindings_wasm_test_file.c
-	if clang -nostdlib -o /dev/null --target=wasm32-wasi -Wl,--no-entry genbindings_wasm_test_file.c > /dev/null 2>&1; then
+	if clang -nostdlib -o /dev/null --target=$WASM_TARGET -Wl,--no-entry genbindings_wasm_test_file.c > /dev/null 2>&1; then
 		# And if it does, build a WASM binary without capturing errors
-		export CFLAGS_wasm32_wasi="$BASE_CFLAGS -target wasm32-wasi -O1"
-		RUSTFLAGS="$BASE_RUSTFLAGS -C opt-level=1 --cfg=test_mod_pointers" cargo build $CARGO_BUILD_ARGS -v --target=wasm32-wasi
-		export CFLAGS_wasm32_wasi="$BASE_CFLAGS -fembed-bitcode -target wasm32-wasi -Oz"
-		RUSTFLAGS="$BASE_RUSTFLAGS -C embed-bitcode=yes -C opt-level=z -C linker-plugin-lto -C lto" CARGO_PROFILE_RELEASE_LTO=true cargo build $CARGO_BUILD_ARGS -v --release --target=wasm32-wasi
+		export CFLAGS_$WASM_NAME="$BASE_CFLAGS -target wasm32-wasi -O1"
+		RUSTFLAGS="$BASE_RUSTFLAGS -C opt-level=1 --cfg=test_mod_pointers" cargo build $CARGO_BUILD_ARGS -v --target=$WASM_TARGET
+		export CFLAGS_$WASM_NAME="$BASE_CFLAGS -fembed-bitcode -target wasm32-wasi -Oz"
+		RUSTFLAGS="$BASE_RUSTFLAGS -C embed-bitcode=yes -C opt-level=z -C linker-plugin-lto -C lto" CARGO_PROFILE_RELEASE_LTO=true cargo build $CARGO_BUILD_ARGS -v --release --target=$WASM_TARGET
 	else
-		echo "Cannot build WASM lib as clang does not seem to support the wasm32-wasi target"
+		echo "Cannot build WASM lib as clang does not seem to support the $WASM_TARGET target"
 	fi
 	rm genbindings_wasm_test_file.c
 fi
@@ -619,15 +627,26 @@ if [ "$CLANGPP" != "" -a "$LLD" != "" ]; then
 	LINK_ARG_FLAGS="-C link-arg=-fuse-ld=$LLD"
 	export LDK_CLANG_PATH=$(which $CLANG)
 	if [ "$MACOS_SDK" != "" ]; then
-		REALLY_PIN_CC
+		# At some point rustc fixed the issue which merits REALLY_PIN_CC. I'm not sure when,
+		# however, so we just use 1.84 as the cutoff.
+		[ "$RUSTC_MINOR_VERSION" -lt 84 ] && REALLY_PIN_CC
+		[ "$RUSTC_MINOR_VERSION" -lt 84 ] && OFFLINE_OPT="--offline"
+
 		export CLANG="$(pwd)/../deterministic-build-wrappers/clang-lto-link-osx"
 		for ARG in $CFLAGS_aarch64_apple_darwin; do
 			MANUAL_LINK_CFLAGS="$MANUAL_LINK_CFLAGS -C link-arg=$ARG"
 		done
+		# rustc appears to always look for rust-objcopy, though this may be fixed by
+		# https://github.com/rust-lang/rust/pull/134240 in rust 1.85.
+		if [ "$RUSTC_MINOR_VERSION" = 84 ]; then
+			mkdir -p objcopy-bin
+			ln -s `which llvm-objcopy` objcopy-bin/rust-objcopy
+			PATH="$PATH:$(pwd)/objcopy-bin"
+		fi
 		# While there's no reason LTO should fail here (and it didn't use to), it now fails with errors like
 		# ld64.lld: error: undefined symbol: core::fmt::Formatter::debug_lower_hex::hf8e8a79f43d62b68
 		export CFLAGS_aarch64_apple_darwin="$CFLAGS_aarch64_apple_darwin -O3 -fPIC -fembed-bitcode"
-		RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=apple-a14 -C embed-bitcode=yes -C linker-plugin-lto -C linker=$CLANG $MANUAL_LINK_CFLAGS $LINK_ARG_FLAGS -C link-arg=-mcpu=apple-a14" cargo build $CARGO_BUILD_ARGS --offline -v --release --target aarch64-apple-darwin -Zbuild-std=std,panic_abort
+		RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=apple-a14 -C embed-bitcode=yes -C linker-plugin-lto -C linker=$CLANG $MANUAL_LINK_CFLAGS $LINK_ARG_FLAGS -C link-arg=-mcpu=apple-a14" cargo build $CARGO_BUILD_ARGS $OFFLINE_OPT -v --release --target aarch64-apple-darwin -Zbuild-std=std,panic_abort
 		if [ "$HOST_OSX" != "true" ]; then
 			# If we're not on OSX but can build OSX binaries, build the x86_64 OSX release now
 			MANUAL_LINK_CFLAGS=""
@@ -635,7 +654,7 @@ if [ "$CLANGPP" != "" -a "$LLD" != "" ]; then
 				MANUAL_LINK_CFLAGS="$MANUAL_LINK_CFLAGS -C link-arg=$ARG"
 			done
 			export CFLAGS_x86_64_apple_darwin="$CFLAGS_x86_64_apple_darwin -O3 -fPIC -fembed-bitcode"
-			RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=sandybridge -C embed-bitcode=yes -C linker-plugin-lto -C linker=$CLANG $MANUAL_LINK_CFLAGS $LINK_ARG_FLAGS -C link-arg=-march=sandybridge -C link-arg=-mtune=sandybridge" cargo build $CARGO_BUILD_ARGS --offline -v --release --target x86_64-apple-darwin -Zbuild-std=std,panic_abort
+			RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=sandybridge -C embed-bitcode=yes -C linker-plugin-lto -C linker=$CLANG $MANUAL_LINK_CFLAGS $LINK_ARG_FLAGS -C link-arg=-march=sandybridge -C link-arg=-mtune=sandybridge" cargo build $CARGO_BUILD_ARGS $OFFLINE_OPT -v --release --target x86_64-apple-darwin -Zbuild-std=std,panic_abort
 		fi
 	fi
 	# If we're on an M1 don't bother building X86 binaries
