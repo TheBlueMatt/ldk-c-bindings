@@ -560,6 +560,11 @@ pub extern "C" fn HTLCUpdate_read(ser: crate::c_types::u8slice) -> crate::c_type
 
 #[no_mangle]
 pub static ANTI_REORG_DELAY: u32 = lightning::chain::channelmonitor::ANTI_REORG_DELAY;
+/// Number of blocks we wait before assuming a [`ChannelMonitor`] to be fully resolved and
+/// considering it be safely archived.
+
+#[no_mangle]
+pub static ARCHIVAL_DELAY_BLOCKS: u32 = lightning::chain::channelmonitor::ARCHIVAL_DELAY_BLOCKS;
 /// Indicates whether the balance is derived from a cooperative close, a force-close
 /// (for holder or counterparty), or whether it is for an HTLC.
 #[derive(Clone)]
@@ -1580,10 +1585,11 @@ pub extern "C" fn ChannelMonitor_get_spendable_outputs(this_arg: &crate::lightni
 ///
 /// This function returns a tuple of two booleans, the first indicating whether the monitor is
 /// fully resolved, and the second whether the monitor needs persistence to ensure it is
-/// reliably marked as resolved within 4032 blocks.
+/// reliably marked as resolved within [`ARCHIVAL_DELAY_BLOCKS`] blocks.
 ///
-/// The first boolean is true only if [`Self::get_claimable_balances`] has been empty for at least
-/// 4032 blocks as an additional protection against any bugs resulting in spuriously empty balance sets.
+/// The first boolean is true only if [`Self::get_claimable_balances`] has been empty for at
+/// least [`ARCHIVAL_DELAY_BLOCKS`] blocks as an additional protection against any bugs
+/// resulting in spuriously empty balance sets.
 #[must_use]
 #[no_mangle]
 pub extern "C" fn ChannelMonitor_check_and_update_full_resolution_status(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, logger: &crate::lightning::util::logger::Logger) -> crate::c_types::derived::C2Tuple_boolboolZ {
