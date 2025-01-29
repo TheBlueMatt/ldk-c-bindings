@@ -11611,6 +11611,10 @@ typedef struct LDKPendingHTLCRouting_LDKForward_Body {
     * Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
     */
    struct LDKBlindedForward blinded;
+   /**
+    * The absolute CLTV of the inbound HTLC
+    */
+   struct LDKCOption_u32Z incoming_cltv_expiry;
 } LDKPendingHTLCRouting_LDKForward_Body;
 
 typedef struct LDKPendingHTLCRouting_LDKReceive_Body {
@@ -23412,7 +23416,11 @@ typedef enum LDKOutputSpendStatus_Tag {
    LDKOutputSpendStatus_PendingFirstConfirmation,
    /**
     * A transaction spending the output has been confirmed on-chain but will be tracked until it
-    * reaches [`ANTI_REORG_DELAY`] confirmations.
+    * reaches at least [`PRUNE_DELAY_BLOCKS`] confirmations to ensure [`Event::SpendableOutputs`]
+    * stemming from lingering [`ChannelMonitor`]s can safely be replayed.
+    *
+    * [`Event::SpendableOutputs`]: crate::events::Event::SpendableOutputs
+    * [`ChannelMonitor`]: crate::chain::channelmonitor::ChannelMonitor
     */
    LDKOutputSpendStatus_PendingThresholdConfirmations,
    /**
@@ -27873,11 +27881,15 @@ extern const uint64_t MAX_SCID_TX_INDEX;
 
 extern const uint64_t MAX_SCID_VOUT_INDEX;
 
+extern const uint32_t PRUNE_DELAY_BLOCKS;
+
 extern const uint64_t MIN_RELAY_FEE_SAT_PER_1000_WEIGHT;
 
 extern const uint32_t FEERATE_FLOOR_SATS_PER_KW;
 
 extern const uint32_t ANTI_REORG_DELAY;
+
+extern const uint32_t ARCHIVAL_DELAY_BLOCKS;
 
 extern const uint16_t BREAKDOWN_TIMEOUT;
 
@@ -39984,10 +39996,11 @@ MUST_USE_RES struct LDKCVec_SpendableOutputDescriptorZ ChannelMonitor_get_spenda
  *
  * This function returns a tuple of two booleans, the first indicating whether the monitor is
  * fully resolved, and the second whether the monitor needs persistence to ensure it is
- * reliably marked as resolved within 4032 blocks.
+ * reliably marked as resolved within [`ARCHIVAL_DELAY_BLOCKS`] blocks.
  *
- * The first boolean is true only if [`Self::get_claimable_balances`] has been empty for at least
- * 4032 blocks as an additional protection against any bugs resulting in spuriously empty balance sets.
+ * The first boolean is true only if [`Self::get_claimable_balances`] has been empty for at
+ * least [`ARCHIVAL_DELAY_BLOCKS`] blocks as an additional protection against any bugs
+ * resulting in spuriously empty balance sets.
  */
 MUST_USE_RES struct LDKC2Tuple_boolboolZ ChannelMonitor_check_and_update_full_resolution_status(const struct LDKChannelMonitor *NONNULL_PTR this_arg, const struct LDKLogger *NONNULL_PTR logger);
 
@@ -40161,7 +40174,7 @@ struct LDKPendingHTLCRouting PendingHTLCRouting_clone(const struct LDKPendingHTL
 /**
  * Utility method to constructs a new Forward-variant PendingHTLCRouting
  */
-struct LDKPendingHTLCRouting PendingHTLCRouting_forward(struct LDKOnionPacket onion_packet, uint64_t short_channel_id, struct LDKBlindedForward blinded);
+struct LDKPendingHTLCRouting PendingHTLCRouting_forward(struct LDKOnionPacket onion_packet, uint64_t short_channel_id, struct LDKBlindedForward blinded, struct LDKCOption_u32Z incoming_cltv_expiry);
 
 /**
  * Utility method to constructs a new Receive-variant PendingHTLCRouting
@@ -40772,6 +40785,14 @@ void ChannelManager_force_close_all_channels_broadcasting_latest_txn(const struc
 void ChannelManager_force_close_all_channels_without_broadcasting_txn(const struct LDKChannelManager *NONNULL_PTR this_arg, struct LDKStr error_message);
 
 /**
+ * Sends a payment along a given route. See [`Self::send_payment`] for more info.
+ *
+ * LDK will not automatically retry this payment, though it may be manually re-sent after an
+ * [`Event::PaymentFailed`] is generated.
+ */
+MUST_USE_RES struct LDKCResult_NoneRetryableSendFailureZ ChannelManager_send_payment_with_route(const struct LDKChannelManager *NONNULL_PTR this_arg, struct LDKRoute route, struct LDKThirtyTwoBytes payment_hash, struct LDKRecipientOnionFields recipient_onion, struct LDKThirtyTwoBytes payment_id);
+
+/**
  * Sends a payment to the route found using the provided [`RouteParameters`], retrying failed
  * payment paths based on the provided `Retry`.
  *
@@ -40798,7 +40819,8 @@ void ChannelManager_force_close_all_channels_without_broadcasting_txn(const stru
  * [`ChannelManager::list_recent_payments`] for more information.
  *
  * Routes are automatically found using the [`Router] provided on startup. To fix a route for a
- * particular payment, match the [`PaymentId`] passed to [`Router::find_route_with_id`].
+ * particular payment, use [`Self::send_payment_with_route`] or match the [`PaymentId`] passed to
+ * [`Router::find_route_with_id`].
  *
  * [`Event::PaymentSent`]: events::Event::PaymentSent
  * [`Event::PaymentFailed`]: events::Event::PaymentFailed
@@ -56125,6 +56147,11 @@ struct LDKCResult_SpendableOutputDescriptorDecodeErrorZ SpendableOutputDescripto
  * We do not enforce that outputs meet the dust limit or that any output scripts are standard.
  */
 MUST_USE_RES struct LDKCResult_C2Tuple_CVec_u8Zu64ZNoneZ SpendableOutputDescriptor_create_spendable_outputs_psbt(struct LDKCVec_SpendableOutputDescriptorZ descriptors, struct LDKCVec_TxOutZ outputs, struct LDKCVec_u8Z change_destination_script, uint32_t feerate_sat_per_1000_weight, struct LDKCOption_u32Z locktime);
+
+/**
+ * Returns the outpoint of the spendable output.
+ */
+MUST_USE_RES struct LDKOutPoint SpendableOutputDescriptor_outpoint(const struct LDKSpendableOutputDescriptor *NONNULL_PTR this_arg);
 
 /**
  * Frees any resources used by the ChannelDerivationParameters, if is_owned is set and inner is non-NULL.

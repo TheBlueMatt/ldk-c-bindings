@@ -19,6 +19,10 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
+/// The number of blocks we wait before we prune the tracked spendable outputs.
+
+#[no_mangle]
+pub static PRUNE_DELAY_BLOCKS: u32 = lightning::util::sweep::PRUNE_DELAY_BLOCKS;
 
 use lightning::util::sweep::TrackedSpendableOutput as nativeTrackedSpendableOutputImport;
 pub(crate) type nativeTrackedSpendableOutput = nativeTrackedSpendableOutputImport;
@@ -211,7 +215,11 @@ pub enum OutputSpendStatus {
 		latest_spending_tx: crate::c_types::Transaction,
 	},
 	/// A transaction spending the output has been confirmed on-chain but will be tracked until it
-	/// reaches [`ANTI_REORG_DELAY`] confirmations.
+	/// reaches at least [`PRUNE_DELAY_BLOCKS`] confirmations to ensure [`Event::SpendableOutputs`]
+	/// stemming from lingering [`ChannelMonitor`]s can safely be replayed.
+	///
+	/// [`Event::SpendableOutputs`]: crate::events::Event::SpendableOutputs
+	/// [`ChannelMonitor`]: crate::chain::channelmonitor::ChannelMonitor
 	PendingThresholdConfirmations {
 		/// The hash of the chain tip when we first broadcast a transaction spending this output.
 		first_broadcast_hash: crate::c_types::ThirtyTwoBytes,

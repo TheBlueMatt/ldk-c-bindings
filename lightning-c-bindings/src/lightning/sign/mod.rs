@@ -805,6 +805,14 @@ pub extern "C" fn SpendableOutputDescriptor_create_spendable_outputs_psbt(mut de
 	local_ret
 }
 
+/// Returns the outpoint of the spendable output.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn SpendableOutputDescriptor_outpoint(this_arg: &crate::lightning::sign::SpendableOutputDescriptor) -> crate::lightning::chain::transaction::OutPoint {
+	let mut ret = this_arg.to_native().outpoint();
+	crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
 
 use lightning::sign::ChannelDerivationParameters as nativeChannelDerivationParametersImport;
 pub(crate) type nativeChannelDerivationParameters = nativeChannelDerivationParametersImport;
