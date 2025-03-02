@@ -2170,7 +2170,19 @@ fn convert_file<'a, 'b>(libast: &'a FullLibraryAST, crate_types: &CrateTypes<'a>
 		} else {
 			format!("{}/lib.rs", out_dir)
 		};
-		let _ = std::fs::create_dir((&new_file_path.as_ref() as &std::path::Path).parent().unwrap());
+
+		fn create_dir_recursive(path: &std::path::Path) {
+			match std::fs::create_dir(path) {
+				Ok(_) => {},
+				Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {},
+				Err(_) => {
+					create_dir_recursive(path.parent().unwrap());
+					std::fs::create_dir(path).expect("Failed to create output dir");
+				},
+			}
+		}
+		create_dir_recursive((&new_file_path.as_ref() as &std::path::Path).parent().unwrap());
+
 		let mut out = std::fs::OpenOptions::new().write(true).create(true).truncate(true)
 			.open(new_file_path).expect("Unable to open new src file");
 		let mut out_uses = HashSet::default();
