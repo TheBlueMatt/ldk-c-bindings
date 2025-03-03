@@ -637,8 +637,8 @@ if [ "$CLANGPP" != "" -a "$LLD" != "" ]; then
 			MANUAL_LINK_CFLAGS="$MANUAL_LINK_CFLAGS -C link-arg=$ARG"
 		done
 		# rustc appears to always look for rust-objcopy, though this may be fixed by
-		# https://github.com/rust-lang/rust/pull/134240 in rust 1.85.
-		if [ "$RUSTC_MINOR_VERSION" = 84 ]; then
+		# https://github.com/rust-lang/rust/pull/134240 in rust 1.85 (it is not).
+		if [ "$RUSTC_MINOR_VERSION" -ge 84 ]; then
 			mkdir -p objcopy-bin
 			ln -s `which llvm-objcopy` objcopy-bin/rust-objcopy
 			PATH="$PATH:$(pwd)/objcopy-bin"
