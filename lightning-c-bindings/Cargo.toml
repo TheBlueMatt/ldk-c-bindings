@@ -37,3 +37,9 @@ panic = "abort"
 
 [profile.release]
 panic = "abort"
+
+[lints.rust.unexpected_cfgs]
+level = "forbid"
+check-cfg = [
+    "cfg(test_mod_pointers)",
+]
