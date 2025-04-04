@@ -703,6 +703,53 @@ typedef enum LDKInboundHTLCStateDetails {
 } LDKInboundHTLCStateDetails;
 
 /**
+ * An object representing the status of an order.
+ */
+typedef enum LDKLSPS1OrderState {
+   /**
+    * The order has been created.
+    */
+   LDKLSPS1OrderState_Created,
+   /**
+    * The LSP has opened the channel and published the funding transaction.
+    */
+   LDKLSPS1OrderState_Completed,
+   /**
+    * The order failed.
+    */
+   LDKLSPS1OrderState_Failed,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS1OrderState_Sentinel,
+} LDKLSPS1OrderState;
+
+/**
+ * The state of a payment.
+ *
+ * *Note*: Previously, the spec also knew a `CANCELLED` state for BOLT11 payments, which has since
+ * been deprecated and `REFUNDED` should be used instead.
+ */
+typedef enum LDKLSPS1PaymentState {
+   /**
+    * A payment is expected.
+    */
+   LDKLSPS1PaymentState_ExpectPayment,
+   /**
+    * A sufficient payment has been received.
+    */
+   LDKLSPS1PaymentState_Paid,
+   /**
+    * The payment has been refunded.
+    */
+   LDKLSPS1PaymentState_Refunded,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS1PaymentState_Sentinel,
+} LDKLSPS1PaymentState;
+
+/**
  * An enum representing the available verbosity levels of the logger.
  */
 typedef enum LDKLevel {
@@ -1200,6 +1247,40 @@ typedef struct LDKu8slice {
     */
    uintptr_t datalen;
 } LDKu8slice;
+
+/**
+ * Represents a valid Bitcoin on-chain address.
+ */
+typedef struct LDKAddress {
+   LDKBitcoinAddress *NONNULL_PTR address;
+} LDKAddress;
+
+/**
+ * An enum which can either contain a crate::c_types::Address or not
+ */
+typedef enum LDKCOption_AddressZ_Tag {
+   /**
+    * When we're in this state, this COption_AddressZ contains a crate::c_types::Address
+    */
+   LDKCOption_AddressZ_Some,
+   /**
+    * When we're in this state, this COption_AddressZ contains nothing
+    */
+   LDKCOption_AddressZ_None,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKCOption_AddressZ_Sentinel,
+} LDKCOption_AddressZ_Tag;
+
+typedef struct LDKCOption_AddressZ {
+   LDKCOption_AddressZ_Tag tag;
+   union {
+      struct {
+         struct LDKAddress some;
+      };
+   };
+} LDKCOption_AddressZ;
 
 /**
  * Represents a scalar value between zero and the secp256k1 curve order, in big endian.
@@ -3011,20 +3092,20 @@ typedef struct LDKCVec_BlindedPaymentPathZ {
 } LDKCVec_BlindedPaymentPathZ;
 
 /**
- * A dynamically-allocated array of crate::c_types::Strs of arbitrary size.
+ * A dynamically-allocated array of crate::c_types::Addresss of arbitrary size.
  * This corresponds to std::vector in C++
  */
-typedef struct LDKCVec_StrZ {
+typedef struct LDKCVec_AddressZ {
    /**
     * The elements in the array.
     * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
     */
-   struct LDKStr *data;
+   struct LDKAddress *data;
    /**
     * The number of elements pointed to by `data`.
     */
    uintptr_t datalen;
-} LDKCVec_StrZ;
+} LDKCVec_AddressZ;
 
 /**
  * A dynamically-allocated array of crate::c_types::ThirtyTwoBytess of arbitrary size.
@@ -6019,6 +6100,22 @@ typedef struct LDKCVec_PublicKeyZ {
    uintptr_t datalen;
 } LDKCVec_PublicKeyZ;
 
+/**
+ * A dynamically-allocated array of u16s of arbitrary size.
+ * This corresponds to std::vector in C++
+ */
+typedef struct LDKCVec_u16Z {
+   /**
+    * The elements in the array.
+    * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+    */
+   uint16_t *data;
+   /**
+    * The number of elements pointed to by `data`.
+    */
+   uintptr_t datalen;
+} LDKCVec_u16Z;
+
 
 
 /**
@@ -6899,6 +6996,234 @@ typedef struct LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
     */
    uintptr_t datalen;
 } LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ;
+
+/**
+ * An enum which can either contain a crate::c_types::Str or not
+ */
+typedef enum LDKCOption_StrZ_Tag {
+   /**
+    * When we're in this state, this COption_StrZ contains a crate::c_types::Str
+    */
+   LDKCOption_StrZ_Some,
+   /**
+    * When we're in this state, this COption_StrZ contains nothing
+    */
+   LDKCOption_StrZ_None,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKCOption_StrZ_Sentinel,
+} LDKCOption_StrZ_Tag;
+
+typedef struct LDKCOption_StrZ {
+   LDKCOption_StrZ_Tag tag;
+   union {
+      struct {
+         struct LDKStr some;
+      };
+   };
+} LDKCOption_StrZ;
+
+
+
+/**
+ * A JSON-RPC request's `id`.
+ *
+ * Please refer to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification#request_object) for
+ * more information.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPSRequestId {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPSRequestId *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPSRequestId;
+
+/**
+ * Indicates an error on the client's part (usually some variant of attempting to use too-low or
+ * too-high values)
+ */
+typedef enum LDKAPIError_Tag {
+   /**
+    * Indicates the API was wholly misused (see err for more). Cases where these can be returned
+    * are documented, but generally indicates some precondition of a function was violated.
+    */
+   LDKAPIError_APIMisuseError,
+   /**
+    * Due to a high feerate, we were unable to complete the request.
+    * For example, this may be returned if the feerate implies we cannot open a channel at the
+    * requested value, but opening a larger channel would succeed.
+    */
+   LDKAPIError_FeeRateTooHigh,
+   /**
+    * A malformed Route was provided (eg overflowed value, node id mismatch, overly-looped route,
+    * too-many-hops, etc).
+    */
+   LDKAPIError_InvalidRoute,
+   /**
+    * We were unable to complete the request as the Channel required to do so is unable to
+    * complete the request (or was not found). This can take many forms, including disconnected
+    * peer, channel at capacity, channel shutting down, etc.
+    */
+   LDKAPIError_ChannelUnavailable,
+   /**
+    * An attempt to call [`chain::Watch::watch_channel`]/[`chain::Watch::update_channel`]
+    * returned a [`ChannelMonitorUpdateStatus::InProgress`] indicating the persistence of a
+    * monitor update is awaiting async resolution. Once it resolves the attempted action should
+    * complete automatically.
+    *
+    * [`chain::Watch::watch_channel`]: crate::chain::Watch::watch_channel
+    * [`chain::Watch::update_channel`]: crate::chain::Watch::update_channel
+    * [`ChannelMonitorUpdateStatus::InProgress`]: crate::chain::ChannelMonitorUpdateStatus::InProgress
+    */
+   LDKAPIError_MonitorUpdateInProgress,
+   /**
+    * [`SignerProvider::get_shutdown_scriptpubkey`] returned a shutdown scriptpubkey incompatible
+    * with the channel counterparty as negotiated in [`InitFeatures`].
+    *
+    * Using a SegWit v0 script should resolve this issue. If you cannot, you won't be able to open
+    * a channel or cooperatively close one with this peer (and will have to force-close instead).
+    *
+    * [`SignerProvider::get_shutdown_scriptpubkey`]: crate::sign::SignerProvider::get_shutdown_scriptpubkey
+    * [`InitFeatures`]: crate::types::features::InitFeatures
+    */
+   LDKAPIError_IncompatibleShutdownScript,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKAPIError_Sentinel,
+} LDKAPIError_Tag;
+
+typedef struct LDKAPIError_LDKAPIMisuseError_Body {
+   /**
+    * A human-readable error message
+    */
+   struct LDKStr err;
+} LDKAPIError_LDKAPIMisuseError_Body;
+
+typedef struct LDKAPIError_LDKFeeRateTooHigh_Body {
+   /**
+    * A human-readable error message
+    */
+   struct LDKStr err;
+   /**
+    * The feerate which was too high.
+    */
+   uint32_t feerate;
+} LDKAPIError_LDKFeeRateTooHigh_Body;
+
+typedef struct LDKAPIError_LDKInvalidRoute_Body {
+   /**
+    * A human-readable error message
+    */
+   struct LDKStr err;
+} LDKAPIError_LDKInvalidRoute_Body;
+
+typedef struct LDKAPIError_LDKChannelUnavailable_Body {
+   /**
+    * A human-readable error message
+    */
+   struct LDKStr err;
+} LDKAPIError_LDKChannelUnavailable_Body;
+
+typedef struct LDKAPIError_LDKIncompatibleShutdownScript_Body {
+   /**
+    * The incompatible shutdown script.
+    */
+   struct LDKShutdownScript script;
+} LDKAPIError_LDKIncompatibleShutdownScript_Body;
+
+typedef struct MUST_USE_STRUCT LDKAPIError {
+   LDKAPIError_Tag tag;
+   union {
+      LDKAPIError_LDKAPIMisuseError_Body api_misuse_error;
+      LDKAPIError_LDKFeeRateTooHigh_Body fee_rate_too_high;
+      LDKAPIError_LDKInvalidRoute_Body invalid_route;
+      LDKAPIError_LDKChannelUnavailable_Body channel_unavailable;
+      LDKAPIError_LDKIncompatibleShutdownScript_Body incompatible_shutdown_script;
+   };
+} LDKAPIError;
+
+/**
+ * The contents of CResult_LSPSRequestIdAPIErrorZ
+ */
+typedef union LDKCResult_LSPSRequestIdAPIErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKLSPSRequestId *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKAPIError *err;
+} LDKCResult_LSPSRequestIdAPIErrorZPtr;
+
+/**
+ * A CResult_LSPSRequestIdAPIErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning_liquidity::lsps0::ser::LSPSRequestId on success and a crate::lightning::util::errors::APIError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_LSPSRequestIdAPIErrorZ {
+   /**
+    * The contents of this CResult_LSPSRequestIdAPIErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_LSPSRequestIdAPIErrorZPtr contents;
+   /**
+    * Whether this CResult_LSPSRequestIdAPIErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_LSPSRequestIdAPIErrorZ;
+
+
+
+/**
+ * Fees and parameters for a JIT Channel including the promise.
+ *
+ * The promise is an HMAC calculated using a secret known to the LSP and the rest of the fields as input.
+ * It exists so the LSP can verify the authenticity of a client provided LSPS2OpeningFeeParams by recalculating
+ * the promise using the secret. Once verified they can be confident it was not modified by the client.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2OpeningFeeParams {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2OpeningFeeParams *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2OpeningFeeParams;
+
+/**
+ * A dynamically-allocated array of crate::lightning_liquidity::lsps2::msgs::LSPS2OpeningFeeParamss of arbitrary size.
+ * This corresponds to std::vector in C++
+ */
+typedef struct LDKCVec_LSPS2OpeningFeeParamsZ {
+   /**
+    * The elements in the array.
+    * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+    */
+   struct LDKLSPS2OpeningFeeParams *data;
+   /**
+    * The number of elements pointed to by `data`.
+    */
+   uintptr_t datalen;
+} LDKCVec_LSPS2OpeningFeeParamsZ;
 
 
 
@@ -10177,111 +10502,6 @@ typedef struct LDKCOption_C2Tuple_u64u16ZZ {
 } LDKCOption_C2Tuple_u64u16ZZ;
 
 /**
- * Indicates an error on the client's part (usually some variant of attempting to use too-low or
- * too-high values)
- */
-typedef enum LDKAPIError_Tag {
-   /**
-    * Indicates the API was wholly misused (see err for more). Cases where these can be returned
-    * are documented, but generally indicates some precondition of a function was violated.
-    */
-   LDKAPIError_APIMisuseError,
-   /**
-    * Due to a high feerate, we were unable to complete the request.
-    * For example, this may be returned if the feerate implies we cannot open a channel at the
-    * requested value, but opening a larger channel would succeed.
-    */
-   LDKAPIError_FeeRateTooHigh,
-   /**
-    * A malformed Route was provided (eg overflowed value, node id mismatch, overly-looped route,
-    * too-many-hops, etc).
-    */
-   LDKAPIError_InvalidRoute,
-   /**
-    * We were unable to complete the request as the Channel required to do so is unable to
-    * complete the request (or was not found). This can take many forms, including disconnected
-    * peer, channel at capacity, channel shutting down, etc.
-    */
-   LDKAPIError_ChannelUnavailable,
-   /**
-    * An attempt to call [`chain::Watch::watch_channel`]/[`chain::Watch::update_channel`]
-    * returned a [`ChannelMonitorUpdateStatus::InProgress`] indicating the persistence of a
-    * monitor update is awaiting async resolution. Once it resolves the attempted action should
-    * complete automatically.
-    *
-    * [`chain::Watch::watch_channel`]: crate::chain::Watch::watch_channel
-    * [`chain::Watch::update_channel`]: crate::chain::Watch::update_channel
-    * [`ChannelMonitorUpdateStatus::InProgress`]: crate::chain::ChannelMonitorUpdateStatus::InProgress
-    */
-   LDKAPIError_MonitorUpdateInProgress,
-   /**
-    * [`SignerProvider::get_shutdown_scriptpubkey`] returned a shutdown scriptpubkey incompatible
-    * with the channel counterparty as negotiated in [`InitFeatures`].
-    *
-    * Using a SegWit v0 script should resolve this issue. If you cannot, you won't be able to open
-    * a channel or cooperatively close one with this peer (and will have to force-close instead).
-    *
-    * [`SignerProvider::get_shutdown_scriptpubkey`]: crate::sign::SignerProvider::get_shutdown_scriptpubkey
-    * [`InitFeatures`]: crate::types::features::InitFeatures
-    */
-   LDKAPIError_IncompatibleShutdownScript,
-   /**
-    * Must be last for serialization purposes
-    */
-   LDKAPIError_Sentinel,
-} LDKAPIError_Tag;
-
-typedef struct LDKAPIError_LDKAPIMisuseError_Body {
-   /**
-    * A human-readable error message
-    */
-   struct LDKStr err;
-} LDKAPIError_LDKAPIMisuseError_Body;
-
-typedef struct LDKAPIError_LDKFeeRateTooHigh_Body {
-   /**
-    * A human-readable error message
-    */
-   struct LDKStr err;
-   /**
-    * The feerate which was too high.
-    */
-   uint32_t feerate;
-} LDKAPIError_LDKFeeRateTooHigh_Body;
-
-typedef struct LDKAPIError_LDKInvalidRoute_Body {
-   /**
-    * A human-readable error message
-    */
-   struct LDKStr err;
-} LDKAPIError_LDKInvalidRoute_Body;
-
-typedef struct LDKAPIError_LDKChannelUnavailable_Body {
-   /**
-    * A human-readable error message
-    */
-   struct LDKStr err;
-} LDKAPIError_LDKChannelUnavailable_Body;
-
-typedef struct LDKAPIError_LDKIncompatibleShutdownScript_Body {
-   /**
-    * The incompatible shutdown script.
-    */
-   struct LDKShutdownScript script;
-} LDKAPIError_LDKIncompatibleShutdownScript_Body;
-
-typedef struct MUST_USE_STRUCT LDKAPIError {
-   LDKAPIError_Tag tag;
-   union {
-      LDKAPIError_LDKAPIMisuseError_Body api_misuse_error;
-      LDKAPIError_LDKFeeRateTooHigh_Body fee_rate_too_high;
-      LDKAPIError_LDKInvalidRoute_Body invalid_route;
-      LDKAPIError_LDKChannelUnavailable_Body channel_unavailable;
-      LDKAPIError_LDKIncompatibleShutdownScript_Body incompatible_shutdown_script;
-   };
-} LDKAPIError;
-
-/**
  * The contents of CResult_ChannelIdAPIErrorZ
  */
 typedef union LDKCResult_ChannelIdAPIErrorZPtr {
@@ -10997,33 +11217,6 @@ typedef struct LDKCResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ {
     */
    bool result_ok;
 } LDKCResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ;
-
-/**
- * An enum which can either contain a crate::c_types::Str or not
- */
-typedef enum LDKCOption_StrZ_Tag {
-   /**
-    * When we're in this state, this COption_StrZ contains a crate::c_types::Str
-    */
-   LDKCOption_StrZ_Some,
-   /**
-    * When we're in this state, this COption_StrZ contains nothing
-    */
-   LDKCOption_StrZ_None,
-   /**
-    * Must be last for serialization purposes
-    */
-   LDKCOption_StrZ_Sentinel,
-} LDKCOption_StrZ_Tag;
-
-typedef struct LDKCOption_StrZ {
-   LDKCOption_StrZ_Tag tag;
-   union {
-      struct {
-         struct LDKStr some;
-      };
-   };
-} LDKCOption_StrZ;
 
 /**
  * A dynamically-allocated array of crate::lightning::onion_message::messenger::Destinations of arbitrary size.
@@ -13634,6 +13827,45 @@ typedef struct LDKCResult_COption_APIErrorZDecodeErrorZ {
    bool result_ok;
 } LDKCResult_COption_APIErrorZDecodeErrorZ;
 
+
+
+/**
+ * Fees and parameters for a JIT Channel without the promise.
+ *
+ * The promise will be calculated automatically for the LSP and this type converted
+ * into an [`LSPS2OpeningFeeParams`] for transit over the wire.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2RawOpeningFeeParams {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2RawOpeningFeeParams *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2RawOpeningFeeParams;
+
+/**
+ * A dynamically-allocated array of crate::lightning_liquidity::lsps2::msgs::LSPS2RawOpeningFeeParamss of arbitrary size.
+ * This corresponds to std::vector in C++
+ */
+typedef struct LDKCVec_LSPS2RawOpeningFeeParamsZ {
+   /**
+    * The elements in the array.
+    * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+    */
+   struct LDKLSPS2RawOpeningFeeParams *data;
+   /**
+    * The number of elements pointed to by `data`.
+    */
+   uintptr_t datalen;
+} LDKCVec_LSPS2RawOpeningFeeParamsZ;
+
 /**
  * The contents of CResult_ChannelMonitorUpdateDecodeErrorZ
  */
@@ -14833,6 +15065,22 @@ typedef struct LDKCResult_CVec_u8ZIOErrorZ {
     */
    bool result_ok;
 } LDKCResult_CVec_u8ZIOErrorZ;
+
+/**
+ * A dynamically-allocated array of crate::c_types::Strs of arbitrary size.
+ * This corresponds to std::vector in C++
+ */
+typedef struct LDKCVec_StrZ {
+   /**
+    * The elements in the array.
+    * If datalen is non-0 this must be a valid, non-NULL pointer allocated by malloc().
+    */
+   struct LDKStr *data;
+   /**
+    * The number of elements pointed to by `data`.
+    */
+   uintptr_t datalen;
+} LDKCVec_StrZ;
 
 /**
  * The contents of CResult_CVec_StrZIOErrorZ
@@ -18179,6 +18427,111 @@ typedef struct LDKCVec_FutureZ {
    uintptr_t datalen;
 } LDKCVec_FutureZ;
 
+
+
+/**
+ * Lightning message type used by LSPS protocols.
+ */
+typedef struct MUST_USE_STRUCT LDKRawLSPSMessage {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeRawLSPSMessage *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKRawLSPSMessage;
+
+/**
+ * The contents of CResult_RawLSPSMessageDecodeErrorZ
+ */
+typedef union LDKCResult_RawLSPSMessageDecodeErrorZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKRawLSPSMessage *result;
+   /**
+    * A pointer to the contents in the error state.
+    * Reading from this pointer when `result_ok` is set is undefined.
+    */
+   struct LDKDecodeError *err;
+} LDKCResult_RawLSPSMessageDecodeErrorZPtr;
+
+/**
+ * A CResult_RawLSPSMessageDecodeErrorZ represents the result of a fallible operation,
+ * containing a crate::lightning_liquidity::lsps0::ser::RawLSPSMessage on success and a crate::lightning::ln::msgs::DecodeError on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_RawLSPSMessageDecodeErrorZ {
+   /**
+    * The contents of this CResult_RawLSPSMessageDecodeErrorZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_RawLSPSMessageDecodeErrorZPtr contents;
+   /**
+    * Whether this CResult_RawLSPSMessageDecodeErrorZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_RawLSPSMessageDecodeErrorZ;
+
+
+
+/**
+ * An object representing datetimes as described in bLIP-50 / LSPS0.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPSDateTime {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPSDateTime *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPSDateTime;
+
+/**
+ * The contents of CResult_LSPSDateTimeNoneZ
+ */
+typedef union LDKCResult_LSPSDateTimeNoneZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   struct LDKLSPSDateTime *result;
+   /**
+    * Note that this value is always NULL, as there are no contents in the Err variant
+    */
+   void *err;
+} LDKCResult_LSPSDateTimeNoneZPtr;
+
+/**
+ * A CResult_LSPSDateTimeNoneZ represents the result of a fallible operation,
+ * containing a crate::lightning_liquidity::lsps0::ser::LSPSDateTime on success and a () on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_LSPSDateTimeNoneZ {
+   /**
+    * The contents of this CResult_LSPSDateTimeNoneZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_LSPSDateTimeNoneZPtr contents;
+   /**
+    * Whether this CResult_LSPSDateTimeNoneZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_LSPSDateTimeNoneZ;
+
 /**
  * The contents of CResult_HeldHtlcAvailableDecodeErrorZ
  */
@@ -18987,6 +19340,38 @@ typedef struct LDKCResult_ShutdownScriptInvalidShutdownScriptZ {
     */
    bool result_ok;
 } LDKCResult_ShutdownScriptInvalidShutdownScriptZ;
+
+/**
+ * The contents of CResult_u64NoneZ
+ */
+typedef union LDKCResult_u64NoneZPtr {
+   /**
+    * A pointer to the contents in the success state.
+    * Reading from this pointer when `result_ok` is not set is undefined.
+    */
+   uint64_t *result;
+   /**
+    * Note that this value is always NULL, as there are no contents in the Err variant
+    */
+   void *err;
+} LDKCResult_u64NoneZPtr;
+
+/**
+ * A CResult_u64NoneZ represents the result of a fallible operation,
+ * containing a u64 on success and a () on failure.
+ * `result_ok` indicates the overall state, and the contents are provided via `contents`.
+ */
+typedef struct LDKCResult_u64NoneZ {
+   /**
+    * The contents of this CResult_u64NoneZ, accessible via either
+    * `err` or `result` depending on the state of `result_ok`.
+    */
+   union LDKCResult_u64NoneZPtr contents;
+   /**
+    * Whether this CResult_u64NoneZ represents a success state.
+    */
+   bool result_ok;
+} LDKCResult_u64NoneZ;
 
 /**
  * `FundingInfo` holds information about a channel's funding transaction.
@@ -25665,6 +26050,8 @@ typedef struct LDKChannelMessageHandler {
     * May return an `Err(())` if the features the peer supports are not sufficient to communicate
     * with us. Implementors should be somewhat conservative about doing so, however, as other
     * message handlers may still wish to communicate with this peer.
+    *
+    * [`Self::peer_disconnected`] will not be called if `Err(())` is returned.
     */
    struct LDKCResult_NoneNoneZ (*peer_connected)(const void *this_arg, struct LDKPublicKey their_node_id, const struct LDKInit *NONNULL_PTR msg, bool inbound);
    /**
@@ -26135,6 +26522,8 @@ typedef struct LDKOnionMessageHandler {
     * May return an `Err(())` if the features the peer supports are not sufficient to communicate
     * with us. Implementors should be somewhat conservative about doing so, however, as other
     * message handlers may still wish to communicate with this peer.
+    *
+    * [`Self::peer_disconnected`] will not be called if `Err(())` is returned.
     */
    struct LDKCResult_NoneNoneZ (*peer_connected)(const void *this_arg, struct LDKPublicKey their_node_id, const struct LDKInit *NONNULL_PTR init, bool inbound);
    /**
@@ -26250,6 +26639,8 @@ typedef struct LDKCustomMessageHandler {
     * May return an `Err(())` if the features the peer supports are not sufficient to communicate
     * with us. Implementors should be somewhat conservative about doing so, however, as other
     * message handlers may still wish to communicate with this peer.
+    *
+    * [`Self::peer_disconnected`] will not be called if `Err(())` is returned.
     */
    struct LDKCResult_NoneNoneZ (*peer_connected)(const void *this_arg, struct LDKPublicKey their_node_id, const struct LDKInit *NONNULL_PTR msg, bool inbound);
    /**
@@ -27871,6 +28262,1518 @@ typedef struct MUST_USE_STRUCT LDKFallback {
    };
 } LDKFallback;
 
+/**
+ * An event which an bLIP-50 / LSPS0 client may want to take some action in response to.
+ */
+typedef enum LDKLSPS0ClientEvent_Tag {
+   /**
+    * Information from the LSP about the protocols they support.
+    */
+   LDKLSPS0ClientEvent_ListProtocolsResponse,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS0ClientEvent_Sentinel,
+} LDKLSPS0ClientEvent_Tag;
+
+typedef struct LDKLSPS0ClientEvent_LDKListProtocolsResponse_Body {
+   /**
+    * The node id of the LSP.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * A list of supported protocols.
+    */
+   struct LDKCVec_u16Z protocols;
+} LDKLSPS0ClientEvent_LDKListProtocolsResponse_Body;
+
+typedef struct MUST_USE_STRUCT LDKLSPS0ClientEvent {
+   LDKLSPS0ClientEvent_Tag tag;
+   union {
+      LDKLSPS0ClientEvent_LDKListProtocolsResponse_Body list_protocols_response;
+   };
+} LDKLSPS0ClientEvent;
+
+
+
+/**
+ * An object representing the supported protocol options.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1Options {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1Options *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1Options;
+
+
+
+/**
+ * An error returned in response to an JSON-RPC request.
+ *
+ * Please refer to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification#error_object) for
+ * more information.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPSResponseError {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPSResponseError *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPSResponseError;
+
+
+
+/**
+ * The identifier of an order.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1OrderId {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1OrderId *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1OrderId;
+
+
+
+/**
+ * An object representing an bLIP-51 / LSPS1 channel order.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1OrderParams {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1OrderParams *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1OrderParams;
+
+
+
+/**
+ * Details regarding how to pay for an order.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1PaymentInfo {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1PaymentInfo *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1PaymentInfo;
+
+
+
+/**
+ * Details regarding the state of an ordered channel.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1ChannelInfo {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1ChannelInfo *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1ChannelInfo;
+
+/**
+ * An event which an bLIP-51 / LSPS1 client should take some action in response to.
+ */
+typedef enum LDKLSPS1ClientEvent_Tag {
+   /**
+    * A request previously issued via [`LSPS1ClientHandler::request_supported_options`]
+    * succeeded as the LSP returned the options it supports.
+    *
+    * You must check whether LSP supports the parameters the client wants and then call
+    * [`LSPS1ClientHandler::create_order`] to place an order.
+    *
+    * [`LSPS1ClientHandler::request_supported_options`]: crate::lsps1::client::LSPS1ClientHandler::request_supported_options
+    * [`LSPS1ClientHandler::create_order`]: crate::lsps1::client::LSPS1ClientHandler::create_order
+    */
+   LDKLSPS1ClientEvent_SupportedOptionsReady,
+   /**
+    * A request previously issued via [`LSPS1ClientHandler::request_supported_options`]
+    * failed as the LSP returned an error response.
+    *
+    * [`LSPS1ClientHandler::request_supported_options`]: crate::lsps1::client::LSPS1ClientHandler::request_supported_options
+    */
+   LDKLSPS1ClientEvent_SupportedOptionsRequestFailed,
+   /**
+    * Confirmation from the LSP about the order created by the client.
+    *
+    * When the payment is confirmed, the LSP will open a channel to you
+    * with the below agreed upon parameters.
+    *
+    * You must pay the invoice or onchain address if you want to continue and then
+    * call [`LSPS1ClientHandler::check_order_status`] with the order id
+    * to get information from LSP about progress of the order.
+    *
+    * [`LSPS1ClientHandler::check_order_status`]: crate::lsps1::client::LSPS1ClientHandler::check_order_status
+    */
+   LDKLSPS1ClientEvent_OrderCreated,
+   /**
+    * Information from the LSP about the status of a previously created order.
+    *
+    * Will be emitted in response to calling [`LSPS1ClientHandler::check_order_status`].
+    *
+    * [`LSPS1ClientHandler::check_order_status`]: crate::lsps1::client::LSPS1ClientHandler::check_order_status
+    */
+   LDKLSPS1ClientEvent_OrderStatus,
+   /**
+    * A request previously issued via [`LSPS1ClientHandler::create_order`] or [`LSPS1ClientHandler::check_order_status`].
+    * failed as the LSP returned an error response.
+    *
+    * [`LSPS1ClientHandler::create_order`]: crate::lsps1::client::LSPS1ClientHandler::create_order
+    * [`LSPS1ClientHandler::check_order_status`]: crate::lsps1::client::LSPS1ClientHandler::check_order_status
+    */
+   LDKLSPS1ClientEvent_OrderRequestFailed,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS1ClientEvent_Sentinel,
+} LDKLSPS1ClientEvent_Tag;
+
+typedef struct LDKLSPS1ClientEvent_LDKSupportedOptionsReady_Body {
+   /**
+    * The identifier of the issued bLIP-51 / LSPS1 `get_info` request, as returned by
+    * [`LSPS1ClientHandler::request_supported_options`]
+    *
+    * This can be used to track which request this event corresponds to.
+    *
+    * [`LSPS1ClientHandler::request_supported_options`]: crate::lsps1::client::LSPS1ClientHandler::request_supported_options
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The node id of the LSP that provided this response.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * All options supported by the LSP.
+    */
+   struct LDKLSPS1Options supported_options;
+} LDKLSPS1ClientEvent_LDKSupportedOptionsReady_Body;
+
+typedef struct LDKLSPS1ClientEvent_LDKSupportedOptionsRequestFailed_Body {
+   /**
+    * The identifier of the issued bLIP-51 / LSPS1 `get_info` request, as returned by
+    * [`LSPS1ClientHandler::request_supported_options`]
+    *
+    * This can be used to track which request this event corresponds to.
+    *
+    * [`LSPS1ClientHandler::request_supported_options`]: crate::lsps1::client::LSPS1ClientHandler::request_supported_options
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The node id of the LSP that provided this response.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * The error that was returned.
+    */
+   struct LDKLSPSResponseError error;
+} LDKLSPS1ClientEvent_LDKSupportedOptionsRequestFailed_Body;
+
+typedef struct LDKLSPS1ClientEvent_LDKOrderCreated_Body {
+   /**
+    * The identifier of the issued bLIP-51 / LSPS1 `create_order` request, as returned by
+    * [`LSPS1ClientHandler::create_order`]
+    *
+    * This can be used to track which request this event corresponds to.
+    *
+    * [`LSPS1ClientHandler::create_order`]: crate::lsps1::client::LSPS1ClientHandler::create_order
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The node id of the LSP.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * The id of the channel order.
+    */
+   struct LDKLSPS1OrderId order_id;
+   /**
+    * The order created by client and approved by LSP.
+    */
+   struct LDKLSPS1OrderParams order;
+   /**
+    * The details regarding payment of the order
+    */
+   struct LDKLSPS1PaymentInfo payment;
+   /**
+    * The details regarding state of the channel ordered.
+    *
+    * Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
+    */
+   struct LDKLSPS1ChannelInfo channel;
+} LDKLSPS1ClientEvent_LDKOrderCreated_Body;
+
+typedef struct LDKLSPS1ClientEvent_LDKOrderStatus_Body {
+   /**
+    * The identifier of the issued bLIP-51 / LSPS1 `get_order` request, as returned by
+    * [`LSPS1ClientHandler::check_order_status`]
+    *
+    * This can be used to track which request this event corresponds to.
+    *
+    * [`LSPS1ClientHandler::check_order_status`]: crate::lsps1::client::LSPS1ClientHandler::check_order_status
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The node id of the LSP.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * The id of the channel order.
+    */
+   struct LDKLSPS1OrderId order_id;
+   /**
+    * The order created by client and approved by LSP.
+    */
+   struct LDKLSPS1OrderParams order;
+   /**
+    * The details regarding payment of the order
+    */
+   struct LDKLSPS1PaymentInfo payment;
+   /**
+    * The details regarding state of the channel ordered.
+    *
+    * Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
+    */
+   struct LDKLSPS1ChannelInfo channel;
+} LDKLSPS1ClientEvent_LDKOrderStatus_Body;
+
+typedef struct LDKLSPS1ClientEvent_LDKOrderRequestFailed_Body {
+   /**
+    * The identifier of the issued LSPS1 `create_order` or `get_order` request, as returned by
+    * [`LSPS1ClientHandler::create_order`] or [`LSPS1ClientHandler::check_order_status`].
+    *
+    * This can be used to track which request this event corresponds to.
+    *
+    * [`LSPS1ClientHandler::create_order`]: crate::lsps1::client::LSPS1ClientHandler::create_order
+    * [`LSPS1ClientHandler::check_order_status`]: crate::lsps1::client::LSPS1ClientHandler::check_order_status
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The node id of the LSP.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * The error that was returned.
+    */
+   struct LDKLSPSResponseError error;
+} LDKLSPS1ClientEvent_LDKOrderRequestFailed_Body;
+
+typedef struct MUST_USE_STRUCT LDKLSPS1ClientEvent {
+   LDKLSPS1ClientEvent_Tag tag;
+   union {
+      LDKLSPS1ClientEvent_LDKSupportedOptionsReady_Body supported_options_ready;
+      LDKLSPS1ClientEvent_LDKSupportedOptionsRequestFailed_Body supported_options_request_failed;
+      LDKLSPS1ClientEvent_LDKOrderCreated_Body order_created;
+      LDKLSPS1ClientEvent_LDKOrderStatus_Body order_status;
+      LDKLSPS1ClientEvent_LDKOrderRequestFailed_Body order_request_failed;
+   };
+} LDKLSPS1ClientEvent;
+
+/**
+ * An event which an LSPS2 client should take some action in response to.
+ */
+typedef enum LDKLSPS2ClientEvent_Tag {
+   /**
+    * Information from the LSP about their current fee rates and channel parameters.
+    *
+    * You must call [`LSPS2ClientHandler::select_opening_params`] with the fee parameter
+    * you want to use if you wish to proceed opening a channel.
+    *
+    * [`LSPS2ClientHandler::select_opening_params`]: crate::lsps2::client::LSPS2ClientHandler::select_opening_params
+    */
+   LDKLSPS2ClientEvent_OpeningParametersReady,
+   /**
+    * Provides the necessary information to generate a payable invoice that then may be given to
+    * the payer.
+    *
+    * When the invoice is paid, the LSP will open a channel with the previously agreed upon
+    * parameters to you.
+    */
+   LDKLSPS2ClientEvent_InvoiceParametersReady,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS2ClientEvent_Sentinel,
+} LDKLSPS2ClientEvent_Tag;
+
+typedef struct LDKLSPS2ClientEvent_LDKOpeningParametersReady_Body {
+   /**
+    * The identifier of the issued bLIP-52 / LSPS2 `get_info` request, as returned by
+    * [`LSPS2ClientHandler::request_opening_params`]
+    *
+    * This can be used to track which request this event corresponds to.
+    *
+    * [`LSPS2ClientHandler::request_opening_params`]: crate::lsps2::client::LSPS2ClientHandler::request_opening_params
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The node id of the LSP that provided this response.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * The menu of fee parameters the LSP is offering at this time.
+    * You must select one of these if you wish to proceed.
+    */
+   struct LDKCVec_LSPS2OpeningFeeParamsZ opening_fee_params_menu;
+} LDKLSPS2ClientEvent_LDKOpeningParametersReady_Body;
+
+typedef struct LDKLSPS2ClientEvent_LDKInvoiceParametersReady_Body {
+   /**
+    * The identifier of the issued bLIP-52 / LSPS2 `buy` request, as returned by
+    * [`LSPS2ClientHandler::select_opening_params`].
+    *
+    * This can be used to track which request this event corresponds to.
+    *
+    * [`LSPS2ClientHandler::select_opening_params`]: crate::lsps2::client::LSPS2ClientHandler::select_opening_params
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The node id of the LSP.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * The intercept short channel id to use in the route hint.
+    */
+   uint64_t intercept_scid;
+   /**
+    * The `cltv_expiry_delta` to use in the route hint.
+    */
+   uint32_t cltv_expiry_delta;
+   /**
+    * The initial payment size you specified.
+    */
+   struct LDKCOption_u64Z payment_size_msat;
+} LDKLSPS2ClientEvent_LDKInvoiceParametersReady_Body;
+
+typedef struct MUST_USE_STRUCT LDKLSPS2ClientEvent {
+   LDKLSPS2ClientEvent_Tag tag;
+   union {
+      LDKLSPS2ClientEvent_LDKOpeningParametersReady_Body opening_parameters_ready;
+      LDKLSPS2ClientEvent_LDKInvoiceParametersReady_Body invoice_parameters_ready;
+   };
+} LDKLSPS2ClientEvent;
+
+/**
+ * An event which an bLIP-52 / LSPS2 server should take some action in response to.
+ */
+typedef enum LDKLSPS2ServiceEvent_Tag {
+   /**
+    * A request from a client for information about JIT Channel parameters.
+    *
+    * You must calculate the parameters for this client and pass them to
+    * [`LSPS2ServiceHandler::opening_fee_params_generated`].
+    *
+    * If an unrecognized or stale token is provided you can use
+    * `[LSPS2ServiceHandler::invalid_token_provided`] to error the request.
+    *
+    * [`LSPS2ServiceHandler::opening_fee_params_generated`]: crate::lsps2::service::LSPS2ServiceHandler::opening_fee_params_generated
+    * [`LSPS2ServiceHandler::invalid_token_provided`]: crate::lsps2::service::LSPS2ServiceHandler::invalid_token_provided
+    */
+   LDKLSPS2ServiceEvent_GetInfo,
+   /**
+    * A client has selected a opening fee parameter to use and would like to
+    * purchase a channel with an optional initial payment size.
+    *
+    * If `payment_size_msat` is [`Option::Some`] then the payer is allowed to use MPP.
+    * If `payment_size_msat` is [`Option::None`] then the payer cannot use MPP.
+    *
+    * You must generate an intercept scid and `cltv_expiry_delta` for them to use
+    * and call [`LSPS2ServiceHandler::invoice_parameters_generated`].
+    *
+    * [`LSPS2ServiceHandler::invoice_parameters_generated`]: crate::lsps2::service::LSPS2ServiceHandler::invoice_parameters_generated
+    */
+   LDKLSPS2ServiceEvent_BuyRequest,
+   /**
+    * You should open a channel using [`ChannelManager::create_channel`].
+    *
+    * [`ChannelManager::create_channel`]: lightning::ln::channelmanager::ChannelManager::create_channel
+    */
+   LDKLSPS2ServiceEvent_OpenChannel,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS2ServiceEvent_Sentinel,
+} LDKLSPS2ServiceEvent_Tag;
+
+typedef struct LDKLSPS2ServiceEvent_LDKGetInfo_Body {
+   /**
+    * An identifier that must be passed to [`LSPS2ServiceHandler::opening_fee_params_generated`].
+    *
+    * [`LSPS2ServiceHandler::opening_fee_params_generated`]: crate::lsps2::service::LSPS2ServiceHandler::opening_fee_params_generated
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The node id of the client making the information request.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * An optional token that can be used as an API key, coupon code, etc.
+    */
+   struct LDKCOption_StrZ token;
+} LDKLSPS2ServiceEvent_LDKGetInfo_Body;
+
+typedef struct LDKLSPS2ServiceEvent_LDKBuyRequest_Body {
+   /**
+    * An identifier that must be passed into [`LSPS2ServiceHandler::invoice_parameters_generated`].
+    *
+    * [`LSPS2ServiceHandler::invoice_parameters_generated`]: crate::lsps2::service::LSPS2ServiceHandler::invoice_parameters_generated
+    */
+   struct LDKLSPSRequestId request_id;
+   /**
+    * The client node id that is making this request.
+    */
+   struct LDKPublicKey counterparty_node_id;
+   /**
+    * The channel parameters they have selected.
+    */
+   struct LDKLSPS2OpeningFeeParams opening_fee_params;
+   /**
+    * The size of the initial payment they would like to receive.
+    */
+   struct LDKCOption_u64Z payment_size_msat;
+} LDKLSPS2ServiceEvent_LDKBuyRequest_Body;
+
+typedef struct LDKLSPS2ServiceEvent_LDKOpenChannel_Body {
+   /**
+    * The node to open channel with.
+    */
+   struct LDKPublicKey their_network_key;
+   /**
+    * The amount to forward after fees.
+    */
+   uint64_t amt_to_forward_msat;
+   /**
+    * The fee earned for opening the channel.
+    */
+   uint64_t opening_fee_msat;
+   /**
+    * A user specified id used to track channel open.
+    */
+   struct LDKU128 user_channel_id;
+   /**
+    * The intercept short channel id to use in the route hint.
+    */
+   uint64_t intercept_scid;
+} LDKLSPS2ServiceEvent_LDKOpenChannel_Body;
+
+typedef struct MUST_USE_STRUCT LDKLSPS2ServiceEvent {
+   LDKLSPS2ServiceEvent_Tag tag;
+   union {
+      LDKLSPS2ServiceEvent_LDKGetInfo_Body get_info;
+      LDKLSPS2ServiceEvent_LDKBuyRequest_Body buy_request;
+      LDKLSPS2ServiceEvent_LDKOpenChannel_Body open_channel;
+   };
+} LDKLSPS2ServiceEvent;
+
+/**
+ * An event which you should probably take some action in response to.
+ */
+typedef enum LDKLiquidityEvent_Tag {
+   /**
+    * An LSPS0 client event.
+    */
+   LDKLiquidityEvent_LSPS0Client,
+   /**
+    * An LSPS1 (Channel Request) client event.
+    */
+   LDKLiquidityEvent_LSPS1Client,
+   /**
+    * An LSPS2 (JIT Channel) client event.
+    */
+   LDKLiquidityEvent_LSPS2Client,
+   /**
+    * An LSPS2 (JIT Channel) server event.
+    */
+   LDKLiquidityEvent_LSPS2Service,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLiquidityEvent_Sentinel,
+} LDKLiquidityEvent_Tag;
+
+typedef struct MUST_USE_STRUCT LDKLiquidityEvent {
+   LDKLiquidityEvent_Tag tag;
+   union {
+      struct {
+         struct LDKLSPS0ClientEvent lsps0_client;
+      };
+      struct {
+         struct LDKLSPS1ClientEvent lsps1_client;
+      };
+      struct {
+         struct LDKLSPS2ClientEvent lsps2_client;
+      };
+      struct {
+         struct LDKLSPS2ServiceEvent lsps2_service;
+      };
+   };
+} LDKLiquidityEvent;
+
+
+
+/**
+ * A message handler capable of sending and handling bLIP-50 / LSPS0 messages.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS0ClientHandler {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS0ClientHandler *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS0ClientHandler;
+
+
+
+/**
+ * A `list_protocols` request.
+ *
+ * Please refer to the [bLIP-50 / LSPS0
+ * specification](https://github.com/lightning/blips/blob/master/blip-0050.md#lsps-specification-support-query)
+ * for more information.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS0ListProtocolsRequest {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS0ListProtocolsRequest *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS0ListProtocolsRequest;
+
+
+
+/**
+ * A response to a `list_protocols` request.
+ *
+ * Please refer to the [bLIP-50 / LSPS0
+ * specification](https://github.com/lightning/blips/blob/master/blip-0050.md#lsps-specification-support-query)
+ * for more information.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS0ListProtocolsResponse {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS0ListProtocolsResponse *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS0ListProtocolsResponse;
+
+/**
+ * An bLIP-50 / LSPS0 protocol request.
+ *
+ * Please refer to the [bLIP-50 / LSPS0
+ * specification](https://github.com/lightning/blips/blob/master/blip-0050.md#lsps-specification-support-query)
+ * for more information.
+ */
+typedef enum LDKLSPS0Request_Tag {
+   /**
+    * A request calling `list_protocols`.
+    */
+   LDKLSPS0Request_ListProtocols,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS0Request_Sentinel,
+} LDKLSPS0Request_Tag;
+
+typedef struct MUST_USE_STRUCT LDKLSPS0Request {
+   LDKLSPS0Request_Tag tag;
+   union {
+      struct {
+         struct LDKLSPS0ListProtocolsRequest list_protocols;
+      };
+   };
+} LDKLSPS0Request;
+
+/**
+ * An bLIP-50 / LSPS0 protocol request.
+ *
+ * Please refer to the [bLIP-50 / LSPS0
+ * specification](https://github.com/lightning/blips/blob/master/blip-0050.md#lsps-specification-support-query)
+ * for more information.
+ */
+typedef enum LDKLSPS0Response_Tag {
+   /**
+    * A response to a `list_protocols` request.
+    */
+   LDKLSPS0Response_ListProtocols,
+   /**
+    * An error response to a `list_protocols` request.
+    */
+   LDKLSPS0Response_ListProtocolsError,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS0Response_Sentinel,
+} LDKLSPS0Response_Tag;
+
+typedef struct MUST_USE_STRUCT LDKLSPS0Response {
+   LDKLSPS0Response_Tag tag;
+   union {
+      struct {
+         struct LDKLSPS0ListProtocolsResponse list_protocols;
+      };
+      struct {
+         struct LDKLSPSResponseError list_protocols_error;
+      };
+   };
+} LDKLSPS0Response;
+
+/**
+ * An bLIP-50 / LSPS0 protocol message.
+ *
+ * Please refer to the [bLIP-50 / LSPS0
+ * specification](https://github.com/lightning/blips/blob/master/blip-0050.md#lsps-specification-support-query)
+ * for more information.
+ */
+typedef enum LDKLSPS0Message_Tag {
+   /**
+    * A request variant.
+    */
+   LDKLSPS0Message_Request,
+   /**
+    * A response variant.
+    */
+   LDKLSPS0Message_Response,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS0Message_Sentinel,
+} LDKLSPS0Message_Tag;
+
+typedef struct LDKLSPS0Message_LDKRequest_Body {
+   struct LDKLSPSRequestId _0;
+   struct LDKLSPS0Request _1;
+} LDKLSPS0Message_LDKRequest_Body;
+
+typedef struct LDKLSPS0Message_LDKResponse_Body {
+   struct LDKLSPSRequestId _0;
+   struct LDKLSPS0Response _1;
+} LDKLSPS0Message_LDKResponse_Body;
+
+typedef struct MUST_USE_STRUCT LDKLSPS0Message {
+   LDKLSPS0Message_Tag tag;
+   union {
+      LDKLSPS0Message_LDKRequest_Body request;
+      LDKLSPS0Message_LDKResponse_Body response;
+   };
+} LDKLSPS0Message;
+
+
+
+/**
+ * A request made to an LSP to retrieve the supported options.
+ *
+ * Please refer to the [bLIP-51 / LSPS1
+ * specification](https://github.com/lightning/blips/blob/master/blip-0051.md#1-lsps1get_info) for
+ * more information.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1GetInfoRequest {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1GetInfoRequest *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1GetInfoRequest;
+
+
+
+/**
+ * A request made to an LSP to create an order.
+ *
+ * Please refer to the [bLIP-51 / LSPS1
+ * specification](https://github.com/lightning/blips/blob/master/blip-0051.md#2-lsps1create_order)
+ * for more information.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1CreateOrderRequest {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1CreateOrderRequest *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1CreateOrderRequest;
+
+
+
+/**
+ * A request made to an LSP to retrieve information about an previously made order.
+ *
+ * Please refer to the [bLIP-51 / LSPS1
+ * specification](https://github.com/lightning/blips/blob/master/blip-0051.md#21-lsps1get_order)
+ * for more information.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1GetOrderRequest {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1GetOrderRequest *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1GetOrderRequest;
+
+/**
+ * An enum that captures all the valid JSON-RPC requests in the bLIP-51 / LSPS1 protocol.
+ */
+typedef enum LDKLSPS1Request_Tag {
+   /**
+    * A request to learn about the options supported by the LSP.
+    */
+   LDKLSPS1Request_GetInfo,
+   /**
+    * A request to create a channel order.
+    */
+   LDKLSPS1Request_CreateOrder,
+   /**
+    * A request to query a previously created channel order.
+    */
+   LDKLSPS1Request_GetOrder,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS1Request_Sentinel,
+} LDKLSPS1Request_Tag;
+
+typedef struct MUST_USE_STRUCT LDKLSPS1Request {
+   LDKLSPS1Request_Tag tag;
+   union {
+      struct {
+         struct LDKLSPS1GetInfoRequest get_info;
+      };
+      struct {
+         struct LDKLSPS1CreateOrderRequest create_order;
+      };
+      struct {
+         struct LDKLSPS1GetOrderRequest get_order;
+      };
+   };
+} LDKLSPS1Request;
+
+
+
+/**
+ * A response to a [`LSPS1GetInfoRequest`].
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1GetInfoResponse {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1GetInfoResponse *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1GetInfoResponse;
+
+
+
+/**
+ * A response to a [`LSPS1CreateOrderRequest`].
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1CreateOrderResponse {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1CreateOrderResponse *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1CreateOrderResponse;
+
+/**
+ * An enum that captures all the valid JSON-RPC responses in the bLIP-51 / LSPS1 protocol.
+ */
+typedef enum LDKLSPS1Response_Tag {
+   /**
+    * A successful response to a [`LSPS1GetInfoRequest`].
+    */
+   LDKLSPS1Response_GetInfo,
+   /**
+    * An error response to a [`LSPS1GetInfoRequest`].
+    */
+   LDKLSPS1Response_GetInfoError,
+   /**
+    * A successful response to a [`LSPS1CreateOrderRequest`].
+    */
+   LDKLSPS1Response_CreateOrder,
+   /**
+    * An error response to a [`LSPS1CreateOrderRequest`].
+    */
+   LDKLSPS1Response_CreateOrderError,
+   /**
+    * A successful response to a [`LSPS1GetOrderRequest`].
+    */
+   LDKLSPS1Response_GetOrder,
+   /**
+    * An error response to a [`LSPS1GetOrderRequest`].
+    */
+   LDKLSPS1Response_GetOrderError,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS1Response_Sentinel,
+} LDKLSPS1Response_Tag;
+
+typedef struct MUST_USE_STRUCT LDKLSPS1Response {
+   LDKLSPS1Response_Tag tag;
+   union {
+      struct {
+         struct LDKLSPS1GetInfoResponse get_info;
+      };
+      struct {
+         struct LDKLSPSResponseError get_info_error;
+      };
+      struct {
+         struct LDKLSPS1CreateOrderResponse create_order;
+      };
+      struct {
+         struct LDKLSPSResponseError create_order_error;
+      };
+      struct {
+         struct LDKLSPS1CreateOrderResponse get_order;
+      };
+      struct {
+         struct LDKLSPSResponseError get_order_error;
+      };
+   };
+} LDKLSPS1Response;
+
+/**
+ * An enum that captures all valid JSON-RPC messages in the bLIP-51 / LSPS1 protocol.
+ */
+typedef enum LDKLSPS1Message_Tag {
+   /**
+    * An LSPS1 JSON-RPC request.
+    */
+   LDKLSPS1Message_Request,
+   /**
+    * An LSPS1 JSON-RPC response.
+    */
+   LDKLSPS1Message_Response,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS1Message_Sentinel,
+} LDKLSPS1Message_Tag;
+
+typedef struct LDKLSPS1Message_LDKRequest_Body {
+   struct LDKLSPSRequestId _0;
+   struct LDKLSPS1Request _1;
+} LDKLSPS1Message_LDKRequest_Body;
+
+typedef struct LDKLSPS1Message_LDKResponse_Body {
+   struct LDKLSPSRequestId _0;
+   struct LDKLSPS1Response _1;
+} LDKLSPS1Message_LDKResponse_Body;
+
+typedef struct MUST_USE_STRUCT LDKLSPS1Message {
+   LDKLSPS1Message_Tag tag;
+   union {
+      LDKLSPS1Message_LDKRequest_Body request;
+      LDKLSPS1Message_LDKResponse_Body response;
+   };
+} LDKLSPS1Message;
+
+
+
+/**
+ * A request made to an LSP to learn their current channel fees and parameters.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2GetInfoRequest {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2GetInfoRequest *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2GetInfoRequest;
+
+
+
+/**
+ * A request to buy a JIT channel.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2BuyRequest {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2BuyRequest *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2BuyRequest;
+
+/**
+ * An enum that captures all the valid JSON-RPC requests in the bLIP-52 / LSPS2 protocol.
+ */
+typedef enum LDKLSPS2Request_Tag {
+   /**
+    * A request to learn an LSP's channel fees and parameters.
+    */
+   LDKLSPS2Request_GetInfo,
+   /**
+    * A request to buy a JIT channel from an LSP.
+    */
+   LDKLSPS2Request_Buy,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS2Request_Sentinel,
+} LDKLSPS2Request_Tag;
+
+typedef struct MUST_USE_STRUCT LDKLSPS2Request {
+   LDKLSPS2Request_Tag tag;
+   union {
+      struct {
+         struct LDKLSPS2GetInfoRequest get_info;
+      };
+      struct {
+         struct LDKLSPS2BuyRequest buy;
+      };
+   };
+} LDKLSPS2Request;
+
+
+
+/**
+ * A response to a [`LSPS2GetInfoRequest`]
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2GetInfoResponse {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2GetInfoResponse *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2GetInfoResponse;
+
+
+
+/**
+ * A response to a [`LSPS2BuyRequest`].
+ *
+ * Includes information needed to construct an invoice.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2BuyResponse {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2BuyResponse *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2BuyResponse;
+
+/**
+ * An enum that captures all the valid JSON-RPC responses in the bLIP-52 / LSPS2 protocol.
+ */
+typedef enum LDKLSPS2Response_Tag {
+   /**
+    * A successful response to a [`LSPS2Request::GetInfo`] request.
+    */
+   LDKLSPS2Response_GetInfo,
+   /**
+    * An error response to a [`LSPS2Request::GetInfo`] request.
+    */
+   LDKLSPS2Response_GetInfoError,
+   /**
+    * A successful response to a [`LSPS2Request::Buy`] request.
+    */
+   LDKLSPS2Response_Buy,
+   /**
+    * An error response to a [`LSPS2Request::Buy`] request.
+    */
+   LDKLSPS2Response_BuyError,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS2Response_Sentinel,
+} LDKLSPS2Response_Tag;
+
+typedef struct MUST_USE_STRUCT LDKLSPS2Response {
+   LDKLSPS2Response_Tag tag;
+   union {
+      struct {
+         struct LDKLSPS2GetInfoResponse get_info;
+      };
+      struct {
+         struct LDKLSPSResponseError get_info_error;
+      };
+      struct {
+         struct LDKLSPS2BuyResponse buy;
+      };
+      struct {
+         struct LDKLSPSResponseError buy_error;
+      };
+   };
+} LDKLSPS2Response;
+
+/**
+ * An enum that captures all valid JSON-RPC messages in the bLIP-52 / LSPS2 protocol.
+ */
+typedef enum LDKLSPS2Message_Tag {
+   /**
+    * An LSPS2 JSON-RPC request.
+    */
+   LDKLSPS2Message_Request,
+   /**
+    * An LSPS2 JSON-RPC response.
+    */
+   LDKLSPS2Message_Response,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPS2Message_Sentinel,
+} LDKLSPS2Message_Tag;
+
+typedef struct LDKLSPS2Message_LDKRequest_Body {
+   struct LDKLSPSRequestId _0;
+   struct LDKLSPS2Request _1;
+} LDKLSPS2Message_LDKRequest_Body;
+
+typedef struct LDKLSPS2Message_LDKResponse_Body {
+   struct LDKLSPSRequestId _0;
+   struct LDKLSPS2Response _1;
+} LDKLSPS2Message_LDKResponse_Body;
+
+typedef struct MUST_USE_STRUCT LDKLSPS2Message {
+   LDKLSPS2Message_Tag tag;
+   union {
+      LDKLSPS2Message_LDKRequest_Body request;
+      LDKLSPS2Message_LDKResponse_Body response;
+   };
+} LDKLSPS2Message;
+
+/**
+ * A (de-)serializable LSPS message allowing to be sent over the wire.
+ */
+typedef enum LDKLSPSMessage_Tag {
+   /**
+    * An invalid variant.
+    */
+   LDKLSPSMessage_Invalid,
+   /**
+    * An LSPS0 message.
+    */
+   LDKLSPSMessage_LSPS0,
+   /**
+    * An LSPS1 message.
+    */
+   LDKLSPSMessage_LSPS1,
+   /**
+    * An LSPS2 message.
+    */
+   LDKLSPSMessage_LSPS2,
+   /**
+    * Must be last for serialization purposes
+    */
+   LDKLSPSMessage_Sentinel,
+} LDKLSPSMessage_Tag;
+
+typedef struct MUST_USE_STRUCT LDKLSPSMessage {
+   LDKLSPSMessage_Tag tag;
+   union {
+      struct {
+         struct LDKLSPSResponseError invalid;
+      };
+      struct {
+         struct LDKLSPS0Message lsps0;
+      };
+      struct {
+         struct LDKLSPS1Message lsps1;
+      };
+      struct {
+         struct LDKLSPS2Message lsps2;
+      };
+   };
+} LDKLSPSMessage;
+
+
+
+/**
+ * The main server-side object allowing to send and receive bLIP-50 / LSPS0 messages.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS0ServiceHandler {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS0ServiceHandler *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS0ServiceHandler;
+
+
+
+/**
+ * Client-side configuration options for bLIP-51 / LSPS1 channel requests.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1ClientConfig {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1ClientConfig *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1ClientConfig;
+
+
+
+/**
+ * The main object allowing to send and receive bLIP-51 / LSPS1 messages.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1ClientHandler {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1ClientHandler *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1ClientHandler;
+
+
+
+/**
+ * A Lightning payment using BOLT 11.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1Bolt11PaymentInfo {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1Bolt11PaymentInfo *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1Bolt11PaymentInfo;
+
+
+
+/**
+ * An onchain payment.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1OnchainPaymentInfo {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1OnchainPaymentInfo *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1OnchainPaymentInfo;
+
+
+
+/**
+ * Details regarding a detected on-chain payment.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS1OnchainPayment {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS1OnchainPayment *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS1OnchainPayment;
+
+
+
+/**
+ * Client-side configuration options for JIT channels.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2ClientConfig {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2ClientConfig *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2ClientConfig;
+
+
+
+/**
+ * The main object allowing to send and receive bLIP-52 / LSPS2 messages.
+ *
+ * Note that currently only the 'client-trusts-LSP' trust model is supported, i.e., we don't
+ * provide any additional API guidance to allow withholding the preimage until the channel is
+ * opened. Please refer to the [`bLIP-52 / LSPS2 specification`] for more information.
+ *
+ * [`bLIP-52 / LSPS2 specification`]: https://github.com/lightning/blips/blob/master/blip-0052.md#trust-models
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2ClientHandler {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2ClientHandler *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2ClientHandler;
+
+
+
+/**
+ * A newtype that holds a `short_channel_id` in human readable format of BBBxTTTx000.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2InterceptScid {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2InterceptScid *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2InterceptScid;
+
+
+
+/**
+ * Server-side configuration options for JIT channels.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2ServiceConfig {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2ServiceConfig *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2ServiceConfig;
+
+
+
+/**
+ * The main object allowing to send and receive bLIP-52 / LSPS2 messages.
+ */
+typedef struct MUST_USE_STRUCT LDKLSPS2ServiceHandler {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeLSPS2ServiceHandler *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKLSPS2ServiceHandler;
+
+
+
+/**
+ * The default [`MessageQueue`] Implementation used by [`LiquidityManager`].
+ *
+ * [`LiquidityManager`]: crate::LiquidityManager
+ */
+typedef struct MUST_USE_STRUCT LDKMessageQueue {
+   /**
+    * A pointer to the opaque Rust object.
+    * Nearly everywhere, inner must be non-null, however in places where
+    * the Rust equivalent takes an Option, it may be set to null to indicate None.
+    */
+   LDKnativeMessageQueue *inner;
+   /**
+    * Indicates that this is the only struct which contains the same pointer.
+    * Rust functions which take ownership of an object provided via an argument require
+    * this to be true and invalidate the object pointed to by inner.
+    */
+   bool is_owned;
+} LDKMessageQueue;
+
+/**
+ * A callback which will be called to trigger network message processing.
+ *
+ * Usually, this should call [`PeerManager::process_events`].
+ *
+ * [`PeerManager::process_events`]: lightning::ln::peer_handler::PeerManager::process_events
+ */
+typedef struct LDKProcessMessagesCallback {
+   /**
+    * An opaque pointer which is passed to your function implementations as an argument.
+    * This has no meaning in the LDK, and can be NULL or any other value.
+    */
+   void *this_arg;
+   /**
+    * The method which is called.
+    */
+   void (*call)(const void *this_arg);
+   /**
+    * Frees any resources associated with this object given its this_arg pointer.
+    * Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
+    */
+   void (*free)(void *this_arg);
+} LDKProcessMessagesCallback;
+
 extern const uintptr_t MAX_BUF_SIZE;
 
 extern const uintptr_t KVSTORE_NAMESPACE_KEY_MAX_LEN;
@@ -27929,6 +29832,8 @@ extern const uint64_t DEFAULT_EXPIRY_TIME;
 
 extern const uint64_t DEFAULT_MIN_FINAL_CLTV_EXPIRY_DELTA;
 
+extern const uintptr_t MAX_LENGTH;
+
 extern const uint8_t TAG_PAYMENT_HASH;
 
 extern const uint8_t TAG_DESCRIPTION;
@@ -27950,6 +29855,10 @@ extern const uint8_t TAG_PAYMENT_SECRET;
 extern const uint8_t TAG_PAYMENT_METADATA;
 
 extern const uint8_t TAG_FEATURES;
+
+extern const uintptr_t MAX_EVENT_QUEUE_SIZE;
+
+extern const uint16_t LSPS_MESSAGE_TYPE_ID;
 
 struct LDKStr _ldk_get_compiled_version(void);
 
@@ -27992,6 +29901,28 @@ struct LDKWitnessProgram WitnessProgram_clone(const struct LDKWitnessProgram *NO
  * Releases any memory held by the given `WitnessProgram` (which is currently none)
  */
 void WitnessProgram_free(struct LDKWitnessProgram o);
+
+/**
+ * Gets the string representation of the address in `addr`
+ */
+struct LDKStr Address_to_string(const struct LDKAddress *NONNULL_PTR addr);
+
+/**
+ * Constructs a new `Address` (option) from the given string representation.
+ *
+ * Returns `None` only if the address is invalid.
+ */
+struct LDKCOption_AddressZ Address_new(struct LDKStr s);
+
+/**
+ * Releases any memory held by the given `Address`
+ */
+void Address_free(struct LDKAddress o);
+
+/**
+ * Creates a new Address which has the same data as `orig`
+ */
+struct LDKAddress Address_clone(const struct LDKAddress *NONNULL_PTR orig);
 
 /**
  * Convenience function for constructing a new BigEndianScalar
@@ -28736,7 +30667,7 @@ void CVec_BlindedPaymentPathZ_free(struct LDKCVec_BlindedPaymentPathZ _res);
 /**
  * Frees the buffer pointed to by `data` if `datalen` is non-0.
  */
-void CVec_StrZ_free(struct LDKCVec_StrZ _res);
+void CVec_AddressZ_free(struct LDKCVec_AddressZ _res);
 
 /**
  * Frees the buffer pointed to by `data` if `datalen` is non-0.
@@ -29836,6 +31767,11 @@ struct LDKCResult_RouteHintHopDecodeErrorZ CResult_RouteHintHopDecodeErrorZ_clon
 void CVec_PublicKeyZ_free(struct LDKCVec_PublicKeyZ _res);
 
 /**
+ * Frees the buffer pointed to by `data` if `datalen` is non-0.
+ */
+void CVec_u16Z_free(struct LDKCVec_u16Z _res);
+
+/**
  * Creates a new CResult_FixedPenaltyScorerDecodeErrorZ in the success state.
  */
 struct LDKCResult_FixedPenaltyScorerDecodeErrorZ CResult_FixedPenaltyScorerDecodeErrorZ_ok(struct LDKFixedPenaltyScorer o);
@@ -30098,6 +32034,73 @@ void C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZ_free(struct LDKC4Tupl
  * Frees the buffer pointed to by `data` if `datalen` is non-0.
  */
 void CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ_free(struct LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ _res);
+
+/**
+ * Constructs a new COption_AddressZ containing a crate::c_types::Address
+ */
+struct LDKCOption_AddressZ COption_AddressZ_some(struct LDKAddress o);
+
+/**
+ * Constructs a new COption_AddressZ containing nothing
+ */
+struct LDKCOption_AddressZ COption_AddressZ_none(void);
+
+/**
+ * Frees any resources associated with the crate::c_types::Address, if we are in the Some state
+ */
+void COption_AddressZ_free(struct LDKCOption_AddressZ _res);
+
+/**
+ * Constructs a new COption_StrZ containing a crate::c_types::Str
+ */
+struct LDKCOption_StrZ COption_StrZ_some(struct LDKStr o);
+
+/**
+ * Constructs a new COption_StrZ containing nothing
+ */
+struct LDKCOption_StrZ COption_StrZ_none(void);
+
+/**
+ * Frees any resources associated with the crate::c_types::Str, if we are in the Some state
+ */
+void COption_StrZ_free(struct LDKCOption_StrZ _res);
+
+/**
+ * Creates a new COption_StrZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCOption_StrZ COption_StrZ_clone(const struct LDKCOption_StrZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_LSPSRequestIdAPIErrorZ in the success state.
+ */
+struct LDKCResult_LSPSRequestIdAPIErrorZ CResult_LSPSRequestIdAPIErrorZ_ok(struct LDKLSPSRequestId o);
+
+/**
+ * Creates a new CResult_LSPSRequestIdAPIErrorZ in the error state.
+ */
+struct LDKCResult_LSPSRequestIdAPIErrorZ CResult_LSPSRequestIdAPIErrorZ_err(struct LDKAPIError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_LSPSRequestIdAPIErrorZ_is_ok(const struct LDKCResult_LSPSRequestIdAPIErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_LSPSRequestIdAPIErrorZ.
+ */
+void CResult_LSPSRequestIdAPIErrorZ_free(struct LDKCResult_LSPSRequestIdAPIErrorZ _res);
+
+/**
+ * Creates a new CResult_LSPSRequestIdAPIErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_LSPSRequestIdAPIErrorZ CResult_LSPSRequestIdAPIErrorZ_clone(const struct LDKCResult_LSPSRequestIdAPIErrorZ *NONNULL_PTR orig);
+
+/**
+ * Frees the buffer pointed to by `data` if `datalen` is non-0.
+ */
+void CVec_LSPS2OpeningFeeParamsZ_free(struct LDKCVec_LSPS2OpeningFeeParamsZ _res);
 
 /**
  * Creates a new CResult_OfferIdDecodeErrorZ in the success state.
@@ -31222,27 +33225,6 @@ void CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ_free(struct LDK
 struct LDKCResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ CResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ_clone(const struct LDKCResult_OfferWithDerivedMetadataBuilderBolt12SemanticErrorZ *NONNULL_PTR orig);
 
 /**
- * Constructs a new COption_StrZ containing a crate::c_types::Str
- */
-struct LDKCOption_StrZ COption_StrZ_some(struct LDKStr o);
-
-/**
- * Constructs a new COption_StrZ containing nothing
- */
-struct LDKCOption_StrZ COption_StrZ_none(void);
-
-/**
- * Frees any resources associated with the crate::c_types::Str, if we are in the Some state
- */
-void COption_StrZ_free(struct LDKCOption_StrZ _res);
-
-/**
- * Creates a new COption_StrZ which has the same data as `orig`
- * but with all dynamically-allocated buffers duplicated in new buffers.
- */
-struct LDKCOption_StrZ COption_StrZ_clone(const struct LDKCOption_StrZ *NONNULL_PTR orig);
-
-/**
  * Frees the buffer pointed to by `data` if `datalen` is non-0.
  */
 void CVec_DestinationZ_free(struct LDKCVec_DestinationZ _res);
@@ -31699,6 +33681,11 @@ void CResult_COption_APIErrorZDecodeErrorZ_free(struct LDKCResult_COption_APIErr
  * but with all dynamically-allocated buffers duplicated in new buffers.
  */
 struct LDKCResult_COption_APIErrorZDecodeErrorZ CResult_COption_APIErrorZDecodeErrorZ_clone(const struct LDKCResult_COption_APIErrorZDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Frees the buffer pointed to by `data` if `datalen` is non-0.
+ */
+void CVec_LSPS2RawOpeningFeeParamsZ_free(struct LDKCVec_LSPS2RawOpeningFeeParamsZ _res);
 
 /**
  * Creates a new CResult_ChannelMonitorUpdateDecodeErrorZ in the success state.
@@ -32315,6 +34302,11 @@ void CResult_CVec_u8ZIOErrorZ_free(struct LDKCResult_CVec_u8ZIOErrorZ _res);
  * but with all dynamically-allocated buffers duplicated in new buffers.
  */
 struct LDKCResult_CVec_u8ZIOErrorZ CResult_CVec_u8ZIOErrorZ_clone(const struct LDKCResult_CVec_u8ZIOErrorZ *NONNULL_PTR orig);
+
+/**
+ * Frees the buffer pointed to by `data` if `datalen` is non-0.
+ */
+void CVec_StrZ_free(struct LDKCVec_StrZ _res);
 
 /**
  * Creates a new CResult_CVec_StrZIOErrorZ in the success state.
@@ -34403,6 +36395,58 @@ struct LDKCResult_ChannelShutdownStateDecodeErrorZ CResult_ChannelShutdownStateD
 void CVec_FutureZ_free(struct LDKCVec_FutureZ _res);
 
 /**
+ * Creates a new CResult_RawLSPSMessageDecodeErrorZ in the success state.
+ */
+struct LDKCResult_RawLSPSMessageDecodeErrorZ CResult_RawLSPSMessageDecodeErrorZ_ok(struct LDKRawLSPSMessage o);
+
+/**
+ * Creates a new CResult_RawLSPSMessageDecodeErrorZ in the error state.
+ */
+struct LDKCResult_RawLSPSMessageDecodeErrorZ CResult_RawLSPSMessageDecodeErrorZ_err(struct LDKDecodeError e);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_RawLSPSMessageDecodeErrorZ_is_ok(const struct LDKCResult_RawLSPSMessageDecodeErrorZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_RawLSPSMessageDecodeErrorZ.
+ */
+void CResult_RawLSPSMessageDecodeErrorZ_free(struct LDKCResult_RawLSPSMessageDecodeErrorZ _res);
+
+/**
+ * Creates a new CResult_RawLSPSMessageDecodeErrorZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_RawLSPSMessageDecodeErrorZ CResult_RawLSPSMessageDecodeErrorZ_clone(const struct LDKCResult_RawLSPSMessageDecodeErrorZ *NONNULL_PTR orig);
+
+/**
+ * Creates a new CResult_LSPSDateTimeNoneZ in the success state.
+ */
+struct LDKCResult_LSPSDateTimeNoneZ CResult_LSPSDateTimeNoneZ_ok(struct LDKLSPSDateTime o);
+
+/**
+ * Creates a new CResult_LSPSDateTimeNoneZ in the error state.
+ */
+struct LDKCResult_LSPSDateTimeNoneZ CResult_LSPSDateTimeNoneZ_err(void);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_LSPSDateTimeNoneZ_is_ok(const struct LDKCResult_LSPSDateTimeNoneZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_LSPSDateTimeNoneZ.
+ */
+void CResult_LSPSDateTimeNoneZ_free(struct LDKCResult_LSPSDateTimeNoneZ _res);
+
+/**
+ * Creates a new CResult_LSPSDateTimeNoneZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_LSPSDateTimeNoneZ CResult_LSPSDateTimeNoneZ_clone(const struct LDKCResult_LSPSDateTimeNoneZ *NONNULL_PTR orig);
+
+/**
  * Creates a new CResult_HeldHtlcAvailableDecodeErrorZ in the success state.
  */
 struct LDKCResult_HeldHtlcAvailableDecodeErrorZ CResult_HeldHtlcAvailableDecodeErrorZ_ok(struct LDKHeldHtlcAvailable o);
@@ -34898,6 +36942,32 @@ struct LDKCResult_ShutdownScriptInvalidShutdownScriptZ CResult_ShutdownScriptInv
  * Frees the buffer pointed to by `data` if `datalen` is non-0.
  */
 void CVec_TransactionZ_free(struct LDKCVec_TransactionZ _res);
+
+/**
+ * Creates a new CResult_u64NoneZ in the success state.
+ */
+struct LDKCResult_u64NoneZ CResult_u64NoneZ_ok(uint64_t o);
+
+/**
+ * Creates a new CResult_u64NoneZ in the error state.
+ */
+struct LDKCResult_u64NoneZ CResult_u64NoneZ_err(void);
+
+/**
+ * Checks if the given object is currently in the success state
+ */
+bool CResult_u64NoneZ_is_ok(const struct LDKCResult_u64NoneZ *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the CResult_u64NoneZ.
+ */
+void CResult_u64NoneZ_free(struct LDKCResult_u64NoneZ _res);
+
+/**
+ * Creates a new CResult_u64NoneZ which has the same data as `orig`
+ * but with all dynamically-allocated buffers duplicated in new buffers.
+ */
+struct LDKCResult_u64NoneZ CResult_u64NoneZ_clone(const struct LDKCResult_u64NoneZ *NONNULL_PTR orig);
 
 /**
  * Creates a new CResult_FundingInfoDecodeErrorZ in the success state.
@@ -51200,7 +53270,7 @@ MUST_USE_RES bool UnsignedBolt12Invoice_is_expired(const struct LDKUnsignedBolt1
  * Fallback addresses for paying the invoice on-chain, in order of most-preferred to
  * least-preferred.
  */
-MUST_USE_RES struct LDKCVec_StrZ UnsignedBolt12Invoice_fallbacks(const struct LDKUnsignedBolt12Invoice *NONNULL_PTR this_arg);
+MUST_USE_RES struct LDKCVec_AddressZ UnsignedBolt12Invoice_fallbacks(const struct LDKUnsignedBolt12Invoice *NONNULL_PTR this_arg);
 
 /**
  * Features pertaining to paying an invoice.
@@ -51420,7 +53490,7 @@ MUST_USE_RES bool Bolt12Invoice_is_expired(const struct LDKBolt12Invoice *NONNUL
  * Fallback addresses for paying the invoice on-chain, in order of most-preferred to
  * least-preferred.
  */
-MUST_USE_RES struct LDKCVec_StrZ Bolt12Invoice_fallbacks(const struct LDKBolt12Invoice *NONNULL_PTR this_arg);
+MUST_USE_RES struct LDKCVec_AddressZ Bolt12Invoice_fallbacks(const struct LDKBolt12Invoice *NONNULL_PTR this_arg);
 
 /**
  * Features pertaining to paying an invoice.
@@ -63228,7 +65298,7 @@ MUST_USE_RES uint64_t Bolt11Invoice_min_final_cltv_expiry_delta(const struct LDK
 /**
  * Returns a list of all fallback addresses as [`Address`]es
  */
-MUST_USE_RES struct LDKCVec_StrZ Bolt11Invoice_fallback_addresses(const struct LDKBolt11Invoice *NONNULL_PTR this_arg);
+MUST_USE_RES struct LDKCVec_AddressZ Bolt11Invoice_fallback_addresses(const struct LDKBolt11Invoice *NONNULL_PTR this_arg);
 
 /**
  * Returns a list of all routes included in the invoice
@@ -63558,6 +65628,2162 @@ MUST_USE_RES struct LDKCResult_u32GraphSyncErrorZ RapidGossipSync_update_network
  * Returns whether a rapid gossip sync has completed at least once.
  */
 MUST_USE_RES bool RapidGossipSync_is_initial_sync_complete(const struct LDKRapidGossipSync *NONNULL_PTR this_arg);
+
+/**
+ * Frees any resources used by the LiquidityEvent
+ */
+void LiquidityEvent_free(struct LDKLiquidityEvent this_ptr);
+
+/**
+ * Creates a copy of the LiquidityEvent
+ */
+struct LDKLiquidityEvent LiquidityEvent_clone(const struct LDKLiquidityEvent *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new LSPS0Client-variant LiquidityEvent
+ */
+struct LDKLiquidityEvent LiquidityEvent_lsps0_client(struct LDKLSPS0ClientEvent a);
+
+/**
+ * Utility method to constructs a new LSPS1Client-variant LiquidityEvent
+ */
+struct LDKLiquidityEvent LiquidityEvent_lsps1_client(struct LDKLSPS1ClientEvent a);
+
+/**
+ * Utility method to constructs a new LSPS2Client-variant LiquidityEvent
+ */
+struct LDKLiquidityEvent LiquidityEvent_lsps2_client(struct LDKLSPS2ClientEvent a);
+
+/**
+ * Utility method to constructs a new LSPS2Service-variant LiquidityEvent
+ */
+struct LDKLiquidityEvent LiquidityEvent_lsps2_service(struct LDKLSPS2ServiceEvent a);
+
+/**
+ * Checks if two LiquidityEvents contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LiquidityEvent_eq(const struct LDKLiquidityEvent *NONNULL_PTR a, const struct LDKLiquidityEvent *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS0ClientHandler, if is_owned is set and inner is non-NULL.
+ */
+void LSPS0ClientHandler_free(struct LDKLSPS0ClientHandler this_obj);
+
+/**
+ * Calls bLIP-50 / LSPS0's `list_protocols`.
+ *
+ * Please refer to the [bLIP-50 / LSPS0
+ * specifcation](https://github.com/lightning/blips/blob/master/blip-0050.md#lsps-specification-support-query)
+ * for more information.
+ */
+void LSPS0ClientHandler_list_protocols(const struct LDKLSPS0ClientHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id);
+
+/**
+ * Frees any resources used by the LSPS0ClientEvent
+ */
+void LSPS0ClientEvent_free(struct LDKLSPS0ClientEvent this_ptr);
+
+/**
+ * Creates a copy of the LSPS0ClientEvent
+ */
+struct LDKLSPS0ClientEvent LSPS0ClientEvent_clone(const struct LDKLSPS0ClientEvent *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new ListProtocolsResponse-variant LSPS0ClientEvent
+ */
+struct LDKLSPS0ClientEvent LSPS0ClientEvent_list_protocols_response(struct LDKPublicKey counterparty_node_id, struct LDKCVec_u16Z protocols);
+
+/**
+ * Checks if two LSPS0ClientEvents contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS0ClientEvent_eq(const struct LDKLSPS0ClientEvent *NONNULL_PTR a, const struct LDKLSPS0ClientEvent *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS0ListProtocolsRequest, if is_owned is set and inner is non-NULL.
+ */
+void LSPS0ListProtocolsRequest_free(struct LDKLSPS0ListProtocolsRequest this_obj);
+
+/**
+ * Constructs a new LSPS0ListProtocolsRequest given each field
+ */
+MUST_USE_RES struct LDKLSPS0ListProtocolsRequest LSPS0ListProtocolsRequest_new(void);
+
+/**
+ * Creates a copy of the LSPS0ListProtocolsRequest
+ */
+struct LDKLSPS0ListProtocolsRequest LSPS0ListProtocolsRequest_clone(const struct LDKLSPS0ListProtocolsRequest *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS0ListProtocolsRequests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS0ListProtocolsRequest_eq(const struct LDKLSPS0ListProtocolsRequest *NONNULL_PTR a, const struct LDKLSPS0ListProtocolsRequest *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS0ListProtocolsResponse, if is_owned is set and inner is non-NULL.
+ */
+void LSPS0ListProtocolsResponse_free(struct LDKLSPS0ListProtocolsResponse this_obj);
+
+/**
+ * A list of supported protocols.
+ *
+ * Returns a copy of the field.
+ */
+struct LDKCVec_u16Z LSPS0ListProtocolsResponse_get_protocols(const struct LDKLSPS0ListProtocolsResponse *NONNULL_PTR this_ptr);
+
+/**
+ * A list of supported protocols.
+ */
+void LSPS0ListProtocolsResponse_set_protocols(struct LDKLSPS0ListProtocolsResponse *NONNULL_PTR this_ptr, struct LDKCVec_u16Z val);
+
+/**
+ * Constructs a new LSPS0ListProtocolsResponse given each field
+ */
+MUST_USE_RES struct LDKLSPS0ListProtocolsResponse LSPS0ListProtocolsResponse_new(struct LDKCVec_u16Z protocols_arg);
+
+/**
+ * Creates a copy of the LSPS0ListProtocolsResponse
+ */
+struct LDKLSPS0ListProtocolsResponse LSPS0ListProtocolsResponse_clone(const struct LDKLSPS0ListProtocolsResponse *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS0ListProtocolsResponses contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS0ListProtocolsResponse_eq(const struct LDKLSPS0ListProtocolsResponse *NONNULL_PTR a, const struct LDKLSPS0ListProtocolsResponse *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS0Request
+ */
+void LSPS0Request_free(struct LDKLSPS0Request this_ptr);
+
+/**
+ * Creates a copy of the LSPS0Request
+ */
+struct LDKLSPS0Request LSPS0Request_clone(const struct LDKLSPS0Request *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new ListProtocols-variant LSPS0Request
+ */
+struct LDKLSPS0Request LSPS0Request_list_protocols(struct LDKLSPS0ListProtocolsRequest a);
+
+/**
+ * Checks if two LSPS0Requests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS0Request_eq(const struct LDKLSPS0Request *NONNULL_PTR a, const struct LDKLSPS0Request *NONNULL_PTR b);
+
+/**
+ * Returns the method name associated with the given request variant.
+ */
+MUST_USE_RES struct LDKStr LSPS0Request_method(const struct LDKLSPS0Request *NONNULL_PTR this_arg);
+
+/**
+ * Frees any resources used by the LSPS0Response
+ */
+void LSPS0Response_free(struct LDKLSPS0Response this_ptr);
+
+/**
+ * Creates a copy of the LSPS0Response
+ */
+struct LDKLSPS0Response LSPS0Response_clone(const struct LDKLSPS0Response *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new ListProtocols-variant LSPS0Response
+ */
+struct LDKLSPS0Response LSPS0Response_list_protocols(struct LDKLSPS0ListProtocolsResponse a);
+
+/**
+ * Utility method to constructs a new ListProtocolsError-variant LSPS0Response
+ */
+struct LDKLSPS0Response LSPS0Response_list_protocols_error(struct LDKLSPSResponseError a);
+
+/**
+ * Checks if two LSPS0Responses contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS0Response_eq(const struct LDKLSPS0Response *NONNULL_PTR a, const struct LDKLSPS0Response *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS0Message
+ */
+void LSPS0Message_free(struct LDKLSPS0Message this_ptr);
+
+/**
+ * Creates a copy of the LSPS0Message
+ */
+struct LDKLSPS0Message LSPS0Message_clone(const struct LDKLSPS0Message *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new Request-variant LSPS0Message
+ */
+struct LDKLSPS0Message LSPS0Message_request(struct LDKLSPSRequestId a, struct LDKLSPS0Request b);
+
+/**
+ * Utility method to constructs a new Response-variant LSPS0Message
+ */
+struct LDKLSPS0Message LSPS0Message_response(struct LDKLSPSRequestId a, struct LDKLSPS0Response b);
+
+/**
+ * Checks if two LSPS0Messages contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS0Message_eq(const struct LDKLSPS0Message *NONNULL_PTR a, const struct LDKLSPS0Message *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the RawLSPSMessage, if is_owned is set and inner is non-NULL.
+ */
+void RawLSPSMessage_free(struct LDKRawLSPSMessage this_obj);
+
+/**
+ * The raw string payload that holds the actual message.
+ */
+struct LDKStr RawLSPSMessage_get_payload(const struct LDKRawLSPSMessage *NONNULL_PTR this_ptr);
+
+/**
+ * The raw string payload that holds the actual message.
+ */
+void RawLSPSMessage_set_payload(struct LDKRawLSPSMessage *NONNULL_PTR this_ptr, struct LDKStr val);
+
+/**
+ * Constructs a new RawLSPSMessage given each field
+ */
+MUST_USE_RES struct LDKRawLSPSMessage RawLSPSMessage_new(struct LDKStr payload_arg);
+
+/**
+ * Creates a copy of the RawLSPSMessage
+ */
+struct LDKRawLSPSMessage RawLSPSMessage_clone(const struct LDKRawLSPSMessage *NONNULL_PTR orig);
+
+/**
+ * Checks if two RawLSPSMessages contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool RawLSPSMessage_eq(const struct LDKRawLSPSMessage *NONNULL_PTR a, const struct LDKRawLSPSMessage *NONNULL_PTR b);
+
+/**
+ * Serialize the RawLSPSMessage object into a byte array which can be read by RawLSPSMessage_read
+ */
+struct LDKCVec_u8Z RawLSPSMessage_write(const struct LDKRawLSPSMessage *NONNULL_PTR obj);
+
+/**
+ * Read a RawLSPSMessage from a byte array, created by RawLSPSMessage_write
+ */
+struct LDKCResult_RawLSPSMessageDecodeErrorZ RawLSPSMessage_read(struct LDKu8slice ser);
+
+/**
+ * Constructs a new Type which calls the relevant methods on this_arg.
+ * This copies the `inner` pointer in this_arg and thus the returned Type must be freed before this_arg is
+ */
+struct LDKType RawLSPSMessage_as_Type(const struct LDKRawLSPSMessage *NONNULL_PTR this_arg);
+
+/**
+ * Frees any resources used by the LSPSRequestId, if is_owned is set and inner is non-NULL.
+ */
+void LSPSRequestId_free(struct LDKLSPSRequestId this_obj);
+
+struct LDKStr LSPSRequestId_get_a(const struct LDKLSPSRequestId *NONNULL_PTR this_ptr);
+
+void LSPSRequestId_set_a(struct LDKLSPSRequestId *NONNULL_PTR this_ptr, struct LDKStr val);
+
+/**
+ * Constructs a new LSPSRequestId given each field
+ */
+MUST_USE_RES struct LDKLSPSRequestId LSPSRequestId_new(struct LDKStr a_arg);
+
+/**
+ * Creates a copy of the LSPSRequestId
+ */
+struct LDKLSPSRequestId LSPSRequestId_clone(const struct LDKLSPSRequestId *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPSRequestIds contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPSRequestId_eq(const struct LDKLSPSRequestId *NONNULL_PTR a, const struct LDKLSPSRequestId *NONNULL_PTR b);
+
+/**
+ * Generates a non-cryptographic 64-bit hash of the LSPSRequestId.
+ */
+uint64_t LSPSRequestId_hash(const struct LDKLSPSRequestId *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the LSPSDateTime, if is_owned is set and inner is non-NULL.
+ */
+void LSPSDateTime_free(struct LDKLSPSDateTime this_obj);
+
+/**
+ * Creates a copy of the LSPSDateTime
+ */
+struct LDKLSPSDateTime LSPSDateTime_clone(const struct LDKLSPSDateTime *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPSDateTimes contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPSDateTime_eq(const struct LDKLSPSDateTime *NONNULL_PTR a, const struct LDKLSPSDateTime *NONNULL_PTR b);
+
+/**
+ * Generates a non-cryptographic 64-bit hash of the LSPSDateTime.
+ */
+uint64_t LSPSDateTime_hash(const struct LDKLSPSDateTime *NONNULL_PTR o);
+
+/**
+ * Returns the LSPSDateTime as RFC3339 formatted string.
+ */
+MUST_USE_RES struct LDKStr LSPSDateTime_to_rfc3339(const struct LDKLSPSDateTime *NONNULL_PTR this_arg);
+
+/**
+ * Returns if the given time is in the past.
+ */
+MUST_USE_RES bool LSPSDateTime_is_past(const struct LDKLSPSDateTime *NONNULL_PTR this_arg);
+
+/**
+ * Read a LSPSDateTime object from a string
+ */
+struct LDKCResult_LSPSDateTimeNoneZ LSPSDateTime_from_str(struct LDKStr s);
+
+/**
+ * Get the string representation of a LSPSDateTime object
+ */
+struct LDKStr LSPSDateTime_to_str(const struct LDKLSPSDateTime *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the LSPSResponseError, if is_owned is set and inner is non-NULL.
+ */
+void LSPSResponseError_free(struct LDKLSPSResponseError this_obj);
+
+/**
+ * A string providing a short description of the error.
+ */
+struct LDKStr LSPSResponseError_get_message(const struct LDKLSPSResponseError *NONNULL_PTR this_ptr);
+
+/**
+ * A string providing a short description of the error.
+ */
+void LSPSResponseError_set_message(struct LDKLSPSResponseError *NONNULL_PTR this_ptr, struct LDKStr val);
+
+/**
+ * A primitive or structured value that contains additional information about the error.
+ */
+struct LDKCOption_StrZ LSPSResponseError_get_data(const struct LDKLSPSResponseError *NONNULL_PTR this_ptr);
+
+/**
+ * A primitive or structured value that contains additional information about the error.
+ */
+void LSPSResponseError_set_data(struct LDKLSPSResponseError *NONNULL_PTR this_ptr, struct LDKCOption_StrZ val);
+
+/**
+ * Creates a copy of the LSPSResponseError
+ */
+struct LDKLSPSResponseError LSPSResponseError_clone(const struct LDKLSPSResponseError *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPSResponseErrors contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPSResponseError_eq(const struct LDKLSPSResponseError *NONNULL_PTR a, const struct LDKLSPSResponseError *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPSMessage
+ */
+void LSPSMessage_free(struct LDKLSPSMessage this_ptr);
+
+/**
+ * Creates a copy of the LSPSMessage
+ */
+struct LDKLSPSMessage LSPSMessage_clone(const struct LDKLSPSMessage *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new Invalid-variant LSPSMessage
+ */
+struct LDKLSPSMessage LSPSMessage_invalid(struct LDKLSPSResponseError a);
+
+/**
+ * Utility method to constructs a new LSPS0-variant LSPSMessage
+ */
+struct LDKLSPSMessage LSPSMessage_lsps0(struct LDKLSPS0Message a);
+
+/**
+ * Utility method to constructs a new LSPS1-variant LSPSMessage
+ */
+struct LDKLSPSMessage LSPSMessage_lsps1(struct LDKLSPS1Message a);
+
+/**
+ * Utility method to constructs a new LSPS2-variant LSPSMessage
+ */
+struct LDKLSPSMessage LSPSMessage_lsps2(struct LDKLSPS2Message a);
+
+/**
+ * Checks if two LSPSMessages contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPSMessage_eq(const struct LDKLSPSMessage *NONNULL_PTR a, const struct LDKLSPSMessage *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS0ServiceHandler, if is_owned is set and inner is non-NULL.
+ */
+void LSPS0ServiceHandler_free(struct LDKLSPS0ServiceHandler this_obj);
+
+/**
+ * Frees any resources used by the LSPS1ClientConfig, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1ClientConfig_free(struct LDKLSPS1ClientConfig this_obj);
+
+/**
+ * The maximally allowed channel fees.
+ */
+struct LDKCOption_u64Z LSPS1ClientConfig_get_max_channel_fees_msat(const struct LDKLSPS1ClientConfig *NONNULL_PTR this_ptr);
+
+/**
+ * The maximally allowed channel fees.
+ */
+void LSPS1ClientConfig_set_max_channel_fees_msat(struct LDKLSPS1ClientConfig *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * Constructs a new LSPS1ClientConfig given each field
+ */
+MUST_USE_RES struct LDKLSPS1ClientConfig LSPS1ClientConfig_new(struct LDKCOption_u64Z max_channel_fees_msat_arg);
+
+/**
+ * Creates a copy of the LSPS1ClientConfig
+ */
+struct LDKLSPS1ClientConfig LSPS1ClientConfig_clone(const struct LDKLSPS1ClientConfig *NONNULL_PTR orig);
+
+/**
+ * Frees any resources used by the LSPS1ClientHandler, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1ClientHandler_free(struct LDKLSPS1ClientHandler this_obj);
+
+/**
+ * Request the supported options from the LSP.
+ *
+ * The user will receive the LSP's response via an [`SupportedOptionsReady`] event.
+ *
+ * `counterparty_node_id` is the `node_id` of the LSP you would like to use.
+ *
+ * Returns the used [`LSPSRequestId`], which will be returned via [`SupportedOptionsReady`].
+ *
+ * [`SupportedOptionsReady`]: crate::lsps1::event::LSPS1ClientEvent::SupportedOptionsReady
+ */
+MUST_USE_RES struct LDKLSPSRequestId LSPS1ClientHandler_request_supported_options(const struct LDKLSPS1ClientHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id);
+
+/**
+ * Places an order with the connected LSP given its `counterparty_node_id`.
+ *
+ * The client agrees to paying channel fees according to the provided parameters.
+ */
+MUST_USE_RES struct LDKLSPSRequestId LSPS1ClientHandler_create_order(const struct LDKLSPS1ClientHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id, struct LDKLSPS1OrderParams order, struct LDKCOption_AddressZ refund_onchain_address);
+
+/**
+ * Queries the status of a pending payment, i.e., whether a payment has been received by the LSP.
+ *
+ * Upon success an [`LSPS1ClientEvent::OrderStatus`] event will be emitted.
+ *
+ * [`LSPS1ClientEvent::OrderStatus`]: crate::lsps1::event::LSPS1ClientEvent::OrderStatus
+ */
+MUST_USE_RES struct LDKLSPSRequestId LSPS1ClientHandler_check_order_status(const struct LDKLSPS1ClientHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id, struct LDKLSPS1OrderId order_id);
+
+/**
+ * Frees any resources used by the LSPS1ClientEvent
+ */
+void LSPS1ClientEvent_free(struct LDKLSPS1ClientEvent this_ptr);
+
+/**
+ * Creates a copy of the LSPS1ClientEvent
+ */
+struct LDKLSPS1ClientEvent LSPS1ClientEvent_clone(const struct LDKLSPS1ClientEvent *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new SupportedOptionsReady-variant LSPS1ClientEvent
+ */
+struct LDKLSPS1ClientEvent LSPS1ClientEvent_supported_options_ready(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, struct LDKLSPS1Options supported_options);
+
+/**
+ * Utility method to constructs a new SupportedOptionsRequestFailed-variant LSPS1ClientEvent
+ */
+struct LDKLSPS1ClientEvent LSPS1ClientEvent_supported_options_request_failed(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, struct LDKLSPSResponseError error);
+
+/**
+ * Utility method to constructs a new OrderCreated-variant LSPS1ClientEvent
+ */
+struct LDKLSPS1ClientEvent LSPS1ClientEvent_order_created(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, struct LDKLSPS1OrderId order_id, struct LDKLSPS1OrderParams order, struct LDKLSPS1PaymentInfo payment, struct LDKLSPS1ChannelInfo channel);
+
+/**
+ * Utility method to constructs a new OrderStatus-variant LSPS1ClientEvent
+ */
+struct LDKLSPS1ClientEvent LSPS1ClientEvent_order_status(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, struct LDKLSPS1OrderId order_id, struct LDKLSPS1OrderParams order, struct LDKLSPS1PaymentInfo payment, struct LDKLSPS1ChannelInfo channel);
+
+/**
+ * Utility method to constructs a new OrderRequestFailed-variant LSPS1ClientEvent
+ */
+struct LDKLSPS1ClientEvent LSPS1ClientEvent_order_request_failed(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, struct LDKLSPSResponseError error);
+
+/**
+ * Checks if two LSPS1ClientEvents contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS1ClientEvent_eq(const struct LDKLSPS1ClientEvent *NONNULL_PTR a, const struct LDKLSPS1ClientEvent *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1OrderId, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1OrderId_free(struct LDKLSPS1OrderId this_obj);
+
+struct LDKStr LSPS1OrderId_get_a(const struct LDKLSPS1OrderId *NONNULL_PTR this_ptr);
+
+void LSPS1OrderId_set_a(struct LDKLSPS1OrderId *NONNULL_PTR this_ptr, struct LDKStr val);
+
+/**
+ * Constructs a new LSPS1OrderId given each field
+ */
+MUST_USE_RES struct LDKLSPS1OrderId LSPS1OrderId_new(struct LDKStr a_arg);
+
+/**
+ * Creates a copy of the LSPS1OrderId
+ */
+struct LDKLSPS1OrderId LSPS1OrderId_clone(const struct LDKLSPS1OrderId *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1OrderIds contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1OrderId_eq(const struct LDKLSPS1OrderId *NONNULL_PTR a, const struct LDKLSPS1OrderId *NONNULL_PTR b);
+
+/**
+ * Generates a non-cryptographic 64-bit hash of the LSPS1OrderId.
+ */
+uint64_t LSPS1OrderId_hash(const struct LDKLSPS1OrderId *NONNULL_PTR o);
+
+/**
+ * Frees any resources used by the LSPS1GetInfoRequest, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1GetInfoRequest_free(struct LDKLSPS1GetInfoRequest this_obj);
+
+/**
+ * Constructs a new LSPS1GetInfoRequest given each field
+ */
+MUST_USE_RES struct LDKLSPS1GetInfoRequest LSPS1GetInfoRequest_new(void);
+
+/**
+ * Creates a copy of the LSPS1GetInfoRequest
+ */
+struct LDKLSPS1GetInfoRequest LSPS1GetInfoRequest_clone(const struct LDKLSPS1GetInfoRequest *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1GetInfoRequests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1GetInfoRequest_eq(const struct LDKLSPS1GetInfoRequest *NONNULL_PTR a, const struct LDKLSPS1GetInfoRequest *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1Options, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1Options_free(struct LDKLSPS1Options this_obj);
+
+/**
+ * The smallest number of confirmations needed for the LSP to accept a channel as confirmed.
+ */
+uint16_t LSPS1Options_get_min_required_channel_confirmations(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The smallest number of confirmations needed for the LSP to accept a channel as confirmed.
+ */
+void LSPS1Options_set_min_required_channel_confirmations(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint16_t val);
+
+/**
+ * The smallest number of blocks in which the LSP can confirm the funding transaction.
+ */
+uint16_t LSPS1Options_get_min_funding_confirms_within_blocks(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The smallest number of blocks in which the LSP can confirm the funding transaction.
+ */
+void LSPS1Options_set_min_funding_confirms_within_blocks(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint16_t val);
+
+/**
+ * Indicates if the LSP supports zero reserve.
+ */
+bool LSPS1Options_get_supports_zero_channel_reserve(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * Indicates if the LSP supports zero reserve.
+ */
+void LSPS1Options_set_supports_zero_channel_reserve(struct LDKLSPS1Options *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * The maximum number of blocks a channel can be leased for.
+ */
+uint32_t LSPS1Options_get_max_channel_expiry_blocks(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The maximum number of blocks a channel can be leased for.
+ */
+void LSPS1Options_set_max_channel_expiry_blocks(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * The minimum number of satoshi that the client MUST request.
+ */
+uint64_t LSPS1Options_get_min_initial_client_balance_sat(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum number of satoshi that the client MUST request.
+ */
+void LSPS1Options_set_min_initial_client_balance_sat(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The maximum number of satoshi that the client MUST request.
+ */
+uint64_t LSPS1Options_get_max_initial_client_balance_sat(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The maximum number of satoshi that the client MUST request.
+ */
+void LSPS1Options_set_max_initial_client_balance_sat(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The minimum number of satoshi that the LSP will provide to the channel.
+ */
+uint64_t LSPS1Options_get_min_initial_lsp_balance_sat(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum number of satoshi that the LSP will provide to the channel.
+ */
+void LSPS1Options_set_min_initial_lsp_balance_sat(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The maximum number of satoshi that the LSP will provide to the channel.
+ */
+uint64_t LSPS1Options_get_max_initial_lsp_balance_sat(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The maximum number of satoshi that the LSP will provide to the channel.
+ */
+void LSPS1Options_set_max_initial_lsp_balance_sat(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The minimal channel size.
+ */
+uint64_t LSPS1Options_get_min_channel_balance_sat(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The minimal channel size.
+ */
+void LSPS1Options_set_min_channel_balance_sat(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The maximal channel size.
+ */
+uint64_t LSPS1Options_get_max_channel_balance_sat(const struct LDKLSPS1Options *NONNULL_PTR this_ptr);
+
+/**
+ * The maximal channel size.
+ */
+void LSPS1Options_set_max_channel_balance_sat(struct LDKLSPS1Options *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * Constructs a new LSPS1Options given each field
+ */
+MUST_USE_RES struct LDKLSPS1Options LSPS1Options_new(uint16_t min_required_channel_confirmations_arg, uint16_t min_funding_confirms_within_blocks_arg, bool supports_zero_channel_reserve_arg, uint32_t max_channel_expiry_blocks_arg, uint64_t min_initial_client_balance_sat_arg, uint64_t max_initial_client_balance_sat_arg, uint64_t min_initial_lsp_balance_sat_arg, uint64_t max_initial_lsp_balance_sat_arg, uint64_t min_channel_balance_sat_arg, uint64_t max_channel_balance_sat_arg);
+
+/**
+ * Creates a copy of the LSPS1Options
+ */
+struct LDKLSPS1Options LSPS1Options_clone(const struct LDKLSPS1Options *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1Optionss contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1Options_eq(const struct LDKLSPS1Options *NONNULL_PTR a, const struct LDKLSPS1Options *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1GetInfoResponse, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1GetInfoResponse_free(struct LDKLSPS1GetInfoResponse this_obj);
+
+/**
+ * All options supported by the LSP.
+ */
+struct LDKLSPS1Options LSPS1GetInfoResponse_get_options(const struct LDKLSPS1GetInfoResponse *NONNULL_PTR this_ptr);
+
+/**
+ * All options supported by the LSP.
+ */
+void LSPS1GetInfoResponse_set_options(struct LDKLSPS1GetInfoResponse *NONNULL_PTR this_ptr, struct LDKLSPS1Options val);
+
+/**
+ * Constructs a new LSPS1GetInfoResponse given each field
+ */
+MUST_USE_RES struct LDKLSPS1GetInfoResponse LSPS1GetInfoResponse_new(struct LDKLSPS1Options options_arg);
+
+/**
+ * Creates a copy of the LSPS1GetInfoResponse
+ */
+struct LDKLSPS1GetInfoResponse LSPS1GetInfoResponse_clone(const struct LDKLSPS1GetInfoResponse *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1GetInfoResponses contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1GetInfoResponse_eq(const struct LDKLSPS1GetInfoResponse *NONNULL_PTR a, const struct LDKLSPS1GetInfoResponse *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1CreateOrderRequest, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1CreateOrderRequest_free(struct LDKLSPS1CreateOrderRequest this_obj);
+
+/**
+ * The order made.
+ */
+struct LDKLSPS1OrderParams LSPS1CreateOrderRequest_get_order(const struct LDKLSPS1CreateOrderRequest *NONNULL_PTR this_ptr);
+
+/**
+ * The order made.
+ */
+void LSPS1CreateOrderRequest_set_order(struct LDKLSPS1CreateOrderRequest *NONNULL_PTR this_ptr, struct LDKLSPS1OrderParams val);
+
+/**
+ * The address where the LSP will send the funds if the order fails.
+ */
+struct LDKCOption_AddressZ LSPS1CreateOrderRequest_get_refund_onchain_address(const struct LDKLSPS1CreateOrderRequest *NONNULL_PTR this_ptr);
+
+/**
+ * The address where the LSP will send the funds if the order fails.
+ */
+void LSPS1CreateOrderRequest_set_refund_onchain_address(struct LDKLSPS1CreateOrderRequest *NONNULL_PTR this_ptr, struct LDKCOption_AddressZ val);
+
+/**
+ * Constructs a new LSPS1CreateOrderRequest given each field
+ */
+MUST_USE_RES struct LDKLSPS1CreateOrderRequest LSPS1CreateOrderRequest_new(struct LDKLSPS1OrderParams order_arg, struct LDKCOption_AddressZ refund_onchain_address_arg);
+
+/**
+ * Creates a copy of the LSPS1CreateOrderRequest
+ */
+struct LDKLSPS1CreateOrderRequest LSPS1CreateOrderRequest_clone(const struct LDKLSPS1CreateOrderRequest *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1CreateOrderRequests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1CreateOrderRequest_eq(const struct LDKLSPS1CreateOrderRequest *NONNULL_PTR a, const struct LDKLSPS1CreateOrderRequest *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1OrderParams, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1OrderParams_free(struct LDKLSPS1OrderParams this_obj);
+
+/**
+ * Indicates how many satoshi the LSP will provide on their side.
+ */
+uint64_t LSPS1OrderParams_get_lsp_balance_sat(const struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr);
+
+/**
+ * Indicates how many satoshi the LSP will provide on their side.
+ */
+void LSPS1OrderParams_set_lsp_balance_sat(struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * Indicates how many satoshi the client will provide on their side.
+ *
+ * The client sends these funds to the LSP, who will push them back to the client upon opening
+ * the channel.
+ */
+uint64_t LSPS1OrderParams_get_client_balance_sat(const struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr);
+
+/**
+ * Indicates how many satoshi the client will provide on their side.
+ *
+ * The client sends these funds to the LSP, who will push them back to the client upon opening
+ * the channel.
+ */
+void LSPS1OrderParams_set_client_balance_sat(struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The number of confirmations the funding tx must have before the LSP sends `channel_ready`.
+ */
+uint16_t LSPS1OrderParams_get_required_channel_confirmations(const struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr);
+
+/**
+ * The number of confirmations the funding tx must have before the LSP sends `channel_ready`.
+ */
+void LSPS1OrderParams_set_required_channel_confirmations(struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr, uint16_t val);
+
+/**
+ * The maximum number of blocks the client wants to wait until the funding transaction is confirmed.
+ */
+uint16_t LSPS1OrderParams_get_funding_confirms_within_blocks(const struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr);
+
+/**
+ * The maximum number of blocks the client wants to wait until the funding transaction is confirmed.
+ */
+void LSPS1OrderParams_set_funding_confirms_within_blocks(struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr, uint16_t val);
+
+/**
+ * Indicates how long the channel is leased for in block time.
+ */
+uint32_t LSPS1OrderParams_get_channel_expiry_blocks(const struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr);
+
+/**
+ * Indicates how long the channel is leased for in block time.
+ */
+void LSPS1OrderParams_set_channel_expiry_blocks(struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * May contain arbitrary associated data like a coupon code or a authentication token.
+ */
+struct LDKCOption_StrZ LSPS1OrderParams_get_token(const struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr);
+
+/**
+ * May contain arbitrary associated data like a coupon code or a authentication token.
+ */
+void LSPS1OrderParams_set_token(struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr, struct LDKCOption_StrZ val);
+
+/**
+ * Indicates if the channel should be announced to the network.
+ */
+bool LSPS1OrderParams_get_announce_channel(const struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr);
+
+/**
+ * Indicates if the channel should be announced to the network.
+ */
+void LSPS1OrderParams_set_announce_channel(struct LDKLSPS1OrderParams *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * Constructs a new LSPS1OrderParams given each field
+ */
+MUST_USE_RES struct LDKLSPS1OrderParams LSPS1OrderParams_new(uint64_t lsp_balance_sat_arg, uint64_t client_balance_sat_arg, uint16_t required_channel_confirmations_arg, uint16_t funding_confirms_within_blocks_arg, uint32_t channel_expiry_blocks_arg, struct LDKCOption_StrZ token_arg, bool announce_channel_arg);
+
+/**
+ * Creates a copy of the LSPS1OrderParams
+ */
+struct LDKLSPS1OrderParams LSPS1OrderParams_clone(const struct LDKLSPS1OrderParams *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1OrderParamss contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1OrderParams_eq(const struct LDKLSPS1OrderParams *NONNULL_PTR a, const struct LDKLSPS1OrderParams *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1CreateOrderResponse, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1CreateOrderResponse_free(struct LDKLSPS1CreateOrderResponse this_obj);
+
+/**
+ * The id of the channel order.
+ */
+struct LDKLSPS1OrderId LSPS1CreateOrderResponse_get_order_id(const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr);
+
+/**
+ * The id of the channel order.
+ */
+void LSPS1CreateOrderResponse_set_order_id(struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr, struct LDKLSPS1OrderId val);
+
+/**
+ * The parameters of channel order.
+ */
+struct LDKLSPS1OrderParams LSPS1CreateOrderResponse_get_order(const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr);
+
+/**
+ * The parameters of channel order.
+ */
+void LSPS1CreateOrderResponse_set_order(struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr, struct LDKLSPS1OrderParams val);
+
+/**
+ * The datetime when the order was created
+ */
+struct LDKLSPSDateTime LSPS1CreateOrderResponse_get_created_at(const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr);
+
+/**
+ * The datetime when the order was created
+ */
+void LSPS1CreateOrderResponse_set_created_at(struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr, struct LDKLSPSDateTime val);
+
+/**
+ * The current state of the order.
+ */
+enum LDKLSPS1OrderState LSPS1CreateOrderResponse_get_order_state(const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr);
+
+/**
+ * The current state of the order.
+ */
+void LSPS1CreateOrderResponse_set_order_state(struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr, enum LDKLSPS1OrderState val);
+
+/**
+ * Contains details about how to pay for the order.
+ */
+struct LDKLSPS1PaymentInfo LSPS1CreateOrderResponse_get_payment(const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr);
+
+/**
+ * Contains details about how to pay for the order.
+ */
+void LSPS1CreateOrderResponse_set_payment(struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr, struct LDKLSPS1PaymentInfo val);
+
+/**
+ * Contains information about the channel state.
+ *
+ * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+struct LDKLSPS1ChannelInfo LSPS1CreateOrderResponse_get_channel(const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr);
+
+/**
+ * Contains information about the channel state.
+ *
+ * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+void LSPS1CreateOrderResponse_set_channel(struct LDKLSPS1CreateOrderResponse *NONNULL_PTR this_ptr, struct LDKLSPS1ChannelInfo val);
+
+/**
+ * Constructs a new LSPS1CreateOrderResponse given each field
+ *
+ * Note that channel_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+MUST_USE_RES struct LDKLSPS1CreateOrderResponse LSPS1CreateOrderResponse_new(struct LDKLSPS1OrderId order_id_arg, struct LDKLSPS1OrderParams order_arg, struct LDKLSPSDateTime created_at_arg, enum LDKLSPS1OrderState order_state_arg, struct LDKLSPS1PaymentInfo payment_arg, struct LDKLSPS1ChannelInfo channel_arg);
+
+/**
+ * Creates a copy of the LSPS1CreateOrderResponse
+ */
+struct LDKLSPS1CreateOrderResponse LSPS1CreateOrderResponse_clone(const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1CreateOrderResponses contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1CreateOrderResponse_eq(const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR a, const struct LDKLSPS1CreateOrderResponse *NONNULL_PTR b);
+
+/**
+ * Creates a copy of the LSPS1OrderState
+ */
+enum LDKLSPS1OrderState LSPS1OrderState_clone(const enum LDKLSPS1OrderState *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new Created-variant LSPS1OrderState
+ */
+enum LDKLSPS1OrderState LSPS1OrderState_created(void);
+
+/**
+ * Utility method to constructs a new Completed-variant LSPS1OrderState
+ */
+enum LDKLSPS1OrderState LSPS1OrderState_completed(void);
+
+/**
+ * Utility method to constructs a new Failed-variant LSPS1OrderState
+ */
+enum LDKLSPS1OrderState LSPS1OrderState_failed(void);
+
+/**
+ * Checks if two LSPS1OrderStates contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS1OrderState_eq(const enum LDKLSPS1OrderState *NONNULL_PTR a, const enum LDKLSPS1OrderState *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1PaymentInfo, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1PaymentInfo_free(struct LDKLSPS1PaymentInfo this_obj);
+
+/**
+ * A Lightning payment using BOLT 11.
+ *
+ * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+struct LDKLSPS1Bolt11PaymentInfo LSPS1PaymentInfo_get_bolt11(const struct LDKLSPS1PaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * A Lightning payment using BOLT 11.
+ *
+ * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+void LSPS1PaymentInfo_set_bolt11(struct LDKLSPS1PaymentInfo *NONNULL_PTR this_ptr, struct LDKLSPS1Bolt11PaymentInfo val);
+
+/**
+ * An onchain payment.
+ *
+ * Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+struct LDKLSPS1OnchainPaymentInfo LSPS1PaymentInfo_get_onchain(const struct LDKLSPS1PaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * An onchain payment.
+ *
+ * Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+void LSPS1PaymentInfo_set_onchain(struct LDKLSPS1PaymentInfo *NONNULL_PTR this_ptr, struct LDKLSPS1OnchainPaymentInfo val);
+
+/**
+ * Constructs a new LSPS1PaymentInfo given each field
+ *
+ * Note that bolt11_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+ * Note that onchain_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+ */
+MUST_USE_RES struct LDKLSPS1PaymentInfo LSPS1PaymentInfo_new(struct LDKLSPS1Bolt11PaymentInfo bolt11_arg, struct LDKLSPS1OnchainPaymentInfo onchain_arg);
+
+/**
+ * Creates a copy of the LSPS1PaymentInfo
+ */
+struct LDKLSPS1PaymentInfo LSPS1PaymentInfo_clone(const struct LDKLSPS1PaymentInfo *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1PaymentInfos contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1PaymentInfo_eq(const struct LDKLSPS1PaymentInfo *NONNULL_PTR a, const struct LDKLSPS1PaymentInfo *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1Bolt11PaymentInfo, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1Bolt11PaymentInfo_free(struct LDKLSPS1Bolt11PaymentInfo this_obj);
+
+/**
+ * Indicates the current state of the payment.
+ */
+enum LDKLSPS1PaymentState LSPS1Bolt11PaymentInfo_get_state(const struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * Indicates the current state of the payment.
+ */
+void LSPS1Bolt11PaymentInfo_set_state(struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr, enum LDKLSPS1PaymentState val);
+
+/**
+ * The datetime when the payment option expires.
+ */
+struct LDKLSPSDateTime LSPS1Bolt11PaymentInfo_get_expires_at(const struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The datetime when the payment option expires.
+ */
+void LSPS1Bolt11PaymentInfo_set_expires_at(struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr, struct LDKLSPSDateTime val);
+
+/**
+ * The total fee the LSP will charge to open this channel in satoshi.
+ */
+uint64_t LSPS1Bolt11PaymentInfo_get_fee_total_sat(const struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The total fee the LSP will charge to open this channel in satoshi.
+ */
+void LSPS1Bolt11PaymentInfo_set_fee_total_sat(struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The amount the client needs to pay to have the requested channel openend.
+ */
+uint64_t LSPS1Bolt11PaymentInfo_get_order_total_sat(const struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The amount the client needs to pay to have the requested channel openend.
+ */
+void LSPS1Bolt11PaymentInfo_set_order_total_sat(struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * A BOLT11 invoice the client can pay to have to channel opened.
+ */
+struct LDKBolt11Invoice LSPS1Bolt11PaymentInfo_get_invoice(const struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * A BOLT11 invoice the client can pay to have to channel opened.
+ */
+void LSPS1Bolt11PaymentInfo_set_invoice(struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR this_ptr, struct LDKBolt11Invoice val);
+
+/**
+ * Constructs a new LSPS1Bolt11PaymentInfo given each field
+ */
+MUST_USE_RES struct LDKLSPS1Bolt11PaymentInfo LSPS1Bolt11PaymentInfo_new(enum LDKLSPS1PaymentState state_arg, struct LDKLSPSDateTime expires_at_arg, uint64_t fee_total_sat_arg, uint64_t order_total_sat_arg, struct LDKBolt11Invoice invoice_arg);
+
+/**
+ * Creates a copy of the LSPS1Bolt11PaymentInfo
+ */
+struct LDKLSPS1Bolt11PaymentInfo LSPS1Bolt11PaymentInfo_clone(const struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1Bolt11PaymentInfos contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1Bolt11PaymentInfo_eq(const struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR a, const struct LDKLSPS1Bolt11PaymentInfo *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1OnchainPaymentInfo, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1OnchainPaymentInfo_free(struct LDKLSPS1OnchainPaymentInfo this_obj);
+
+/**
+ * Indicates the current state of the payment.
+ */
+enum LDKLSPS1PaymentState LSPS1OnchainPaymentInfo_get_state(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * Indicates the current state of the payment.
+ */
+void LSPS1OnchainPaymentInfo_set_state(struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr, enum LDKLSPS1PaymentState val);
+
+/**
+ * The datetime when the payment option expires.
+ */
+struct LDKLSPSDateTime LSPS1OnchainPaymentInfo_get_expires_at(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The datetime when the payment option expires.
+ */
+void LSPS1OnchainPaymentInfo_set_expires_at(struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr, struct LDKLSPSDateTime val);
+
+/**
+ * The total fee the LSP will charge to open this channel in satoshi.
+ */
+uint64_t LSPS1OnchainPaymentInfo_get_fee_total_sat(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The total fee the LSP will charge to open this channel in satoshi.
+ */
+void LSPS1OnchainPaymentInfo_set_fee_total_sat(struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The amount the client needs to pay to have the requested channel openend.
+ */
+uint64_t LSPS1OnchainPaymentInfo_get_order_total_sat(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The amount the client needs to pay to have the requested channel openend.
+ */
+void LSPS1OnchainPaymentInfo_set_order_total_sat(struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * An on-chain address the client can send [`Self::order_total_sat`] to to have the channel
+ * opened.
+ */
+struct LDKAddress LSPS1OnchainPaymentInfo_get_address(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * An on-chain address the client can send [`Self::order_total_sat`] to to have the channel
+ * opened.
+ */
+void LSPS1OnchainPaymentInfo_set_address(struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr, struct LDKAddress val);
+
+/**
+ * The minimum number of block confirmations that are required for the on-chain payment to be
+ * considered confirmed.
+ */
+struct LDKCOption_u16Z LSPS1OnchainPaymentInfo_get_min_onchain_payment_confirmations(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum number of block confirmations that are required for the on-chain payment to be
+ * considered confirmed.
+ */
+void LSPS1OnchainPaymentInfo_set_min_onchain_payment_confirmations(struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr, struct LDKCOption_u16Z val);
+
+/**
+ * The address where the LSP will send the funds if the order fails.
+ */
+struct LDKCOption_AddressZ LSPS1OnchainPaymentInfo_get_refund_onchain_address(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The address where the LSP will send the funds if the order fails.
+ */
+void LSPS1OnchainPaymentInfo_set_refund_onchain_address(struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR this_ptr, struct LDKCOption_AddressZ val);
+
+/**
+ * Creates a copy of the LSPS1OnchainPaymentInfo
+ */
+struct LDKLSPS1OnchainPaymentInfo LSPS1OnchainPaymentInfo_clone(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1OnchainPaymentInfos contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1OnchainPaymentInfo_eq(const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR a, const struct LDKLSPS1OnchainPaymentInfo *NONNULL_PTR b);
+
+/**
+ * Creates a copy of the LSPS1PaymentState
+ */
+enum LDKLSPS1PaymentState LSPS1PaymentState_clone(const enum LDKLSPS1PaymentState *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new ExpectPayment-variant LSPS1PaymentState
+ */
+enum LDKLSPS1PaymentState LSPS1PaymentState_expect_payment(void);
+
+/**
+ * Utility method to constructs a new Paid-variant LSPS1PaymentState
+ */
+enum LDKLSPS1PaymentState LSPS1PaymentState_paid(void);
+
+/**
+ * Utility method to constructs a new Refunded-variant LSPS1PaymentState
+ */
+enum LDKLSPS1PaymentState LSPS1PaymentState_refunded(void);
+
+/**
+ * Checks if two LSPS1PaymentStates contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS1PaymentState_eq(const enum LDKLSPS1PaymentState *NONNULL_PTR a, const enum LDKLSPS1PaymentState *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1OnchainPayment, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1OnchainPayment_free(struct LDKLSPS1OnchainPayment this_obj);
+
+/**
+ * The outpoint of the payment.
+ */
+struct LDKStr LSPS1OnchainPayment_get_outpoint(const struct LDKLSPS1OnchainPayment *NONNULL_PTR this_ptr);
+
+/**
+ * The outpoint of the payment.
+ */
+void LSPS1OnchainPayment_set_outpoint(struct LDKLSPS1OnchainPayment *NONNULL_PTR this_ptr, struct LDKStr val);
+
+/**
+ * The amount of satoshi paid.
+ */
+uint64_t LSPS1OnchainPayment_get_sat(const struct LDKLSPS1OnchainPayment *NONNULL_PTR this_ptr);
+
+/**
+ * The amount of satoshi paid.
+ */
+void LSPS1OnchainPayment_set_sat(struct LDKLSPS1OnchainPayment *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * Indicates if the LSP regards the transaction as sufficiently confirmed.
+ */
+bool LSPS1OnchainPayment_get_confirmed(const struct LDKLSPS1OnchainPayment *NONNULL_PTR this_ptr);
+
+/**
+ * Indicates if the LSP regards the transaction as sufficiently confirmed.
+ */
+void LSPS1OnchainPayment_set_confirmed(struct LDKLSPS1OnchainPayment *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * Constructs a new LSPS1OnchainPayment given each field
+ */
+MUST_USE_RES struct LDKLSPS1OnchainPayment LSPS1OnchainPayment_new(struct LDKStr outpoint_arg, uint64_t sat_arg, bool confirmed_arg);
+
+/**
+ * Creates a copy of the LSPS1OnchainPayment
+ */
+struct LDKLSPS1OnchainPayment LSPS1OnchainPayment_clone(const struct LDKLSPS1OnchainPayment *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1OnchainPayments contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1OnchainPayment_eq(const struct LDKLSPS1OnchainPayment *NONNULL_PTR a, const struct LDKLSPS1OnchainPayment *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1ChannelInfo, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1ChannelInfo_free(struct LDKLSPS1ChannelInfo this_obj);
+
+/**
+ * The datetime when the funding transaction has been published.
+ */
+struct LDKLSPSDateTime LSPS1ChannelInfo_get_funded_at(const struct LDKLSPS1ChannelInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The datetime when the funding transaction has been published.
+ */
+void LSPS1ChannelInfo_set_funded_at(struct LDKLSPS1ChannelInfo *NONNULL_PTR this_ptr, struct LDKLSPSDateTime val);
+
+/**
+ * The outpoint of the funding transaction.
+ */
+struct LDKOutPoint LSPS1ChannelInfo_get_funding_outpoint(const struct LDKLSPS1ChannelInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The outpoint of the funding transaction.
+ */
+void LSPS1ChannelInfo_set_funding_outpoint(struct LDKLSPS1ChannelInfo *NONNULL_PTR this_ptr, struct LDKOutPoint val);
+
+/**
+ * The earliest datetime when the channel may be closed by the LSP.
+ */
+struct LDKLSPSDateTime LSPS1ChannelInfo_get_expires_at(const struct LDKLSPS1ChannelInfo *NONNULL_PTR this_ptr);
+
+/**
+ * The earliest datetime when the channel may be closed by the LSP.
+ */
+void LSPS1ChannelInfo_set_expires_at(struct LDKLSPS1ChannelInfo *NONNULL_PTR this_ptr, struct LDKLSPSDateTime val);
+
+/**
+ * Constructs a new LSPS1ChannelInfo given each field
+ */
+MUST_USE_RES struct LDKLSPS1ChannelInfo LSPS1ChannelInfo_new(struct LDKLSPSDateTime funded_at_arg, struct LDKOutPoint funding_outpoint_arg, struct LDKLSPSDateTime expires_at_arg);
+
+/**
+ * Creates a copy of the LSPS1ChannelInfo
+ */
+struct LDKLSPS1ChannelInfo LSPS1ChannelInfo_clone(const struct LDKLSPS1ChannelInfo *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1ChannelInfos contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1ChannelInfo_eq(const struct LDKLSPS1ChannelInfo *NONNULL_PTR a, const struct LDKLSPS1ChannelInfo *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1GetOrderRequest, if is_owned is set and inner is non-NULL.
+ */
+void LSPS1GetOrderRequest_free(struct LDKLSPS1GetOrderRequest this_obj);
+
+/**
+ * The id of the order.
+ */
+struct LDKLSPS1OrderId LSPS1GetOrderRequest_get_order_id(const struct LDKLSPS1GetOrderRequest *NONNULL_PTR this_ptr);
+
+/**
+ * The id of the order.
+ */
+void LSPS1GetOrderRequest_set_order_id(struct LDKLSPS1GetOrderRequest *NONNULL_PTR this_ptr, struct LDKLSPS1OrderId val);
+
+/**
+ * Constructs a new LSPS1GetOrderRequest given each field
+ */
+MUST_USE_RES struct LDKLSPS1GetOrderRequest LSPS1GetOrderRequest_new(struct LDKLSPS1OrderId order_id_arg);
+
+/**
+ * Creates a copy of the LSPS1GetOrderRequest
+ */
+struct LDKLSPS1GetOrderRequest LSPS1GetOrderRequest_clone(const struct LDKLSPS1GetOrderRequest *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS1GetOrderRequests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS1GetOrderRequest_eq(const struct LDKLSPS1GetOrderRequest *NONNULL_PTR a, const struct LDKLSPS1GetOrderRequest *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1Request
+ */
+void LSPS1Request_free(struct LDKLSPS1Request this_ptr);
+
+/**
+ * Creates a copy of the LSPS1Request
+ */
+struct LDKLSPS1Request LSPS1Request_clone(const struct LDKLSPS1Request *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new GetInfo-variant LSPS1Request
+ */
+struct LDKLSPS1Request LSPS1Request_get_info(struct LDKLSPS1GetInfoRequest a);
+
+/**
+ * Utility method to constructs a new CreateOrder-variant LSPS1Request
+ */
+struct LDKLSPS1Request LSPS1Request_create_order(struct LDKLSPS1CreateOrderRequest a);
+
+/**
+ * Utility method to constructs a new GetOrder-variant LSPS1Request
+ */
+struct LDKLSPS1Request LSPS1Request_get_order(struct LDKLSPS1GetOrderRequest a);
+
+/**
+ * Checks if two LSPS1Requests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS1Request_eq(const struct LDKLSPS1Request *NONNULL_PTR a, const struct LDKLSPS1Request *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1Response
+ */
+void LSPS1Response_free(struct LDKLSPS1Response this_ptr);
+
+/**
+ * Creates a copy of the LSPS1Response
+ */
+struct LDKLSPS1Response LSPS1Response_clone(const struct LDKLSPS1Response *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new GetInfo-variant LSPS1Response
+ */
+struct LDKLSPS1Response LSPS1Response_get_info(struct LDKLSPS1GetInfoResponse a);
+
+/**
+ * Utility method to constructs a new GetInfoError-variant LSPS1Response
+ */
+struct LDKLSPS1Response LSPS1Response_get_info_error(struct LDKLSPSResponseError a);
+
+/**
+ * Utility method to constructs a new CreateOrder-variant LSPS1Response
+ */
+struct LDKLSPS1Response LSPS1Response_create_order(struct LDKLSPS1CreateOrderResponse a);
+
+/**
+ * Utility method to constructs a new CreateOrderError-variant LSPS1Response
+ */
+struct LDKLSPS1Response LSPS1Response_create_order_error(struct LDKLSPSResponseError a);
+
+/**
+ * Utility method to constructs a new GetOrder-variant LSPS1Response
+ */
+struct LDKLSPS1Response LSPS1Response_get_order(struct LDKLSPS1CreateOrderResponse a);
+
+/**
+ * Utility method to constructs a new GetOrderError-variant LSPS1Response
+ */
+struct LDKLSPS1Response LSPS1Response_get_order_error(struct LDKLSPSResponseError a);
+
+/**
+ * Checks if two LSPS1Responses contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS1Response_eq(const struct LDKLSPS1Response *NONNULL_PTR a, const struct LDKLSPS1Response *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS1Message
+ */
+void LSPS1Message_free(struct LDKLSPS1Message this_ptr);
+
+/**
+ * Creates a copy of the LSPS1Message
+ */
+struct LDKLSPS1Message LSPS1Message_clone(const struct LDKLSPS1Message *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new Request-variant LSPS1Message
+ */
+struct LDKLSPS1Message LSPS1Message_request(struct LDKLSPSRequestId a, struct LDKLSPS1Request b);
+
+/**
+ * Utility method to constructs a new Response-variant LSPS1Message
+ */
+struct LDKLSPS1Message LSPS1Message_response(struct LDKLSPSRequestId a, struct LDKLSPS1Response b);
+
+/**
+ * Checks if two LSPS1Messages contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS1Message_eq(const struct LDKLSPS1Message *NONNULL_PTR a, const struct LDKLSPS1Message *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2ClientConfig, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2ClientConfig_free(struct LDKLSPS2ClientConfig this_obj);
+
+/**
+ * Constructs a new LSPS2ClientConfig given each field
+ */
+MUST_USE_RES struct LDKLSPS2ClientConfig LSPS2ClientConfig_new(void);
+
+/**
+ * Creates a copy of the LSPS2ClientConfig
+ */
+struct LDKLSPS2ClientConfig LSPS2ClientConfig_clone(const struct LDKLSPS2ClientConfig *NONNULL_PTR orig);
+
+/**
+ * Frees any resources used by the LSPS2ClientHandler, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2ClientHandler_free(struct LDKLSPS2ClientHandler this_obj);
+
+/**
+ * Request the channel opening parameters from the LSP.
+ *
+ * This initiates the JIT-channel flow that, at the end of it, will have the LSP
+ * open a channel with sufficient inbound liquidity to be able to receive the payment.
+ *
+ * The user will receive the LSP's response via an [`OpeningParametersReady`] event.
+ *
+ * `counterparty_node_id` is the `node_id` of the LSP you would like to use.
+ *
+ * `token` is an optional `String` that will be provided to the LSP.
+ * It can be used by the LSP as an API key, coupon code, or some other way to identify a user.
+ *
+ * Returns the used [`LSPSRequestId`], which will be returned via [`OpeningParametersReady`].
+ *
+ * [`OpeningParametersReady`]: crate::lsps2::event::LSPS2ClientEvent::OpeningParametersReady
+ */
+MUST_USE_RES struct LDKLSPSRequestId LSPS2ClientHandler_request_opening_params(const struct LDKLSPS2ClientHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id, struct LDKCOption_StrZ token);
+
+/**
+ * Confirms a set of chosen channel opening parameters to use for the JIT channel and
+ * requests the necessary invoice generation parameters from the LSP.
+ *
+ * Should be called in response to receiving a [`OpeningParametersReady`] event.
+ *
+ * The user will receive the LSP's response via an [`InvoiceParametersReady`] event.
+ *
+ * If `payment_size_msat` is [`Option::Some`] then the invoice will be for a fixed amount
+ * and MPP can be used to pay it.
+ *
+ * If `payment_size_msat` is [`Option::None`] then the invoice can be for an arbitrary amount
+ * but MPP can no longer be used to pay it.
+ *
+ * The client agrees to paying an opening fee equal to
+ * `max(min_fee_msat, proportional*(payment_size_msat/1_000_000))`.
+ *
+ * [`OpeningParametersReady`]: crate::lsps2::event::LSPS2ClientEvent::OpeningParametersReady
+ * [`InvoiceParametersReady`]: crate::lsps2::event::LSPS2ClientEvent::InvoiceParametersReady
+ */
+MUST_USE_RES struct LDKCResult_LSPSRequestIdAPIErrorZ LSPS2ClientHandler_select_opening_params(const struct LDKLSPS2ClientHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id, struct LDKCOption_u64Z payment_size_msat, struct LDKLSPS2OpeningFeeParams opening_fee_params);
+
+/**
+ * Frees any resources used by the LSPS2ClientEvent
+ */
+void LSPS2ClientEvent_free(struct LDKLSPS2ClientEvent this_ptr);
+
+/**
+ * Creates a copy of the LSPS2ClientEvent
+ */
+struct LDKLSPS2ClientEvent LSPS2ClientEvent_clone(const struct LDKLSPS2ClientEvent *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new OpeningParametersReady-variant LSPS2ClientEvent
+ */
+struct LDKLSPS2ClientEvent LSPS2ClientEvent_opening_parameters_ready(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, struct LDKCVec_LSPS2OpeningFeeParamsZ opening_fee_params_menu);
+
+/**
+ * Utility method to constructs a new InvoiceParametersReady-variant LSPS2ClientEvent
+ */
+struct LDKLSPS2ClientEvent LSPS2ClientEvent_invoice_parameters_ready(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, uint64_t intercept_scid, uint32_t cltv_expiry_delta, struct LDKCOption_u64Z payment_size_msat);
+
+/**
+ * Checks if two LSPS2ClientEvents contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS2ClientEvent_eq(const struct LDKLSPS2ClientEvent *NONNULL_PTR a, const struct LDKLSPS2ClientEvent *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2ServiceEvent
+ */
+void LSPS2ServiceEvent_free(struct LDKLSPS2ServiceEvent this_ptr);
+
+/**
+ * Creates a copy of the LSPS2ServiceEvent
+ */
+struct LDKLSPS2ServiceEvent LSPS2ServiceEvent_clone(const struct LDKLSPS2ServiceEvent *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new GetInfo-variant LSPS2ServiceEvent
+ */
+struct LDKLSPS2ServiceEvent LSPS2ServiceEvent_get_info(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, struct LDKCOption_StrZ token);
+
+/**
+ * Utility method to constructs a new BuyRequest-variant LSPS2ServiceEvent
+ */
+struct LDKLSPS2ServiceEvent LSPS2ServiceEvent_buy_request(struct LDKLSPSRequestId request_id, struct LDKPublicKey counterparty_node_id, struct LDKLSPS2OpeningFeeParams opening_fee_params, struct LDKCOption_u64Z payment_size_msat);
+
+/**
+ * Utility method to constructs a new OpenChannel-variant LSPS2ServiceEvent
+ */
+struct LDKLSPS2ServiceEvent LSPS2ServiceEvent_open_channel(struct LDKPublicKey their_network_key, uint64_t amt_to_forward_msat, uint64_t opening_fee_msat, struct LDKU128 user_channel_id, uint64_t intercept_scid);
+
+/**
+ * Checks if two LSPS2ServiceEvents contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS2ServiceEvent_eq(const struct LDKLSPS2ServiceEvent *NONNULL_PTR a, const struct LDKLSPS2ServiceEvent *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2GetInfoRequest, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2GetInfoRequest_free(struct LDKLSPS2GetInfoRequest this_obj);
+
+/**
+ * An optional token to provide to the LSP.
+ */
+struct LDKCOption_StrZ LSPS2GetInfoRequest_get_token(const struct LDKLSPS2GetInfoRequest *NONNULL_PTR this_ptr);
+
+/**
+ * An optional token to provide to the LSP.
+ */
+void LSPS2GetInfoRequest_set_token(struct LDKLSPS2GetInfoRequest *NONNULL_PTR this_ptr, struct LDKCOption_StrZ val);
+
+/**
+ * Constructs a new LSPS2GetInfoRequest given each field
+ */
+MUST_USE_RES struct LDKLSPS2GetInfoRequest LSPS2GetInfoRequest_new(struct LDKCOption_StrZ token_arg);
+
+/**
+ * Creates a copy of the LSPS2GetInfoRequest
+ */
+struct LDKLSPS2GetInfoRequest LSPS2GetInfoRequest_clone(const struct LDKLSPS2GetInfoRequest *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS2GetInfoRequests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS2GetInfoRequest_eq(const struct LDKLSPS2GetInfoRequest *NONNULL_PTR a, const struct LDKLSPS2GetInfoRequest *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2RawOpeningFeeParams, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2RawOpeningFeeParams_free(struct LDKLSPS2RawOpeningFeeParams this_obj);
+
+/**
+ * The minimum fee required for the channel open.
+ */
+uint64_t LSPS2RawOpeningFeeParams_get_min_fee_msat(const struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum fee required for the channel open.
+ */
+void LSPS2RawOpeningFeeParams_set_min_fee_msat(struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * A fee proportional to the size of the initial payment.
+ */
+uint32_t LSPS2RawOpeningFeeParams_get_proportional(const struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * A fee proportional to the size of the initial payment.
+ */
+void LSPS2RawOpeningFeeParams_set_proportional(struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * An [`ISO8601`](https://www.iso.org/iso-8601-date-and-time-format.html) formatted date for which these params are valid.
+ */
+struct LDKLSPSDateTime LSPS2RawOpeningFeeParams_get_valid_until(const struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * An [`ISO8601`](https://www.iso.org/iso-8601-date-and-time-format.html) formatted date for which these params are valid.
+ */
+void LSPS2RawOpeningFeeParams_set_valid_until(struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr, struct LDKLSPSDateTime val);
+
+/**
+ * The number of blocks after confirmation that the LSP promises it will keep the channel alive without closing.
+ */
+uint32_t LSPS2RawOpeningFeeParams_get_min_lifetime(const struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The number of blocks after confirmation that the LSP promises it will keep the channel alive without closing.
+ */
+void LSPS2RawOpeningFeeParams_set_min_lifetime(struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * The maximum number of blocks that the client is allowed to set its `to_self_delay` parameter.
+ */
+uint32_t LSPS2RawOpeningFeeParams_get_max_client_to_self_delay(const struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The maximum number of blocks that the client is allowed to set its `to_self_delay` parameter.
+ */
+void LSPS2RawOpeningFeeParams_set_max_client_to_self_delay(struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * The minimum payment size that the LSP will accept when opening a channel.
+ */
+uint64_t LSPS2RawOpeningFeeParams_get_min_payment_size_msat(const struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum payment size that the LSP will accept when opening a channel.
+ */
+void LSPS2RawOpeningFeeParams_set_min_payment_size_msat(struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The maximum payment size that the LSP will accept when opening a channel.
+ */
+uint64_t LSPS2RawOpeningFeeParams_get_max_payment_size_msat(const struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The maximum payment size that the LSP will accept when opening a channel.
+ */
+void LSPS2RawOpeningFeeParams_set_max_payment_size_msat(struct LDKLSPS2RawOpeningFeeParams *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * Constructs a new LSPS2RawOpeningFeeParams given each field
+ */
+MUST_USE_RES struct LDKLSPS2RawOpeningFeeParams LSPS2RawOpeningFeeParams_new(uint64_t min_fee_msat_arg, uint32_t proportional_arg, struct LDKLSPSDateTime valid_until_arg, uint32_t min_lifetime_arg, uint32_t max_client_to_self_delay_arg, uint64_t min_payment_size_msat_arg, uint64_t max_payment_size_msat_arg);
+
+/**
+ * Frees any resources used by the LSPS2OpeningFeeParams, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2OpeningFeeParams_free(struct LDKLSPS2OpeningFeeParams this_obj);
+
+/**
+ * The minimum fee required for the channel open.
+ */
+uint64_t LSPS2OpeningFeeParams_get_min_fee_msat(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum fee required for the channel open.
+ */
+void LSPS2OpeningFeeParams_set_min_fee_msat(struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * A fee proportional to the size of the initial payment.
+ */
+uint32_t LSPS2OpeningFeeParams_get_proportional(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * A fee proportional to the size of the initial payment.
+ */
+void LSPS2OpeningFeeParams_set_proportional(struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * An [`ISO8601`](https://www.iso.org/iso-8601-date-and-time-format.html) formatted date for which these params are valid.
+ */
+struct LDKLSPSDateTime LSPS2OpeningFeeParams_get_valid_until(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * An [`ISO8601`](https://www.iso.org/iso-8601-date-and-time-format.html) formatted date for which these params are valid.
+ */
+void LSPS2OpeningFeeParams_set_valid_until(struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr, struct LDKLSPSDateTime val);
+
+/**
+ * The number of blocks after confirmation that the LSP promises it will keep the channel alive without closing.
+ */
+uint32_t LSPS2OpeningFeeParams_get_min_lifetime(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The number of blocks after confirmation that the LSP promises it will keep the channel alive without closing.
+ */
+void LSPS2OpeningFeeParams_set_min_lifetime(struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * The maximum number of blocks that the client is allowed to set its `to_self_delay` parameter.
+ */
+uint32_t LSPS2OpeningFeeParams_get_max_client_to_self_delay(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The maximum number of blocks that the client is allowed to set its `to_self_delay` parameter.
+ */
+void LSPS2OpeningFeeParams_set_max_client_to_self_delay(struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * The minimum payment size that the LSP will accept when opening a channel.
+ */
+uint64_t LSPS2OpeningFeeParams_get_min_payment_size_msat(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The minimum payment size that the LSP will accept when opening a channel.
+ */
+void LSPS2OpeningFeeParams_set_min_payment_size_msat(struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The maximum payment size that the LSP will accept when opening a channel.
+ */
+uint64_t LSPS2OpeningFeeParams_get_max_payment_size_msat(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The maximum payment size that the LSP will accept when opening a channel.
+ */
+void LSPS2OpeningFeeParams_set_max_payment_size_msat(struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr, uint64_t val);
+
+/**
+ * The HMAC used to verify the authenticity of these parameters.
+ */
+struct LDKStr LSPS2OpeningFeeParams_get_promise(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr);
+
+/**
+ * The HMAC used to verify the authenticity of these parameters.
+ */
+void LSPS2OpeningFeeParams_set_promise(struct LDKLSPS2OpeningFeeParams *NONNULL_PTR this_ptr, struct LDKStr val);
+
+/**
+ * Constructs a new LSPS2OpeningFeeParams given each field
+ */
+MUST_USE_RES struct LDKLSPS2OpeningFeeParams LSPS2OpeningFeeParams_new(uint64_t min_fee_msat_arg, uint32_t proportional_arg, struct LDKLSPSDateTime valid_until_arg, uint32_t min_lifetime_arg, uint32_t max_client_to_self_delay_arg, uint64_t min_payment_size_msat_arg, uint64_t max_payment_size_msat_arg, struct LDKStr promise_arg);
+
+/**
+ * Creates a copy of the LSPS2OpeningFeeParams
+ */
+struct LDKLSPS2OpeningFeeParams LSPS2OpeningFeeParams_clone(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS2OpeningFeeParamss contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS2OpeningFeeParams_eq(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR a, const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2GetInfoResponse, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2GetInfoResponse_free(struct LDKLSPS2GetInfoResponse this_obj);
+
+/**
+ * A set of opening fee parameters.
+ */
+struct LDKCVec_LSPS2OpeningFeeParamsZ LSPS2GetInfoResponse_get_opening_fee_params_menu(const struct LDKLSPS2GetInfoResponse *NONNULL_PTR this_ptr);
+
+/**
+ * A set of opening fee parameters.
+ */
+void LSPS2GetInfoResponse_set_opening_fee_params_menu(struct LDKLSPS2GetInfoResponse *NONNULL_PTR this_ptr, struct LDKCVec_LSPS2OpeningFeeParamsZ val);
+
+/**
+ * Constructs a new LSPS2GetInfoResponse given each field
+ */
+MUST_USE_RES struct LDKLSPS2GetInfoResponse LSPS2GetInfoResponse_new(struct LDKCVec_LSPS2OpeningFeeParamsZ opening_fee_params_menu_arg);
+
+/**
+ * Creates a copy of the LSPS2GetInfoResponse
+ */
+struct LDKLSPS2GetInfoResponse LSPS2GetInfoResponse_clone(const struct LDKLSPS2GetInfoResponse *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS2GetInfoResponses contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS2GetInfoResponse_eq(const struct LDKLSPS2GetInfoResponse *NONNULL_PTR a, const struct LDKLSPS2GetInfoResponse *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2BuyRequest, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2BuyRequest_free(struct LDKLSPS2BuyRequest this_obj);
+
+/**
+ * The fee parameters you would like to use.
+ */
+struct LDKLSPS2OpeningFeeParams LSPS2BuyRequest_get_opening_fee_params(const struct LDKLSPS2BuyRequest *NONNULL_PTR this_ptr);
+
+/**
+ * The fee parameters you would like to use.
+ */
+void LSPS2BuyRequest_set_opening_fee_params(struct LDKLSPS2BuyRequest *NONNULL_PTR this_ptr, struct LDKLSPS2OpeningFeeParams val);
+
+/**
+ * The size of the initial payment you expect to receive.
+ */
+struct LDKCOption_u64Z LSPS2BuyRequest_get_payment_size_msat(const struct LDKLSPS2BuyRequest *NONNULL_PTR this_ptr);
+
+/**
+ * The size of the initial payment you expect to receive.
+ */
+void LSPS2BuyRequest_set_payment_size_msat(struct LDKLSPS2BuyRequest *NONNULL_PTR this_ptr, struct LDKCOption_u64Z val);
+
+/**
+ * Constructs a new LSPS2BuyRequest given each field
+ */
+MUST_USE_RES struct LDKLSPS2BuyRequest LSPS2BuyRequest_new(struct LDKLSPS2OpeningFeeParams opening_fee_params_arg, struct LDKCOption_u64Z payment_size_msat_arg);
+
+/**
+ * Creates a copy of the LSPS2BuyRequest
+ */
+struct LDKLSPS2BuyRequest LSPS2BuyRequest_clone(const struct LDKLSPS2BuyRequest *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS2BuyRequests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS2BuyRequest_eq(const struct LDKLSPS2BuyRequest *NONNULL_PTR a, const struct LDKLSPS2BuyRequest *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2InterceptScid, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2InterceptScid_free(struct LDKLSPS2InterceptScid this_obj);
+
+/**
+ * Creates a copy of the LSPS2InterceptScid
+ */
+struct LDKLSPS2InterceptScid LSPS2InterceptScid_clone(const struct LDKLSPS2InterceptScid *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS2InterceptScids contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS2InterceptScid_eq(const struct LDKLSPS2InterceptScid *NONNULL_PTR a, const struct LDKLSPS2InterceptScid *NONNULL_PTR b);
+
+/**
+ * Try to convert a [`LSPS2InterceptScid`] into a u64 used by LDK.
+ */
+MUST_USE_RES struct LDKCResult_u64NoneZ LSPS2InterceptScid_to_scid(const struct LDKLSPS2InterceptScid *NONNULL_PTR this_arg);
+
+/**
+ * Frees any resources used by the LSPS2BuyResponse, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2BuyResponse_free(struct LDKLSPS2BuyResponse this_obj);
+
+/**
+ * The intercept short channel id used by LSP to identify need to open channel.
+ */
+struct LDKLSPS2InterceptScid LSPS2BuyResponse_get_jit_channel_scid(const struct LDKLSPS2BuyResponse *NONNULL_PTR this_ptr);
+
+/**
+ * The intercept short channel id used by LSP to identify need to open channel.
+ */
+void LSPS2BuyResponse_set_jit_channel_scid(struct LDKLSPS2BuyResponse *NONNULL_PTR this_ptr, struct LDKLSPS2InterceptScid val);
+
+/**
+ * The locktime expiry delta the lsp requires.
+ */
+uint32_t LSPS2BuyResponse_get_lsp_cltv_expiry_delta(const struct LDKLSPS2BuyResponse *NONNULL_PTR this_ptr);
+
+/**
+ * The locktime expiry delta the lsp requires.
+ */
+void LSPS2BuyResponse_set_lsp_cltv_expiry_delta(struct LDKLSPS2BuyResponse *NONNULL_PTR this_ptr, uint32_t val);
+
+/**
+ * A flag that indicates who is trusting who.
+ */
+bool LSPS2BuyResponse_get_client_trusts_lsp(const struct LDKLSPS2BuyResponse *NONNULL_PTR this_ptr);
+
+/**
+ * A flag that indicates who is trusting who.
+ */
+void LSPS2BuyResponse_set_client_trusts_lsp(struct LDKLSPS2BuyResponse *NONNULL_PTR this_ptr, bool val);
+
+/**
+ * Constructs a new LSPS2BuyResponse given each field
+ */
+MUST_USE_RES struct LDKLSPS2BuyResponse LSPS2BuyResponse_new(struct LDKLSPS2InterceptScid jit_channel_scid_arg, uint32_t lsp_cltv_expiry_delta_arg, bool client_trusts_lsp_arg);
+
+/**
+ * Creates a copy of the LSPS2BuyResponse
+ */
+struct LDKLSPS2BuyResponse LSPS2BuyResponse_clone(const struct LDKLSPS2BuyResponse *NONNULL_PTR orig);
+
+/**
+ * Checks if two LSPS2BuyResponses contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ * Two objects with NULL inner values will be considered "equal" here.
+ */
+bool LSPS2BuyResponse_eq(const struct LDKLSPS2BuyResponse *NONNULL_PTR a, const struct LDKLSPS2BuyResponse *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2Request
+ */
+void LSPS2Request_free(struct LDKLSPS2Request this_ptr);
+
+/**
+ * Creates a copy of the LSPS2Request
+ */
+struct LDKLSPS2Request LSPS2Request_clone(const struct LDKLSPS2Request *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new GetInfo-variant LSPS2Request
+ */
+struct LDKLSPS2Request LSPS2Request_get_info(struct LDKLSPS2GetInfoRequest a);
+
+/**
+ * Utility method to constructs a new Buy-variant LSPS2Request
+ */
+struct LDKLSPS2Request LSPS2Request_buy(struct LDKLSPS2BuyRequest a);
+
+/**
+ * Checks if two LSPS2Requests contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS2Request_eq(const struct LDKLSPS2Request *NONNULL_PTR a, const struct LDKLSPS2Request *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2Response
+ */
+void LSPS2Response_free(struct LDKLSPS2Response this_ptr);
+
+/**
+ * Creates a copy of the LSPS2Response
+ */
+struct LDKLSPS2Response LSPS2Response_clone(const struct LDKLSPS2Response *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new GetInfo-variant LSPS2Response
+ */
+struct LDKLSPS2Response LSPS2Response_get_info(struct LDKLSPS2GetInfoResponse a);
+
+/**
+ * Utility method to constructs a new GetInfoError-variant LSPS2Response
+ */
+struct LDKLSPS2Response LSPS2Response_get_info_error(struct LDKLSPSResponseError a);
+
+/**
+ * Utility method to constructs a new Buy-variant LSPS2Response
+ */
+struct LDKLSPS2Response LSPS2Response_buy(struct LDKLSPS2BuyResponse a);
+
+/**
+ * Utility method to constructs a new BuyError-variant LSPS2Response
+ */
+struct LDKLSPS2Response LSPS2Response_buy_error(struct LDKLSPSResponseError a);
+
+/**
+ * Checks if two LSPS2Responses contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS2Response_eq(const struct LDKLSPS2Response *NONNULL_PTR a, const struct LDKLSPS2Response *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2Message
+ */
+void LSPS2Message_free(struct LDKLSPS2Message this_ptr);
+
+/**
+ * Creates a copy of the LSPS2Message
+ */
+struct LDKLSPS2Message LSPS2Message_clone(const struct LDKLSPS2Message *NONNULL_PTR orig);
+
+/**
+ * Utility method to constructs a new Request-variant LSPS2Message
+ */
+struct LDKLSPS2Message LSPS2Message_request(struct LDKLSPSRequestId a, struct LDKLSPS2Request b);
+
+/**
+ * Utility method to constructs a new Response-variant LSPS2Message
+ */
+struct LDKLSPS2Message LSPS2Message_response(struct LDKLSPSRequestId a, struct LDKLSPS2Response b);
+
+/**
+ * Checks if two LSPS2Messages contain equal inner contents.
+ * This ignores pointers and is_owned flags and looks at the values in fields.
+ */
+bool LSPS2Message_eq(const struct LDKLSPS2Message *NONNULL_PTR a, const struct LDKLSPS2Message *NONNULL_PTR b);
+
+/**
+ * Frees any resources used by the LSPS2ServiceConfig, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2ServiceConfig_free(struct LDKLSPS2ServiceConfig this_obj);
+
+/**
+ * Used to calculate the promise for channel parameters supplied to clients.
+ *
+ * Note: If this changes then old promises given out will be considered invalid.
+ */
+const uint8_t (*LSPS2ServiceConfig_get_promise_secret(const struct LDKLSPS2ServiceConfig *NONNULL_PTR this_ptr))[32];
+
+/**
+ * Used to calculate the promise for channel parameters supplied to clients.
+ *
+ * Note: If this changes then old promises given out will be considered invalid.
+ */
+void LSPS2ServiceConfig_set_promise_secret(struct LDKLSPS2ServiceConfig *NONNULL_PTR this_ptr, struct LDKThirtyTwoBytes val);
+
+/**
+ * Constructs a new LSPS2ServiceConfig given each field
+ */
+MUST_USE_RES struct LDKLSPS2ServiceConfig LSPS2ServiceConfig_new(struct LDKThirtyTwoBytes promise_secret_arg);
+
+/**
+ * Creates a copy of the LSPS2ServiceConfig
+ */
+struct LDKLSPS2ServiceConfig LSPS2ServiceConfig_clone(const struct LDKLSPS2ServiceConfig *NONNULL_PTR orig);
+
+/**
+ * Frees any resources used by the LSPS2ServiceHandler, if is_owned is set and inner is non-NULL.
+ */
+void LSPS2ServiceHandler_free(struct LDKLSPS2ServiceHandler this_obj);
+
+/**
+ * Used by LSP to inform a client requesting a JIT Channel the token they used is invalid.
+ *
+ * Should be called in response to receiving a [`LSPS2ServiceEvent::GetInfo`] event.
+ *
+ * [`LSPS2ServiceEvent::GetInfo`]: crate::lsps2::event::LSPS2ServiceEvent::GetInfo
+ */
+MUST_USE_RES struct LDKCResult_NoneAPIErrorZ LSPS2ServiceHandler_invalid_token_provided(const struct LDKLSPS2ServiceHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id, struct LDKLSPSRequestId request_id);
+
+/**
+ * Used by LSP to provide fee parameters to a client requesting a JIT Channel.
+ *
+ * Should be called in response to receiving a [`LSPS2ServiceEvent::GetInfo`] event.
+ *
+ * [`LSPS2ServiceEvent::GetInfo`]: crate::lsps2::event::LSPS2ServiceEvent::GetInfo
+ */
+MUST_USE_RES struct LDKCResult_NoneAPIErrorZ LSPS2ServiceHandler_opening_fee_params_generated(const struct LDKLSPS2ServiceHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id, struct LDKLSPSRequestId request_id, struct LDKCVec_LSPS2RawOpeningFeeParamsZ opening_fee_params_menu);
+
+/**
+ * Used by LSP to provide client with the intercept scid and cltv_expiry_delta to use in their invoice.
+ *
+ * Should be called in response to receiving a [`LSPS2ServiceEvent::BuyRequest`] event.
+ *
+ * [`LSPS2ServiceEvent::BuyRequest`]: crate::lsps2::event::LSPS2ServiceEvent::BuyRequest
+ */
+MUST_USE_RES struct LDKCResult_NoneAPIErrorZ LSPS2ServiceHandler_invoice_parameters_generated(const struct LDKLSPS2ServiceHandler *NONNULL_PTR this_arg, struct LDKPublicKey counterparty_node_id, struct LDKLSPSRequestId request_id, uint64_t intercept_scid, uint32_t cltv_expiry_delta, bool client_trusts_lsp, struct LDKU128 user_channel_id);
+
+/**
+ * Forward [`Event::HTLCIntercepted`] event parameters into this function.
+ *
+ * Will fail the intercepted HTLC if the intercept scid matches a payment we are expecting
+ * but the payment amount is incorrect or the expiry has passed.
+ *
+ * Will generate a [`LSPS2ServiceEvent::OpenChannel`] event if the intercept scid matches a payment we are expected
+ * and the payment amount is correct and the offer has not expired.
+ *
+ * Will do nothing if the intercept scid does not match any of the ones we gave out.
+ *
+ * [`Event::HTLCIntercepted`]: lightning::events::Event::HTLCIntercepted
+ * [`LSPS2ServiceEvent::OpenChannel`]: crate::lsps2::event::LSPS2ServiceEvent::OpenChannel
+ */
+MUST_USE_RES struct LDKCResult_NoneAPIErrorZ LSPS2ServiceHandler_htlc_intercepted(const struct LDKLSPS2ServiceHandler *NONNULL_PTR this_arg, uint64_t intercept_scid, struct LDKThirtyTwoBytes intercept_id, uint64_t expected_outbound_amount_msat, struct LDKThirtyTwoBytes payment_hash);
+
+/**
+ * Forward [`Event::HTLCHandlingFailed`] event parameter into this function.
+ *
+ * Will attempt to forward the next payment in the queue if one is present.
+ * Will do nothing if the intercept scid does not match any of the ones we gave out
+ * or if the payment queue is empty
+ *
+ * [`Event::HTLCHandlingFailed`]: lightning::events::Event::HTLCHandlingFailed
+ */
+MUST_USE_RES struct LDKCResult_NoneAPIErrorZ LSPS2ServiceHandler_htlc_handling_failed(const struct LDKLSPS2ServiceHandler *NONNULL_PTR this_arg, struct LDKHTLCDestination failed_next_destination);
+
+/**
+ * Forward [`Event::PaymentForwarded`] event parameter into this function.
+ *
+ * Will register the forwarded payment as having paid the JIT channel fee, and forward any held
+ * and future HTLCs for the SCID of the initial invoice. In the future, this will verify the
+ * `skimmed_fee_msat` in [`Event::PaymentForwarded`].
+ *
+ * Note that `next_channel_id` is required to be provided. Therefore, the corresponding
+ * [`Event::PaymentForwarded`] events need to be generated and serialized by LDK versions
+ * greater or equal to 0.0.107.
+ *
+ * [`Event::PaymentForwarded`]: lightning::events::Event::PaymentForwarded
+ */
+MUST_USE_RES struct LDKCResult_NoneAPIErrorZ LSPS2ServiceHandler_payment_forwarded(const struct LDKLSPS2ServiceHandler *NONNULL_PTR this_arg, struct LDKChannelId next_channel_id);
+
+/**
+ * Forward [`Event::ChannelReady`] event parameters into this function.
+ *
+ * Will forward the intercepted HTLC if it matches a channel
+ * we need to forward a payment over otherwise it will be ignored.
+ *
+ * [`Event::ChannelReady`]: lightning::events::Event::ChannelReady
+ */
+MUST_USE_RES struct LDKCResult_NoneAPIErrorZ LSPS2ServiceHandler_channel_ready(const struct LDKLSPS2ServiceHandler *NONNULL_PTR this_arg, struct LDKU128 user_channel_id, const struct LDKChannelId *NONNULL_PTR channel_id, struct LDKPublicKey counterparty_node_id);
+
+/**
+ * Determines if the given parameters are valid given the secret used to generate the promise.
+ */
+bool is_valid_opening_fee_params(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR fee_params, const uint8_t (*promise_secret)[32]);
+
+/**
+ * Determines if the given parameters are expired, or still valid.
+ */
+bool is_expired_opening_fee_params(const struct LDKLSPS2OpeningFeeParams *NONNULL_PTR fee_params);
+
+/**
+ * Computes the opening fee given a payment size and the fee parameters.
+ *
+ * Returns [`Option::None`] when the computation overflows.
+ *
+ * See the [`specification`](https://github.com/lightning/blips/blob/master/blip-0052.md#computing-the-opening_fee) for more details.
+ */
+struct LDKCOption_u64Z compute_opening_fee(uint64_t payment_size_msat, uint64_t opening_fee_min_fee_msat, uint64_t opening_fee_proportional);
+
+/**
+ * Frees any resources used by the MessageQueue, if is_owned is set and inner is non-NULL.
+ */
+void MessageQueue_free(struct LDKMessageQueue this_obj);
+
+/**
+ * Calls the free function if one is set
+ */
+void ProcessMessagesCallback_free(struct LDKProcessMessagesCallback this_ptr);
 
 #endif /* LDK_C_BINDINGS_H */
 

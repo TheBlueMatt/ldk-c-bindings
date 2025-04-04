@@ -657,9 +657,9 @@ pub extern "C" fn UnsignedBolt12Invoice_is_expired(this_arg: &crate::lightning::
 /// least-preferred.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn UnsignedBolt12Invoice_fallbacks(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> crate::c_types::derived::CVec_StrZ {
+pub extern "C" fn UnsignedBolt12Invoice_fallbacks(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> crate::c_types::derived::CVec_AddressZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.fallbacks();
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { alloc::string::ToString::to_string(&item).into() }); };
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::c_types::Address::from_rust(&item) }); };
 	local_ret.into()
 }
 
@@ -967,9 +967,9 @@ pub extern "C" fn Bolt12Invoice_is_expired(this_arg: &crate::lightning::offers::
 /// least-preferred.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Bolt12Invoice_fallbacks(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::c_types::derived::CVec_StrZ {
+pub extern "C" fn Bolt12Invoice_fallbacks(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::c_types::derived::CVec_AddressZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.fallbacks();
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { alloc::string::ToString::to_string(&item).into() }); };
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::c_types::Address::from_rust(&item) }); };
 	local_ret.into()
 }
 

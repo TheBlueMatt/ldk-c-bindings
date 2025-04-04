@@ -398,6 +398,18 @@ pub static DEFAULT_EXPIRY_TIME: u64 = lightning_invoice::DEFAULT_EXPIRY_TIME;
 
 #[no_mangle]
 pub static DEFAULT_MIN_FINAL_CLTV_EXPIRY_DELTA: u64 = lightning_invoice::DEFAULT_MIN_FINAL_CLTV_EXPIRY_DELTA;
+/// lightning-invoice will reject BOLT11 invoices that are longer than 7089 bytes.
+///
+/// ### Rationale
+///
+/// This value matches LND's implementation, which was chosen to be \"the max number
+/// of bytes that can fit in a QR code\". LND's rationale is technically incorrect
+/// as QR codes actually have a max capacity of 7089 _numeric_ characters and only
+/// support up to 4296 all-uppercase alphanumeric characters. However, ecosystem-wide
+/// consistency is more important.
+
+#[no_mangle]
+pub static MAX_LENGTH: usize = lightning_invoice::MAX_LENGTH;
 
 use lightning_invoice::Bolt11Invoice as nativeBolt11InvoiceImport;
 pub(crate) type nativeBolt11Invoice = nativeBolt11InvoiceImport;
@@ -2676,9 +2688,9 @@ pub extern "C" fn Bolt11Invoice_min_final_cltv_expiry_delta(this_arg: &crate::li
 /// Returns a list of all fallback addresses as [`Address`]es
 #[must_use]
 #[no_mangle]
-pub extern "C" fn Bolt11Invoice_fallback_addresses(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::c_types::derived::CVec_StrZ {
+pub extern "C" fn Bolt11Invoice_fallback_addresses(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::c_types::derived::CVec_AddressZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.fallback_addresses();
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { alloc::string::ToString::to_string(&item).into() }); };
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::c_types::Address::from_rust(&item) }); };
 	local_ret.into()
 }
 
