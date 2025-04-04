@@ -1076,7 +1076,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"str" => Some("crate::c_types::Str"),
 			"alloc::string::String"|"String"|"std::path::PathBuf" => Some("crate::c_types::Str"),
 
-			"bitcoin::address::Address"|"bitcoin::Address" => Some("crate::c_types::Str"),
+			"bitcoin::address::Address"|"bitcoin::Address" => Some("crate::c_types::Address"),
 
 			"std::time::Duration"|"core::time::Duration" => Some("u64"),
 			"std::time::SystemTime" => Some("u64"),
@@ -1206,6 +1206,8 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"core::num::ParseIntError" => Some("u8::from_str_radix(\" a\", 10).unwrap_err() /*"),
 			"core::str::Utf8Error" => Some("core::str::from_utf8(&[0xff]).unwrap_err() /*"),
 
+			"bitcoin::address::Address"|"bitcoin::Address" => Some(""),
+
 			"std::time::Duration"|"core::time::Duration" => Some("core::time::Duration::from_secs("),
 			"std::time::SystemTime" => Some("(::std::time::SystemTime::UNIX_EPOCH + std::time::Duration::from_secs("),
 
@@ -1327,6 +1329,8 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"core::num::ParseIntError" => Some("*/"),
 			"core::str::Utf8Error" => Some("*/"),
 
+			"bitcoin::address::Address"|"bitcoin::Address" => Some(".into_rust()"),
+
 			"std::time::Duration"|"core::time::Duration" => Some(")"),
 			"std::time::SystemTime" => Some("))"),
 
@@ -1442,7 +1446,8 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"str" => Some(""),
 			"alloc::string::String"|"String"|"std::path::PathBuf" => Some(""),
 
-			"bitcoin::address::Address"|"bitcoin::Address" => Some("alloc::string::ToString::to_string(&"),
+			"bitcoin::address::Address"|"bitcoin::Address" if is_ref => Some("crate::c_types::Address::from_rust("),
+			"bitcoin::address::Address"|"bitcoin::Address" if !is_ref => Some("crate::c_types::Address::from_rust(&"),
 
 			"std::time::Duration"|"core::time::Duration" => Some(""),
 			"std::time::SystemTime" => Some(""),
@@ -1558,7 +1563,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"alloc::string::String"|"String"|"std::path::PathBuf" if is_ref => Some(".as_str().into()"),
 			"alloc::string::String"|"String"|"std::path::PathBuf" => Some(".into()"),
 
-			"bitcoin::address::Address"|"bitcoin::Address" => Some(").into()"),
+			"bitcoin::address::Address"|"bitcoin::Address" => Some(")"),
 
 			"std::time::Duration"|"core::time::Duration" => Some(".as_secs()"),
 			"std::time::SystemTime" => Some(".duration_since(::std::time::SystemTime::UNIX_EPOCH).expect(\"Times must be post-1970\").as_secs()"),

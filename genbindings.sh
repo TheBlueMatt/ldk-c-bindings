@@ -241,6 +241,9 @@ if [ "$CFLAGS_aarch64_apple_darwin" != "" -a "$HOST_OSX" = "true" ]; then
 fi
 cbindgen -v --config cbindgen.toml -o include/lightning.h >/dev/null 2>&1
 
+echo "struct LDKBitcoinAddress;" >> include/ldk_rust_types.h
+echo "typedef struct LDKBitcoinAddress LDKBitcoinAddress;" >> include/ldk_rust_types.h
+
 # cbindgen is relatively braindead when exporting typedefs -
 # it happily exports all our typedefs for private types, even with the
 # generics we specified in C mode! So we drop all those types manually here.
