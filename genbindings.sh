@@ -207,6 +207,7 @@ if [ "$2" = "true" ]; then
 	add_crate "lightning-background-processor" "lightning_background_processor" --features=std,lightning/std
 	add_crate "lightning-invoice" "lightning_invoice" --features=std
 	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync" --features=std,lightning/std
+	add_crate "lightning-liquidity" "lightning_liquidity" --features=std,lightning/std
 	CARGO_BUILD_ARGS="--features=std"
 else
 	add_crate lightning lightning --features=dnssec
@@ -215,6 +216,7 @@ else
 	add_crate "lightning-background-processor" "lightning_background_processor"
 	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync"
 	add_crate "lightning-invoice" "lightning_invoice"
+	add_crate "lightning-liquidity" "lightning_liquidity"
 	CARGO_BUILD_ARGS="--features=no-std"
 fi
 

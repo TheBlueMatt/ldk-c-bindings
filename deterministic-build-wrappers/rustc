@@ -11,7 +11,7 @@ SKIP_EMBED_BITCODE=false
 for ((i=0; i<"${#args[@]}"; ++i)); do
     case ${args[i]} in
         --crate-name)
-			if [ "${args[i+1]}" = "lightning" -o "${args[i+1]}" = "lightning_types" -o "${args[i+1]}" = "lightning_background_processor" -o "${args[i+1]}" = "lightning_invoice" -o "${args[i+1]}" = "lightning_persister" -o "${args[i+1]}" = "lightning_rapid_gossip_sync" -o "${args[i+1]}" = "lightning_transaction_sync" -o "${args[i+1]}" = "ldk" ]; then
+			if [ "${args[i+1]}" = "lightning" -o "${args[i+1]}" = "lightning_types" -o "${args[i+1]}" = "lightning_background_processor" -o "${args[i+1]}" = "lightning_invoice" -o "${args[i+1]}" = "lightning_persister" -o "${args[i+1]}" = "lightning_rapid_gossip_sync" -o "${args[i+1]}" = "lightning_liquidity" -o "${args[i+1]}" = "lightning_transaction_sync" -o "${args[i+1]}" = "ldk" ]; then
 				IS_LIGHTNING=true
 			fi
 			;;
