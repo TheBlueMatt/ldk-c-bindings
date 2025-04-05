@@ -620,7 +620,7 @@ for IDX in ${!EXTRA_TARGETS[@]}; do
 			;;
 	esac
 	[ "${EXTRA_LINK_LTO[$IDX]}" != "" ] && EXTRA_RUSTFLAGS="-C linker-plugin-lto"
-	RUSTFLAGS="$BASE_RUSTFLAGS -C embed-bitcode=yes -C lto -C linker=${EXTRA_CCS[$IDX]} $EXTRA_RUSTFLAGS" CARGO_PROFILE_RELEASE_LTO=true cargo build $CARGO_BUILD_ARGS -v --release --target "${EXTRA_TARGETS[$IDX]}"
+	RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C embed-bitcode=yes -C lto -C linker=${EXTRA_CCS[$IDX]} $EXTRA_RUSTFLAGS" CARGO_PROFILE_RELEASE_LTO=true cargo build $CARGO_BUILD_ARGS -v --release --target "${EXTRA_TARGETS[$IDX]}" -Zbuild-std=std,panic_abort
 done
 
 if [ "$CLANGPP" != "" -a "$LLD" != "" ]; then
