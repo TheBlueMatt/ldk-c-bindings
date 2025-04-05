@@ -610,12 +610,12 @@ fi
 
 for IDX in ${!EXTRA_TARGETS[@]}; do
 	EXTRA_ENV_TARGET=$(echo "${EXTRA_TARGETS[$IDX]}" | sed 's/-/_/g')
-	export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS"
+	export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS -fPIC"
 	export CC_$EXTRA_ENV_TARGET=${EXTRA_CCS[$IDX]}
 	EXTRA_RUSTFLAGS=""
 	case "$EXTRA_ENV_TARGET" in
 		"x86_64"*)
-			export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS -march=sandybridge -mtune=sandybridge"
+			export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS -march=sandybridge -mtune=sandybridge -fPIC"
 			EXTRA_RUSTFLAGS="-C target-cpu=sandybridge"
 			;;
 	esac
