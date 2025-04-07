@@ -620,7 +620,13 @@ for IDX in ${!EXTRA_TARGETS[@]}; do
 			;;
 	esac
 	[ "${EXTRA_LINK_LTO[$IDX]}" != "" ] && EXTRA_RUSTFLAGS="-C linker-plugin-lto"
-	RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C embed-bitcode=yes -C lto -C linker=${EXTRA_CCS[$IDX]} $EXTRA_RUSTFLAGS" CARGO_PROFILE_RELEASE_LTO=true cargo build $CARGO_BUILD_ARGS -v --release --target "${EXTRA_TARGETS[$IDX]}" -Zbuild-std=std,panic_abort
+
+	# At some point rustc fixed the issue which merits REALLY_PIN_CC. I'm not sure when,
+	# however, so we just use 1.84 as the cutoff.
+	[ "$RUSTC_MINOR_VERSION" -lt 84 ] && REALLY_PIN_CC
+	[ "$RUSTC_MINOR_VERSION" -lt 84 ] && OFFLINE_OPT="--offline"
+
+	RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C embed-bitcode=yes -C lto -C linker=${EXTRA_CCS[$IDX]} $EXTRA_RUSTFLAGS" CARGO_PROFILE_RELEASE_LTO=true cargo build $OFFLINE_OPT $CARGO_BUILD_ARGS -v --release --target "${EXTRA_TARGETS[$IDX]}" -Zbuild-std=std,panic_abort
 done
 
 if [ "$CLANGPP" != "" -a "$LLD" != "" ]; then
