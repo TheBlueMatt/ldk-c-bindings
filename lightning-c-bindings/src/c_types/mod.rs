@@ -5,7 +5,7 @@ pub mod derived;
 
 use bitcoin::Transaction as BitcoinTransaction;
 use bitcoin::Witness as BitcoinWitness;
-use bitcoin::address;
+use bitcoin::Address as BitcoinAddress;
 use bitcoin::WitnessProgram as BitcoinWitnessProgram;
 use bitcoin::WitnessVersion as BitcoinWitnessVersion;
 use bitcoin::key::TweakedPublicKey as BitcoinTweakedPublicKey;
@@ -22,7 +22,11 @@ use bitcoin::secp256k1::Scalar as SecpScalar;
 use bech32;
 
 use core::convert::TryInto; // Bindings need at least rustc 1.34
+use core::str::FromStr;
+
 use alloc::borrow::ToOwned;
+use alloc::string::ToString;
+
 use core::ffi::c_void;
 
 pub(crate) use bitcoin::io::{self, Cursor, Read};
@@ -148,6 +152,43 @@ pub extern "C" fn WitnessProgram_clone(orig: &WitnessProgram) -> WitnessProgram 
 #[no_mangle]
 /// Releases any memory held by the given `WitnessProgram` (which is currently none)
 pub extern "C" fn WitnessProgram_free(o: WitnessProgram) { }
+
+#[derive(Clone)]
+#[repr(C)]
+/// Represents a valid Bitcoin on-chain address.
+pub struct Address {
+	address: Box<BitcoinAddress>,
+}
+impl Address {
+	pub(crate) fn into_rust(&self) -> BitcoinAddress {
+		(*self.address).clone()
+	}
+	pub(crate) fn from_rust(address: &BitcoinAddress) -> Self {
+		Self { address: Box::new(address.clone()) }
+	}
+}
+
+#[no_mangle]
+/// Gets the string representation of the address in `addr`
+pub extern "C" fn Address_to_string(addr: &Address) -> Str {
+	addr.address.to_string().into()
+}
+#[no_mangle]
+/// Constructs a new `Address` (option) from the given string representation.
+///
+/// Returns `None` only if the address is invalid.
+pub extern "C" fn Address_new(s: Str) -> derived::COption_AddressZ {
+	match BitcoinAddress::from_str(s.into_str()) {
+		Ok(a) => derived::COption_AddressZ::Some(Address { address: Box::new(a.assume_checked()) }),
+		Err(_) => derived::COption_AddressZ::None,
+	}
+}
+#[no_mangle]
+/// Releases any memory held by the given `Address`
+pub extern "C" fn Address_free(o: Address) { }
+#[no_mangle]
+/// Creates a new Address which has the same data as `orig`
+pub extern "C" fn Address_clone(orig: &Address) -> Address { orig.clone() }
 
 #[derive(Clone)]
 #[repr(C)]

@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 compiler_builtins = "=0.1.109"
+gimli = "=0.25.0"
+object = "=0.26.2"

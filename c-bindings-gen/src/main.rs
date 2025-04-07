@@ -1067,10 +1067,11 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 					if types.understood_c_path(&trait_path.1) && trait_obj_opt.is_some() {
 						let full_trait_path = full_trait_path_opt.unwrap();
 						let trait_obj = *trait_obj_opt.unwrap();
+						let trait_context_resolver = get_module_type_resolver!(full_trait_path, types.crate_types);
 
 						let supertrait_name;
 						let supertrait_resolver;
-						walk_supertraits!(trait_obj, Some(&types), (
+						walk_supertraits!(trait_obj, Some(&trait_context_resolver), (
 							(s, _i, _) => {
 								if let Some(supertrait) = types.crate_types.traits.get(s) {
 									supertrait_name = s.to_string();
@@ -1193,7 +1194,7 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 							}
 						}
 						let mut requires_clone = false;
-						walk_supertraits!(trait_obj, Some(&types), (
+						walk_supertraits!(trait_obj, Some(&trait_context_resolver), (
 							("Clone", _, _) => {
 								requires_clone = true;
 								writeln!(w, "\t\tcloned: Some({}_{}_cloned),", trait_obj.ident, ident).unwrap();
@@ -2169,7 +2170,19 @@ fn convert_file<'a, 'b>(libast: &'a FullLibraryAST, crate_types: &CrateTypes<'a>
 		} else {
 			format!("{}/lib.rs", out_dir)
 		};
-		let _ = std::fs::create_dir((&new_file_path.as_ref() as &std::path::Path).parent().unwrap());
+
+		fn create_dir_recursive(path: &std::path::Path) {
+			match std::fs::create_dir(path) {
+				Ok(_) => {},
+				Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {},
+				Err(_) => {
+					create_dir_recursive(path.parent().unwrap());
+					std::fs::create_dir(path).expect("Failed to create output dir");
+				},
+			}
+		}
+		create_dir_recursive((&new_file_path.as_ref() as &std::path::Path).parent().unwrap());
+
 		let mut out = std::fs::OpenOptions::new().write(true).create(true).truncate(true)
 			.open(new_file_path).expect("Unable to open new src file");
 		let mut out_uses = HashSet::default();

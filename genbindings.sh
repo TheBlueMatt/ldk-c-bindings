@@ -207,6 +207,7 @@ if [ "$2" = "true" ]; then
 	add_crate "lightning-background-processor" "lightning_background_processor" --features=std,lightning/std
 	add_crate "lightning-invoice" "lightning_invoice" --features=std
 	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync" --features=std,lightning/std
+	add_crate "lightning-liquidity" "lightning_liquidity" --features=std,lightning/std
 	CARGO_BUILD_ARGS="--features=std"
 else
 	add_crate lightning lightning --features=dnssec
@@ -215,6 +216,7 @@ else
 	add_crate "lightning-background-processor" "lightning_background_processor"
 	add_crate "lightning-rapid-gossip-sync" "lightning_rapid_gossip_sync"
 	add_crate "lightning-invoice" "lightning_invoice"
+	add_crate "lightning-liquidity" "lightning_liquidity"
 	CARGO_BUILD_ARGS="--features=no-std"
 fi
 
@@ -240,6 +242,9 @@ if [ "$CFLAGS_aarch64_apple_darwin" != "" -a "$HOST_OSX" = "true" ]; then
 	RUSTFLAGS="$BASE_RUSTFLAGS -C target-cpu=apple-a14" cargo build $CARGO_BUILD_ARGS --target aarch64-apple-darwin
 fi
 cbindgen -v --config cbindgen.toml -o include/lightning.h >/dev/null 2>&1
+
+echo "struct LDKBitcoinAddress;" >> include/ldk_rust_types.h
+echo "typedef struct LDKBitcoinAddress LDKBitcoinAddress;" >> include/ldk_rust_types.h
 
 # cbindgen is relatively braindead when exporting typedefs -
 # it happily exports all our typedefs for private types, even with the
@@ -605,17 +610,25 @@ fi
 
 for IDX in ${!EXTRA_TARGETS[@]}; do
 	EXTRA_ENV_TARGET=$(echo "${EXTRA_TARGETS[$IDX]}" | sed 's/-/_/g')
-	export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS"
+	export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS -fPIC"
 	export CC_$EXTRA_ENV_TARGET=${EXTRA_CCS[$IDX]}
+	# Dunno why cc even looks for a target-specific ar, but just use LLVM
+	export AR_$EXTRA_ENV_TARGET=llvm-ar
 	EXTRA_RUSTFLAGS=""
 	case "$EXTRA_ENV_TARGET" in
 		"x86_64"*)
-			export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS -march=sandybridge -mtune=sandybridge"
+			export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS -march=sandybridge -mtune=sandybridge -fPIC"
 			EXTRA_RUSTFLAGS="-C target-cpu=sandybridge"
 			;;
 	esac
 	[ "${EXTRA_LINK_LTO[$IDX]}" != "" ] && EXTRA_RUSTFLAGS="-C linker-plugin-lto"
-	RUSTFLAGS="$BASE_RUSTFLAGS -C embed-bitcode=yes -C lto -C linker=${EXTRA_CCS[$IDX]} $EXTRA_RUSTFLAGS" CARGO_PROFILE_RELEASE_LTO=true cargo build $CARGO_BUILD_ARGS -v --release --target "${EXTRA_TARGETS[$IDX]}"
+
+	# At some point rustc fixed the issue which merits REALLY_PIN_CC. I'm not sure when,
+	# however, so we just use 1.84 as the cutoff.
+	[ "$RUSTC_MINOR_VERSION" -lt 84 ] && REALLY_PIN_CC
+	[ "$RUSTC_MINOR_VERSION" -lt 84 ] && OFFLINE_OPT="--offline"
+
+	RUSTC_BOOTSTRAP=1 RUSTFLAGS="$BASE_RUSTFLAGS -C embed-bitcode=yes -C lto -C linker=${EXTRA_CCS[$IDX]} $EXTRA_RUSTFLAGS" CARGO_PROFILE_RELEASE_LTO=true cargo build $OFFLINE_OPT $CARGO_BUILD_ARGS -v --release --target "${EXTRA_TARGETS[$IDX]}" -Zbuild-std=std,panic_abort
 done
 
 if [ "$CLANGPP" != "" -a "$LLD" != "" ]; then
