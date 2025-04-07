@@ -612,6 +612,8 @@ for IDX in ${!EXTRA_TARGETS[@]}; do
 	EXTRA_ENV_TARGET=$(echo "${EXTRA_TARGETS[$IDX]}" | sed 's/-/_/g')
 	export CFLAGS_$EXTRA_ENV_TARGET="$BASE_CFLAGS -fPIC"
 	export CC_$EXTRA_ENV_TARGET=${EXTRA_CCS[$IDX]}
+	# Dunno why cc even looks for a target-specific ar, but just use LLVM
+	export AR_$EXTRA_ENV_TARGET=llvm-ar
 	EXTRA_RUSTFLAGS=""
 	case "$EXTRA_ENV_TARGET" in
 		"x86_64"*)
