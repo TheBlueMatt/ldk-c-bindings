@@ -54466,6 +54466,17 @@ MUST_USE_RES struct LDKCResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12Seman
 MUST_USE_RES struct LDKCResult_InvoiceWithDerivedSigningPubkeyBuilderBolt12SemanticErrorZ VerifiedInvoiceRequest_respond_using_derived_keys_no_std(const struct LDKVerifiedInvoiceRequest *NONNULL_PTR this_arg, struct LDKCVec_BlindedPaymentPathZ payment_paths, struct LDKThirtyTwoBytes payment_hash, uint64_t created_at);
 
 /**
+ * Fetch the [`InvoiceRequestFields`] for this verified invoice.
+ *
+ * These are fields which we expect to be useful when receiving a payment for this invoice
+ * request, and include the returned [`InvoiceRequestFields`] in the
+ * [`PaymentContext::Bolt12Offer`].
+ *
+ * [`PaymentContext::Bolt12Offer`]: crate::blinded_path::payment::PaymentContext::Bolt12Offer
+ */
+MUST_USE_RES struct LDKInvoiceRequestFields VerifiedInvoiceRequest_fields(const struct LDKVerifiedInvoiceRequest *NONNULL_PTR this_arg);
+
+/**
  * Serialize the UnsignedInvoiceRequest object into a byte array which can be read by UnsignedInvoiceRequest_read
  */
 struct LDKCVec_u8Z UnsignedInvoiceRequest_write(const struct LDKUnsignedInvoiceRequest *NONNULL_PTR obj);

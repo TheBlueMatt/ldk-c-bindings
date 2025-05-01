@@ -1331,6 +1331,20 @@ pub extern "C" fn VerifiedInvoiceRequest_respond_using_derived_keys_no_std(this_
 	local_ret
 }
 
+/// Fetch the [`InvoiceRequestFields`] for this verified invoice.
+///
+/// These are fields which we expect to be useful when receiving a payment for this invoice
+/// request, and include the returned [`InvoiceRequestFields`] in the
+/// [`PaymentContext::Bolt12Offer`].
+///
+/// [`PaymentContext::Bolt12Offer`]: crate::blinded_path::payment::PaymentContext::Bolt12Offer
+#[must_use]
+#[no_mangle]
+pub extern "C" fn VerifiedInvoiceRequest_fields(this_arg: &crate::lightning::offers::invoice_request::VerifiedInvoiceRequest) -> crate::lightning::offers::invoice_request::InvoiceRequestFields {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.fields();
+	crate::lightning::offers::invoice_request::InvoiceRequestFields { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
 #[no_mangle]
 /// Serialize the UnsignedInvoiceRequest object into a byte array which can be read by UnsignedInvoiceRequest_read
 pub extern "C" fn UnsignedInvoiceRequest_write(obj: &crate::lightning::offers::invoice_request::UnsignedInvoiceRequest) -> crate::c_types::derived::CVec_u8Z {
