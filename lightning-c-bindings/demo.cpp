@@ -564,7 +564,7 @@ int main() {
 	LDKThirtyTwoBytes chain_tip;
 	memset(&chain_tip, 0, sizeof(chain_tip)); // channel_open_header's prev_blockhash is all-0s
 
-	LDKNetwork network = LDKNetwork_Testnet;
+	LDKNetwork network = LDKNetwork_Testnet3;
 
 	// Trait implementations:
 	LDKBroadcasterInterface broadcast {
