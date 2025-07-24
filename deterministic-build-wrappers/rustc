@@ -8,11 +8,15 @@
 args=("$@")
 IS_LIGHTNING=false
 SKIP_EMBED_BITCODE=false
+MAY_NEED_COMPILER_BUILTINS=false
+DEP_PATH=""
 for ((i=0; i<"${#args[@]}"; ++i)); do
     case ${args[i]} in
         --crate-name)
 			if [ "${args[i+1]}" = "lightning" -o "${args[i+1]}" = "lightning_types" -o "${args[i+1]}" = "lightning_background_processor" -o "${args[i+1]}" = "lightning_invoice" -o "${args[i+1]}" = "lightning_persister" -o "${args[i+1]}" = "lightning_rapid_gossip_sync" -o "${args[i+1]}" = "lightning_liquidity" -o "${args[i+1]}" = "lightning_transaction_sync" -o "${args[i+1]}" = "ldk" ]; then
 				IS_LIGHTNING=true
+			elif [ "${args[i+1]}" = "memchr" -o "${args[i+1]}" = "rustc_demangle" -o "${args[i+1]}" = "unwind" ]; then
+				MAY_NEED_COMPILER_BUILTINS=true
 			fi
 			;;
 		--crate-type)
@@ -21,6 +25,10 @@ for ((i=0; i<"${#args[@]}"; ++i)); do
 				# embed-bitcode=yes, which we don't want.
 				SKIP_EMBED_BITCODE=true
 			fi
+			;;
+		--extern)
+			IFS="=" PAIR=(${args[i+1]})
+			DEP_PATH="$(dirname ${PAIR[1]})"
 			;;
     esac
 done
@@ -44,4 +52,29 @@ for ((i=0; i<"${#args[@]}"; ++i)); do
 			;;
     esac
 done
-$LDK_RUSTC_PATH "${args[@]}"
+
+# For some reason, sometimes when building with build-std cargo forgets to give crates a path to
+# their `compiler_builtin` dependencies. This obviously shouldn't happen but we fix it here.
+EXTRA_ARGS=()
+if [ "$MAY_NEED_COMPILER_BUILTINS" = "true" ]; then
+	if [ -z "$DEP_PATH" ]; then
+		echo "WARNING: Need at least one other dependency to know where to look, build may to fail if cargo is buggy" > /dev/stderr
+	else
+		COUNT=0
+		CB_PATH="$(echo "$DEP_PATH"/libcompiler_builtins-*.rmeta)"
+		while [ ! -f "$CB_PATH" ]; do
+				# Wait until compiler_builtins finishes building...
+				sleep 1
+				COUNT="$(( $COUNT + 1 ))"
+				if [ "$COUNT" -gt 120 ]; then
+						echo "Took too long to get compiler_builtins built" > /dev/stderr
+						exit 1
+				fi
+				CB_PATH="$(echo "$DEP_PATH"/libcompiler_builtins-*.rmeta)"
+		done
+		sleep 1
+		EXTRA_ARGS=("--extern" compiler_builtins="$CB_PATH")
+	fi
+fi
+
+$LDK_RUSTC_PATH "${args[@]}" "${EXTRA_ARGS[@]}"
