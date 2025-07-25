@@ -8,7 +8,9 @@ pub enum Network {
 	/// The main Bitcoin blockchain.
 	Bitcoin,
 	/// The testnet3 blockchain.
-	Testnet,
+	Testnet3,
+	/// The testnet4 blockchain.
+	Testnet4,
 	/// A local test blockchain.
 	Regtest,
 	/// A blockchain on which blocks are signed instead of mined.
@@ -19,7 +21,8 @@ impl Network {
 	pub(crate) fn into_bitcoin(&self) -> BitcoinNetwork {
 		match self {
 			Network::Bitcoin => BitcoinNetwork::Bitcoin,
-			Network::Testnet => BitcoinNetwork::Testnet,
+			Network::Testnet3 => BitcoinNetwork::Testnet,
+			Network::Testnet4 => BitcoinNetwork::Testnet4,
 			Network::Regtest => BitcoinNetwork::Regtest,
 			Network::Signet => BitcoinNetwork::Signet,
 		}
@@ -27,7 +30,8 @@ impl Network {
 	pub(crate) fn from_bitcoin(net: &BitcoinNetwork) -> Self {
 		match net {
 			BitcoinNetwork::Bitcoin => Network::Bitcoin,
-			BitcoinNetwork::Testnet => Network::Testnet,
+			BitcoinNetwork::Testnet => Network::Testnet3,
+			BitcoinNetwork::Testnet4 => Network::Testnet4,
 			BitcoinNetwork::Regtest => Network::Regtest,
 			BitcoinNetwork::Signet => Network::Signet,
 			_ => unreachable!(),
