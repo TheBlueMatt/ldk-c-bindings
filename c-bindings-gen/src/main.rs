@@ -2554,6 +2554,7 @@ fn main() {
 
 	// Write a few manually-defined types into the C++ header file
 	write_cpp_wrapper(&mut cpp_header_file, "Str", true, None);
+	write_cpp_wrapper(&mut cpp_header_file, "ECDSASignature", false, None);
 
 	// First parse the full crate's ASTs, caching them so that we can hold references to the AST
 	// objects in other datastructures:
