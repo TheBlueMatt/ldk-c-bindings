@@ -1393,7 +1393,39 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 						// instantiated.
 						return;
 					}
-					if path_matches_nongeneric(&trait_path.1, &["From"]) {
+					if path_matches_ignoring_generics(&trait_path.1, &["From"]) {
+						let from_ty;
+						if let syn::PathArguments::AngleBracketed(args) = &trait_path.1.segments.last().unwrap().arguments {
+							assert_eq!(args.args.len(), 1);
+							if let syn::GenericArgument::Type(ref ty) = &args.args[0] {
+								from_ty = ty;
+							} else {
+								panic!("From needs arguments?");
+							}
+						} else {
+							panic!("From needs arguments?");
+						}
+						let to_std = resolved_path.starts_with("core::") || resolved_path.starts_with("std::");
+						if !to_std && types.understood_c_type(&from_ty, Some(&gen_types)) {
+							if let syn::Type::Path(from_path) = &from_ty {
+								let mut from_resolved_bytes = Vec::new();
+								types.write_c_type(&mut from_resolved_bytes, from_ty, Some(&gen_types), true);
+								let from_resolved = String::from_utf8(from_resolved_bytes).unwrap();
+								let from_ty_ident = from_resolved.rsplit("::").next().unwrap();
+								writeln!(w, "#[no_mangle]").unwrap();
+								writeln!(w, "/// Build a {ident} from a {from_ty_ident}").unwrap();
+								writeln!(w, "pub extern \"C\" fn {ident}_from_{from_ty_ident}(f: {from_resolved}) -> crate::{resolved_path} {{").unwrap();
+								write!(w, "\tlet from_obj = ").unwrap();
+								types.write_from_c_conversion_prefix(w, from_ty, Some(&gen_types));
+								write!(w, "f").unwrap();
+								types.write_from_c_conversion_suffix(w, from_ty, Some(&gen_types));
+								write!(w, ";\n\t").unwrap();
+								types.write_to_c_conversion_inline_prefix(w, &*i.self_ty, Some(&gen_types), true);
+								write!(w, "({resolved_path}::from(from_obj))").unwrap();
+								types.write_to_c_conversion_inline_suffix(w, &*i.self_ty, Some(&gen_types), true);
+								writeln!(w, "\n}}").unwrap();
+							} else { panic!("wat {:?}", from_ty); }
+						}
 					} else if path_matches_nongeneric(&trait_path.1, &["Default"]) {
 						writeln!(w, "/// Creates a \"default\" {}. See struct and individual field documentaiton for details on which values are used.", ident).unwrap();
 						write!(w, "#[must_use]\n#[no_mangle]\npub extern \"C\" fn {}_default() -> {} {{\n", ident, ident).unwrap();

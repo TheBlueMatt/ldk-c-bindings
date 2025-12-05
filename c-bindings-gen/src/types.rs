@@ -56,6 +56,14 @@ pub fn single_ident_generic_path_to_ident(p: &syn::Path) -> Option<&syn::Ident> 
 	} else { None }
 }
 
+pub fn path_matches_ignoring_generics(p: &syn::Path, exp: &[&str]) -> bool {
+	if p.segments.len() != exp.len() { return false; }
+	for (seg, e) in p.segments.iter().zip(exp.iter()) {
+		if &format!("{}", seg.ident) != *e { return false; }
+	}
+	true
+}
+
 pub fn path_matches_nongeneric(p: &syn::Path, exp: &[&str]) -> bool {
 	if p.segments.len() != exp.len() { return false; }
 	for (seg, e) in p.segments.iter().zip(exp.iter()) {
