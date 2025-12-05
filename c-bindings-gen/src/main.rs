@@ -108,7 +108,7 @@ fn maybe_convert_trait_impl<W: std::io::Write>(w: &mut W, trait_path: &syn::Path
 				}
 				writeln!(w, "}}").unwrap();
 			},
-			"lightning::util::ser::Readable"|"lightning::util::ser::ReadableArgs"|"lightning::util::ser::MaybeReadable" => {
+			"lightning::util::ser::Readable"|"lightning::util::ser::LengthReadable"|"lightning::util::ser::ReadableArgs"|"lightning::util::ser::MaybeReadable" => {
 				// Create the Result<Object, DecodeError> syn::Type
 				let mut res_ty: syn::Type = parse_quote!(Result<#for_ty, lightning::ln::msgs::DecodeError>);
 

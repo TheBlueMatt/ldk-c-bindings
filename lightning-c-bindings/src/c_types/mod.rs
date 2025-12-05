@@ -880,8 +880,8 @@ pub(crate) fn serialize_obj<I: lightning::util::ser::Writeable>(i: &I) -> derive
 	i.write(&mut out).unwrap();
 	derived::CVec_u8Z::from(out.0)
 }
-pub(crate) fn deserialize_obj<I: lightning::util::ser::Readable>(s: u8slice) -> Result<I, lightning::ln::msgs::DecodeError> {
-	I::read(&mut s.to_slice())
+pub(crate) fn deserialize_obj<I: lightning::util::ser::LengthReadable>(s: u8slice) -> Result<I, lightning::ln::msgs::DecodeError> {
+	I::read_from_fixed_length_buffer(&mut s.to_slice())
 }
 pub(crate) fn maybe_deserialize_obj<I: lightning::util::ser::MaybeReadable>(s: u8slice) -> Result<Option<I>, lightning::ln::msgs::DecodeError> {
 	I::read(&mut s.to_slice())

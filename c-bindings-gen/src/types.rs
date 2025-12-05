@@ -1160,7 +1160,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some("crate::c_types::ThirtyTwoBytes"),
 
-			"lightning::io::Read" => Some("crate::c_types::u8slice"),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some("crate::c_types::u8slice"),
 
 			_ => None,
 		}
@@ -1287,7 +1287,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"lightning::chain::ClaimId" if is_ref=> Some("&::lightning::chain::ClaimId( unsafe { *"),
 
 			// List of traits we map (possibly during processing of other files):
-			"lightning::io::Read" => Some("&mut "),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some("&mut "),
 
 			_ => None,
 		}.map(|s| s.to_owned())
@@ -1399,7 +1399,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 				if is_ref => Some(" })"),
 
 			// List of traits we map (possibly during processing of other files):
-			"lightning::io::Read" => Some(".to_reader()"),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some(".to_slice()"),
 
 			_ => None,
 		}.map(|s| s.to_owned())
@@ -1530,7 +1530,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some("crate::c_types::ThirtyTwoBytes { data: "),
 
-			"lightning::io::Read" => Some("crate::c_types::u8slice::from_vec(&crate::c_types::reader_to_vec("),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some("crate::c_types::u8slice::from_vec(&crate::c_types::reader_to_vec("),
 
 			_ => None,
 		}.map(|s| s.to_owned())
@@ -1640,7 +1640,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some(".0 }"),
 
-			"lightning::io::Read" => Some("))"),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some("))"),
 
 			_ => None,
 		}.map(|s| s.to_owned())
@@ -1661,7 +1661,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 	/// TODO: We should never need to use this!
 	fn real_rust_type_mapping<'equiv>(&self, thing: &'equiv str) -> &'equiv str {
 		match thing {
-			"lightning::io::Read" => "crate::c_types::io::Read",
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => "crate::c_types::io::Read",
 			_ => thing,
 		}
 	}
