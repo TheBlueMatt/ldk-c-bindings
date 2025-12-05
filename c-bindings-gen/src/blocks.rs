@@ -226,13 +226,13 @@ pub fn write_vec_block<W: std::io::Write>(w: &mut W, mangled_container: &str, in
 	writeln!(w, "impl {} {{", mangled_container).unwrap();
 	writeln!(w, "\t#[allow(unused)] pub(crate) fn into_rust(&mut self) -> Vec<{}> {{", inner_type).unwrap();
 	writeln!(w, "\t\tif self.datalen == 0 {{ return Vec::new(); }}").unwrap();
-	writeln!(w, "\t\tlet ret = unsafe {{ Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }}.into();").unwrap();
+	writeln!(w, "\t\tlet ret = unsafe {{ Box::from_raw(crate::c_types::from_raw_parts_safer_mut(self.data, self.datalen)) }}.into();").unwrap();
 	writeln!(w, "\t\tself.data = core::ptr::null_mut();").unwrap();
 	writeln!(w, "\t\tself.datalen = 0;").unwrap();
 	writeln!(w, "\t\tret").unwrap();
 	writeln!(w, "\t}}").unwrap();
 	writeln!(w, "\t#[allow(unused)] pub(crate) fn as_slice(&self) -> &[{}] {{", inner_type).unwrap();
-	writeln!(w, "\t\tunsafe {{ core::slice::from_raw_parts_mut(self.data, self.datalen) }}").unwrap();
+	writeln!(w, "\t\tunsafe {{ crate::c_types::from_raw_parts_safer_mut(self.data, self.datalen) }}").unwrap();
 	writeln!(w, "\t}}").unwrap();
 	writeln!(w, "}}").unwrap();
 
@@ -250,7 +250,7 @@ pub fn write_vec_block<W: std::io::Write>(w: &mut W, mangled_container: &str, in
 	writeln!(w, "impl Drop for {} {{", mangled_container).unwrap();
 	writeln!(w, "\tfn drop(&mut self) {{").unwrap();
 	writeln!(w, "\t\tif self.datalen == 0 {{ return; }}").unwrap();
-	writeln!(w, "\t\tlet _ = unsafe {{ Box::from_raw(core::slice::from_raw_parts_mut(self.data, self.datalen)) }};").unwrap();
+	writeln!(w, "\t\tlet _ = unsafe {{ Box::from_raw(crate::c_types::from_raw_parts_safer_mut(self.data, self.datalen)) }};").unwrap();
 	writeln!(w, "\t}}").unwrap();
 	writeln!(w, "}}").unwrap();
 	if clonable {
@@ -258,7 +258,7 @@ pub fn write_vec_block<W: std::io::Write>(w: &mut W, mangled_container: &str, in
 		writeln!(w, "\tfn clone(&self) -> Self {{").unwrap();
 		writeln!(w, "\t\tlet mut res = Vec::new();").unwrap();
 		writeln!(w, "\t\tif self.datalen == 0 {{ return Self::from(res); }}").unwrap();
-		writeln!(w, "\t\tres.extend_from_slice(unsafe {{ core::slice::from_raw_parts_mut(self.data, self.datalen) }});").unwrap();
+		writeln!(w, "\t\tres.extend_from_slice(unsafe {{ crate::c_types::from_raw_parts_safer_mut(self.data, self.datalen) }});").unwrap();
 		writeln!(w, "\t\tSelf::from(res)").unwrap();
 		writeln!(w, "\t}}").unwrap();
 		writeln!(w, "}}").unwrap();
