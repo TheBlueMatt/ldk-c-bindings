@@ -850,7 +850,7 @@ fn writeln_struct<'a, 'b, W: std::io::Write>(w: &mut W, s: &'a syn::ItemStruct, 
 						writeln_arg_docs(w, &$field.attrs, "", types, Some(&gen_types), vec![].drain(..), Some(&ref_type));
 						write!(w, "#[no_mangle]\npub extern \"C\" fn {}_get_{}(this_ptr: &{}) -> ", struct_name, $new_name, struct_name).unwrap();
 						types.write_c_type(w, &ref_type, Some(&gen_types), true);
-						write!(w, " {{\n\tlet mut inner_val = &mut this_ptr.get_native_mut_ref().{};\n\t", $real_name).unwrap();
+						write!(w, " {{\n\tlet mut inner_val = &mut {}::get_native_mut_ref(this_ptr).{};\n\t", struct_name, $real_name).unwrap();
 						let local_var = types.write_to_c_conversion_from_ownable_ref_new_var(w, &format_ident!("inner_val"), &ref_type, Some(&gen_types));
 						if local_var { write!(w, "\n\t").unwrap(); }
 						types.write_to_c_conversion_inline_prefix(w, &ref_type, Some(&gen_types), true);
@@ -867,7 +867,7 @@ fn writeln_struct<'a, 'b, W: std::io::Write>(w: &mut W, s: &'a syn::ItemStruct, 
 								writeln_arg_docs(w, &$field.attrs, "", types, Some(&gen_types), vec![].drain(..), Some(&$field.ty));
 								writeln!(w, "///\n/// Returns a copy of the field.").unwrap();
 								write!(w, "#[no_mangle]\npub extern \"C\" fn {}_get_{}(this_ptr: &{}) -> {}", struct_name, $new_name, struct_name, s).unwrap();
-								write!(w, " {{\n\tlet mut inner_val = this_ptr.get_native_mut_ref().{}.clone();\n\t", $real_name).unwrap();
+								write!(w, " {{\n\tlet mut inner_val = {}::get_native_mut_ref(this_ptr).{}.clone();\n\t", struct_name, $real_name).unwrap();
 								let local_var = types.write_to_c_conversion_new_var(w, &format_ident!("inner_val"), &$field.ty, Some(&gen_types), true);
 								if local_var { write!(w, "\n\t").unwrap(); }
 								types.write_to_c_conversion_inline_prefix(w, &$field.ty, Some(&gen_types), true);
@@ -1454,18 +1454,18 @@ fn writeln_impl<W: std::io::Write>(w: &mut W, w_uses: &mut HashSet<String, NonRa
 						writeln!(w, "\tfn clone(&self) -> Self {{").unwrap();
 						writeln!(w, "\t\tSelf {{").unwrap();
 						writeln!(w, "\t\t\tinner: if <*mut native{}>::is_null(self.inner) {{ core::ptr::null_mut() }} else {{", ident).unwrap();
-						writeln!(w, "\t\t\t\tObjOps::heap_alloc(unsafe {{ &*ObjOps::untweak_ptr(self.inner) }}.clone()) }},").unwrap();
+						writeln!(w, "\t\t\t\tObjOps::heap_alloc(Clone::clone(unsafe {{ &*ObjOps::untweak_ptr(self.inner) }})) }},").unwrap();
 						writeln!(w, "\t\t\tis_owned: true,").unwrap();
 						writeln!(w, "\t\t}}\n\t}}\n}}").unwrap();
 						writeln!(w, "#[allow(unused)]").unwrap();
 						writeln!(w, "/// Used only if an object of this type is returned as a trait impl by a method").unwrap();
 						writeln!(w, "pub(crate) extern \"C\" fn {}_clone_void(this_ptr: *const c_void) -> *mut c_void {{", ident).unwrap();
-						writeln!(w, "\tBox::into_raw(Box::new(unsafe {{ (*(this_ptr as *const native{})).clone() }})) as *mut c_void", ident).unwrap();
+						writeln!(w, "\tBox::into_raw(Box::new(Clone::clone(unsafe {{ &*(this_ptr as *const native{}) }}))) as *mut c_void", ident).unwrap();
 						writeln!(w, "}}").unwrap();
 						writeln!(w, "#[no_mangle]").unwrap();
 						writeln!(w, "/// Creates a copy of the {}", ident).unwrap();
 						writeln!(w, "pub extern \"C\" fn {}_clone(orig: &{}) -> {} {{", ident, ident, ident).unwrap();
-						writeln!(w, "\torig.clone()").unwrap();
+						writeln!(w, "\tClone::clone(orig)").unwrap();
 						writeln!(w, "}}").unwrap();
 					} else if path_matches_nongeneric(&trait_path.1, &["FromStr"]) {
 						let mut err_opt = None;
