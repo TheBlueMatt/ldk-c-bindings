@@ -26,10 +26,10 @@ void broadcast_txn(const void *this_arg, LDKCVec_TransactionZ txn) {
 	CVec_TransactionZ_free(txn);
 }
 
-LDKCResult_ChannelMonitorUpdateStatusNoneZ add_channel_monitor(const void *this_arg, LDKOutPoint funding_txo, LDKChannelMonitor monitor) {
+LDKCResult_ChannelMonitorUpdateStatusNoneZ add_channel_monitor(const void *this_arg, LDKChannelId chan_id, LDKChannelMonitor monitor) {
 	return CResult_ChannelMonitorUpdateStatusNoneZ_ok(ChannelMonitorUpdateStatus_completed());
 }
-LDKChannelMonitorUpdateStatus update_channel_monitor(const void *this_arg, LDKOutPoint funding_txo, const LDKChannelMonitorUpdate *monitor) {
+LDKChannelMonitorUpdateStatus update_channel_monitor(const void *this_arg, LDKChannelId chan_id, const LDKChannelMonitorUpdate *monitor) {
 	return ChannelMonitorUpdateStatus_completed();
 }
 LDKCVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ monitors_pending_monitor_events(const void *this_arg) {
@@ -46,14 +46,14 @@ LDKCResult_NoneReplayEventZ never_handle_event(const void *this_arg, const struc
 	return CResult_NoneReplayEventZ_ok();
 }
 
-LDKCResult_RouteLightningErrorZ do_find_route(const void *this_arg, LDKPublicKey payer, const LDKRouteParameters *route_params, LDKCVec_ChannelDetailsZ *first_hops, const LDKInFlightHtlcs inflight_htlcs) {
+LDKCResult_RouteStrZ do_find_route(const void *this_arg, LDKPublicKey payer, const LDKRouteParameters *route_params, LDKCVec_ChannelDetailsZ *first_hops, const LDKInFlightHtlcs inflight_htlcs) {
 	LDKStr reason = { .chars = (const unsigned char*)"", .len = 0, .chars_is_owned = false };
-	return CResult_RouteLightningErrorZ_err(LightningError_new(reason, ErrorAction_ignore_error()));
+	return CResult_RouteStrZ_err(reason);
 }
 
-LDKCResult_RouteLightningErrorZ do_find_route_with_id(const void *this_arg, LDKPublicKey payer, const LDKRouteParameters *route_params, LDKCVec_ChannelDetailsZ *first_hops, const LDKInFlightHtlcs inflight_htlcs, struct LDKThirtyTwoBytes payment_hash, struct LDKThirtyTwoBytes payment_id) {
+LDKCResult_RouteStrZ do_find_route_with_id(const void *this_arg, LDKPublicKey payer, const LDKRouteParameters *route_params, LDKCVec_ChannelDetailsZ *first_hops, const LDKInFlightHtlcs inflight_htlcs, struct LDKThirtyTwoBytes payment_hash, struct LDKThirtyTwoBytes payment_id) {
 	LDKStr reason = { .chars = (const unsigned char*)"", .len = 0, .chars_is_owned = false };
-	return CResult_RouteLightningErrorZ_err(LightningError_new(reason, ErrorAction_ignore_error()));
+	return CResult_RouteStrZ_err(reason);
 }
 
 int main() {
@@ -99,11 +99,10 @@ int main() {
 		.this_arg = NULL,
 		.find_path = NULL,
 		.create_blinded_paths = NULL,
-		.create_compact_blinded_paths = NULL,
 		.free = NULL,
 	};
 
-	LDKKeysManager keys = KeysManager_new(&node_seed, 0, 0);
+	LDKKeysManager keys = KeysManager_new(&node_seed, 0, 0, true);
 	LDKEntropySource entropy_source = KeysManager_as_EntropySource(&keys);
 	LDKNodeSigner node_signer = KeysManager_as_NodeSigner(&keys);
 	LDKSignerProvider signer_provider = KeysManager_as_SignerProvider(&keys);
