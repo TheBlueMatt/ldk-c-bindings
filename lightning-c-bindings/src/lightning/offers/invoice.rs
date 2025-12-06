@@ -437,7 +437,7 @@ impl Clone for UnsignedBolt12Invoice {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeUnsignedBolt12Invoice>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -445,12 +445,12 @@ impl Clone for UnsignedBolt12Invoice {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn UnsignedBolt12Invoice_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeUnsignedBolt12Invoice)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeUnsignedBolt12Invoice) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the UnsignedBolt12Invoice
 pub extern "C" fn UnsignedBolt12Invoice_clone(orig: &UnsignedBolt12Invoice) -> UnsignedBolt12Invoice {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// A function for signing an [`UnsignedBolt12Invoice`].
 #[repr(C)]
@@ -595,7 +595,7 @@ impl Clone for Bolt12Invoice {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt12Invoice>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -603,12 +603,12 @@ impl Clone for Bolt12Invoice {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt12Invoice_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt12Invoice)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt12Invoice) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt12Invoice
 pub extern "C" fn Bolt12Invoice_clone(orig: &Bolt12Invoice) -> Bolt12Invoice {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Bolt12Invoice object
 pub extern "C" fn Bolt12Invoice_debug_str_void(o: *const c_void) -> Str {
@@ -650,6 +650,14 @@ pub extern "C" fn UnsignedBolt12Invoice_relative_expiry(this_arg: &crate::lightn
 #[no_mangle]
 pub extern "C" fn UnsignedBolt12Invoice_is_expired(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice) -> bool {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.is_expired();
+	ret
+}
+
+/// Whether the invoice has expired given the current time as duration since the Unix epoch.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn UnsignedBolt12Invoice_is_expired_no_std(this_arg: &crate::lightning::offers::invoice::UnsignedBolt12Invoice, mut duration_since_epoch: u64) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.is_expired_no_std(core::time::Duration::from_secs(duration_since_epoch));
 	ret
 }
 
@@ -963,6 +971,14 @@ pub extern "C" fn Bolt12Invoice_is_expired(this_arg: &crate::lightning::offers::
 	ret
 }
 
+/// Whether the invoice has expired given the current time as duration since the Unix epoch.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12Invoice_is_expired_no_std(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice, mut duration_since_epoch: u64) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.is_expired_no_std(core::time::Duration::from_secs(duration_since_epoch));
+	ret
+}
+
 /// Fallback addresses for paying the invoice on-chain, in order of most-preferred to
 /// least-preferred.
 #[must_use]
@@ -1249,6 +1265,19 @@ pub extern "C" fn Bolt12Invoice_signable_hash(this_arg: &crate::lightning::offer
 	crate::c_types::ThirtyTwoBytes { data: ret }
 }
 
+/// Returns the [`OfferId`] if this invoice corresponds to an [`Offer`].
+///
+/// [`Offer`]: crate::offers::offer::Offer
+///
+/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12Invoice_offer_id(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::lightning::offers::offer::OfferId {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.offer_id();
+	let mut local_ret = crate::lightning::offers::offer::OfferId { inner: if ret.is_none() { core::ptr::null_mut() } else {  { ObjOps::heap_alloc((ret.unwrap())) } }, is_owned: true };
+	local_ret
+}
+
 /// Verifies that the invoice was for a request or refund created using the given key by
 /// checking the payer metadata from the invoice request.
 ///
@@ -1270,6 +1299,14 @@ pub extern "C" fn Bolt12Invoice_verify_using_payer_data(this_arg: &crate::lightn
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.verify_using_payer_data(::lightning::ln::channelmanager::PaymentId(payment_id.data), *unsafe { Box::from_raw(nonce.take_inner()) }, key.get_native_ref(), secp256k1::global::SECP256K1);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::ThirtyTwoBytes { data: o.0 } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
+}
+
+/// Returns the [`TaggedHash`] of the invoice that was signed.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt12Invoice_tagged_hash(this_arg: &crate::lightning::offers::invoice::Bolt12Invoice) -> crate::lightning::offers::merkle::TaggedHash {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.tagged_hash();
+	crate::lightning::offers::merkle::TaggedHash { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning::offers::merkle::TaggedHash<>) as *mut _) }, is_owned: false }
 }
 
 /// Generates a non-cryptographic 64-bit hash of the Bolt12Invoice.

@@ -88,7 +88,7 @@ impl InvoiceError {
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn InvoiceError_get_erroneous_field(this_ptr: &InvoiceError) -> crate::lightning::offers::invoice_error::ErroneousField {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().erroneous_field;
+	let mut inner_val = &mut InvoiceError::get_native_mut_ref(this_ptr).erroneous_field;
 	let mut local_inner_val = crate::lightning::offers::invoice_error::ErroneousField { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::offers::invoice_error::ErroneousField<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -106,7 +106,7 @@ pub extern "C" fn InvoiceError_set_erroneous_field(this_ptr: &mut InvoiceError, 
 /// An explanation of the error.
 #[no_mangle]
 pub extern "C" fn InvoiceError_get_message(this_ptr: &InvoiceError) -> crate::lightning_types::string::UntrustedString {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().message;
+	let mut inner_val = &mut InvoiceError::get_native_mut_ref(this_ptr).message;
 	crate::lightning_types::string::UntrustedString { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::string::UntrustedString<>) as *mut _) }, is_owned: false }
 }
 /// An explanation of the error.
@@ -130,7 +130,7 @@ impl Clone for InvoiceError {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInvoiceError>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -138,12 +138,12 @@ impl Clone for InvoiceError {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn InvoiceError_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInvoiceError)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInvoiceError) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the InvoiceError
 pub extern "C" fn InvoiceError_clone(orig: &InvoiceError) -> InvoiceError {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a InvoiceError object
 pub extern "C" fn InvoiceError_debug_str_void(o: *const c_void) -> Str {
@@ -214,7 +214,7 @@ impl ErroneousField {
 /// The type number of the TLV field containing the error.
 #[no_mangle]
 pub extern "C" fn ErroneousField_get_tlv_fieldnum(this_ptr: &ErroneousField) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().tlv_fieldnum;
+	let mut inner_val = &mut ErroneousField::get_native_mut_ref(this_ptr).tlv_fieldnum;
 	*inner_val
 }
 /// The type number of the TLV field containing the error.
@@ -227,7 +227,7 @@ pub extern "C" fn ErroneousField_set_tlv_fieldnum(this_ptr: &mut ErroneousField,
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn ErroneousField_get_suggested_value(this_ptr: &ErroneousField) -> crate::c_types::derived::COption_CVec_u8ZZ {
-	let mut inner_val = this_ptr.get_native_mut_ref().suggested_value.clone();
+	let mut inner_val = ErroneousField::get_native_mut_ref(this_ptr).suggested_value.clone();
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_CVec_u8ZZ::None } else { crate::c_types::derived::COption_CVec_u8ZZ::Some( { let mut local_inner_val_0 = Vec::new(); for mut item in inner_val.unwrap().drain(..) { local_inner_val_0.push( { item }); }; local_inner_val_0.into() }) };
 	local_inner_val
 }
@@ -251,7 +251,7 @@ impl Clone for ErroneousField {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeErroneousField>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -259,12 +259,12 @@ impl Clone for ErroneousField {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ErroneousField_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeErroneousField)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeErroneousField) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ErroneousField
 pub extern "C" fn ErroneousField_clone(orig: &ErroneousField) -> ErroneousField {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ErroneousField object
 pub extern "C" fn ErroneousField_debug_str_void(o: *const c_void) -> Str {
@@ -297,4 +297,16 @@ pub extern "C" fn InvoiceError_read(ser: crate::c_types::u8slice) -> crate::c_ty
 	let res: Result<lightning::offers::invoice_error::InvoiceError, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::invoice_error::InvoiceError { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
+}
+#[no_mangle]
+/// Build a InvoiceError from a Bolt12SemanticError
+pub extern "C" fn InvoiceError_from_Bolt12SemanticError(f: crate::lightning::offers::parse::Bolt12SemanticError) -> crate::lightning::offers::invoice_error::InvoiceError {
+	let from_obj = f.into_native();
+	crate::lightning::offers::invoice_error::InvoiceError { inner: ObjOps::heap_alloc((lightning::offers::invoice_error::InvoiceError::from(from_obj))), is_owned: true }
+}
+#[no_mangle]
+/// Build a InvoiceError from a SignError
+pub extern "C" fn InvoiceError_from_SignError(f: crate::lightning::offers::merkle::SignError) -> crate::lightning::offers::invoice_error::InvoiceError {
+	let from_obj = f.into_native();
+	crate::lightning::offers::invoice_error::InvoiceError { inner: ObjOps::heap_alloc((lightning::offers::invoice_error::InvoiceError::from(from_obj))), is_owned: true }
 }

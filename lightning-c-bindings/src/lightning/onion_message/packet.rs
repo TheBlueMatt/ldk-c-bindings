@@ -80,7 +80,7 @@ impl Packet {
 /// Bolt 04 version number
 #[no_mangle]
 pub extern "C" fn Packet_get_version(this_ptr: &Packet) -> u8 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().version;
+	let mut inner_val = &mut Packet::get_native_mut_ref(this_ptr).version;
 	*inner_val
 }
 /// Bolt 04 version number
@@ -91,7 +91,7 @@ pub extern "C" fn Packet_set_version(this_ptr: &mut Packet, mut val: u8) {
 /// A random sepc256k1 point, used to build the ECDH shared secret to decrypt hop_data
 #[no_mangle]
 pub extern "C" fn Packet_get_public_key(this_ptr: &Packet) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().public_key;
+	let mut inner_val = &mut Packet::get_native_mut_ref(this_ptr).public_key;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 /// A random sepc256k1 point, used to build the ECDH shared secret to decrypt hop_data
@@ -104,7 +104,7 @@ pub extern "C" fn Packet_set_public_key(this_ptr: &mut Packet, mut val: crate::c
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn Packet_get_hop_data(this_ptr: &Packet) -> crate::c_types::derived::CVec_u8Z {
-	let mut inner_val = this_ptr.get_native_mut_ref().hop_data.clone();
+	let mut inner_val = Packet::get_native_mut_ref(this_ptr).hop_data.clone();
 	let mut local_inner_val = Vec::new(); for mut item in inner_val.drain(..) { local_inner_val.push( { item }); };
 	local_inner_val.into()
 }
@@ -117,7 +117,7 @@ pub extern "C" fn Packet_set_hop_data(this_ptr: &mut Packet, mut val: crate::c_t
 /// HMAC to verify the integrity of hop_data
 #[no_mangle]
 pub extern "C" fn Packet_get_hmac(this_ptr: &Packet) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().hmac;
+	let mut inner_val = &mut Packet::get_native_mut_ref(this_ptr).hmac;
 	inner_val
 }
 /// HMAC to verify the integrity of hop_data
@@ -141,7 +141,7 @@ impl Clone for Packet {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativePacket>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -149,12 +149,12 @@ impl Clone for Packet {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Packet_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativePacket)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativePacket) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Packet
 pub extern "C" fn Packet_clone(orig: &Packet) -> Packet {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Generates a non-cryptographic 64-bit hash of the Packet.
 #[no_mangle]
@@ -187,6 +187,13 @@ pub extern "C" fn Packet_write(obj: &crate::lightning::onion_message::packet::Pa
 pub(crate) extern "C" fn Packet_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::onion_message::packet::nativePacket) })
 }
+#[no_mangle]
+/// Read a Packet from a byte array, created by Packet_write
+pub extern "C" fn Packet_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_PacketDecodeErrorZ {
+	let res: Result<lightning::onion_message::packet::Packet, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::onion_message::packet::Packet { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
 /// The contents of an [`OnionMessage`] as read from the wire.
 ///
 /// [`OnionMessage`]: crate::ln::msgs::OnionMessage
@@ -197,6 +204,9 @@ pub enum ParsedOnionMessageContents {
 	/// A message related to BOLT 12 Offers.
 	Offers(
 		crate::lightning::onion_message::offers::OffersMessage),
+	/// A message related to async payments.
+	AsyncPayments(
+		crate::lightning::onion_message::async_payments::AsyncPaymentsMessage),
 	/// A message requesting or providing a DNSSEC proof
 	DNSResolver(
 		crate::lightning::onion_message::dns_resolution::DNSResolverMessage),
@@ -214,6 +224,12 @@ impl ParsedOnionMessageContents {
 			ParsedOnionMessageContents::Offers (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				nativeParsedOnionMessageContents::Offers (
+					a_nonref.into_native(),
+				)
+			},
+			ParsedOnionMessageContents::AsyncPayments (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeParsedOnionMessageContents::AsyncPayments (
 					a_nonref.into_native(),
 				)
 			},
@@ -239,6 +255,11 @@ impl ParsedOnionMessageContents {
 					a.into_native(),
 				)
 			},
+			ParsedOnionMessageContents::AsyncPayments (mut a, ) => {
+				nativeParsedOnionMessageContents::AsyncPayments (
+					a.into_native(),
+				)
+			},
 			ParsedOnionMessageContents::DNSResolver (mut a, ) => {
 				nativeParsedOnionMessageContents::DNSResolver (
 					a.into_native(),
@@ -261,6 +282,12 @@ impl ParsedOnionMessageContents {
 					crate::lightning::onion_message::offers::OffersMessage::native_into(a_nonref),
 				)
 			},
+			nativeParsedOnionMessageContents::AsyncPayments (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				ParsedOnionMessageContents::AsyncPayments (
+					crate::lightning::onion_message::async_payments::AsyncPaymentsMessage::native_into(a_nonref),
+				)
+			},
 			nativeParsedOnionMessageContents::DNSResolver (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				ParsedOnionMessageContents::DNSResolver (
@@ -281,6 +308,11 @@ impl ParsedOnionMessageContents {
 			nativeParsedOnionMessageContents::Offers (mut a, ) => {
 				ParsedOnionMessageContents::Offers (
 					crate::lightning::onion_message::offers::OffersMessage::native_into(a),
+				)
+			},
+			nativeParsedOnionMessageContents::AsyncPayments (mut a, ) => {
+				ParsedOnionMessageContents::AsyncPayments (
+					crate::lightning::onion_message::async_payments::AsyncPaymentsMessage::native_into(a),
 				)
 			},
 			nativeParsedOnionMessageContents::DNSResolver (mut a, ) => {
@@ -318,6 +350,11 @@ pub(crate) extern "C" fn ParsedOnionMessageContents_free_void(this_ptr: *mut c_v
 /// Utility method to constructs a new Offers-variant ParsedOnionMessageContents
 pub extern "C" fn ParsedOnionMessageContents_offers(a: crate::lightning::onion_message::offers::OffersMessage) -> ParsedOnionMessageContents {
 	ParsedOnionMessageContents::Offers(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new AsyncPayments-variant ParsedOnionMessageContents
+pub extern "C" fn ParsedOnionMessageContents_async_payments(a: crate::lightning::onion_message::async_payments::AsyncPaymentsMessage) -> ParsedOnionMessageContents {
+	ParsedOnionMessageContents::AsyncPayments(a, )
 }
 #[no_mangle]
 /// Utility method to constructs a new DNSResolver-variant ParsedOnionMessageContents

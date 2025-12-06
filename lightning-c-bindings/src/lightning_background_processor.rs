@@ -19,6 +19,18 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
+mod fwd_batch {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}
 
 use lightning_background_processor::BackgroundProcessor as nativeBackgroundProcessorImport;
 pub(crate) type nativeBackgroundProcessor = nativeBackgroundProcessorImport;
@@ -181,25 +193,37 @@ pub extern "C" fn GossipSync_rapid(a: &crate::lightning_rapid_gossip_sync::Rapid
 /// Utility method to constructs a new None-variant GossipSync
 pub extern "C" fn GossipSync_none() -> GossipSync {
 	GossipSync::None}
+mod futures_util {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}
 /// Start a background thread that takes care of responsibilities enumerated in the [top-level
 /// documentation].
 ///
 /// The thread runs indefinitely unless the object is dropped, [`stop`] is called, or
-/// [`Persister::persist_manager`] returns an error. In case of an error, the error is retrieved by calling
+/// [`KVStoreSync`] returns an error. In case of an error, the error is retrieved by calling
 /// either [`join`] or [`stop`].
 ///
 /// # Data Persistence
 ///
-/// [`Persister::persist_manager`] is responsible for writing out the [`ChannelManager`] to disk, and/or
+/// [`KVStoreSync`] is responsible for writing out the [`ChannelManager`] to disk, and/or
 /// uploading to one or more backup services. See [`ChannelManager::write`] for writing out a
 /// [`ChannelManager`]. See the `lightning-persister` crate for LDK's
 /// provided implementation.
 ///
-/// [`Persister::persist_graph`] is responsible for writing out the [`NetworkGraph`] to disk, if
+/// [`KVStoreSync`] is also responsible for writing out the [`NetworkGraph`] to disk, if
 /// [`GossipSync`] is supplied. See [`NetworkGraph::write`] for writing out a [`NetworkGraph`].
 /// See the `lightning-persister` crate for LDK's provided implementation.
 ///
-/// Typically, users should either implement [`Persister::persist_manager`] to never return an
+/// Typically, users should either implement [`KVStoreSync`] to never return an
 /// error or call [`join`] and handle any error that may arise. For the latter case,
 /// `BackgroundProcessor` must be restarted by calling `start` again after handling the error.
 ///
@@ -221,15 +245,16 @@ pub extern "C" fn GossipSync_none() -> GossipSync {
 /// [`stop`]: Self::stop
 /// [`ChannelManager`]: lightning::ln::channelmanager::ChannelManager
 /// [`ChannelManager::write`]: lightning::ln::channelmanager::ChannelManager#impl-Writeable
-/// [`Persister::persist_manager`]: lightning::util::persist::Persister::persist_manager
-/// [`Persister::persist_graph`]: lightning::util::persist::Persister::persist_graph
 /// [`NetworkGraph`]: lightning::routing::gossip::NetworkGraph
 /// [`NetworkGraph::write`]: lightning::routing::gossip::NetworkGraph#impl-Writeable
+///
+/// Note that sweeper (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn BackgroundProcessor_start(mut persister: crate::lightning::util::persist::Persister, mut event_handler: crate::lightning::events::EventHandler, chain_monitor: &crate::lightning::chain::chainmonitor::ChainMonitor, channel_manager: &crate::lightning::ln::channelmanager::ChannelManager, onion_messenger: &crate::lightning::onion_message::messenger::OnionMessenger, mut gossip_sync: crate::lightning_background_processor::GossipSync, peer_manager: &crate::lightning::ln::peer_handler::PeerManager, mut logger: crate::lightning::util::logger::Logger, mut scorer: crate::c_types::derived::COption_WriteableScoreZ) -> crate::lightning_background_processor::BackgroundProcessor {
+pub extern "C" fn BackgroundProcessor_start(mut kv_store: crate::lightning::util::persist::KVStoreSync, mut event_handler: crate::lightning::events::EventHandler, chain_monitor: &crate::lightning::chain::chainmonitor::ChainMonitor, channel_manager: &crate::lightning::ln::channelmanager::ChannelManager, onion_messenger: &crate::lightning::onion_message::messenger::OnionMessenger, mut gossip_sync: crate::lightning_background_processor::GossipSync, peer_manager: &crate::lightning::ln::peer_handler::PeerManager, mut sweeper: crate::lightning::util::sweep::OutputSweeperSync, mut logger: crate::lightning::util::logger::Logger, mut scorer: crate::c_types::derived::COption_WriteableScoreZ) -> crate::lightning_background_processor::BackgroundProcessor {
+	let mut local_sweeper = if sweeper.inner.is_null() { None } else { Some( { sweeper.get_native_ref() }) };
 	let mut local_scorer = { /*scorer*/ let scorer_opt = scorer; if scorer_opt.is_none() { None } else { Some({ { { scorer_opt.take() } }})} };
-	let mut ret = lightning_background_processor::BackgroundProcessor::start(persister, event_handler, chain_monitor.get_native_ref(), channel_manager.as_ref_to(), onion_messenger.as_ref_to(), gossip_sync.into_native(), peer_manager.as_ref_to(), logger, local_scorer);
+	let mut ret = lightning_background_processor::BackgroundProcessor::start(kv_store, event_handler, chain_monitor.get_native_ref(), channel_manager.as_ref_to(), onion_messenger.as_ref_to(), gossip_sync.into_native(), peer_manager.as_ref_to(), local_sweeper, logger, local_scorer);
 	crate::lightning_background_processor::BackgroundProcessor { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 

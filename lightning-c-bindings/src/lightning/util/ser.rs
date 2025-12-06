@@ -93,7 +93,7 @@ impl BigSize {
 }
 #[no_mangle]
 pub extern "C" fn BigSize_get_a(this_ptr: &BigSize) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut BigSize::get_native_mut_ref(this_ptr).0;
 	*inner_val
 }
 #[no_mangle]
@@ -112,7 +112,7 @@ impl Clone for BigSize {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBigSize>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -120,12 +120,12 @@ impl Clone for BigSize {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn BigSize_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBigSize)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBigSize) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the BigSize
 pub extern "C" fn BigSize_clone(orig: &BigSize) -> BigSize {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a BigSize object
 pub extern "C" fn BigSize_debug_str_void(o: *const c_void) -> Str {
@@ -163,6 +163,107 @@ pub(crate) extern "C" fn BigSize_write_void(obj: *const c_void) -> crate::c_type
 pub extern "C" fn BigSize_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_BigSizeDecodeErrorZ {
 	let res: Result<lightning::util::ser::BigSize, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::ser::BigSize { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+
+use lightning::util::ser::CollectionLength as nativeCollectionLengthImport;
+pub(crate) type nativeCollectionLength = nativeCollectionLengthImport;
+
+/// The lightning protocol uses u16s for lengths in most cases. As our serialization framework
+/// primarily targets that, we must as well. However, because we may serialize objects that have
+/// more than 65K entries, we need to be able to store larger values. Thus, we define a variable
+/// length integer here that is backwards-compatible for values < 0xffff. We treat 0xffff as
+/// \"read eight more bytes\".
+///
+/// To ensure we only have one valid encoding per value, we add 0xffff to values written as eight
+/// bytes. Thus, 0xfffe is serialized as 0xfffe, whereas 0xffff is serialized as
+/// 0xffff0000000000000000 (i.e. read-eight-bytes then zero).
+#[must_use]
+#[repr(C)]
+pub struct CollectionLength {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeCollectionLength,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for CollectionLength {
+	type Target = nativeCollectionLength;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CollectionLength { }
+unsafe impl core::marker::Sync for CollectionLength { }
+impl Drop for CollectionLength {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeCollectionLength>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the CollectionLength, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn CollectionLength_free(this_obj: CollectionLength) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn CollectionLength_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeCollectionLength) };
+}
+#[allow(unused)]
+impl CollectionLength {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeCollectionLength {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeCollectionLength {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeCollectionLength {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+#[no_mangle]
+pub extern "C" fn CollectionLength_get_a(this_ptr: &CollectionLength) -> u64 {
+	let mut inner_val = &mut CollectionLength::get_native_mut_ref(this_ptr).0;
+	*inner_val
+}
+#[no_mangle]
+pub extern "C" fn CollectionLength_set_a(this_ptr: &mut CollectionLength, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.0 = val;
+}
+/// Constructs a new CollectionLength given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn CollectionLength_new(mut a_arg: u64) -> CollectionLength {
+	CollectionLength { inner: ObjOps::heap_alloc(lightning::util::ser::CollectionLength (
+		a_arg,
+	)), is_owned: true }
+}
+#[no_mangle]
+/// Serialize the CollectionLength object into a byte array which can be read by CollectionLength_read
+pub extern "C" fn CollectionLength_write(obj: &crate::lightning::util::ser::CollectionLength) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn CollectionLength_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::util::ser::nativeCollectionLength) })
+}
+#[no_mangle]
+/// Read a CollectionLength from a byte array, created by CollectionLength_write
+pub extern "C" fn CollectionLength_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_CollectionLengthDecodeErrorZ {
+	let res: Result<lightning::util::ser::CollectionLength, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::ser::CollectionLength { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
 #[no_mangle]
@@ -251,7 +352,7 @@ impl Clone for Hostname {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeHostname>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -259,12 +360,12 @@ impl Clone for Hostname {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Hostname_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeHostname)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeHostname) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Hostname
 pub extern "C" fn Hostname_clone(orig: &Hostname) -> Hostname {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Hostname object
 pub extern "C" fn Hostname_debug_str_void(o: *const c_void) -> Str {
@@ -315,151 +416,5 @@ pub(crate) extern "C" fn Hostname_write_void(obj: *const c_void) -> crate::c_typ
 pub extern "C" fn Hostname_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_HostnameDecodeErrorZ {
 	let res: Result<lightning::util::ser::Hostname, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::ser::Hostname { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
-	local_res
-}
-
-use lightning::util::ser::TransactionU16LenLimited as nativeTransactionU16LenLimitedImport;
-pub(crate) type nativeTransactionU16LenLimited = nativeTransactionU16LenLimitedImport;
-
-/// A wrapper for a `Transaction` which can only be constructed with [`TransactionU16LenLimited::new`]
-/// if the `Transaction`'s consensus-serialized length is <= u16::MAX.
-///
-/// Use [`TransactionU16LenLimited::into_transaction`] to convert into the contained `Transaction`.
-#[must_use]
-#[repr(C)]
-pub struct TransactionU16LenLimited {
-	/// A pointer to the opaque Rust object.
-
-	/// Nearly everywhere, inner must be non-null, however in places where
-	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeTransactionU16LenLimited,
-	/// Indicates that this is the only struct which contains the same pointer.
-
-	/// Rust functions which take ownership of an object provided via an argument require
-	/// this to be true and invalidate the object pointed to by inner.
-	pub is_owned: bool,
-}
-
-impl core::ops::Deref for TransactionU16LenLimited {
-	type Target = nativeTransactionU16LenLimited;
-	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
-}
-unsafe impl core::marker::Send for TransactionU16LenLimited { }
-unsafe impl core::marker::Sync for TransactionU16LenLimited { }
-impl Drop for TransactionU16LenLimited {
-	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeTransactionU16LenLimited>::is_null(self.inner) {
-			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
-		}
-	}
-}
-/// Frees any resources used by the TransactionU16LenLimited, if is_owned is set and inner is non-NULL.
-#[no_mangle]
-pub extern "C" fn TransactionU16LenLimited_free(this_obj: TransactionU16LenLimited) { }
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn TransactionU16LenLimited_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeTransactionU16LenLimited) };
-}
-#[allow(unused)]
-impl TransactionU16LenLimited {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeTransactionU16LenLimited {
-		unsafe { &*ObjOps::untweak_ptr(self.inner) }
-	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeTransactionU16LenLimited {
-		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
-	}
-	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeTransactionU16LenLimited {
-		assert!(self.is_owned);
-		let ret = ObjOps::untweak_ptr(self.inner);
-		self.inner = core::ptr::null_mut();
-		ret
-	}
-	pub(crate) fn as_ref_to(&self) -> Self {
-		Self { inner: self.inner, is_owned: false }
-	}
-}
-impl Clone for TransactionU16LenLimited {
-	fn clone(&self) -> Self {
-		Self {
-			inner: if <*mut nativeTransactionU16LenLimited>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
-			is_owned: true,
-		}
-	}
-}
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn TransactionU16LenLimited_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeTransactionU16LenLimited)).clone() })) as *mut c_void
-}
-#[no_mangle]
-/// Creates a copy of the TransactionU16LenLimited
-pub extern "C" fn TransactionU16LenLimited_clone(orig: &TransactionU16LenLimited) -> TransactionU16LenLimited {
-	orig.clone()
-}
-/// Get a string which allows debug introspection of a TransactionU16LenLimited object
-pub extern "C" fn TransactionU16LenLimited_debug_str_void(o: *const c_void) -> Str {
-	alloc::format!("{:?}", unsafe { o as *const crate::lightning::util::ser::TransactionU16LenLimited }).into()}
-/// Generates a non-cryptographic 64-bit hash of the TransactionU16LenLimited.
-#[no_mangle]
-pub extern "C" fn TransactionU16LenLimited_hash(o: &TransactionU16LenLimited) -> u64 {
-	if o.inner.is_null() { return 0; }
-	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
-	#[allow(deprecated)]
-	let mut hasher = core::hash::SipHasher::new();
-	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
-	core::hash::Hasher::finish(&hasher)
-}
-/// Checks if two TransactionU16LenLimiteds contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn TransactionU16LenLimited_eq(a: &TransactionU16LenLimited, b: &TransactionU16LenLimited) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Constructs a new `TransactionU16LenLimited` from a `Transaction` only if it's consensus-
-/// serialized length is <= u16::MAX.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn TransactionU16LenLimited_new(mut transaction: crate::c_types::Transaction) -> crate::c_types::derived::CResult_TransactionU16LenLimitedNoneZ {
-	let mut ret = lightning::util::ser::TransactionU16LenLimited::new(transaction.into_bitcoin());
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::ser::TransactionU16LenLimited { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-
-/// Consumes this `TransactionU16LenLimited` and returns its contained `Transaction`.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn TransactionU16LenLimited_into_transaction(mut this_arg: crate::lightning::util::ser::TransactionU16LenLimited) -> crate::c_types::Transaction {
-	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).into_transaction();
-	crate::c_types::Transaction::from_bitcoin(&ret)
-}
-
-/// Returns a reference to the contained `Transaction`
-#[must_use]
-#[no_mangle]
-pub extern "C" fn TransactionU16LenLimited_as_transaction(this_arg: &crate::lightning::util::ser::TransactionU16LenLimited) -> crate::c_types::Transaction {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.as_transaction();
-	crate::c_types::Transaction::from_bitcoin(ret)
-}
-
-#[no_mangle]
-/// Serialize the TransactionU16LenLimited object into a byte array which can be read by TransactionU16LenLimited_read
-pub extern "C" fn TransactionU16LenLimited_write(obj: &crate::lightning::util::ser::TransactionU16LenLimited) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
-}
-#[allow(unused)]
-pub(crate) extern "C" fn TransactionU16LenLimited_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
-	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::util::ser::nativeTransactionU16LenLimited) })
-}
-#[no_mangle]
-/// Read a TransactionU16LenLimited from a byte array, created by TransactionU16LenLimited_write
-pub extern "C" fn TransactionU16LenLimited_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_TransactionU16LenLimitedDecodeErrorZ {
-	let res: Result<lightning::util::ser::TransactionU16LenLimited, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::ser::TransactionU16LenLimited { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }

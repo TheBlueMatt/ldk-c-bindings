@@ -29,4 +29,3 @@ pub mod lightning_persister;
 pub mod lightning_background_processor;
 pub mod lightning_invoice;
 pub mod lightning_rapid_gossip_sync;
-pub mod lightning_liquidity;

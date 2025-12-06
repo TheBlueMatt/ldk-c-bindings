@@ -80,7 +80,7 @@ impl BlindedPayInfo {
 /// Base fee charged (in millisatoshi) for the entire blinded path.
 #[no_mangle]
 pub extern "C" fn BlindedPayInfo_get_fee_base_msat(this_ptr: &BlindedPayInfo) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fee_base_msat;
+	let mut inner_val = &mut BlindedPayInfo::get_native_mut_ref(this_ptr).fee_base_msat;
 	*inner_val
 }
 /// Base fee charged (in millisatoshi) for the entire blinded path.
@@ -92,7 +92,7 @@ pub extern "C" fn BlindedPayInfo_set_fee_base_msat(this_ptr: &mut BlindedPayInfo
 /// (i.e., 10,000 is 1%).
 #[no_mangle]
 pub extern "C" fn BlindedPayInfo_get_fee_proportional_millionths(this_ptr: &BlindedPayInfo) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fee_proportional_millionths;
+	let mut inner_val = &mut BlindedPayInfo::get_native_mut_ref(this_ptr).fee_proportional_millionths;
 	*inner_val
 }
 /// Liquidity fee charged (in millionths of the amount transferred) for the entire blinded path
@@ -105,7 +105,7 @@ pub extern "C" fn BlindedPayInfo_set_fee_proportional_millionths(this_ptr: &mut 
 /// path.
 #[no_mangle]
 pub extern "C" fn BlindedPayInfo_get_cltv_expiry_delta(this_ptr: &BlindedPayInfo) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
+	let mut inner_val = &mut BlindedPayInfo::get_native_mut_ref(this_ptr).cltv_expiry_delta;
 	*inner_val
 }
 /// Number of blocks subtracted from an incoming HTLC's `cltv_expiry` for the entire blinded
@@ -119,7 +119,7 @@ pub extern "C" fn BlindedPayInfo_set_cltv_expiry_delta(this_ptr: &mut BlindedPay
 /// seen by the recipient.
 #[no_mangle]
 pub extern "C" fn BlindedPayInfo_get_htlc_minimum_msat(this_ptr: &BlindedPayInfo) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_minimum_msat;
+	let mut inner_val = &mut BlindedPayInfo::get_native_mut_ref(this_ptr).htlc_minimum_msat;
 	*inner_val
 }
 /// The minimum HTLC value (in millisatoshi) that is acceptable to all channel peers on the
@@ -134,7 +134,7 @@ pub extern "C" fn BlindedPayInfo_set_htlc_minimum_msat(this_ptr: &mut BlindedPay
 /// seen by the recipient.
 #[no_mangle]
 pub extern "C" fn BlindedPayInfo_get_htlc_maximum_msat(this_ptr: &BlindedPayInfo) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_maximum_msat;
+	let mut inner_val = &mut BlindedPayInfo::get_native_mut_ref(this_ptr).htlc_maximum_msat;
 	*inner_val
 }
 /// The maximum HTLC value (in millisatoshi) that is acceptable to all channel peers on the
@@ -148,7 +148,7 @@ pub extern "C" fn BlindedPayInfo_set_htlc_maximum_msat(this_ptr: &mut BlindedPay
 /// onion payload.
 #[no_mangle]
 pub extern "C" fn BlindedPayInfo_get_features(this_ptr: &BlindedPayInfo) -> crate::lightning_types::features::BlindedHopFeatures {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
+	let mut inner_val = &mut BlindedPayInfo::get_native_mut_ref(this_ptr).features;
 	crate::lightning_types::features::BlindedHopFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::BlindedHopFeatures<>) as *mut _) }, is_owned: false }
 }
 /// Features set in `encrypted_data_tlv` for the `encrypted_recipient_data` TLV record in an
@@ -174,7 +174,7 @@ impl Clone for BlindedPayInfo {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBlindedPayInfo>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -182,12 +182,12 @@ impl Clone for BlindedPayInfo {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn BlindedPayInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBlindedPayInfo)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBlindedPayInfo) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the BlindedPayInfo
 pub extern "C" fn BlindedPayInfo_clone(orig: &BlindedPayInfo) -> BlindedPayInfo {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a BlindedPayInfo object
 pub extern "C" fn BlindedPayInfo_debug_str_void(o: *const c_void) -> Str {
@@ -291,7 +291,7 @@ impl BlindedPaymentPath {
 /// The [`BlindedPayInfo`] used to pay this blinded path.
 #[no_mangle]
 pub extern "C" fn BlindedPaymentPath_get_payinfo(this_ptr: &BlindedPaymentPath) -> crate::lightning::blinded_path::payment::BlindedPayInfo {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payinfo;
+	let mut inner_val = &mut BlindedPaymentPath::get_native_mut_ref(this_ptr).payinfo;
 	crate::lightning::blinded_path::payment::BlindedPayInfo { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::blinded_path::payment::BlindedPayInfo<>) as *mut _) }, is_owned: false }
 }
 /// The [`BlindedPayInfo`] used to pay this blinded path.
@@ -303,7 +303,7 @@ impl Clone for BlindedPaymentPath {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBlindedPaymentPath>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -311,12 +311,12 @@ impl Clone for BlindedPaymentPath {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn BlindedPaymentPath_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBlindedPaymentPath)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBlindedPaymentPath) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the BlindedPaymentPath
 pub extern "C" fn BlindedPaymentPath_clone(orig: &BlindedPaymentPath) -> BlindedPaymentPath {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a BlindedPaymentPath object
 pub extern "C" fn BlindedPaymentPath_debug_str_void(o: *const c_void) -> Str {
@@ -352,7 +352,6 @@ pub extern "C" fn BlindedPaymentPath_one_hop(mut payee_node_id: crate::c_types::
 /// Create a blinded path for a payment, to be forwarded along `intermediate_nodes`.
 ///
 /// Errors if:
-/// * a provided node id is invalid
 /// * [`BlindedPayInfo`] calculation results in an integer overflow
 /// * any unknown features are required in the provided [`ForwardTlvs`]
 #[must_use]
@@ -413,6 +412,23 @@ pub extern "C" fn BlindedPaymentPath_advance_path_by_one(this_arg: &mut crate::l
 	let mut ret = unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::blinded_path::payment::nativeBlindedPaymentPath)) }.advance_path_by_one(node_signer, node_id_lookup, secp256k1::global::SECP256K1);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
+}
+
+/// Builds a new [`BlindedPaymentPath`] from its constituent parts.
+///
+/// Useful when reconstructing a blinded path from previously serialized components.
+///
+/// Parameters:
+/// * `introduction_node_id`: The public key of the introduction node in the path.
+/// * `blinding_point`: The public key used for blinding the path.
+/// * `blinded_hops`: The encrypted routing information for each hop in the path.
+/// * `payinfo`: The [`BlindedPayInfo`] for the blinded path.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn BlindedPaymentPath_from_blinded_path_and_payinfo(mut introduction_node_id: crate::c_types::PublicKey, mut blinding_point: crate::c_types::PublicKey, mut blinded_hops: crate::c_types::derived::CVec_BlindedHopZ, mut payinfo: crate::lightning::blinded_path::payment::BlindedPayInfo) -> crate::lightning::blinded_path::payment::BlindedPaymentPath {
+	let mut local_blinded_hops = Vec::new(); for mut item in blinded_hops.into_rust().drain(..) { local_blinded_hops.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
+	let mut ret = lightning::blinded_path::payment::BlindedPaymentPath::from_blinded_path_and_payinfo(introduction_node_id.into_rust(), blinding_point.into_rust(), local_blinded_hops, *unsafe { Box::from_raw(payinfo.take_inner()) });
+	crate::lightning::blinded_path::payment::BlindedPaymentPath { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 
@@ -479,7 +495,7 @@ impl PaymentForwardNode {
 /// used for [`BlindedPayInfo`] construction.
 #[no_mangle]
 pub extern "C" fn PaymentForwardNode_get_tlvs(this_ptr: &PaymentForwardNode) -> crate::lightning::blinded_path::payment::ForwardTlvs {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().tlvs;
+	let mut inner_val = &mut PaymentForwardNode::get_native_mut_ref(this_ptr).tlvs;
 	crate::lightning::blinded_path::payment::ForwardTlvs { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::blinded_path::payment::ForwardTlvs<>) as *mut _) }, is_owned: false }
 }
 /// The TLVs for this node's [`BlindedHop`], where the fee parameters contained within are also
@@ -491,7 +507,7 @@ pub extern "C" fn PaymentForwardNode_set_tlvs(this_ptr: &mut PaymentForwardNode,
 /// This node's pubkey.
 #[no_mangle]
 pub extern "C" fn PaymentForwardNode_get_node_id(this_ptr: &PaymentForwardNode) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().node_id;
+	let mut inner_val = &mut PaymentForwardNode::get_native_mut_ref(this_ptr).node_id;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 /// This node's pubkey.
@@ -502,7 +518,7 @@ pub extern "C" fn PaymentForwardNode_set_node_id(this_ptr: &mut PaymentForwardNo
 /// The maximum value, in msat, that may be accepted by this node.
 #[no_mangle]
 pub extern "C" fn PaymentForwardNode_get_htlc_maximum_msat(this_ptr: &PaymentForwardNode) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_maximum_msat;
+	let mut inner_val = &mut PaymentForwardNode::get_native_mut_ref(this_ptr).htlc_maximum_msat;
 	*inner_val
 }
 /// The maximum value, in msat, that may be accepted by this node.
@@ -524,7 +540,7 @@ impl Clone for PaymentForwardNode {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativePaymentForwardNode>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -532,12 +548,12 @@ impl Clone for PaymentForwardNode {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn PaymentForwardNode_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativePaymentForwardNode)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativePaymentForwardNode) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the PaymentForwardNode
 pub extern "C" fn PaymentForwardNode_clone(orig: &PaymentForwardNode) -> PaymentForwardNode {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a PaymentForwardNode object
 pub extern "C" fn PaymentForwardNode_debug_str_void(o: *const c_void) -> Str {
@@ -605,7 +621,7 @@ impl ForwardTlvs {
 /// The short channel id this payment should be forwarded out over.
 #[no_mangle]
 pub extern "C" fn ForwardTlvs_get_short_channel_id(this_ptr: &ForwardTlvs) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().short_channel_id;
+	let mut inner_val = &mut ForwardTlvs::get_native_mut_ref(this_ptr).short_channel_id;
 	*inner_val
 }
 /// The short channel id this payment should be forwarded out over.
@@ -616,7 +632,7 @@ pub extern "C" fn ForwardTlvs_set_short_channel_id(this_ptr: &mut ForwardTlvs, m
 /// Payment parameters for relaying over [`Self::short_channel_id`].
 #[no_mangle]
 pub extern "C" fn ForwardTlvs_get_payment_relay(this_ptr: &ForwardTlvs) -> crate::lightning::blinded_path::payment::PaymentRelay {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_relay;
+	let mut inner_val = &mut ForwardTlvs::get_native_mut_ref(this_ptr).payment_relay;
 	crate::lightning::blinded_path::payment::PaymentRelay { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::blinded_path::payment::PaymentRelay<>) as *mut _) }, is_owned: false }
 }
 /// Payment parameters for relaying over [`Self::short_channel_id`].
@@ -627,7 +643,7 @@ pub extern "C" fn ForwardTlvs_set_payment_relay(this_ptr: &mut ForwardTlvs, mut 
 /// Payment constraints for relaying over [`Self::short_channel_id`].
 #[no_mangle]
 pub extern "C" fn ForwardTlvs_get_payment_constraints(this_ptr: &ForwardTlvs) -> crate::lightning::blinded_path::payment::PaymentConstraints {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_constraints;
+	let mut inner_val = &mut ForwardTlvs::get_native_mut_ref(this_ptr).payment_constraints;
 	crate::lightning::blinded_path::payment::PaymentConstraints { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::blinded_path::payment::PaymentConstraints<>) as *mut _) }, is_owned: false }
 }
 /// Payment constraints for relaying over [`Self::short_channel_id`].
@@ -641,7 +657,7 @@ pub extern "C" fn ForwardTlvs_set_payment_constraints(this_ptr: &mut ForwardTlvs
 /// [`BlindedHop::encrypted_payload`]: crate::blinded_path::BlindedHop::encrypted_payload
 #[no_mangle]
 pub extern "C" fn ForwardTlvs_get_features(this_ptr: &ForwardTlvs) -> crate::lightning_types::features::BlindedHopFeatures {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
+	let mut inner_val = &mut ForwardTlvs::get_native_mut_ref(this_ptr).features;
 	crate::lightning_types::features::BlindedHopFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::BlindedHopFeatures<>) as *mut _) }, is_owned: false }
 }
 /// Supported and required features when relaying a payment onion containing this object's
@@ -658,7 +674,7 @@ pub extern "C" fn ForwardTlvs_set_features(this_ptr: &mut ForwardTlvs, mut val: 
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ForwardTlvs_get_next_blinding_override(this_ptr: &ForwardTlvs) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().next_blinding_override;
+	let mut inner_val = &mut ForwardTlvs::get_native_mut_ref(this_ptr).next_blinding_override;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(inner_val.unwrap())) } };
 	local_inner_val
 }
@@ -690,7 +706,7 @@ impl Clone for ForwardTlvs {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeForwardTlvs>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -698,16 +714,182 @@ impl Clone for ForwardTlvs {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ForwardTlvs_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeForwardTlvs)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeForwardTlvs) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ForwardTlvs
 pub extern "C" fn ForwardTlvs_clone(orig: &ForwardTlvs) -> ForwardTlvs {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ForwardTlvs object
 pub extern "C" fn ForwardTlvs_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::payment::ForwardTlvs }).into()}
+
+use lightning::blinded_path::payment::TrampolineForwardTlvs as nativeTrampolineForwardTlvsImport;
+pub(crate) type nativeTrampolineForwardTlvs = nativeTrampolineForwardTlvsImport;
+
+/// Data to construct a [`BlindedHop`] for forwarding a Trampoline payment.
+#[must_use]
+#[repr(C)]
+pub struct TrampolineForwardTlvs {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeTrampolineForwardTlvs,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for TrampolineForwardTlvs {
+	type Target = nativeTrampolineForwardTlvs;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for TrampolineForwardTlvs { }
+unsafe impl core::marker::Sync for TrampolineForwardTlvs { }
+impl Drop for TrampolineForwardTlvs {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeTrampolineForwardTlvs>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the TrampolineForwardTlvs, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_free(this_obj: TrampolineForwardTlvs) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn TrampolineForwardTlvs_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeTrampolineForwardTlvs) };
+}
+#[allow(unused)]
+impl TrampolineForwardTlvs {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeTrampolineForwardTlvs {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeTrampolineForwardTlvs {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeTrampolineForwardTlvs {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// The node id to which the trampoline node must find a route.
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_get_next_trampoline(this_ptr: &TrampolineForwardTlvs) -> crate::c_types::PublicKey {
+	let mut inner_val = &mut TrampolineForwardTlvs::get_native_mut_ref(this_ptr).next_trampoline;
+	crate::c_types::PublicKey::from_rust(&inner_val)
+}
+/// The node id to which the trampoline node must find a route.
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_set_next_trampoline(this_ptr: &mut TrampolineForwardTlvs, mut val: crate::c_types::PublicKey) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.next_trampoline = val.into_rust();
+}
+/// Payment parameters for relaying over [`Self::next_trampoline`].
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_get_payment_relay(this_ptr: &TrampolineForwardTlvs) -> crate::lightning::blinded_path::payment::PaymentRelay {
+	let mut inner_val = &mut TrampolineForwardTlvs::get_native_mut_ref(this_ptr).payment_relay;
+	crate::lightning::blinded_path::payment::PaymentRelay { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::blinded_path::payment::PaymentRelay<>) as *mut _) }, is_owned: false }
+}
+/// Payment parameters for relaying over [`Self::next_trampoline`].
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_set_payment_relay(this_ptr: &mut TrampolineForwardTlvs, mut val: crate::lightning::blinded_path::payment::PaymentRelay) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_relay = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// Payment constraints for relaying over [`Self::next_trampoline`].
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_get_payment_constraints(this_ptr: &TrampolineForwardTlvs) -> crate::lightning::blinded_path::payment::PaymentConstraints {
+	let mut inner_val = &mut TrampolineForwardTlvs::get_native_mut_ref(this_ptr).payment_constraints;
+	crate::lightning::blinded_path::payment::PaymentConstraints { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::blinded_path::payment::PaymentConstraints<>) as *mut _) }, is_owned: false }
+}
+/// Payment constraints for relaying over [`Self::next_trampoline`].
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_set_payment_constraints(this_ptr: &mut TrampolineForwardTlvs, mut val: crate::lightning::blinded_path::payment::PaymentConstraints) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.payment_constraints = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// Supported and required features when relaying a payment onion containing this object's
+/// corresponding [`BlindedHop::encrypted_payload`].
+///
+/// [`BlindedHop::encrypted_payload`]: crate::blinded_path::BlindedHop::encrypted_payload
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_get_features(this_ptr: &TrampolineForwardTlvs) -> crate::lightning_types::features::BlindedHopFeatures {
+	let mut inner_val = &mut TrampolineForwardTlvs::get_native_mut_ref(this_ptr).features;
+	crate::lightning_types::features::BlindedHopFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::BlindedHopFeatures<>) as *mut _) }, is_owned: false }
+}
+/// Supported and required features when relaying a payment onion containing this object's
+/// corresponding [`BlindedHop::encrypted_payload`].
+///
+/// [`BlindedHop::encrypted_payload`]: crate::blinded_path::BlindedHop::encrypted_payload
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_set_features(this_ptr: &mut TrampolineForwardTlvs, mut val: crate::lightning_types::features::BlindedHopFeatures) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.features = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// Set if this [`BlindedPaymentPath`] is concatenated to another, to indicate the
+/// [`BlindedPaymentPath::blinding_point`] of the appended blinded path.
+///
+/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_get_next_blinding_override(this_ptr: &TrampolineForwardTlvs) -> crate::c_types::PublicKey {
+	let mut inner_val = &mut TrampolineForwardTlvs::get_native_mut_ref(this_ptr).next_blinding_override;
+	let mut local_inner_val = if inner_val.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(inner_val.unwrap())) } };
+	local_inner_val
+}
+/// Set if this [`BlindedPaymentPath`] is concatenated to another, to indicate the
+/// [`BlindedPaymentPath::blinding_point`] of the appended blinded path.
+///
+/// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_set_next_blinding_override(this_ptr: &mut TrampolineForwardTlvs, mut val: crate::c_types::PublicKey) {
+	let mut local_val = if val.is_null() { None } else { Some( { val.into_rust() }) };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.next_blinding_override = local_val;
+}
+/// Constructs a new TrampolineForwardTlvs given each field
+///
+/// Note that next_blinding_override_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[must_use]
+#[no_mangle]
+pub extern "C" fn TrampolineForwardTlvs_new(mut next_trampoline_arg: crate::c_types::PublicKey, mut payment_relay_arg: crate::lightning::blinded_path::payment::PaymentRelay, mut payment_constraints_arg: crate::lightning::blinded_path::payment::PaymentConstraints, mut features_arg: crate::lightning_types::features::BlindedHopFeatures, mut next_blinding_override_arg: crate::c_types::PublicKey) -> TrampolineForwardTlvs {
+	let mut local_next_blinding_override_arg = if next_blinding_override_arg.is_null() { None } else { Some( { next_blinding_override_arg.into_rust() }) };
+	TrampolineForwardTlvs { inner: ObjOps::heap_alloc(nativeTrampolineForwardTlvs {
+		next_trampoline: next_trampoline_arg.into_rust(),
+		payment_relay: *unsafe { Box::from_raw(payment_relay_arg.take_inner()) },
+		payment_constraints: *unsafe { Box::from_raw(payment_constraints_arg.take_inner()) },
+		features: *unsafe { Box::from_raw(features_arg.take_inner()) },
+		next_blinding_override: local_next_blinding_override_arg,
+	}), is_owned: true }
+}
+impl Clone for TrampolineForwardTlvs {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeTrampolineForwardTlvs>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn TrampolineForwardTlvs_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeTrampolineForwardTlvs) }))) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the TrampolineForwardTlvs
+pub extern "C" fn TrampolineForwardTlvs_clone(orig: &TrampolineForwardTlvs) -> TrampolineForwardTlvs {
+	Clone::clone(orig)
+}
+/// Get a string which allows debug introspection of a TrampolineForwardTlvs object
+pub extern "C" fn TrampolineForwardTlvs_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::payment::TrampolineForwardTlvs }).into()}
 
 use lightning::blinded_path::payment::ReceiveTlvs as nativeReceiveTlvsImport;
 pub(crate) type nativeReceiveTlvs = nativeReceiveTlvsImport;
@@ -775,7 +957,7 @@ impl Clone for ReceiveTlvs {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeReceiveTlvs>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -783,12 +965,12 @@ impl Clone for ReceiveTlvs {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ReceiveTlvs_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeReceiveTlvs)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeReceiveTlvs) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ReceiveTlvs
 pub extern "C" fn ReceiveTlvs_clone(orig: &ReceiveTlvs) -> ReceiveTlvs {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ReceiveTlvs object
 pub extern "C" fn ReceiveTlvs_debug_str_void(o: *const c_void) -> Str {
@@ -864,7 +1046,7 @@ impl UnauthenticatedReceiveTlvs {
 /// Used to authenticate the sender of a payment to the receiver and tie MPP HTLCs together.
 #[no_mangle]
 pub extern "C" fn UnauthenticatedReceiveTlvs_get_payment_secret(this_ptr: &UnauthenticatedReceiveTlvs) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_secret;
+	let mut inner_val = &mut UnauthenticatedReceiveTlvs::get_native_mut_ref(this_ptr).payment_secret;
 	&inner_val.0
 }
 /// Used to authenticate the sender of a payment to the receiver and tie MPP HTLCs together.
@@ -875,7 +1057,7 @@ pub extern "C" fn UnauthenticatedReceiveTlvs_set_payment_secret(this_ptr: &mut U
 /// Constraints for the receiver of this payment.
 #[no_mangle]
 pub extern "C" fn UnauthenticatedReceiveTlvs_get_payment_constraints(this_ptr: &UnauthenticatedReceiveTlvs) -> crate::lightning::blinded_path::payment::PaymentConstraints {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_constraints;
+	let mut inner_val = &mut UnauthenticatedReceiveTlvs::get_native_mut_ref(this_ptr).payment_constraints;
 	crate::lightning::blinded_path::payment::PaymentConstraints { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::blinded_path::payment::PaymentConstraints<>) as *mut _) }, is_owned: false }
 }
 /// Constraints for the receiver of this payment.
@@ -886,7 +1068,7 @@ pub extern "C" fn UnauthenticatedReceiveTlvs_set_payment_constraints(this_ptr: &
 /// Context for the receiver of this payment.
 #[no_mangle]
 pub extern "C" fn UnauthenticatedReceiveTlvs_get_payment_context(this_ptr: &UnauthenticatedReceiveTlvs) -> crate::lightning::blinded_path::payment::PaymentContext {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_context;
+	let mut inner_val = &mut UnauthenticatedReceiveTlvs::get_native_mut_ref(this_ptr).payment_context;
 	crate::lightning::blinded_path::payment::PaymentContext::from_native(inner_val)
 }
 /// Context for the receiver of this payment.
@@ -908,7 +1090,7 @@ impl Clone for UnauthenticatedReceiveTlvs {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeUnauthenticatedReceiveTlvs>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -916,12 +1098,12 @@ impl Clone for UnauthenticatedReceiveTlvs {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn UnauthenticatedReceiveTlvs_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeUnauthenticatedReceiveTlvs)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeUnauthenticatedReceiveTlvs) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the UnauthenticatedReceiveTlvs
 pub extern "C" fn UnauthenticatedReceiveTlvs_clone(orig: &UnauthenticatedReceiveTlvs) -> UnauthenticatedReceiveTlvs {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a UnauthenticatedReceiveTlvs object
 pub extern "C" fn UnauthenticatedReceiveTlvs_debug_str_void(o: *const c_void) -> Str {
@@ -1000,7 +1182,7 @@ impl PaymentRelay {
 /// Number of blocks subtracted from an incoming HTLC's `cltv_expiry` for this [`BlindedHop`].
 #[no_mangle]
 pub extern "C" fn PaymentRelay_get_cltv_expiry_delta(this_ptr: &PaymentRelay) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
+	let mut inner_val = &mut PaymentRelay::get_native_mut_ref(this_ptr).cltv_expiry_delta;
 	*inner_val
 }
 /// Number of blocks subtracted from an incoming HTLC's `cltv_expiry` for this [`BlindedHop`].
@@ -1012,7 +1194,7 @@ pub extern "C" fn PaymentRelay_set_cltv_expiry_delta(this_ptr: &mut PaymentRelay
 /// this [`BlindedHop`], (i.e., 10,000 is 1%).
 #[no_mangle]
 pub extern "C" fn PaymentRelay_get_fee_proportional_millionths(this_ptr: &PaymentRelay) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fee_proportional_millionths;
+	let mut inner_val = &mut PaymentRelay::get_native_mut_ref(this_ptr).fee_proportional_millionths;
 	*inner_val
 }
 /// Liquidity fee charged (in millionths of the amount transferred) for relaying a payment over
@@ -1024,7 +1206,7 @@ pub extern "C" fn PaymentRelay_set_fee_proportional_millionths(this_ptr: &mut Pa
 /// Base fee charged (in millisatoshi) for relaying a payment over this [`BlindedHop`].
 #[no_mangle]
 pub extern "C" fn PaymentRelay_get_fee_base_msat(this_ptr: &PaymentRelay) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fee_base_msat;
+	let mut inner_val = &mut PaymentRelay::get_native_mut_ref(this_ptr).fee_base_msat;
 	*inner_val
 }
 /// Base fee charged (in millisatoshi) for relaying a payment over this [`BlindedHop`].
@@ -1046,7 +1228,7 @@ impl Clone for PaymentRelay {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativePaymentRelay>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1054,12 +1236,12 @@ impl Clone for PaymentRelay {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn PaymentRelay_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativePaymentRelay)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativePaymentRelay) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the PaymentRelay
 pub extern "C" fn PaymentRelay_clone(orig: &PaymentRelay) -> PaymentRelay {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a PaymentRelay object
 pub extern "C" fn PaymentRelay_debug_str_void(o: *const c_void) -> Str {
@@ -1129,7 +1311,7 @@ impl PaymentConstraints {
 /// The maximum total CLTV that is acceptable when relaying a payment over this [`BlindedHop`].
 #[no_mangle]
 pub extern "C" fn PaymentConstraints_get_max_cltv_expiry(this_ptr: &PaymentConstraints) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().max_cltv_expiry;
+	let mut inner_val = &mut PaymentConstraints::get_native_mut_ref(this_ptr).max_cltv_expiry;
 	*inner_val
 }
 /// The maximum total CLTV that is acceptable when relaying a payment over this [`BlindedHop`].
@@ -1141,7 +1323,7 @@ pub extern "C" fn PaymentConstraints_set_max_cltv_expiry(this_ptr: &mut PaymentC
 /// [`BlindedHop`].
 #[no_mangle]
 pub extern "C" fn PaymentConstraints_get_htlc_minimum_msat(this_ptr: &PaymentConstraints) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_minimum_msat;
+	let mut inner_val = &mut PaymentConstraints::get_native_mut_ref(this_ptr).htlc_minimum_msat;
 	*inner_val
 }
 /// The minimum value, in msat, that may be accepted by the node corresponding to this
@@ -1163,7 +1345,7 @@ impl Clone for PaymentConstraints {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativePaymentConstraints>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1171,12 +1353,12 @@ impl Clone for PaymentConstraints {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn PaymentConstraints_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativePaymentConstraints)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativePaymentConstraints) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the PaymentConstraints
 pub extern "C" fn PaymentConstraints_clone(orig: &PaymentConstraints) -> PaymentConstraints {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a PaymentConstraints object
 pub extern "C" fn PaymentConstraints_debug_str_void(o: *const c_void) -> Str {
@@ -1194,6 +1376,11 @@ pub enum PaymentContext {
 	/// [`Offer`]: crate::offers::offer::Offer
 	Bolt12Offer(
 		crate::lightning::blinded_path::payment::Bolt12OfferContext),
+	/// The payment was made for a static invoice requested from a BOLT 12 [`Offer`].
+	///
+	/// [`Offer`]: crate::offers::offer::Offer
+	AsyncBolt12Offer(
+		crate::lightning::blinded_path::payment::AsyncBolt12OfferContext),
 	/// The payment was made for an invoice sent for a BOLT 12 [`Refund`].
 	///
 	/// [`Refund`]: crate::offers::refund::Refund
@@ -1213,6 +1400,12 @@ impl PaymentContext {
 					*unsafe { Box::from_raw(a_nonref.take_inner()) },
 				)
 			},
+			PaymentContext::AsyncBolt12Offer (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativePaymentContext::AsyncBolt12Offer (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
 			PaymentContext::Bolt12Refund (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				nativePaymentContext::Bolt12Refund (
@@ -1226,6 +1419,11 @@ impl PaymentContext {
 		match self {
 			PaymentContext::Bolt12Offer (mut a, ) => {
 				nativePaymentContext::Bolt12Offer (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+			PaymentContext::AsyncBolt12Offer (mut a, ) => {
+				nativePaymentContext::AsyncBolt12Offer (
 					*unsafe { Box::from_raw(a.take_inner()) },
 				)
 			},
@@ -1246,6 +1444,12 @@ impl PaymentContext {
 					crate::lightning::blinded_path::payment::Bolt12OfferContext { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
 				)
 			},
+			nativePaymentContext::AsyncBolt12Offer (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				PaymentContext::AsyncBolt12Offer (
+					crate::lightning::blinded_path::payment::AsyncBolt12OfferContext { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
 			nativePaymentContext::Bolt12Refund (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				PaymentContext::Bolt12Refund (
@@ -1260,6 +1464,11 @@ impl PaymentContext {
 			nativePaymentContext::Bolt12Offer (mut a, ) => {
 				PaymentContext::Bolt12Offer (
 					crate::lightning::blinded_path::payment::Bolt12OfferContext { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+			nativePaymentContext::AsyncBolt12Offer (mut a, ) => {
+				PaymentContext::AsyncBolt12Offer (
+					crate::lightning::blinded_path::payment::AsyncBolt12OfferContext { inner: ObjOps::heap_alloc(a), is_owned: true },
 				)
 			},
 			nativePaymentContext::Bolt12Refund (mut a, ) => {
@@ -1292,6 +1501,11 @@ pub(crate) extern "C" fn PaymentContext_free_void(this_ptr: *mut c_void) {
 /// Utility method to constructs a new Bolt12Offer-variant PaymentContext
 pub extern "C" fn PaymentContext_bolt12_offer(a: crate::lightning::blinded_path::payment::Bolt12OfferContext) -> PaymentContext {
 	PaymentContext::Bolt12Offer(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new AsyncBolt12Offer-variant PaymentContext
+pub extern "C" fn PaymentContext_async_bolt12_offer(a: crate::lightning::blinded_path::payment::AsyncBolt12OfferContext) -> PaymentContext {
+	PaymentContext::AsyncBolt12Offer(a, )
 }
 #[no_mangle]
 /// Utility method to constructs a new Bolt12Refund-variant PaymentContext
@@ -1374,7 +1588,7 @@ impl Bolt12OfferContext {
 /// [`Offer`]: crate::offers::offer::Offer
 #[no_mangle]
 pub extern "C" fn Bolt12OfferContext_get_offer_id(this_ptr: &Bolt12OfferContext) -> crate::lightning::offers::offer::OfferId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().offer_id;
+	let mut inner_val = &mut Bolt12OfferContext::get_native_mut_ref(this_ptr).offer_id;
 	crate::lightning::offers::offer::OfferId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::offers::offer::OfferId<>) as *mut _) }, is_owned: false }
 }
 /// The identifier of the [`Offer`].
@@ -1390,7 +1604,7 @@ pub extern "C" fn Bolt12OfferContext_set_offer_id(this_ptr: &mut Bolt12OfferCont
 /// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
 #[no_mangle]
 pub extern "C" fn Bolt12OfferContext_get_invoice_request(this_ptr: &Bolt12OfferContext) -> crate::lightning::offers::invoice_request::InvoiceRequestFields {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().invoice_request;
+	let mut inner_val = &mut Bolt12OfferContext::get_native_mut_ref(this_ptr).invoice_request;
 	crate::lightning::offers::invoice_request::InvoiceRequestFields { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::offers::invoice_request::InvoiceRequestFields<>) as *mut _) }, is_owned: false }
 }
 /// Fields from an [`InvoiceRequest`] sent for a [`Bolt12Invoice`].
@@ -1414,7 +1628,7 @@ impl Clone for Bolt12OfferContext {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt12OfferContext>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1422,12 +1636,12 @@ impl Clone for Bolt12OfferContext {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt12OfferContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt12OfferContext)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt12OfferContext) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt12OfferContext
 pub extern "C" fn Bolt12OfferContext_clone(orig: &Bolt12OfferContext) -> Bolt12OfferContext {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Bolt12OfferContext object
 pub extern "C" fn Bolt12OfferContext_debug_str_void(o: *const c_void) -> Str {
@@ -1437,6 +1651,124 @@ pub extern "C" fn Bolt12OfferContext_debug_str_void(o: *const c_void) -> Str {
 /// Two objects with NULL inner values will be considered "equal" here.
 #[no_mangle]
 pub extern "C" fn Bolt12OfferContext_eq(a: &Bolt12OfferContext, b: &Bolt12OfferContext) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+
+use lightning::blinded_path::payment::AsyncBolt12OfferContext as nativeAsyncBolt12OfferContextImport;
+pub(crate) type nativeAsyncBolt12OfferContext = nativeAsyncBolt12OfferContextImport;
+
+/// The context of a payment made for a static invoice requested from a BOLT 12 [`Offer`].
+///
+/// [`Offer`]: crate::offers::offer::Offer
+#[must_use]
+#[repr(C)]
+pub struct AsyncBolt12OfferContext {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeAsyncBolt12OfferContext,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for AsyncBolt12OfferContext {
+	type Target = nativeAsyncBolt12OfferContext;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for AsyncBolt12OfferContext { }
+unsafe impl core::marker::Sync for AsyncBolt12OfferContext { }
+impl Drop for AsyncBolt12OfferContext {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeAsyncBolt12OfferContext>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the AsyncBolt12OfferContext, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn AsyncBolt12OfferContext_free(this_obj: AsyncBolt12OfferContext) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn AsyncBolt12OfferContext_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeAsyncBolt12OfferContext) };
+}
+#[allow(unused)]
+impl AsyncBolt12OfferContext {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeAsyncBolt12OfferContext {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeAsyncBolt12OfferContext {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeAsyncBolt12OfferContext {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// The [`Nonce`] used to verify that an inbound [`InvoiceRequest`] corresponds to this static
+/// invoice's offer.
+///
+/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+#[no_mangle]
+pub extern "C" fn AsyncBolt12OfferContext_get_offer_nonce(this_ptr: &AsyncBolt12OfferContext) -> crate::lightning::offers::nonce::Nonce {
+	let mut inner_val = &mut AsyncBolt12OfferContext::get_native_mut_ref(this_ptr).offer_nonce;
+	crate::lightning::offers::nonce::Nonce { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::offers::nonce::Nonce<>) as *mut _) }, is_owned: false }
+}
+/// The [`Nonce`] used to verify that an inbound [`InvoiceRequest`] corresponds to this static
+/// invoice's offer.
+///
+/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+#[no_mangle]
+pub extern "C" fn AsyncBolt12OfferContext_set_offer_nonce(this_ptr: &mut AsyncBolt12OfferContext, mut val: crate::lightning::offers::nonce::Nonce) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.offer_nonce = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// Constructs a new AsyncBolt12OfferContext given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn AsyncBolt12OfferContext_new(mut offer_nonce_arg: crate::lightning::offers::nonce::Nonce) -> AsyncBolt12OfferContext {
+	AsyncBolt12OfferContext { inner: ObjOps::heap_alloc(nativeAsyncBolt12OfferContext {
+		offer_nonce: *unsafe { Box::from_raw(offer_nonce_arg.take_inner()) },
+	}), is_owned: true }
+}
+impl Clone for AsyncBolt12OfferContext {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeAsyncBolt12OfferContext>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn AsyncBolt12OfferContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeAsyncBolt12OfferContext) }))) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the AsyncBolt12OfferContext
+pub extern "C" fn AsyncBolt12OfferContext_clone(orig: &AsyncBolt12OfferContext) -> AsyncBolt12OfferContext {
+	Clone::clone(orig)
+}
+/// Get a string which allows debug introspection of a AsyncBolt12OfferContext object
+pub extern "C" fn AsyncBolt12OfferContext_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::blinded_path::payment::AsyncBolt12OfferContext }).into()}
+/// Checks if two AsyncBolt12OfferContexts contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn AsyncBolt12OfferContext_eq(a: &AsyncBolt12OfferContext, b: &AsyncBolt12OfferContext) -> bool {
 	if a.inner == b.inner { return true; }
 	if a.inner.is_null() || b.inner.is_null() { return false; }
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
@@ -1514,7 +1846,7 @@ impl Clone for Bolt12RefundContext {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt12RefundContext>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1522,12 +1854,12 @@ impl Clone for Bolt12RefundContext {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt12RefundContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt12RefundContext)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt12RefundContext) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt12RefundContext
 pub extern "C" fn Bolt12RefundContext_clone(orig: &Bolt12RefundContext) -> Bolt12RefundContext {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Bolt12RefundContext object
 pub extern "C" fn Bolt12RefundContext_debug_str_void(o: *const c_void) -> Str {
@@ -1549,6 +1881,15 @@ pub extern "C" fn ForwardTlvs_write(obj: &crate::lightning::blinded_path::paymen
 #[allow(unused)]
 pub(crate) extern "C" fn ForwardTlvs_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::blinded_path::payment::nativeForwardTlvs) })
+}
+#[no_mangle]
+/// Serialize the TrampolineForwardTlvs object into a byte array which can be read by TrampolineForwardTlvs_read
+pub extern "C" fn TrampolineForwardTlvs_write(obj: &crate::lightning::blinded_path::payment::TrampolineForwardTlvs) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn TrampolineForwardTlvs_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::blinded_path::payment::nativeTrampolineForwardTlvs) })
 }
 #[no_mangle]
 /// Serialize the ReceiveTlvs object into a byte array which can be read by ReceiveTlvs_read
@@ -1630,6 +1971,22 @@ pub(crate) extern "C" fn Bolt12OfferContext_write_void(obj: *const c_void) -> cr
 pub extern "C" fn Bolt12OfferContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_Bolt12OfferContextDecodeErrorZ {
 	let res: Result<lightning::blinded_path::payment::Bolt12OfferContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::payment::Bolt12OfferContext { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
+/// Serialize the AsyncBolt12OfferContext object into a byte array which can be read by AsyncBolt12OfferContext_read
+pub extern "C" fn AsyncBolt12OfferContext_write(obj: &crate::lightning::blinded_path::payment::AsyncBolt12OfferContext) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn AsyncBolt12OfferContext_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::blinded_path::payment::nativeAsyncBolt12OfferContext) })
+}
+#[no_mangle]
+/// Read a AsyncBolt12OfferContext from a byte array, created by AsyncBolt12OfferContext_write
+pub extern "C" fn AsyncBolt12OfferContext_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_AsyncBolt12OfferContextDecodeErrorZ {
+	let res: Result<lightning::blinded_path::payment::AsyncBolt12OfferContext, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::payment::AsyncBolt12OfferContext { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
 #[no_mangle]

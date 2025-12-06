@@ -19,6 +19,7 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
+pub mod sync;
 
 use lightning::events::bump_transaction::AnchorDescriptor as nativeAnchorDescriptorImport;
 pub(crate) type nativeAnchorDescriptor = nativeAnchorDescriptorImport;
@@ -82,7 +83,7 @@ impl AnchorDescriptor {
 /// The parameters required to derive the signer for the anchor input.
 #[no_mangle]
 pub extern "C" fn AnchorDescriptor_get_channel_derivation_parameters(this_ptr: &AnchorDescriptor) -> crate::lightning::sign::ChannelDerivationParameters {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_derivation_parameters;
+	let mut inner_val = &mut AnchorDescriptor::get_native_mut_ref(this_ptr).channel_derivation_parameters;
 	crate::lightning::sign::ChannelDerivationParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::sign::ChannelDerivationParameters<>) as *mut _) }, is_owned: false }
 }
 /// The parameters required to derive the signer for the anchor input.
@@ -94,7 +95,7 @@ pub extern "C" fn AnchorDescriptor_set_channel_derivation_parameters(this_ptr: &
 /// output.
 #[no_mangle]
 pub extern "C" fn AnchorDescriptor_get_outpoint(this_ptr: &AnchorDescriptor) -> crate::lightning::chain::transaction::OutPoint {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().outpoint;
+	let mut inner_val = &mut AnchorDescriptor::get_native_mut_ref(this_ptr).outpoint;
 	crate::c_types::bitcoin_to_C_outpoint(inner_val)
 }
 /// The transaction input's outpoint corresponding to the commitment transaction's anchor
@@ -103,20 +104,32 @@ pub extern "C" fn AnchorDescriptor_get_outpoint(this_ptr: &AnchorDescriptor) -> 
 pub extern "C" fn AnchorDescriptor_set_outpoint(this_ptr: &mut AnchorDescriptor, mut val: crate::lightning::chain::transaction::OutPoint) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.outpoint = crate::c_types::C_to_bitcoin_outpoint(val);
 }
+/// Zero-fee-commitment anchors have variable value, which is tracked here.
+#[no_mangle]
+pub extern "C" fn AnchorDescriptor_get_value(this_ptr: &AnchorDescriptor) -> u64 {
+	let mut inner_val = &mut AnchorDescriptor::get_native_mut_ref(this_ptr).value;
+	inner_val.to_sat()
+}
+/// Zero-fee-commitment anchors have variable value, which is tracked here.
+#[no_mangle]
+pub extern "C" fn AnchorDescriptor_set_value(this_ptr: &mut AnchorDescriptor, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.value = ::bitcoin::amount::Amount::from_sat(val);
+}
 /// Constructs a new AnchorDescriptor given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn AnchorDescriptor_new(mut channel_derivation_parameters_arg: crate::lightning::sign::ChannelDerivationParameters, mut outpoint_arg: crate::lightning::chain::transaction::OutPoint) -> AnchorDescriptor {
+pub extern "C" fn AnchorDescriptor_new(mut channel_derivation_parameters_arg: crate::lightning::sign::ChannelDerivationParameters, mut outpoint_arg: crate::lightning::chain::transaction::OutPoint, mut value_arg: u64) -> AnchorDescriptor {
 	AnchorDescriptor { inner: ObjOps::heap_alloc(nativeAnchorDescriptor {
 		channel_derivation_parameters: *unsafe { Box::from_raw(channel_derivation_parameters_arg.take_inner()) },
 		outpoint: crate::c_types::C_to_bitcoin_outpoint(outpoint_arg),
+		value: ::bitcoin::amount::Amount::from_sat(value_arg),
 	}), is_owned: true }
 }
 impl Clone for AnchorDescriptor {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeAnchorDescriptor>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -124,12 +137,12 @@ impl Clone for AnchorDescriptor {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn AnchorDescriptor_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeAnchorDescriptor)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeAnchorDescriptor) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the AnchorDescriptor
 pub extern "C" fn AnchorDescriptor_clone(orig: &AnchorDescriptor) -> AnchorDescriptor {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a AnchorDescriptor object
 pub extern "C" fn AnchorDescriptor_debug_str_void(o: *const c_void) -> Str {
@@ -161,14 +174,6 @@ pub extern "C" fn AnchorDescriptor_unsigned_tx_input(this_arg: &crate::lightning
 	crate::c_types::TxIn::from_rust(&ret)
 }
 
-/// Returns the witness script of the anchor output in the commitment transaction.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn AnchorDescriptor_witness_script(this_arg: &crate::lightning::events::bump_transaction::AnchorDescriptor) -> crate::c_types::derived::CVec_u8Z {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.witness_script();
-	ret.to_bytes().into()
-}
-
 /// Returns the fully signed witness required to spend the anchor output in the commitment
 /// transaction.
 #[must_use]
@@ -176,14 +181,6 @@ pub extern "C" fn AnchorDescriptor_witness_script(this_arg: &crate::lightning::e
 pub extern "C" fn AnchorDescriptor_tx_input_witness(this_arg: &crate::lightning::events::bump_transaction::AnchorDescriptor, mut signature: crate::c_types::ECDSASignature) -> crate::c_types::Witness {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.tx_input_witness(&signature.into_rust());
 	crate::c_types::Witness::from_bitcoin(&ret)
-}
-
-/// Derives the channel signer required to sign the anchor input.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn AnchorDescriptor_derive_channel_signer(this_arg: &crate::lightning::events::bump_transaction::AnchorDescriptor, signer_provider: &crate::lightning::sign::SignerProvider) -> crate::lightning::sign::ecdsa::EcdsaChannelSigner {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.derive_channel_signer(signer_provider);
-	Into::into(ret)
 }
 
 /// Represents the different types of transactions, originating from LDK, to be bumped.
@@ -201,14 +198,25 @@ pub enum BumpTransactionEvent {
 	/// and child anchor transactions), possibly resulting in a loss of funds. Once the transaction
 	/// is constructed, it must be fully signed for and broadcast by the consumer of the event
 	/// along with the `commitment_tx` enclosed. Note that the `commitment_tx` must always be
-	/// broadcast first, as the child anchor transaction depends on it.
+	/// broadcast first, as the child anchor transaction depends on it. It is also possible that the
+	/// feerate of the commitment transaction is already sufficient, in which case the child anchor
+	/// transaction is not needed and only the commitment transaction should be broadcast.
+	///
+	/// In zero-fee commitment channels, the commitment transaction and the anchor transaction
+	/// form a 1-parent-1-child package that conforms to BIP 431 (known as TRUC transactions).
+	/// The anchor transaction must be version 3, and its size must be no more than 1000 vB.
+	/// The anchor transaction is usually needed to bump the fee of the commitment transaction
+	/// as the commitment transaction is not explicitly assigned any fees. In those cases the
+	/// anchor transaction must be broadcast together with the commitment transaction as a
+	/// `child-with-parents` package (usually using the Bitcoin Core `submitpackage` RPC).
 	///
 	/// The consumer should be able to sign for any of the additional inputs included within the
-	/// child anchor transaction. To sign its anchor input, an [`EcdsaChannelSigner`] should be
-	/// re-derived through [`AnchorDescriptor::derive_channel_signer`]. The anchor input signature
-	/// can be computed with [`EcdsaChannelSigner::sign_holder_anchor_input`], which can then be
-	/// provided to [`build_anchor_input_witness`] along with the `funding_pubkey` to obtain the
-	/// full witness required to spend.
+	/// child anchor transaction. To sign its keyed-anchor input, an [`EcdsaChannelSigner`] should
+	/// be re-derived through [`SignerProvider::derive_channel_signer`]. The anchor input signature
+	/// can be computed with [`EcdsaChannelSigner::sign_holder_keyed_anchor_input`], which can then
+	/// be provided to [`build_keyed_anchor_input_witness`] along with the `funding_pubkey` to
+	/// obtain the full witness required to spend. Note that no signature or witness data is
+	/// required to spend the keyless anchor used in zero-fee commitment channels.
 	///
 	/// It is possible to receive more than one instance of this event if a valid child anchor
 	/// transaction is never broadcast or is but not with a sufficient fee to be mined. Care should
@@ -228,8 +236,8 @@ pub enum BumpTransactionEvent {
 	/// be not urgent.
 	///
 	/// [`EcdsaChannelSigner`]: crate::sign::ecdsa::EcdsaChannelSigner
-	/// [`EcdsaChannelSigner::sign_holder_anchor_input`]: crate::sign::ecdsa::EcdsaChannelSigner::sign_holder_anchor_input
-	/// [`build_anchor_input_witness`]: crate::ln::chan_utils::build_anchor_input_witness
+	/// [`EcdsaChannelSigner::sign_holder_keyed_anchor_input`]: crate::sign::ecdsa::EcdsaChannelSigner::sign_holder_keyed_anchor_input
+	/// [`build_keyed_anchor_input_witness`]: crate::ln::chan_utils::build_keyed_anchor_input_witness
 	ChannelClose {
 		/// The `channel_id` of the channel which has been closed.
 		channel_id: crate::lightning::ln::types::ChannelId,
@@ -259,18 +267,29 @@ pub enum BumpTransactionEvent {
 		pending_htlcs: crate::c_types::derived::CVec_HTLCOutputInCommitmentZ,
 	},
 	/// Indicates that a channel featuring anchor outputs has unilaterally closed on-chain by a
-	/// holder commitment transaction and its HTLC(s) need to be resolved on-chain. With the
-	/// zero-HTLC-transaction-fee variant of anchor outputs, the pre-signed HTLC
-	/// transactions have a zero fee, thus requiring additional inputs and/or outputs to be attached
-	/// for a timely confirmation within the chain. These additional inputs and/or outputs must be
-	/// appended to the resulting HTLC transaction to meet the target feerate. Failure to meet the
-	/// target feerate decreases the confirmation odds of the transaction, possibly resulting in a
-	/// loss of funds. Once the transaction meets the target feerate, it must be signed for and
-	/// broadcast by the consumer of the event.
+	/// holder commitment transaction and its HTLC(s) need to be resolved on-chain. In all such
+	/// channels, the pre-signed HTLC transactions have a zero fee, thus requiring additional
+	/// inputs and/or outputs to be attached for a timely confirmation within the chain. These
+	/// additional inputs and/or outputs must be appended to the resulting HTLC transaction to
+	/// meet the target feerate. Failure to meet the target feerate decreases the confirmation
+	/// odds of the transaction, possibly resulting in a loss of funds. Once the transaction
+	/// meets the target feerate, it must be signed for and broadcast by the consumer of the
+	/// event.
+	///
+	/// In zero-fee commitment channels, you must set the version of the HTLC claim transaction
+	/// to version 3 as the counterparty's signature commits to the version of
+	/// the transaction. You must also make sure that this claim transaction does not grow
+	/// bigger than 10,000 vB, the maximum vsize of any TRUC transaction as specified in
+	/// BIP 431. It is possible for [`htlc_descriptors`] to be long enough such
+	/// that claiming all the HTLCs therein in a single transaction would exceed this limit.
+	/// In this case, you must claim all the HTLCs in [`htlc_descriptors`] using multiple
+	/// transactions. Finally, note that while HTLCs in zero-fee commitment channels no
+	/// longer have the 1 CSV lock, LDK will still emit this event only after the commitment
+	/// transaction has 1 confirmation.
 	///
 	/// The consumer should be able to sign for any of the non-HTLC inputs added to the resulting
 	/// HTLC transaction. To sign HTLC inputs, an [`EcdsaChannelSigner`] should be re-derived
-	/// through [`HTLCDescriptor::derive_channel_signer`]. Each HTLC input's signature can be
+	/// through [`SignerProvider::derive_channel_signer`]. Each HTLC input's signature can be
 	/// computed with [`EcdsaChannelSigner::sign_holder_htlc_transaction`], which can then be
 	/// provided to [`HTLCDescriptor::tx_input_witness`] to obtain the fully signed witness required
 	/// to spend.
@@ -287,6 +306,7 @@ pub enum BumpTransactionEvent {
 	///
 	/// [`EcdsaChannelSigner`]: crate::sign::ecdsa::EcdsaChannelSigner
 	/// [`EcdsaChannelSigner::sign_holder_htlc_transaction`]: crate::sign::ecdsa::EcdsaChannelSigner::sign_holder_htlc_transaction
+	/// [`htlc_descriptors`]: `BumpTransactionEvent::HTLCResolution::htlc_descriptors`
 	HTLCResolution {
 		/// The `channel_id` of the channel which has been closed.
 		channel_id: crate::lightning::ln::types::ChannelId,
@@ -576,7 +596,7 @@ impl Input {
 /// The unique identifier of the input.
 #[no_mangle]
 pub extern "C" fn Input_get_outpoint(this_ptr: &Input) -> crate::lightning::chain::transaction::OutPoint {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().outpoint;
+	let mut inner_val = &mut Input::get_native_mut_ref(this_ptr).outpoint;
 	crate::c_types::bitcoin_to_C_outpoint(inner_val)
 }
 /// The unique identifier of the input.
@@ -587,7 +607,7 @@ pub extern "C" fn Input_set_outpoint(this_ptr: &mut Input, mut val: crate::light
 /// The UTXO being spent by the input.
 #[no_mangle]
 pub extern "C" fn Input_get_previous_utxo(this_ptr: &Input) -> crate::c_types::TxOut {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().previous_utxo;
+	let mut inner_val = &mut Input::get_native_mut_ref(this_ptr).previous_utxo;
 	crate::c_types::TxOut::from_rust(inner_val)
 }
 /// The UTXO being spent by the input.
@@ -600,7 +620,7 @@ pub extern "C" fn Input_set_previous_utxo(this_ptr: &mut Input, mut val: crate::
 /// script.
 #[no_mangle]
 pub extern "C" fn Input_get_satisfaction_weight(this_ptr: &Input) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().satisfaction_weight;
+	let mut inner_val = &mut Input::get_native_mut_ref(this_ptr).satisfaction_weight;
 	*inner_val
 }
 /// The upper-bound weight consumed by the input's full [`TxIn::script_sig`] and
@@ -624,7 +644,7 @@ impl Clone for Input {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInput>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -632,12 +652,12 @@ impl Clone for Input {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Input_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInput)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInput) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Input
 pub extern "C" fn Input_clone(orig: &Input) -> Input {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Input object
 pub extern "C" fn Input_debug_str_void(o: *const c_void) -> Str {
@@ -725,7 +745,7 @@ impl Utxo {
 /// The unique identifier of the output.
 #[no_mangle]
 pub extern "C" fn Utxo_get_outpoint(this_ptr: &Utxo) -> crate::lightning::chain::transaction::OutPoint {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().outpoint;
+	let mut inner_val = &mut Utxo::get_native_mut_ref(this_ptr).outpoint;
 	crate::c_types::bitcoin_to_C_outpoint(inner_val)
 }
 /// The unique identifier of the output.
@@ -736,7 +756,7 @@ pub extern "C" fn Utxo_set_outpoint(this_ptr: &mut Utxo, mut val: crate::lightni
 /// The output to spend.
 #[no_mangle]
 pub extern "C" fn Utxo_get_output(this_ptr: &Utxo) -> crate::c_types::TxOut {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().output;
+	let mut inner_val = &mut Utxo::get_native_mut_ref(this_ptr).output;
 	crate::c_types::TxOut::from_rust(inner_val)
 }
 /// The output to spend.
@@ -749,7 +769,7 @@ pub extern "C" fn Utxo_set_output(this_ptr: &mut Utxo, mut val: crate::c_types::
 /// the input's `script_sig` must account for [`WITNESS_SCALE_FACTOR`].
 #[no_mangle]
 pub extern "C" fn Utxo_get_satisfaction_weight(this_ptr: &Utxo) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().satisfaction_weight;
+	let mut inner_val = &mut Utxo::get_native_mut_ref(this_ptr).satisfaction_weight;
 	*inner_val
 }
 /// The upper-bound weight consumed by the input's full [`TxIn::script_sig`] and [`TxIn::witness`], each
@@ -773,7 +793,7 @@ impl Clone for Utxo {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeUtxo>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -781,12 +801,12 @@ impl Clone for Utxo {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Utxo_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeUtxo)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeUtxo) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Utxo
 pub extern "C" fn Utxo_clone(orig: &Utxo) -> Utxo {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Utxo object
 pub extern "C" fn Utxo_debug_str_void(o: *const c_void) -> Str {
@@ -809,6 +829,22 @@ pub extern "C" fn Utxo_eq(a: &Utxo, b: &Utxo) -> bool {
 	if a.inner == b.inner { return true; }
 	if a.inner.is_null() || b.inner.is_null() { return false; }
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+#[no_mangle]
+/// Serialize the Utxo object into a byte array which can be read by Utxo_read
+pub extern "C" fn Utxo_write(obj: &crate::lightning::events::bump_transaction::Utxo) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn Utxo_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::events::bump_transaction::nativeUtxo) })
+}
+#[no_mangle]
+/// Read a Utxo from a byte array, created by Utxo_write
+pub extern "C" fn Utxo_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_UtxoDecodeErrorZ {
+	let res: Result<lightning::events::bump_transaction::Utxo, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::events::bump_transaction::Utxo { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
 }
 /// Returns a `Utxo` with the `satisfaction_weight` estimate for a legacy P2PKH output.
 #[must_use]
@@ -883,7 +919,7 @@ impl CoinSelection {
 /// requiring additional fees.
 #[no_mangle]
 pub extern "C" fn CoinSelection_get_confirmed_utxos(this_ptr: &CoinSelection) -> crate::c_types::derived::CVec_UtxoZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().confirmed_utxos;
+	let mut inner_val = &mut CoinSelection::get_native_mut_ref(this_ptr).confirmed_utxos;
 	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::events::bump_transaction::Utxo { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const lightning::events::bump_transaction::Utxo<>) as *mut _) }, is_owned: false } }); };
 	local_inner_val.into()
 }
@@ -900,7 +936,7 @@ pub extern "C" fn CoinSelection_set_confirmed_utxos(this_ptr: &mut CoinSelection
 /// not met. This implies no other party should be able to spend it except us.
 #[no_mangle]
 pub extern "C" fn CoinSelection_get_change_output(this_ptr: &CoinSelection) -> crate::c_types::derived::COption_TxOutZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().change_output;
+	let mut inner_val = &mut CoinSelection::get_native_mut_ref(this_ptr).change_output;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_TxOutZ::None } else { crate::c_types::derived::COption_TxOutZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::c_types::TxOut::from_rust(&(*inner_val.as_ref().unwrap()).clone()) }) };
 	local_inner_val
 }
@@ -928,7 +964,7 @@ impl Clone for CoinSelection {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeCoinSelection>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -936,411 +972,13 @@ impl Clone for CoinSelection {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn CoinSelection_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeCoinSelection)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeCoinSelection) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the CoinSelection
 pub extern "C" fn CoinSelection_clone(orig: &CoinSelection) -> CoinSelection {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a CoinSelection object
 pub extern "C" fn CoinSelection_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::events::bump_transaction::CoinSelection }).into()}
-/// An abstraction over a bitcoin wallet that can perform coin selection over a set of UTXOs and can
-/// sign for them. The coin selection method aims to mimic Bitcoin Core's `fundrawtransaction` RPC,
-/// which most wallets should be able to satisfy. Otherwise, consider implementing [`WalletSource`],
-/// which can provide a default implementation of this trait when used with [`Wallet`].
-#[repr(C)]
-pub struct CoinSelectionSource {
-	/// An opaque pointer which is passed to your function implementations as an argument.
-	/// This has no meaning in the LDK, and can be NULL or any other value.
-	pub this_arg: *mut c_void,
-	/// Performs coin selection of a set of UTXOs, with at least 1 confirmation each, that are
-	/// available to spend. Implementations are free to pick their coin selection algorithm of
-	/// choice, as long as the following requirements are met:
-	///
-	/// 1. `must_spend` contains a set of [`Input`]s that must be included in the transaction
-	///    throughout coin selection, but must not be returned as part of the result.
-	/// 2. `must_pay_to` contains a set of [`TxOut`]s that must be included in the transaction
-	///    throughout coin selection. In some cases, like when funding an anchor transaction, this
-	///    set is empty. Implementations should ensure they handle this correctly on their end,
-	///    e.g., Bitcoin Core's `fundrawtransaction` RPC requires at least one output to be
-	///    provided, in which case a zero-value empty OP_RETURN output can be used instead.
-	/// 3. Enough inputs must be selected/contributed for the resulting transaction (including the
-	///    inputs and outputs noted above) to meet `target_feerate_sat_per_1000_weight`.
-	///
-	/// Implementations must take note that [`Input::satisfaction_weight`] only tracks the weight of
-	/// the input's `script_sig` and `witness`. Some wallets, like Bitcoin Core's, may require
-	/// providing the full input weight. Failing to do so may lead to underestimating fee bumps and
-	/// delaying block inclusion.
-	///
-	/// The `claim_id` must map to the set of external UTXOs assigned to the claim, such that they
-	/// can be re-used within new fee-bumped iterations of the original claiming transaction,
-	/// ensuring that claims don't double spend each other. If a specific `claim_id` has never had a
-	/// transaction associated with it, and all of the available UTXOs have already been assigned to
-	/// other claims, implementations must be willing to double spend their UTXOs. The choice of
-	/// which UTXOs to double spend is left to the implementation, but it must strive to keep the
-	/// set of other claims being double spent to a minimum.
-	pub select_confirmed_utxos: extern "C" fn (this_arg: *const c_void, claim_id: crate::c_types::ThirtyTwoBytes, must_spend: crate::c_types::derived::CVec_InputZ, must_pay_to: crate::c_types::derived::CVec_TxOutZ, target_feerate_sat_per_1000_weight: u32) -> crate::c_types::derived::CResult_CoinSelectionNoneZ,
-	/// Signs and provides the full witness for all inputs within the transaction known to the
-	/// trait (i.e., any provided via [`CoinSelectionSource::select_confirmed_utxos`]).
-	///
-	/// If your wallet does not support signing PSBTs you can call `psbt.extract_tx()` to get the
-	/// unsigned transaction and then sign it with your wallet.
-	pub sign_psbt: extern "C" fn (this_arg: *const c_void, psbt: crate::c_types::derived::CVec_u8Z) -> crate::c_types::derived::CResult_TransactionNoneZ,
-	/// Frees any resources associated with this object given its this_arg pointer.
-	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
-	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
-}
-unsafe impl Send for CoinSelectionSource {}
-unsafe impl Sync for CoinSelectionSource {}
-#[allow(unused)]
-pub(crate) fn CoinSelectionSource_clone_fields(orig: &CoinSelectionSource) -> CoinSelectionSource {
-	CoinSelectionSource {
-		this_arg: orig.this_arg,
-		select_confirmed_utxos: Clone::clone(&orig.select_confirmed_utxos),
-		sign_psbt: Clone::clone(&orig.sign_psbt),
-		free: Clone::clone(&orig.free),
-	}
-}
-
-use lightning::events::bump_transaction::CoinSelectionSource as rustCoinSelectionSource;
-impl rustCoinSelectionSource for CoinSelectionSource {
-	fn select_confirmed_utxos(&self, mut claim_id: lightning::chain::ClaimId, mut must_spend: Vec<lightning::events::bump_transaction::Input>, mut must_pay_to: &[bitcoin::TxOut], mut target_feerate_sat_per_1000_weight: u32) -> Result<lightning::events::bump_transaction::CoinSelection, ()> {
-		let mut local_must_spend = Vec::new(); for mut item in must_spend.drain(..) { local_must_spend.push( { crate::lightning::events::bump_transaction::Input { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
-		let mut local_must_pay_to_clone = Vec::new(); local_must_pay_to_clone.extend_from_slice(must_pay_to); let mut must_pay_to = local_must_pay_to_clone; let mut local_must_pay_to = Vec::new(); for mut item in must_pay_to.drain(..) { local_must_pay_to.push( { crate::c_types::TxOut::from_rust(&item) }); };
-		let mut ret = (self.select_confirmed_utxos)(self.this_arg, crate::c_types::ThirtyTwoBytes { data: claim_id.0 }, local_must_spend.into(), local_must_pay_to.into(), target_feerate_sat_per_1000_weight);
-		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn sign_psbt(&self, mut psbt: bitcoin::Psbt) -> Result<bitcoin::Transaction, ()> {
-		let mut ret = (self.sign_psbt)(self.this_arg, psbt.serialize().into());
-		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_bitcoin() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-}
-
-pub struct CoinSelectionSourceRef(CoinSelectionSource);
-impl rustCoinSelectionSource for CoinSelectionSourceRef {
-	fn select_confirmed_utxos(&self, mut claim_id: lightning::chain::ClaimId, mut must_spend: Vec<lightning::events::bump_transaction::Input>, mut must_pay_to: &[bitcoin::TxOut], mut target_feerate_sat_per_1000_weight: u32) -> Result<lightning::events::bump_transaction::CoinSelection, ()> {
-		let mut local_must_spend = Vec::new(); for mut item in must_spend.drain(..) { local_must_spend.push( { crate::lightning::events::bump_transaction::Input { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
-		let mut local_must_pay_to_clone = Vec::new(); local_must_pay_to_clone.extend_from_slice(must_pay_to); let mut must_pay_to = local_must_pay_to_clone; let mut local_must_pay_to = Vec::new(); for mut item in must_pay_to.drain(..) { local_must_pay_to.push( { crate::c_types::TxOut::from_rust(&item) }); };
-		let mut ret = (self.0.select_confirmed_utxos)(self.0.this_arg, crate::c_types::ThirtyTwoBytes { data: claim_id.0 }, local_must_spend.into(), local_must_pay_to.into(), target_feerate_sat_per_1000_weight);
-		let mut local_ret = match ret.result_ok { true => Ok( { *unsafe { Box::from_raw((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).take_inner()) } }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn sign_psbt(&self, mut psbt: bitcoin::Psbt) -> Result<bitcoin::Transaction, ()> {
-		let mut ret = (self.0.sign_psbt)(self.0.this_arg, psbt.serialize().into());
-		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_bitcoin() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-}
-
-// We're essentially a pointer already, or at least a set of pointers, so allow us to be used
-// directly as a Deref trait in higher-level structs:
-impl core::ops::Deref for CoinSelectionSource {
-	type Target = CoinSelectionSourceRef;
-	fn deref(&self) -> &Self::Target {
-		unsafe { &*(self as *const _ as *const CoinSelectionSourceRef) }
-	}
-}
-impl core::ops::DerefMut for CoinSelectionSource {
-	fn deref_mut(&mut self) -> &mut CoinSelectionSourceRef {
-		unsafe { &mut *(self as *mut _ as *mut CoinSelectionSourceRef) }
-	}
-}
-/// Calls the free function if one is set
-#[no_mangle]
-pub extern "C" fn CoinSelectionSource_free(this_ptr: CoinSelectionSource) { }
-impl Drop for CoinSelectionSource {
-	fn drop(&mut self) {
-		if let Some(f) = self.free {
-			f(self.this_arg);
-		}
-	}
-}
-/// An alternative to [`CoinSelectionSource`] that can be implemented and used along [`Wallet`] to
-/// provide a default implementation to [`CoinSelectionSource`].
-#[repr(C)]
-pub struct WalletSource {
-	/// An opaque pointer which is passed to your function implementations as an argument.
-	/// This has no meaning in the LDK, and can be NULL or any other value.
-	pub this_arg: *mut c_void,
-	/// Returns all UTXOs, with at least 1 confirmation each, that are available to spend.
-	pub list_confirmed_utxos: extern "C" fn (this_arg: *const c_void) -> crate::c_types::derived::CResult_CVec_UtxoZNoneZ,
-	/// Returns a script to use for change above dust resulting from a successful coin selection
-	/// attempt.
-	pub get_change_script: extern "C" fn (this_arg: *const c_void) -> crate::c_types::derived::CResult_CVec_u8ZNoneZ,
-	/// Signs and provides the full [`TxIn::script_sig`] and [`TxIn::witness`] for all inputs within
-	/// the transaction known to the wallet (i.e., any provided via
-	/// [`WalletSource::list_confirmed_utxos`]).
-	///
-	/// If your wallet does not support signing PSBTs you can call `psbt.extract_tx()` to get the
-	/// unsigned transaction and then sign it with your wallet.
-	pub sign_psbt: extern "C" fn (this_arg: *const c_void, psbt: crate::c_types::derived::CVec_u8Z) -> crate::c_types::derived::CResult_TransactionNoneZ,
-	/// Frees any resources associated with this object given its this_arg pointer.
-	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
-	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
-}
-unsafe impl Send for WalletSource {}
-unsafe impl Sync for WalletSource {}
-#[allow(unused)]
-pub(crate) fn WalletSource_clone_fields(orig: &WalletSource) -> WalletSource {
-	WalletSource {
-		this_arg: orig.this_arg,
-		list_confirmed_utxos: Clone::clone(&orig.list_confirmed_utxos),
-		get_change_script: Clone::clone(&orig.get_change_script),
-		sign_psbt: Clone::clone(&orig.sign_psbt),
-		free: Clone::clone(&orig.free),
-	}
-}
-
-use lightning::events::bump_transaction::WalletSource as rustWalletSource;
-impl rustWalletSource for WalletSource {
-	fn list_confirmed_utxos(&self) -> Result<Vec<lightning::events::bump_transaction::Utxo>, ()> {
-		let mut ret = (self.list_confirmed_utxos)(self.this_arg);
-		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn get_change_script(&self) -> Result<bitcoin::ScriptBuf, ()> {
-		let mut ret = (self.get_change_script)(self.this_arg);
-		let mut local_ret = match ret.result_ok { true => Ok( { ::bitcoin::script::ScriptBuf::from((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust()) }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn sign_psbt(&self, mut psbt: bitcoin::Psbt) -> Result<bitcoin::Transaction, ()> {
-		let mut ret = (self.sign_psbt)(self.this_arg, psbt.serialize().into());
-		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_bitcoin() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-}
-
-pub struct WalletSourceRef(WalletSource);
-impl rustWalletSource for WalletSourceRef {
-	fn list_confirmed_utxos(&self) -> Result<Vec<lightning::events::bump_transaction::Utxo>, ()> {
-		let mut ret = (self.0.list_confirmed_utxos)(self.0.this_arg);
-		let mut local_ret = match ret.result_ok { true => Ok( { let mut local_ret_0 = Vec::new(); for mut item in (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust().drain(..) { local_ret_0.push( { *unsafe { Box::from_raw(item.take_inner()) } }); }; local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn get_change_script(&self) -> Result<bitcoin::ScriptBuf, ()> {
-		let mut ret = (self.0.get_change_script)(self.0.this_arg);
-		let mut local_ret = match ret.result_ok { true => Ok( { ::bitcoin::script::ScriptBuf::from((*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust()) }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-	fn sign_psbt(&self, mut psbt: bitcoin::Psbt) -> Result<bitcoin::Transaction, ()> {
-		let mut ret = (self.0.sign_psbt)(self.0.this_arg, psbt.serialize().into());
-		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_bitcoin() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
-	}
-}
-
-// We're essentially a pointer already, or at least a set of pointers, so allow us to be used
-// directly as a Deref trait in higher-level structs:
-impl core::ops::Deref for WalletSource {
-	type Target = WalletSourceRef;
-	fn deref(&self) -> &Self::Target {
-		unsafe { &*(self as *const _ as *const WalletSourceRef) }
-	}
-}
-impl core::ops::DerefMut for WalletSource {
-	fn deref_mut(&mut self) -> &mut WalletSourceRef {
-		unsafe { &mut *(self as *mut _ as *mut WalletSourceRef) }
-	}
-}
-/// Calls the free function if one is set
-#[no_mangle]
-pub extern "C" fn WalletSource_free(this_ptr: WalletSource) { }
-impl Drop for WalletSource {
-	fn drop(&mut self) {
-		if let Some(f) = self.free {
-			f(self.this_arg);
-		}
-	}
-}
-
-use lightning::events::bump_transaction::Wallet as nativeWalletImport;
-pub(crate) type nativeWallet = nativeWalletImport<crate::lightning::events::bump_transaction::WalletSource, crate::lightning::util::logger::Logger, >;
-
-/// A wrapper over [`WalletSource`] that implements [`CoinSelection`] by preferring UTXOs that would
-/// avoid conflicting double spends. If not enough UTXOs are available to do so, conflicting double
-/// spends may happen.
-#[must_use]
-#[repr(C)]
-pub struct Wallet {
-	/// A pointer to the opaque Rust object.
-
-	/// Nearly everywhere, inner must be non-null, however in places where
-	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeWallet,
-	/// Indicates that this is the only struct which contains the same pointer.
-
-	/// Rust functions which take ownership of an object provided via an argument require
-	/// this to be true and invalidate the object pointed to by inner.
-	pub is_owned: bool,
-}
-
-impl core::ops::Deref for Wallet {
-	type Target = nativeWallet;
-	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
-}
-unsafe impl core::marker::Send for Wallet { }
-unsafe impl core::marker::Sync for Wallet { }
-impl Drop for Wallet {
-	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeWallet>::is_null(self.inner) {
-			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
-		}
-	}
-}
-/// Frees any resources used by the Wallet, if is_owned is set and inner is non-NULL.
-#[no_mangle]
-pub extern "C" fn Wallet_free(this_obj: Wallet) { }
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn Wallet_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeWallet) };
-}
-#[allow(unused)]
-impl Wallet {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeWallet {
-		unsafe { &*ObjOps::untweak_ptr(self.inner) }
-	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeWallet {
-		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
-	}
-	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeWallet {
-		assert!(self.is_owned);
-		let ret = ObjOps::untweak_ptr(self.inner);
-		self.inner = core::ptr::null_mut();
-		ret
-	}
-	pub(crate) fn as_ref_to(&self) -> Self {
-		Self { inner: self.inner, is_owned: false }
-	}
-}
-/// Returns a new instance backed by the given [`WalletSource`] that serves as an implementation
-/// of [`CoinSelectionSource`].
-#[must_use]
-#[no_mangle]
-pub extern "C" fn Wallet_new(mut source: crate::lightning::events::bump_transaction::WalletSource, mut logger: crate::lightning::util::logger::Logger) -> crate::lightning::events::bump_transaction::Wallet {
-	let mut ret = lightning::events::bump_transaction::Wallet::new(source, logger);
-	crate::lightning::events::bump_transaction::Wallet { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-impl From<nativeWallet> for crate::lightning::events::bump_transaction::CoinSelectionSource {
-	fn from(obj: nativeWallet) -> Self {
-		let rust_obj = crate::lightning::events::bump_transaction::Wallet { inner: ObjOps::heap_alloc(obj), is_owned: true };
-		let mut ret = Wallet_as_CoinSelectionSource(&rust_obj);
-		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
-		core::mem::forget(rust_obj);
-		ret.free = Some(Wallet_free_void);
-		ret
-	}
-}
-/// Constructs a new CoinSelectionSource which calls the relevant methods on this_arg.
-/// This copies the `inner` pointer in this_arg and thus the returned CoinSelectionSource must be freed before this_arg is
-#[no_mangle]
-pub extern "C" fn Wallet_as_CoinSelectionSource(this_arg: &Wallet) -> crate::lightning::events::bump_transaction::CoinSelectionSource {
-	crate::lightning::events::bump_transaction::CoinSelectionSource {
-		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
-		free: None,
-		select_confirmed_utxos: Wallet_CoinSelectionSource_select_confirmed_utxos,
-		sign_psbt: Wallet_CoinSelectionSource_sign_psbt,
-	}
-}
-
-#[must_use]
-extern "C" fn Wallet_CoinSelectionSource_select_confirmed_utxos(this_arg: *const c_void, mut claim_id: crate::c_types::ThirtyTwoBytes, mut must_spend: crate::c_types::derived::CVec_InputZ, mut must_pay_to: crate::c_types::derived::CVec_TxOutZ, mut target_feerate_sat_per_1000_weight: u32) -> crate::c_types::derived::CResult_CoinSelectionNoneZ {
-	let mut local_must_spend = Vec::new(); for mut item in must_spend.into_rust().drain(..) { local_must_spend.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
-	let mut local_must_pay_to = Vec::new(); for mut item in must_pay_to.into_rust().drain(..) { local_must_pay_to.push( { item.into_rust() }); };
-	let mut ret = <nativeWallet as lightning::events::bump_transaction::CoinSelectionSource>::select_confirmed_utxos(unsafe { &mut *(this_arg as *mut nativeWallet) }, ::lightning::chain::ClaimId(claim_id.data), local_must_spend, &local_must_pay_to[..], target_feerate_sat_per_1000_weight);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::events::bump_transaction::CoinSelection { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-#[must_use]
-extern "C" fn Wallet_CoinSelectionSource_sign_psbt(this_arg: *const c_void, mut psbt: crate::c_types::derived::CVec_u8Z) -> crate::c_types::derived::CResult_TransactionNoneZ {
-	let mut ret = <nativeWallet as lightning::events::bump_transaction::CoinSelectionSource>::sign_psbt(unsafe { &mut *(this_arg as *mut nativeWallet) }, ::bitcoin::Psbt::deserialize(psbt.as_slice()).expect("Invalid PSBT format"));
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::c_types::Transaction::from_bitcoin(&o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-
-
-use lightning::events::bump_transaction::BumpTransactionEventHandler as nativeBumpTransactionEventHandlerImport;
-pub(crate) type nativeBumpTransactionEventHandler = nativeBumpTransactionEventHandlerImport<crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::events::bump_transaction::CoinSelectionSource, crate::lightning::sign::SignerProvider, crate::lightning::util::logger::Logger, >;
-
-/// A handler for [`Event::BumpTransaction`] events that sources confirmed UTXOs from a
-/// [`CoinSelectionSource`] to fee bump transactions via Child-Pays-For-Parent (CPFP) or
-/// Replace-By-Fee (RBF).
-///
-/// [`Event::BumpTransaction`]: crate::events::Event::BumpTransaction
-#[must_use]
-#[repr(C)]
-pub struct BumpTransactionEventHandler {
-	/// A pointer to the opaque Rust object.
-
-	/// Nearly everywhere, inner must be non-null, however in places where
-	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeBumpTransactionEventHandler,
-	/// Indicates that this is the only struct which contains the same pointer.
-
-	/// Rust functions which take ownership of an object provided via an argument require
-	/// this to be true and invalidate the object pointed to by inner.
-	pub is_owned: bool,
-}
-
-impl core::ops::Deref for BumpTransactionEventHandler {
-	type Target = nativeBumpTransactionEventHandler;
-	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
-}
-unsafe impl core::marker::Send for BumpTransactionEventHandler { }
-unsafe impl core::marker::Sync for BumpTransactionEventHandler { }
-impl Drop for BumpTransactionEventHandler {
-	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeBumpTransactionEventHandler>::is_null(self.inner) {
-			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
-		}
-	}
-}
-/// Frees any resources used by the BumpTransactionEventHandler, if is_owned is set and inner is non-NULL.
-#[no_mangle]
-pub extern "C" fn BumpTransactionEventHandler_free(this_obj: BumpTransactionEventHandler) { }
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn BumpTransactionEventHandler_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeBumpTransactionEventHandler) };
-}
-#[allow(unused)]
-impl BumpTransactionEventHandler {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeBumpTransactionEventHandler {
-		unsafe { &*ObjOps::untweak_ptr(self.inner) }
-	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeBumpTransactionEventHandler {
-		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
-	}
-	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeBumpTransactionEventHandler {
-		assert!(self.is_owned);
-		let ret = ObjOps::untweak_ptr(self.inner);
-		self.inner = core::ptr::null_mut();
-		ret
-	}
-	pub(crate) fn as_ref_to(&self) -> Self {
-		Self { inner: self.inner, is_owned: false }
-	}
-}
-/// Returns a new instance capable of handling [`Event::BumpTransaction`] events.
-///
-/// [`Event::BumpTransaction`]: crate::events::Event::BumpTransaction
-#[must_use]
-#[no_mangle]
-pub extern "C" fn BumpTransactionEventHandler_new(mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut utxo_source: crate::lightning::events::bump_transaction::CoinSelectionSource, mut signer_provider: crate::lightning::sign::SignerProvider, mut logger: crate::lightning::util::logger::Logger) -> crate::lightning::events::bump_transaction::BumpTransactionEventHandler {
-	let mut ret = lightning::events::bump_transaction::BumpTransactionEventHandler::new(broadcaster, utxo_source, signer_provider, logger);
-	crate::lightning::events::bump_transaction::BumpTransactionEventHandler { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-/// Handles all variants of [`BumpTransactionEvent`].
-#[no_mangle]
-pub extern "C" fn BumpTransactionEventHandler_handle_event(this_arg: &crate::lightning::events::bump_transaction::BumpTransactionEventHandler, event: &crate::lightning::events::bump_transaction::BumpTransactionEvent) {
-	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.handle_event(&event.to_native())
-}
-

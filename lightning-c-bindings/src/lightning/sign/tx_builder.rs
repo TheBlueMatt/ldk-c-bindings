@@ -6,7 +6,7 @@
 // license as that which applies to the original source files from which this
 // source was automatically generated.
 
-//! Implementation of bLIP-52 / LSPS2: JIT Channel Negotiation specification.
+//! Defines the `TxBuilder` trait, and the `SpecTxBuilder` type
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -17,20 +17,3 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
-pub mod client;
-pub mod event;
-pub mod msgs;
-pub mod service;
-pub mod utils;
-mod payment_queue {
-
-use alloc::str::FromStr;
-use alloc::string::String;
-use core::ffi::c_void;
-use core::convert::Infallible;
-use bitcoin::hashes::Hash;
-use crate::c_types::*;
-#[cfg(feature="no-std")]
-use alloc::{vec::Vec, boxed::Box};
-
-}

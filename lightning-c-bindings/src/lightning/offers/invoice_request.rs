@@ -274,7 +274,7 @@ impl Clone for UnsignedInvoiceRequest {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeUnsignedInvoiceRequest>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -282,12 +282,12 @@ impl Clone for UnsignedInvoiceRequest {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn UnsignedInvoiceRequest_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeUnsignedInvoiceRequest)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeUnsignedInvoiceRequest) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the UnsignedInvoiceRequest
 pub extern "C" fn UnsignedInvoiceRequest_clone(orig: &UnsignedInvoiceRequest) -> UnsignedInvoiceRequest {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// A function for signing an [`UnsignedInvoiceRequest`].
 #[repr(C)]
@@ -431,7 +431,7 @@ impl Clone for InvoiceRequest {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInvoiceRequest>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -439,12 +439,12 @@ impl Clone for InvoiceRequest {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn InvoiceRequest_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInvoiceRequest)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInvoiceRequest) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the InvoiceRequest
 pub extern "C" fn InvoiceRequest_clone(orig: &InvoiceRequest) -> InvoiceRequest {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a InvoiceRequest object
 pub extern "C" fn InvoiceRequest_debug_str_void(o: *const c_void) -> Str {
@@ -514,7 +514,7 @@ impl VerifiedInvoiceRequest {
 /// The identifier of the [`Offer`] for which the [`InvoiceRequest`] was made.
 #[no_mangle]
 pub extern "C" fn VerifiedInvoiceRequest_get_offer_id(this_ptr: &VerifiedInvoiceRequest) -> crate::lightning::offers::offer::OfferId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().offer_id;
+	let mut inner_val = &mut VerifiedInvoiceRequest::get_native_mut_ref(this_ptr).offer_id;
 	crate::lightning::offers::offer::OfferId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::offers::offer::OfferId<>) as *mut _) }, is_owned: false }
 }
 /// The identifier of the [`Offer`] for which the [`InvoiceRequest`] was made.
@@ -526,7 +526,7 @@ impl Clone for VerifiedInvoiceRequest {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeVerifiedInvoiceRequest>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -534,12 +534,12 @@ impl Clone for VerifiedInvoiceRequest {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn VerifiedInvoiceRequest_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeVerifiedInvoiceRequest)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeVerifiedInvoiceRequest) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the VerifiedInvoiceRequest
 pub extern "C" fn VerifiedInvoiceRequest_clone(orig: &VerifiedInvoiceRequest) -> VerifiedInvoiceRequest {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a VerifiedInvoiceRequest object
 pub extern "C" fn VerifiedInvoiceRequest_debug_str_void(o: *const c_void) -> Str {
@@ -1435,7 +1435,7 @@ impl InvoiceRequestFields {
 /// A possibly transient pubkey used to sign the invoice request.
 #[no_mangle]
 pub extern "C" fn InvoiceRequestFields_get_payer_signing_pubkey(this_ptr: &InvoiceRequestFields) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payer_signing_pubkey;
+	let mut inner_val = &mut InvoiceRequestFields::get_native_mut_ref(this_ptr).payer_signing_pubkey;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 /// A possibly transient pubkey used to sign the invoice request.
@@ -1446,7 +1446,7 @@ pub extern "C" fn InvoiceRequestFields_set_payer_signing_pubkey(this_ptr: &mut I
 /// The quantity of the offer's item conforming to [`Offer::is_valid_quantity`].
 #[no_mangle]
 pub extern "C" fn InvoiceRequestFields_get_quantity(this_ptr: &InvoiceRequestFields) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().quantity;
+	let mut inner_val = &mut InvoiceRequestFields::get_native_mut_ref(this_ptr).quantity;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1462,7 +1462,7 @@ pub extern "C" fn InvoiceRequestFields_set_quantity(this_ptr: &mut InvoiceReques
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn InvoiceRequestFields_get_payer_note_truncated(this_ptr: &InvoiceRequestFields) -> crate::lightning_types::string::UntrustedString {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payer_note_truncated;
+	let mut inner_val = &mut InvoiceRequestFields::get_native_mut_ref(this_ptr).payer_note_truncated;
 	let mut local_inner_val = crate::lightning_types::string::UntrustedString { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning_types::string::UntrustedString<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -1480,7 +1480,7 @@ pub extern "C" fn InvoiceRequestFields_set_payer_note_truncated(this_ptr: &mut I
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn InvoiceRequestFields_get_human_readable_name(this_ptr: &InvoiceRequestFields) -> crate::lightning::onion_message::dns_resolution::HumanReadableName {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().human_readable_name;
+	let mut inner_val = &mut InvoiceRequestFields::get_native_mut_ref(this_ptr).human_readable_name;
 	let mut local_inner_val = crate::lightning::onion_message::dns_resolution::HumanReadableName { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::onion_message::dns_resolution::HumanReadableName<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -1513,7 +1513,7 @@ impl Clone for InvoiceRequestFields {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInvoiceRequestFields>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1521,12 +1521,12 @@ impl Clone for InvoiceRequestFields {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn InvoiceRequestFields_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInvoiceRequestFields)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInvoiceRequestFields) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the InvoiceRequestFields
 pub extern "C" fn InvoiceRequestFields_clone(orig: &InvoiceRequestFields) -> InvoiceRequestFields {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a InvoiceRequestFields object
 pub extern "C" fn InvoiceRequestFields_debug_str_void(o: *const c_void) -> Str {

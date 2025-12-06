@@ -17,18 +17,20 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
-pub mod onion_payment;
-pub mod channelmanager;
+pub mod chan_utils;
 pub mod channel_keys;
 pub mod channel_state;
+pub mod channelmanager;
+pub mod funding;
 pub mod inbound_payment;
 pub mod msgs;
+pub mod onion_payment;
+pub mod our_peer_storage;
 pub mod peer_handler;
-pub mod chan_utils;
 pub mod script;
 pub mod types;
 pub mod invoice_utils;
-pub mod bolt11_payment;
+pub mod onion_utils;
 pub mod outbound_payment;
 pub mod wire;
 mod features {
@@ -190,18 +192,6 @@ use crate::c_types::*;
 use alloc::{vec::Vec, boxed::Box};
 
 }
-}
-mod onion_utils {
-
-use alloc::str::FromStr;
-use alloc::string::String;
-use core::ffi::c_void;
-use core::convert::Infallible;
-use bitcoin::hashes::Hash;
-use crate::c_types::*;
-#[cfg(feature="no-std")]
-use alloc::{vec::Vec, boxed::Box};
-
 }
 mod interactivetxs {
 

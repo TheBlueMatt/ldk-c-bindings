@@ -88,7 +88,7 @@ impl Clone for Nonce {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeNonce>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -96,12 +96,12 @@ impl Clone for Nonce {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Nonce_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeNonce)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeNonce) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Nonce
 pub extern "C" fn Nonce_clone(orig: &Nonce) -> Nonce {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Nonce object
 pub extern "C" fn Nonce_debug_str_void(o: *const c_void) -> Str {

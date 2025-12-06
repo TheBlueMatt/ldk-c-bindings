@@ -7,7 +7,7 @@
 // source was automatically generated.
 
 //! This module contains an [`OutputSweeper`] utility that keeps track of
-//! [`SpendableOutputDescriptor`]s, i.e., persists them in a given [`KVStore`] and regularly retries
+//! [`SpendableOutputDescriptor`]s, i.e., persists them in a given [`KVStoreSync`] and regularly retries
 //! sweeping them.
 
 use alloc::str::FromStr;
@@ -86,7 +86,7 @@ impl TrackedSpendableOutput {
 /// The tracked output descriptor.
 #[no_mangle]
 pub extern "C" fn TrackedSpendableOutput_get_descriptor(this_ptr: &TrackedSpendableOutput) -> crate::lightning::sign::SpendableOutputDescriptor {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().descriptor;
+	let mut inner_val = &mut TrackedSpendableOutput::get_native_mut_ref(this_ptr).descriptor;
 	crate::lightning::sign::SpendableOutputDescriptor::from_native(inner_val)
 }
 /// The tracked output descriptor.
@@ -101,7 +101,7 @@ pub extern "C" fn TrackedSpendableOutput_set_descriptor(this_ptr: &mut TrackedSp
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn TrackedSpendableOutput_get_channel_id(this_ptr: &TrackedSpendableOutput) -> crate::lightning::ln::types::ChannelId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_id;
+	let mut inner_val = &mut TrackedSpendableOutput::get_native_mut_ref(this_ptr).channel_id;
 	let mut local_inner_val = crate::lightning::ln::types::ChannelId { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::types::ChannelId<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -118,7 +118,7 @@ pub extern "C" fn TrackedSpendableOutput_set_channel_id(this_ptr: &mut TrackedSp
 /// The current status of the output spend.
 #[no_mangle]
 pub extern "C" fn TrackedSpendableOutput_get_status(this_ptr: &TrackedSpendableOutput) -> crate::lightning::util::sweep::OutputSpendStatus {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().status;
+	let mut inner_val = &mut TrackedSpendableOutput::get_native_mut_ref(this_ptr).status;
 	crate::lightning::util::sweep::OutputSpendStatus::from_native(inner_val)
 }
 /// The current status of the output spend.
@@ -143,7 +143,7 @@ impl Clone for TrackedSpendableOutput {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeTrackedSpendableOutput>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -151,12 +151,12 @@ impl Clone for TrackedSpendableOutput {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn TrackedSpendableOutput_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeTrackedSpendableOutput)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeTrackedSpendableOutput) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the TrackedSpendableOutput
 pub extern "C" fn TrackedSpendableOutput_clone(orig: &TrackedSpendableOutput) -> TrackedSpendableOutput {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a TrackedSpendableOutput object
 pub extern "C" fn TrackedSpendableOutput_debug_str_void(o: *const c_void) -> Str {
@@ -435,212 +435,6 @@ pub extern "C" fn OutputSpendStatus_read(ser: crate::c_types::u8slice) -> crate:
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::sweep::OutputSpendStatus::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
-
-use lightning::util::sweep::OutputSweeper as nativeOutputSweeperImport;
-pub(crate) type nativeOutputSweeper = nativeOutputSweeperImport<crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::sign::ChangeDestinationSource, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::chain::Filter, crate::lightning::util::persist::KVStore, crate::lightning::util::logger::Logger, crate::lightning::sign::OutputSpender, >;
-
-/// A utility that keeps track of [`SpendableOutputDescriptor`]s, persists them in a given
-/// [`KVStore`] and regularly retries sweeping them based on a callback given to the constructor
-/// methods.
-///
-/// Users should call [`Self::track_spendable_outputs`] for any [`SpendableOutputDescriptor`]s received via [`Event::SpendableOutputs`].
-///
-/// This needs to be notified of chain state changes either via its [`Listen`] or [`Confirm`]
-/// implementation and hence has to be connected with the utilized chain data sources.
-///
-/// If chain data is provided via the [`Confirm`] interface or via filtered blocks, users are
-/// required to give their chain data sources (i.e., [`Filter`] implementation) to the respective
-/// constructor.
-///
-/// [`Event::SpendableOutputs`]: crate::events::Event::SpendableOutputs
-#[must_use]
-#[repr(C)]
-pub struct OutputSweeper {
-	/// A pointer to the opaque Rust object.
-
-	/// Nearly everywhere, inner must be non-null, however in places where
-	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
-	pub inner: *mut nativeOutputSweeper,
-	/// Indicates that this is the only struct which contains the same pointer.
-
-	/// Rust functions which take ownership of an object provided via an argument require
-	/// this to be true and invalidate the object pointed to by inner.
-	pub is_owned: bool,
-}
-
-impl core::ops::Deref for OutputSweeper {
-	type Target = nativeOutputSweeper;
-	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
-}
-unsafe impl core::marker::Send for OutputSweeper { }
-unsafe impl core::marker::Sync for OutputSweeper { }
-impl Drop for OutputSweeper {
-	fn drop(&mut self) {
-		if self.is_owned && !<*mut nativeOutputSweeper>::is_null(self.inner) {
-			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
-		}
-	}
-}
-/// Frees any resources used by the OutputSweeper, if is_owned is set and inner is non-NULL.
-#[no_mangle]
-pub extern "C" fn OutputSweeper_free(this_obj: OutputSweeper) { }
-#[allow(unused)]
-/// Used only if an object of this type is returned as a trait impl by a method
-pub(crate) extern "C" fn OutputSweeper_free_void(this_ptr: *mut c_void) {
-	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeOutputSweeper) };
-}
-#[allow(unused)]
-impl OutputSweeper {
-	pub(crate) fn get_native_ref(&self) -> &'static nativeOutputSweeper {
-		unsafe { &*ObjOps::untweak_ptr(self.inner) }
-	}
-	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeOutputSweeper {
-		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
-	}
-	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
-	pub(crate) fn take_inner(mut self) -> *mut nativeOutputSweeper {
-		assert!(self.is_owned);
-		let ret = ObjOps::untweak_ptr(self.inner);
-		self.inner = core::ptr::null_mut();
-		ret
-	}
-	pub(crate) fn as_ref_to(&self) -> Self {
-		Self { inner: self.inner, is_owned: false }
-	}
-}
-/// Constructs a new [`OutputSweeper`].
-///
-/// If chain data is provided via the [`Confirm`] interface or via filtered blocks, users also
-/// need to register their [`Filter`] implementation via the given `chain_data_source`.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn OutputSweeper_new(mut best_block: crate::lightning::chain::BestBlock, mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut fee_estimator: crate::lightning::chain::chaininterface::FeeEstimator, mut chain_data_source: crate::c_types::derived::COption_FilterZ, mut output_spender: crate::lightning::sign::OutputSpender, mut change_destination_source: crate::lightning::sign::ChangeDestinationSource, mut kv_store: crate::lightning::util::persist::KVStore, mut logger: crate::lightning::util::logger::Logger) -> crate::lightning::util::sweep::OutputSweeper {
-	let mut local_chain_data_source = { /*chain_data_source*/ let chain_data_source_opt = chain_data_source; if chain_data_source_opt.is_none() { None } else { Some({ { { chain_data_source_opt.take() } }})} };
-	let mut ret = lightning::util::sweep::OutputSweeper::new(*unsafe { Box::from_raw(best_block.take_inner()) }, broadcaster, fee_estimator, local_chain_data_source, output_spender, change_destination_source, kv_store, logger);
-	crate::lightning::util::sweep::OutputSweeper { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-/// Tells the sweeper to track the given outputs descriptors.
-///
-/// Usually, this should be called based on the values emitted by the
-/// [`Event::SpendableOutputs`].
-///
-/// The given `exclude_static_outputs` flag controls whether the sweeper will filter out
-/// [`SpendableOutputDescriptor::StaticOutput`]s, which may be handled directly by the on-chain
-/// wallet implementation.
-///
-/// If `delay_until_height` is set, we will delay the spending until the respective block
-/// height is reached. This can be used to batch spends, e.g., to reduce on-chain fees.
-///
-/// Returns `Err` on persistence failure, in which case the call may be safely retried.
-///
-/// [`Event::SpendableOutputs`]: crate::events::Event::SpendableOutputs
-///
-/// Note that channel_id (or a relevant inner pointer) may be NULL or all-0s to represent None
-#[must_use]
-#[no_mangle]
-pub extern "C" fn OutputSweeper_track_spendable_outputs(this_arg: &crate::lightning::util::sweep::OutputSweeper, mut output_descriptors: crate::c_types::derived::CVec_SpendableOutputDescriptorZ, mut channel_id: crate::lightning::ln::types::ChannelId, mut exclude_static_outputs: bool, mut delay_until_height: crate::c_types::derived::COption_u32Z) -> crate::c_types::derived::CResult_NoneNoneZ {
-	let mut local_output_descriptors = Vec::new(); for mut item in output_descriptors.into_rust().drain(..) { local_output_descriptors.push( { item.into_native() }); };
-	let mut local_channel_id = if channel_id.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_id.take_inner()) } }) };
-	let mut local_delay_until_height = if delay_until_height.is_some() { Some( { delay_until_height.take() }) } else { None };
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.track_spendable_outputs(local_output_descriptors, local_channel_id, exclude_static_outputs, local_delay_until_height);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-
-/// Returns a list of the currently tracked spendable outputs.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn OutputSweeper_tracked_spendable_outputs(this_arg: &crate::lightning::util::sweep::OutputSweeper) -> crate::c_types::derived::CVec_TrackedSpendableOutputZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.tracked_spendable_outputs();
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::util::sweep::TrackedSpendableOutput { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
-	local_ret.into()
-}
-
-/// Gets the latest best block which was connected either via the [`Listen`] or
-/// [`Confirm`] interfaces.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn OutputSweeper_current_best_block(this_arg: &crate::lightning::util::sweep::OutputSweeper) -> crate::lightning::chain::BestBlock {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.current_best_block();
-	crate::lightning::chain::BestBlock { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-impl From<nativeOutputSweeper> for crate::lightning::chain::Listen {
-	fn from(obj: nativeOutputSweeper) -> Self {
-		let rust_obj = crate::lightning::util::sweep::OutputSweeper { inner: ObjOps::heap_alloc(obj), is_owned: true };
-		let mut ret = OutputSweeper_as_Listen(&rust_obj);
-		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
-		core::mem::forget(rust_obj);
-		ret.free = Some(OutputSweeper_free_void);
-		ret
-	}
-}
-/// Constructs a new Listen which calls the relevant methods on this_arg.
-/// This copies the `inner` pointer in this_arg and thus the returned Listen must be freed before this_arg is
-#[no_mangle]
-pub extern "C" fn OutputSweeper_as_Listen(this_arg: &OutputSweeper) -> crate::lightning::chain::Listen {
-	crate::lightning::chain::Listen {
-		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
-		free: None,
-		filtered_block_connected: OutputSweeper_Listen_filtered_block_connected,
-		block_connected: OutputSweeper_Listen_block_connected,
-		block_disconnected: OutputSweeper_Listen_block_disconnected,
-	}
-}
-
-extern "C" fn OutputSweeper_Listen_filtered_block_connected(this_arg: *const c_void, header: *const [u8; 80], mut txdata: crate::c_types::derived::CVec_C2Tuple_usizeTransactionZZ, mut height: u32) {
-	let mut local_txdata = Vec::new(); for mut item in txdata.into_rust().drain(..) { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item.to_rust(); let mut local_txdata_0 = (orig_txdata_0_0, orig_txdata_0_1.into_bitcoin()); local_txdata_0 }); };
-	<nativeOutputSweeper as lightning::chain::Listen>::filtered_block_connected(unsafe { &mut *(this_arg as *mut nativeOutputSweeper) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), &local_txdata.iter().map(|(a, b)| (*a, b)).collect::<Vec<_>>()[..], height)
-}
-extern "C" fn OutputSweeper_Listen_block_connected(this_arg: *const c_void, mut block: crate::c_types::u8slice, mut height: u32) {
-	<nativeOutputSweeper as lightning::chain::Listen>::block_connected(unsafe { &mut *(this_arg as *mut nativeOutputSweeper) }, &::bitcoin::consensus::encode::deserialize(block.to_slice()).unwrap(), height)
-}
-extern "C" fn OutputSweeper_Listen_block_disconnected(this_arg: *const c_void, header: *const [u8; 80], mut height: u32) {
-	<nativeOutputSweeper as lightning::chain::Listen>::block_disconnected(unsafe { &mut *(this_arg as *mut nativeOutputSweeper) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height)
-}
-
-impl From<nativeOutputSweeper> for crate::lightning::chain::Confirm {
-	fn from(obj: nativeOutputSweeper) -> Self {
-		let rust_obj = crate::lightning::util::sweep::OutputSweeper { inner: ObjOps::heap_alloc(obj), is_owned: true };
-		let mut ret = OutputSweeper_as_Confirm(&rust_obj);
-		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
-		core::mem::forget(rust_obj);
-		ret.free = Some(OutputSweeper_free_void);
-		ret
-	}
-}
-/// Constructs a new Confirm which calls the relevant methods on this_arg.
-/// This copies the `inner` pointer in this_arg and thus the returned Confirm must be freed before this_arg is
-#[no_mangle]
-pub extern "C" fn OutputSweeper_as_Confirm(this_arg: &OutputSweeper) -> crate::lightning::chain::Confirm {
-	crate::lightning::chain::Confirm {
-		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
-		free: None,
-		transactions_confirmed: OutputSweeper_Confirm_transactions_confirmed,
-		transaction_unconfirmed: OutputSweeper_Confirm_transaction_unconfirmed,
-		best_block_updated: OutputSweeper_Confirm_best_block_updated,
-		get_relevant_txids: OutputSweeper_Confirm_get_relevant_txids,
-	}
-}
-
-extern "C" fn OutputSweeper_Confirm_transactions_confirmed(this_arg: *const c_void, header: *const [u8; 80], mut txdata: crate::c_types::derived::CVec_C2Tuple_usizeTransactionZZ, mut height: u32) {
-	let mut local_txdata = Vec::new(); for mut item in txdata.into_rust().drain(..) { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item.to_rust(); let mut local_txdata_0 = (orig_txdata_0_0, orig_txdata_0_1.into_bitcoin()); local_txdata_0 }); };
-	<nativeOutputSweeper as lightning::chain::Confirm>::transactions_confirmed(unsafe { &mut *(this_arg as *mut nativeOutputSweeper) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), &local_txdata.iter().map(|(a, b)| (*a, b)).collect::<Vec<_>>()[..], height)
-}
-extern "C" fn OutputSweeper_Confirm_transaction_unconfirmed(this_arg: *const c_void, txid: *const [u8; 32]) {
-	<nativeOutputSweeper as lightning::chain::Confirm>::transaction_unconfirmed(unsafe { &mut *(this_arg as *mut nativeOutputSweeper) }, &::bitcoin::hash_types::Txid::from_slice(&unsafe { &*txid }[..]).unwrap())
-}
-extern "C" fn OutputSweeper_Confirm_best_block_updated(this_arg: *const c_void, header: *const [u8; 80], mut height: u32) {
-	<nativeOutputSweeper as lightning::chain::Confirm>::best_block_updated(unsafe { &mut *(this_arg as *mut nativeOutputSweeper) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height)
-}
-#[must_use]
-extern "C" fn OutputSweeper_Confirm_get_relevant_txids(this_arg: *const c_void) -> crate::c_types::derived::CVec_C3Tuple_ThirtyTwoBytesu32COption_ThirtyTwoBytesZZZ {
-	let mut ret = <nativeOutputSweeper as lightning::chain::Confirm>::get_relevant_txids(unsafe { &mut *(this_arg as *mut nativeOutputSweeper) }, );
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2) = item; let mut local_orig_ret_0_2 = if orig_ret_0_2.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some( { crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_2.unwrap().as_ref() } }) }; let mut local_ret_0 = (crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_0.as_ref() }, orig_ret_0_1, local_orig_ret_0_2).into(); local_ret_0 }); };
-	local_ret.into()
-}
-
 /// A `enum` signalling to the [`OutputSweeper`] that it should delay spending an output until a
 /// future block height is reached.
 #[derive(Clone)]
@@ -764,25 +558,232 @@ pub extern "C" fn SpendingDelay_absolute(height: u32) -> SpendingDelay {
 /// Get a string which allows debug introspection of a SpendingDelay object
 pub extern "C" fn SpendingDelay_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::util::sweep::SpendingDelay }).into()}
-#[no_mangle]
-/// Read a OutputSweeper from a byte array, created by OutputSweeper_write
-pub extern "C" fn OutputSweeper_read(ser: crate::c_types::u8slice, arg_a: crate::lightning::chain::chaininterface::BroadcasterInterface, arg_b: crate::lightning::chain::chaininterface::FeeEstimator, arg_c: crate::c_types::derived::COption_FilterZ, arg_d: crate::lightning::sign::OutputSpender, arg_e: crate::lightning::sign::ChangeDestinationSource, arg_f: crate::lightning::util::persist::KVStore, arg_g: crate::lightning::util::logger::Logger) -> crate::c_types::derived::CResult_OutputSweeperDecodeErrorZ {
-	let arg_a_conv = arg_a;
-	let arg_b_conv = arg_b;
-	let mut local_arg_c = { /*arg_c*/ let arg_c_opt = arg_c; if arg_c_opt.is_none() { None } else { Some({ { { arg_c_opt.take() } }})} };
-	let arg_c_conv = local_arg_c;
-	let arg_d_conv = arg_d;
-	let arg_e_conv = arg_e;
-	let arg_f_conv = arg_f;
-	let arg_g_conv = arg_g;
-	let arg_conv = (arg_a_conv, arg_b_conv, arg_c_conv, arg_d_conv, arg_e_conv, arg_f_conv, arg_g_conv);
-	let res: Result<lightning::util::sweep::OutputSweeper<crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::sign::ChangeDestinationSource, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::chain::Filter, crate::lightning::util::persist::KVStore, crate::lightning::util::logger::Logger, crate::lightning::sign::OutputSpender>, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj_arg(ser, arg_conv);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::util::sweep::OutputSweeper { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
-	local_res
+
+use lightning::util::sweep::OutputSweeperSync as nativeOutputSweeperSyncImport;
+pub(crate) type nativeOutputSweeperSync = nativeOutputSweeperSyncImport<crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::sign::ChangeDestinationSourceSync, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::chain::Filter, crate::lightning::util::persist::KVStoreSync, crate::lightning::util::logger::Logger, crate::lightning::sign::OutputSpender, >;
+
+/// A utility that keeps track of [`SpendableOutputDescriptor`]s, persists them in a given
+/// [`KVStoreSync`] and regularly retries sweeping them based on a callback given to the constructor
+/// methods.
+///
+/// Users should call [`Self::track_spendable_outputs`] for any [`SpendableOutputDescriptor`]s
+/// received via [`Event::SpendableOutputs`].
+///
+/// This needs to be notified of chain state changes either via its [`Listen`] or [`Confirm`]
+/// implementation and hence has to be connected with the utilized chain data sources.
+///
+/// If chain data is provided via the [`Confirm`] interface or via filtered blocks, users are
+/// required to give their chain data sources (i.e., [`Filter`] implementation) to the respective
+/// constructor.
+///
+/// For an asynchronous version of this struct, see [`OutputSweeper`].
+///
+/// [`Event::SpendableOutputs`]: crate::events::Event::SpendableOutputs
+#[must_use]
+#[repr(C)]
+pub struct OutputSweeperSync {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeOutputSweeperSync,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
 }
+
+impl core::ops::Deref for OutputSweeperSync {
+	type Target = nativeOutputSweeperSync;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OutputSweeperSync { }
+unsafe impl core::marker::Sync for OutputSweeperSync { }
+impl Drop for OutputSweeperSync {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeOutputSweeperSync>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the OutputSweeperSync, if is_owned is set and inner is non-NULL.
 #[no_mangle]
-/// Read a C2Tuple_BestBlockOutputSweeperZ from a byte array, created by C2Tuple_BestBlockOutputSweeperZ_write
-pub extern "C" fn C2Tuple_BestBlockOutputSweeperZ_read(ser: crate::c_types::u8slice, arg_a: crate::lightning::chain::chaininterface::BroadcasterInterface, arg_b: crate::lightning::chain::chaininterface::FeeEstimator, arg_c: crate::c_types::derived::COption_FilterZ, arg_d: crate::lightning::sign::OutputSpender, arg_e: crate::lightning::sign::ChangeDestinationSource, arg_f: crate::lightning::util::persist::KVStore, arg_g: crate::lightning::util::logger::Logger) -> crate::c_types::derived::CResult_C2Tuple_BestBlockOutputSweeperZDecodeErrorZ {
+pub extern "C" fn OutputSweeperSync_free(this_obj: OutputSweeperSync) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn OutputSweeperSync_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeOutputSweeperSync) };
+}
+#[allow(unused)]
+impl OutputSweeperSync {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeOutputSweeperSync {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeOutputSweeperSync {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeOutputSweeperSync {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// Constructs a new [`OutputSweeperSync`] instance.
+///
+/// If chain data is provided via the [`Confirm`] interface or via filtered blocks, users also
+/// need to register their [`Filter`] implementation via the given `chain_data_source`.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn OutputSweeperSync_new(mut best_block: crate::lightning::chain::BestBlock, mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut fee_estimator: crate::lightning::chain::chaininterface::FeeEstimator, mut chain_data_source: crate::c_types::derived::COption_FilterZ, mut output_spender: crate::lightning::sign::OutputSpender, mut change_destination_source: crate::lightning::sign::ChangeDestinationSourceSync, mut kv_store: crate::lightning::util::persist::KVStoreSync, mut logger: crate::lightning::util::logger::Logger) -> crate::lightning::util::sweep::OutputSweeperSync {
+	let mut local_chain_data_source = { /*chain_data_source*/ let chain_data_source_opt = chain_data_source; if chain_data_source_opt.is_none() { None } else { Some({ { { chain_data_source_opt.take() } }})} };
+	let mut ret = lightning::util::sweep::OutputSweeperSync::new(*unsafe { Box::from_raw(best_block.take_inner()) }, broadcaster, fee_estimator, local_chain_data_source, output_spender, change_destination_source, kv_store, logger);
+	crate::lightning::util::sweep::OutputSweeperSync { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Tells the sweeper to track the given outputs descriptors.
+///
+/// Usually, this should be called based on the values emitted by the
+/// [`Event::SpendableOutputs`].
+///
+/// The given `exclude_static_outputs` flag controls whether the sweeper will filter out
+/// [`SpendableOutputDescriptor::StaticOutput`]s, which may be handled directly by the on-chain
+/// wallet implementation.
+///
+/// If `delay_until_height` is set, we will delay the spending until the respective block
+/// height is reached. This can be used to batch spends, e.g., to reduce on-chain fees.
+///
+/// Returns `Err` on persistence failure, in which case the call may be safely retried.
+///
+/// [`Event::SpendableOutputs`]: crate::events::Event::SpendableOutputs
+///
+/// Note that channel_id (or a relevant inner pointer) may be NULL or all-0s to represent None
+#[must_use]
+#[no_mangle]
+pub extern "C" fn OutputSweeperSync_track_spendable_outputs(this_arg: &crate::lightning::util::sweep::OutputSweeperSync, mut output_descriptors: crate::c_types::derived::CVec_SpendableOutputDescriptorZ, mut channel_id: crate::lightning::ln::types::ChannelId, mut exclude_static_outputs: bool, mut delay_until_height: crate::c_types::derived::COption_u32Z) -> crate::c_types::derived::CResult_NoneNoneZ {
+	let mut local_output_descriptors = Vec::new(); for mut item in output_descriptors.into_rust().drain(..) { local_output_descriptors.push( { item.into_native() }); };
+	let mut local_channel_id = if channel_id.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_id.take_inner()) } }) };
+	let mut local_delay_until_height = if delay_until_height.is_some() { Some( { delay_until_height.take() }) } else { None };
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.track_spendable_outputs(local_output_descriptors, local_channel_id, exclude_static_outputs, local_delay_until_height);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	local_ret
+}
+
+/// Returns a list of the currently tracked spendable outputs.
+///
+/// Wraps [`OutputSweeper::tracked_spendable_outputs`].
+#[must_use]
+#[no_mangle]
+pub extern "C" fn OutputSweeperSync_tracked_spendable_outputs(this_arg: &crate::lightning::util::sweep::OutputSweeperSync) -> crate::c_types::derived::CVec_TrackedSpendableOutputZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.tracked_spendable_outputs();
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::util::sweep::TrackedSpendableOutput { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+	local_ret.into()
+}
+
+/// Gets the latest best block which was connected either via [`Listen`] or [`Confirm`]
+/// interfaces.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn OutputSweeperSync_current_best_block(this_arg: &crate::lightning::util::sweep::OutputSweeperSync) -> crate::lightning::chain::BestBlock {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.current_best_block();
+	crate::lightning::chain::BestBlock { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Regenerates and broadcasts the spending transaction for any outputs that are pending. This method will be a
+/// no-op if a sweep is already pending.
+///
+/// Wraps [`OutputSweeper::regenerate_and_broadcast_spend_if_necessary`].
+#[must_use]
+#[no_mangle]
+pub extern "C" fn OutputSweeperSync_regenerate_and_broadcast_spend_if_necessary(this_arg: &crate::lightning::util::sweep::OutputSweeperSync) -> crate::c_types::derived::CResult_NoneNoneZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.regenerate_and_broadcast_spend_if_necessary();
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	local_ret
+}
+
+impl From<nativeOutputSweeperSync> for crate::lightning::chain::Listen {
+	fn from(obj: nativeOutputSweeperSync) -> Self {
+		let rust_obj = crate::lightning::util::sweep::OutputSweeperSync { inner: ObjOps::heap_alloc(obj), is_owned: true };
+		let mut ret = OutputSweeperSync_as_Listen(&rust_obj);
+		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
+		core::mem::forget(rust_obj);
+		ret.free = Some(OutputSweeperSync_free_void);
+		ret
+	}
+}
+/// Constructs a new Listen which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned Listen must be freed before this_arg is
+#[no_mangle]
+pub extern "C" fn OutputSweeperSync_as_Listen(this_arg: &OutputSweeperSync) -> crate::lightning::chain::Listen {
+	crate::lightning::chain::Listen {
+		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+		free: None,
+		filtered_block_connected: OutputSweeperSync_Listen_filtered_block_connected,
+		block_connected: OutputSweeperSync_Listen_block_connected,
+		blocks_disconnected: OutputSweeperSync_Listen_blocks_disconnected,
+	}
+}
+
+extern "C" fn OutputSweeperSync_Listen_filtered_block_connected(this_arg: *const c_void, header: *const [u8; 80], mut txdata: crate::c_types::derived::CVec_C2Tuple_usizeTransactionZZ, mut height: u32) {
+	let mut local_txdata = Vec::new(); for mut item in txdata.into_rust().drain(..) { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item.to_rust(); let mut local_txdata_0 = (orig_txdata_0_0, orig_txdata_0_1.into_bitcoin()); local_txdata_0 }); };
+	<nativeOutputSweeperSync as lightning::chain::Listen>::filtered_block_connected(unsafe { &mut *(this_arg as *mut nativeOutputSweeperSync) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), &local_txdata.iter().map(|(a, b)| (*a, b)).collect::<Vec<_>>()[..], height)
+}
+extern "C" fn OutputSweeperSync_Listen_block_connected(this_arg: *const c_void, mut block: crate::c_types::u8slice, mut height: u32) {
+	<nativeOutputSweeperSync as lightning::chain::Listen>::block_connected(unsafe { &mut *(this_arg as *mut nativeOutputSweeperSync) }, &::bitcoin::consensus::encode::deserialize(block.to_slice()).unwrap(), height)
+}
+extern "C" fn OutputSweeperSync_Listen_blocks_disconnected(this_arg: *const c_void, mut fork_point_block: crate::lightning::chain::BestBlock) {
+	<nativeOutputSweeperSync as lightning::chain::Listen>::blocks_disconnected(unsafe { &mut *(this_arg as *mut nativeOutputSweeperSync) }, *unsafe { Box::from_raw(fork_point_block.take_inner()) })
+}
+
+impl From<nativeOutputSweeperSync> for crate::lightning::chain::Confirm {
+	fn from(obj: nativeOutputSweeperSync) -> Self {
+		let rust_obj = crate::lightning::util::sweep::OutputSweeperSync { inner: ObjOps::heap_alloc(obj), is_owned: true };
+		let mut ret = OutputSweeperSync_as_Confirm(&rust_obj);
+		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
+		core::mem::forget(rust_obj);
+		ret.free = Some(OutputSweeperSync_free_void);
+		ret
+	}
+}
+/// Constructs a new Confirm which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned Confirm must be freed before this_arg is
+#[no_mangle]
+pub extern "C" fn OutputSweeperSync_as_Confirm(this_arg: &OutputSweeperSync) -> crate::lightning::chain::Confirm {
+	crate::lightning::chain::Confirm {
+		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+		free: None,
+		transactions_confirmed: OutputSweeperSync_Confirm_transactions_confirmed,
+		transaction_unconfirmed: OutputSweeperSync_Confirm_transaction_unconfirmed,
+		best_block_updated: OutputSweeperSync_Confirm_best_block_updated,
+		get_relevant_txids: OutputSweeperSync_Confirm_get_relevant_txids,
+	}
+}
+
+extern "C" fn OutputSweeperSync_Confirm_transactions_confirmed(this_arg: *const c_void, header: *const [u8; 80], mut txdata: crate::c_types::derived::CVec_C2Tuple_usizeTransactionZZ, mut height: u32) {
+	let mut local_txdata = Vec::new(); for mut item in txdata.into_rust().drain(..) { local_txdata.push( { let (mut orig_txdata_0_0, mut orig_txdata_0_1) = item.to_rust(); let mut local_txdata_0 = (orig_txdata_0_0, orig_txdata_0_1.into_bitcoin()); local_txdata_0 }); };
+	<nativeOutputSweeperSync as lightning::chain::Confirm>::transactions_confirmed(unsafe { &mut *(this_arg as *mut nativeOutputSweeperSync) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), &local_txdata.iter().map(|(a, b)| (*a, b)).collect::<Vec<_>>()[..], height)
+}
+extern "C" fn OutputSweeperSync_Confirm_transaction_unconfirmed(this_arg: *const c_void, txid: *const [u8; 32]) {
+	<nativeOutputSweeperSync as lightning::chain::Confirm>::transaction_unconfirmed(unsafe { &mut *(this_arg as *mut nativeOutputSweeperSync) }, &::bitcoin::hash_types::Txid::from_slice(&unsafe { &*txid }[..]).unwrap())
+}
+extern "C" fn OutputSweeperSync_Confirm_best_block_updated(this_arg: *const c_void, header: *const [u8; 80], mut height: u32) {
+	<nativeOutputSweeperSync as lightning::chain::Confirm>::best_block_updated(unsafe { &mut *(this_arg as *mut nativeOutputSweeperSync) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height)
+}
+#[must_use]
+extern "C" fn OutputSweeperSync_Confirm_get_relevant_txids(this_arg: *const c_void) -> crate::c_types::derived::CVec_C3Tuple_ThirtyTwoBytesu32COption_ThirtyTwoBytesZZZ {
+	let mut ret = <nativeOutputSweeperSync as lightning::chain::Confirm>::get_relevant_txids(unsafe { &mut *(this_arg as *mut nativeOutputSweeperSync) }, );
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2) = item; let mut local_orig_ret_0_2 = if orig_ret_0_2.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some( { crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_2.unwrap().as_ref() } }) }; let mut local_ret_0 = (crate::c_types::ThirtyTwoBytes { data: *orig_ret_0_0.as_ref() }, orig_ret_0_1, local_orig_ret_0_2).into(); local_ret_0 }); };
+	local_ret.into()
+}
+
+#[no_mangle]
+/// Read a C2Tuple_BestBlockOutputSweeperSyncZ from a byte array, created by C2Tuple_BestBlockOutputSweeperSyncZ_write
+pub extern "C" fn C2Tuple_BestBlockOutputSweeperSyncZ_read(ser: crate::c_types::u8slice, arg_a: crate::lightning::chain::chaininterface::BroadcasterInterface, arg_b: crate::lightning::chain::chaininterface::FeeEstimator, arg_c: crate::c_types::derived::COption_FilterZ, arg_d: crate::lightning::sign::OutputSpender, arg_e: crate::lightning::sign::ChangeDestinationSourceSync, arg_f: crate::lightning::util::persist::KVStoreSync, arg_g: crate::lightning::util::logger::Logger) -> crate::c_types::derived::CResult_C2Tuple_BestBlockOutputSweeperSyncZDecodeErrorZ {
 	let arg_a_conv = arg_a;
 	let arg_b_conv = arg_b;
 	let mut local_arg_c = { /*arg_c*/ let arg_c_opt = arg_c; if arg_c_opt.is_none() { None } else { Some({ { { arg_c_opt.take() } }})} };
@@ -792,7 +793,7 @@ pub extern "C" fn C2Tuple_BestBlockOutputSweeperZ_read(ser: crate::c_types::u8sl
 	let arg_f_conv = arg_f;
 	let arg_g_conv = arg_g;
 	let arg_conv = (arg_a_conv, arg_b_conv, arg_c_conv, arg_d_conv, arg_e_conv, arg_f_conv, arg_g_conv);
-	let res: Result<(lightning::chain::BestBlock, lightning::util::sweep::OutputSweeper<crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::sign::ChangeDestinationSource, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::chain::Filter, crate::lightning::util::persist::KVStore, crate::lightning::util::logger::Logger, crate::lightning::sign::OutputSpender>), lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj_arg(ser, arg_conv);
-	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { let (mut orig_res_0_0, mut orig_res_0_1) = o; let mut local_res_0 = (crate::lightning::chain::BestBlock { inner: ObjOps::heap_alloc(orig_res_0_0), is_owned: true }, crate::lightning::util::sweep::OutputSweeper { inner: ObjOps::heap_alloc(orig_res_0_1), is_owned: true }).into(); local_res_0 }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	let res: Result<(lightning::chain::BestBlock, lightning::util::sweep::OutputSweeperSync<crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::sign::ChangeDestinationSourceSync, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::chain::Filter, crate::lightning::util::persist::KVStoreSync, crate::lightning::util::logger::Logger, crate::lightning::sign::OutputSpender>), lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj_arg(ser, arg_conv);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { let (mut orig_res_0_0, mut orig_res_0_1) = o; let mut local_res_0 = (crate::lightning::chain::BestBlock { inner: ObjOps::heap_alloc(orig_res_0_0), is_owned: true }, crate::lightning::util::sweep::OutputSweeperSync { inner: ObjOps::heap_alloc(orig_res_0_1), is_owned: true }).into(); local_res_0 }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }

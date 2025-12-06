@@ -21,6 +21,99 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
+
+use lightning::util::wakers::Notifier as nativeNotifierImport;
+pub(crate) type nativeNotifier = nativeNotifierImport;
+
+/// Used to signal to one of many waiters that the condition they're waiting on has happened.
+///
+/// This is usually used by LDK objects such as [`ChannelManager`] or [`PeerManager`] to signal to
+/// the background processor that it should wake up and process pending events.
+///
+/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
+/// [`PeerManager`]: crate::ln::peer_handler::PeerManager
+#[must_use]
+#[repr(C)]
+pub struct Notifier {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeNotifier,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for Notifier {
+	type Target = nativeNotifier;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for Notifier { }
+unsafe impl core::marker::Sync for Notifier { }
+impl Drop for Notifier {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeNotifier>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the Notifier, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn Notifier_free(this_obj: Notifier) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Notifier_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeNotifier) };
+}
+#[allow(unused)]
+impl Notifier {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeNotifier {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeNotifier {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeNotifier {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// Constructs a new notifier.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Notifier_new() -> crate::lightning::util::wakers::Notifier {
+	let mut ret = lightning::util::wakers::Notifier::new();
+	crate::lightning::util::wakers::Notifier { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Wake waiters, tracking that wake needs to occur even if there are currently no waiters.
+///
+/// We deem the notification successful either directly after any callbacks were made, or after
+/// the user [`poll`]ed a previously-generated [`Future`].
+///
+/// [`poll`]: core::future::Future::poll
+#[no_mangle]
+pub extern "C" fn Notifier_notify(this_arg: &crate::lightning::util::wakers::Notifier) {
+	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.notify()
+}
+
+/// Gets a [`Future`] that will get woken up with any waiters
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Notifier_get_future(this_arg: &crate::lightning::util::wakers::Notifier) -> crate::lightning::util::wakers::Future {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_future();
+	crate::lightning::util::wakers::Future { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
 /// A callback which is called when a [`Future`] completes.
 ///
 /// Note that this MUST NOT call back into LDK directly, it must instead schedule actions to be
@@ -253,6 +346,15 @@ pub extern "C" fn Sleeper_from_two_futures(fut_a: &crate::lightning::util::waker
 #[no_mangle]
 pub extern "C" fn Sleeper_from_three_futures(fut_a: &crate::lightning::util::wakers::Future, fut_b: &crate::lightning::util::wakers::Future, fut_c: &crate::lightning::util::wakers::Future) -> crate::lightning::util::wakers::Sleeper {
 	let mut ret = lightning::util::wakers::Sleeper::from_three_futures(fut_a.get_native_ref(), fut_b.get_native_ref(), fut_c.get_native_ref());
+	crate::lightning::util::wakers::Sleeper { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Constructs a new sleeper from four futures, allowing blocking on all four at once.
+///
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Sleeper_from_four_futures(fut_a: &crate::lightning::util::wakers::Future, fut_b: &crate::lightning::util::wakers::Future, fut_c: &crate::lightning::util::wakers::Future, fut_d: &crate::lightning::util::wakers::Future) -> crate::lightning::util::wakers::Sleeper {
+	let mut ret = lightning::util::wakers::Sleeper::from_four_futures(fut_a.get_native_ref(), fut_b.get_native_ref(), fut_c.get_native_ref(), fut_d.get_native_ref());
 	crate::lightning::util::wakers::Sleeper { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 

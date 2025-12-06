@@ -17,8 +17,8 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
-pub mod payment;
 pub mod message;
+pub mod payment;
 mod utils {
 
 use alloc::str::FromStr;
@@ -490,7 +490,7 @@ impl BlindedHop {
 /// The blinded node id of this hop in a blinded path.
 #[no_mangle]
 pub extern "C" fn BlindedHop_get_blinded_node_id(this_ptr: &BlindedHop) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().blinded_node_id;
+	let mut inner_val = &mut BlindedHop::get_native_mut_ref(this_ptr).blinded_node_id;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 /// The blinded node id of this hop in a blinded path.
@@ -503,7 +503,7 @@ pub extern "C" fn BlindedHop_set_blinded_node_id(this_ptr: &mut BlindedHop, mut 
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn BlindedHop_get_encrypted_payload(this_ptr: &BlindedHop) -> crate::c_types::derived::CVec_u8Z {
-	let mut inner_val = this_ptr.get_native_mut_ref().encrypted_payload.clone();
+	let mut inner_val = BlindedHop::get_native_mut_ref(this_ptr).encrypted_payload.clone();
 	let mut local_inner_val = Vec::new(); for mut item in inner_val.drain(..) { local_inner_val.push( { item }); };
 	local_inner_val.into()
 }
@@ -527,7 +527,7 @@ impl Clone for BlindedHop {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBlindedHop>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -535,12 +535,12 @@ impl Clone for BlindedHop {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn BlindedHop_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBlindedHop)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBlindedHop) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the BlindedHop
 pub extern "C" fn BlindedHop_clone(orig: &BlindedHop) -> BlindedHop {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a BlindedHop object
 pub extern "C" fn BlindedHop_debug_str_void(o: *const c_void) -> Str {

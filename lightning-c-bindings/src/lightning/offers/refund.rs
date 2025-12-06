@@ -158,7 +158,7 @@ impl Clone for RefundMaybeWithDerivedMetadataBuilder {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRefundMaybeWithDerivedMetadataBuilder>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -166,12 +166,12 @@ impl Clone for RefundMaybeWithDerivedMetadataBuilder {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RefundMaybeWithDerivedMetadataBuilder_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRefundMaybeWithDerivedMetadataBuilder)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRefundMaybeWithDerivedMetadataBuilder) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RefundMaybeWithDerivedMetadataBuilder
 pub extern "C" fn RefundMaybeWithDerivedMetadataBuilder_clone(orig: &RefundMaybeWithDerivedMetadataBuilder) -> RefundMaybeWithDerivedMetadataBuilder {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Creates a new builder for a refund using the `signing_pubkey` for the public node id to send
 /// to if no [`Refund::paths`] are set. Otherwise, `signing_pubkey` may be a transient pubkey.
@@ -380,7 +380,7 @@ impl Clone for Refund {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRefund>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -388,12 +388,12 @@ impl Clone for Refund {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Refund_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRefund)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRefund) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Refund
 pub extern "C" fn Refund_clone(orig: &Refund) -> Refund {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Refund object
 pub extern "C" fn Refund_debug_str_void(o: *const c_void) -> Str {

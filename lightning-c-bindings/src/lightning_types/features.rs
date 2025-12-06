@@ -20,62 +20,74 @@
 //!
 //! The following features are currently required in the LDK:
 //! - `VariableLengthOnion` - requires/supports variable-length routing onion payloads
-//!     (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md) for more information).
+//!   (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md) for more information).
 //! - `StaticRemoteKey` - requires/supports static key for remote output
-//!     (see [BOLT-3](https://github.com/lightning/bolts/blob/master/03-transactions.md) for more information).
+//!   (see [BOLT-3](https://github.com/lightning/bolts/blob/master/03-transactions.md) for more information).
 //!
 //! The following features are currently supported in the LDK:
 //! - `DataLossProtect` - requires/supports that a node which has somehow fallen behind, e.g., has been restored from an old backup,
-//!     can detect that it has fallen behind
-//!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
+//!   can detect that it has fallen behind
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
 //! - `InitialRoutingSync` - requires/supports that the sending node needs a complete routing information dump
-//!     (see [BOLT-7](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md#initial-sync) for more information).
+//!   (see [BOLT-7](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md#initial-sync) for more information).
 //! - `UpfrontShutdownScript` - commits to a shutdown scriptpubkey when opening a channel
-//!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#the-open_channel-message) for more information).
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#the-open_channel-message) for more information).
 //! - `GossipQueries` - requires/supports more sophisticated gossip control
-//!     (see [BOLT-7](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md) for more information).
+//!   (see [BOLT-7](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md) for more information).
 //! - `PaymentSecret` - requires/supports that a node supports payment_secret field
-//!     (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md) for more information).
+//!   (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md) for more information).
 //! - `BasicMPP` - requires/supports that a node can receive basic multi-part payments
-//!     (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md#basic-multi-part-payments) for more information).
+//!   (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md#basic-multi-part-payments) for more information).
 //! - `Wumbo` - requires/supports that a node create large channels. Called `option_support_large_channel` in the spec.
-//!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#the-open_channel-message) for more information).
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#the-open_channel-message) for more information).
 //! - `AnchorsZeroFeeHtlcTx` - requires/supports that commitment transactions include anchor outputs
-//!     and HTLC transactions are pre-signed with zero fee (see
-//!     [BOLT-3](https://github.com/lightning/bolts/blob/master/03-transactions.md) for more
-//!     information).
+//!   and HTLC transactions are pre-signed with zero fee (see
+//!   [BOLT-3](https://github.com/lightning/bolts/blob/master/03-transactions.md) for more
+//!   information).
 //! - `RouteBlinding` - requires/supports that a node can relay payments over blinded paths
-//!     (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md#route-blinding) for more information).
+//!   (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md#route-blinding) for more information).
 //! - `ShutdownAnySegwit` - requires/supports that future segwit versions are allowed in `shutdown`
-//!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
 //! - `DualFund` - requires/supports V2 channel establishment
-//!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#channel-establishment-v2) for more information).
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#channel-establishment-v2) for more information).
+//! - `SimpleClose` - requires/supports simplified closing negotiation
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#closing-negotiation-closing_complete-and-closing_sig) for more information).
 //! - `OnionMessages` - requires/supports forwarding onion messages
-//!     (see [BOLT-7](https://github.com/lightning/bolts/pull/759/files) for more information).
+//!   (see [BOLT-4](https://github.com/lightning/bolts/blob/master/04-onion-routing.md#onion-messages) for more information).
 //! - `ChannelType` - node supports the channel_type field in open/accept
-//!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
 //! - `SCIDPrivacy` - supply channel aliases for routing
-//!     (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md) for more information).
 //! - `PaymentMetadata` - include additional data in invoices which is passed to recipients in the
-//!      onion.
-//!      (see [BOLT-11](https://github.com/lightning/bolts/blob/master/11-payment-encoding.md) for
-//!      more).
+//!   onion.
+//!   (see [BOLT-11](https://github.com/lightning/bolts/blob/master/11-payment-encoding.md) for
+//!   more).
 //! - `ZeroConf` - supports accepting HTLCs and using channels prior to funding confirmation
-//!      (see
-//!      [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#the-channel_ready-message)
-//!      for more info).
+//!   (see
+//!   [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#the-channel_ready-message)
+//!   for more info).
 //! - `Keysend` - send funds to a node without an invoice
-//!     (see the [`Keysend` feature assignment proposal](https://github.com/lightning/bolts/issues/605#issuecomment-606679798) for more information).
+//!   (see the [`Keysend` feature assignment proposal](https://github.com/lightning/bolts/issues/605#issuecomment-606679798) for more information).
 //! - `Trampoline` - supports receiving and forwarding Trampoline payments
-//!     (see the [`Trampoline` feature proposal](https://github.com/lightning/bolts/pull/836) for more information).
+//!   (see the [`Trampoline` feature proposal](https://github.com/lightning/bolts/pull/836) for more information).
 //! - `DnsResolver` - supports resolving DNS names to TXT DNSSEC proofs for BIP 353 payments
-//!     (see [bLIP 32](https://github.com/lightning/blips/blob/master/blip-0032.md) for more information).
+//!   (see [bLIP 32](https://github.com/lightning/blips/blob/master/blip-0032.md) for more information).
+//! - `ProvideStorage` - Indicates that we offer the capability to store data of our peers
+//!   (see [BOLT PR #1110](https://github.com/lightning/bolts/pull/1110) for more info).
+//! - `Quiescence` - protocol to quiesce a channel by indicating that \"SomeThing Fundamental is Underway\"
+//!   (see [BOLT-2](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md#channel-quiescence) for more information).
+//! - `ZeroFeeCommitments` - A channel type which always uses zero transaction fee on commitment transactions.
+//!   (see [BOLT PR #1228](https://github.com/lightning/bolts/pull/1228) for more info).
+//! - `Splice` - Allows replacing the currently-locked funding transaction with a new one
+//!   (see [BOLT PR #1160](https://github.com/lightning/bolts/pull/1160) for more information).
+//! - `HtlcHold` - requires/supports holding HTLCs and forwarding on receipt of an onion message
+//!   (see [BOLT-2](https://github.com/lightning/bolts/pull/989/files) for more information).
 //!
 //! LDK knows about the following features, but does not support them:
 //! - `AnchorsNonzeroFeeHtlcTx` - the initial version of anchor outputs, which was later found to be
-//!     vulnerable (see this
-//!     [mailing list post](https://lists.linuxfoundation.org/pipermail/lightning-dev/2020-September/002796.html)
-//!     for more information).
+//!   vulnerable (see this
+//!   [mailing list post](https://lists.linuxfoundation.org/pipermail/lightning-dev/2020-September/002796.html)
+//!   for more information).
 //!
 //! [BOLT #9]: https://github.com/lightning/bolts/blob/master/09-features.md
 
@@ -111,6 +123,12 @@ pub extern "C" fn InitFeatures_set_data_loss_protect_required(this_arg: &mut cra
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_data_loss_protect_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_data_loss_protect(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_data_loss_protect()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -129,6 +147,12 @@ pub extern "C" fn NodeFeatures_set_data_loss_protect_optional(this_arg: &mut cra
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_data_loss_protect_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_data_loss_protect_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_data_loss_protect(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_data_loss_protect()
 }
 
 /// Checks if this feature is supported.
@@ -167,6 +191,12 @@ pub extern "C" fn InitFeatures_set_initial_routing_sync_required(this_arg: &mut 
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_initial_routing_sync_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_initial_routing_sync(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_initial_routing_sync()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -187,6 +217,12 @@ pub extern "C" fn InitFeatures_set_upfront_shutdown_script_required(this_arg: &m
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_upfront_shutdown_script_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_upfront_shutdown_script(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_upfront_shutdown_script()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -205,6 +241,12 @@ pub extern "C" fn NodeFeatures_set_upfront_shutdown_script_optional(this_arg: &m
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_upfront_shutdown_script_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_upfront_shutdown_script_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_upfront_shutdown_script(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_upfront_shutdown_script()
 }
 
 /// Checks if this feature is supported.
@@ -243,6 +285,12 @@ pub extern "C" fn InitFeatures_set_gossip_queries_required(this_arg: &mut crate:
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_gossip_queries_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_gossip_queries(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_gossip_queries()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -261,6 +309,12 @@ pub extern "C" fn NodeFeatures_set_gossip_queries_optional(this_arg: &mut crate:
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_gossip_queries_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_gossip_queries_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_gossip_queries(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_gossip_queries()
 }
 
 /// Checks if this feature is supported.
@@ -299,6 +353,12 @@ pub extern "C" fn InitFeatures_set_variable_length_onion_required(this_arg: &mut
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_variable_length_onion_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_variable_length_onion(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_variable_length_onion()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -319,6 +379,12 @@ pub extern "C" fn NodeFeatures_set_variable_length_onion_required(this_arg: &mut
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_variable_length_onion_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_variable_length_onion(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_variable_length_onion()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -337,6 +403,12 @@ pub extern "C" fn Bolt11InvoiceFeatures_set_variable_length_onion_optional(this_
 #[no_mangle]
 pub extern "C" fn Bolt11InvoiceFeatures_set_variable_length_onion_required(this_arg: &mut crate::lightning_types::features::Bolt11InvoiceFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.set_variable_length_onion_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_clear_variable_length_onion(this_arg: &mut crate::lightning_types::features::Bolt11InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.clear_variable_length_onion()
 }
 
 /// Checks if this feature is supported.
@@ -383,6 +455,12 @@ pub extern "C" fn InitFeatures_set_static_remote_key_required(this_arg: &mut cra
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_static_remote_key_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_static_remote_key(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_static_remote_key()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -403,6 +481,12 @@ pub extern "C" fn NodeFeatures_set_static_remote_key_required(this_arg: &mut cra
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_static_remote_key_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_static_remote_key(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_static_remote_key()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -421,6 +505,12 @@ pub extern "C" fn ChannelTypeFeatures_set_static_remote_key_optional(this_arg: &
 #[no_mangle]
 pub extern "C" fn ChannelTypeFeatures_set_static_remote_key_required(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_static_remote_key_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_clear_static_remote_key(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_static_remote_key()
 }
 
 /// Checks if this feature is supported.
@@ -467,6 +557,12 @@ pub extern "C" fn InitFeatures_set_payment_secret_required(this_arg: &mut crate:
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_payment_secret_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_payment_secret(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_payment_secret()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -487,6 +583,12 @@ pub extern "C" fn NodeFeatures_set_payment_secret_required(this_arg: &mut crate:
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_payment_secret_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_payment_secret(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_payment_secret()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -505,6 +607,12 @@ pub extern "C" fn Bolt11InvoiceFeatures_set_payment_secret_optional(this_arg: &m
 #[no_mangle]
 pub extern "C" fn Bolt11InvoiceFeatures_set_payment_secret_required(this_arg: &mut crate::lightning_types::features::Bolt11InvoiceFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.set_payment_secret_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_clear_payment_secret(this_arg: &mut crate::lightning_types::features::Bolt11InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.clear_payment_secret()
 }
 
 /// Checks if this feature is supported.
@@ -551,6 +659,12 @@ pub extern "C" fn InitFeatures_set_basic_mpp_required(this_arg: &mut crate::ligh
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_basic_mpp_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_basic_mpp(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_basic_mpp()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -569,6 +683,12 @@ pub extern "C" fn NodeFeatures_set_basic_mpp_optional(this_arg: &mut crate::ligh
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_basic_mpp_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_basic_mpp_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_basic_mpp(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_basic_mpp()
 }
 
 /// Checks if this feature is supported.
@@ -591,6 +711,12 @@ pub extern "C" fn Bolt11InvoiceFeatures_set_basic_mpp_required(this_arg: &mut cr
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.set_basic_mpp_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_clear_basic_mpp(this_arg: &mut crate::lightning_types::features::Bolt11InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.clear_basic_mpp()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -609,6 +735,12 @@ pub extern "C" fn Bolt12InvoiceFeatures_set_basic_mpp_optional(this_arg: &mut cr
 #[no_mangle]
 pub extern "C" fn Bolt12InvoiceFeatures_set_basic_mpp_required(this_arg: &mut crate::lightning_types::features::Bolt12InvoiceFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt12InvoiceFeatures)) }.set_basic_mpp_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn Bolt12InvoiceFeatures_clear_basic_mpp(this_arg: &mut crate::lightning_types::features::Bolt12InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt12InvoiceFeatures)) }.clear_basic_mpp()
 }
 
 /// Checks if this feature is supported.
@@ -663,6 +795,12 @@ pub extern "C" fn InitFeatures_set_wumbo_required(this_arg: &mut crate::lightnin
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_wumbo_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_wumbo(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_wumbo()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -681,6 +819,12 @@ pub extern "C" fn NodeFeatures_set_wumbo_optional(this_arg: &mut crate::lightnin
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_wumbo_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_wumbo_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_wumbo(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_wumbo()
 }
 
 /// Checks if this feature is supported.
@@ -719,6 +863,12 @@ pub extern "C" fn InitFeatures_set_anchors_nonzero_fee_htlc_tx_required(this_arg
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_anchors_nonzero_fee_htlc_tx_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_anchors_nonzero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_anchors_nonzero_fee_htlc_tx()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -739,6 +889,12 @@ pub extern "C" fn NodeFeatures_set_anchors_nonzero_fee_htlc_tx_required(this_arg
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_anchors_nonzero_fee_htlc_tx_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_anchors_nonzero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_anchors_nonzero_fee_htlc_tx()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -757,6 +913,12 @@ pub extern "C" fn ChannelTypeFeatures_set_anchors_nonzero_fee_htlc_tx_optional(t
 #[no_mangle]
 pub extern "C" fn ChannelTypeFeatures_set_anchors_nonzero_fee_htlc_tx_required(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_anchors_nonzero_fee_htlc_tx_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_clear_anchors_nonzero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_anchors_nonzero_fee_htlc_tx()
 }
 
 /// Checks if this feature is supported.
@@ -803,6 +965,12 @@ pub extern "C" fn InitFeatures_set_anchors_zero_fee_htlc_tx_required(this_arg: &
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_anchors_zero_fee_htlc_tx_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_anchors_zero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_anchors_zero_fee_htlc_tx()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -823,6 +991,12 @@ pub extern "C" fn NodeFeatures_set_anchors_zero_fee_htlc_tx_required(this_arg: &
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_anchors_zero_fee_htlc_tx_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_anchors_zero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_anchors_zero_fee_htlc_tx()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -841,6 +1015,12 @@ pub extern "C" fn ChannelTypeFeatures_set_anchors_zero_fee_htlc_tx_optional(this
 #[no_mangle]
 pub extern "C" fn ChannelTypeFeatures_set_anchors_zero_fee_htlc_tx_required(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_anchors_zero_fee_htlc_tx_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_clear_anchors_zero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_anchors_zero_fee_htlc_tx()
 }
 
 /// Checks if this feature is supported.
@@ -887,6 +1067,12 @@ pub extern "C" fn InitFeatures_set_route_blinding_required(this_arg: &mut crate:
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_route_blinding_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_route_blinding(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_route_blinding()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -905,6 +1091,12 @@ pub extern "C" fn NodeFeatures_set_route_blinding_optional(this_arg: &mut crate:
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_route_blinding_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_route_blinding_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_route_blinding(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_route_blinding()
 }
 
 /// Checks if this feature is supported.
@@ -943,6 +1135,12 @@ pub extern "C" fn InitFeatures_set_shutdown_any_segwit_required(this_arg: &mut c
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_shutdown_any_segwit_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_shutdown_anysegwit(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_shutdown_anysegwit()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -961,6 +1159,12 @@ pub extern "C" fn NodeFeatures_set_shutdown_any_segwit_optional(this_arg: &mut c
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_shutdown_any_segwit_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_shutdown_any_segwit_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_shutdown_anysegwit(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_shutdown_anysegwit()
 }
 
 /// Checks if this feature is supported.
@@ -999,6 +1203,12 @@ pub extern "C" fn InitFeatures_set_dual_fund_required(this_arg: &mut crate::ligh
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_dual_fund_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_dual_fund(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_dual_fund()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -1017,6 +1227,12 @@ pub extern "C" fn NodeFeatures_set_dual_fund_optional(this_arg: &mut crate::ligh
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_dual_fund_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_dual_fund_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_dual_fund(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_dual_fund()
 }
 
 /// Checks if this feature is supported.
@@ -1055,6 +1271,12 @@ pub extern "C" fn InitFeatures_set_taproot_required(this_arg: &mut crate::lightn
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_taproot_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_taproot(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_taproot()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -1075,6 +1297,12 @@ pub extern "C" fn NodeFeatures_set_taproot_required(this_arg: &mut crate::lightn
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_taproot_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_taproot(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_taproot()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -1093,6 +1321,12 @@ pub extern "C" fn ChannelTypeFeatures_set_taproot_optional(this_arg: &mut crate:
 #[no_mangle]
 pub extern "C" fn ChannelTypeFeatures_set_taproot_required(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_taproot_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_clear_taproot(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_taproot()
 }
 
 /// Checks if this feature is supported.
@@ -1129,6 +1363,74 @@ pub extern "C" fn ChannelTypeFeatures_requires_taproot(this_arg: &crate::lightni
 
 /// Set this feature as optional.
 #[no_mangle]
+pub extern "C" fn InitFeatures_set_quiescence_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_quiescence_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_quiescence_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_quiescence_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_quiescence(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_quiescence()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_quiescence(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_quiescence();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_quiescence_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_quiescence_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_quiescence_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_quiescence_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_quiescence(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_quiescence()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_quiescence(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_quiescence();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_quiescence(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_quiescence();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_quiescence(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_quiescence();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
 pub extern "C" fn InitFeatures_set_onion_messages_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_onion_messages_optional()
 }
@@ -1137,6 +1439,12 @@ pub extern "C" fn InitFeatures_set_onion_messages_optional(this_arg: &mut crate:
 #[no_mangle]
 pub extern "C" fn InitFeatures_set_onion_messages_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_onion_messages_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_onion_messages(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_onion_messages()
 }
 
 /// Checks if this feature is supported.
@@ -1157,6 +1465,12 @@ pub extern "C" fn NodeFeatures_set_onion_messages_optional(this_arg: &mut crate:
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_onion_messages_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_onion_messages_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_onion_messages(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_onion_messages()
 }
 
 /// Checks if this feature is supported.
@@ -1185,6 +1499,74 @@ pub extern "C" fn NodeFeatures_requires_onion_messages(this_arg: &crate::lightni
 
 /// Set this feature as optional.
 #[no_mangle]
+pub extern "C" fn InitFeatures_set_provide_storage_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_provide_storage_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_provide_storage_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_provide_storage_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_provide_storage(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_provide_storage()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_provide_storage(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_provide_storage();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_provide_storage_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_provide_storage_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_provide_storage_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_provide_storage_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_provide_storage(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_provide_storage()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_provide_storage(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_provide_storage();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_provide_storage(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_provide_storage();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_provide_storage(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_provide_storage();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
 pub extern "C" fn InitFeatures_set_channel_type_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_channel_type_optional()
 }
@@ -1193,6 +1575,12 @@ pub extern "C" fn InitFeatures_set_channel_type_optional(this_arg: &mut crate::l
 #[no_mangle]
 pub extern "C" fn InitFeatures_set_channel_type_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_channel_type_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_channel_type(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_channel_type()
 }
 
 /// Checks if this feature is supported.
@@ -1213,6 +1601,12 @@ pub extern "C" fn NodeFeatures_set_channel_type_optional(this_arg: &mut crate::l
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_channel_type_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_channel_type_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_channel_type(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_channel_type()
 }
 
 /// Checks if this feature is supported.
@@ -1251,6 +1645,12 @@ pub extern "C" fn InitFeatures_set_scid_privacy_required(this_arg: &mut crate::l
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_scid_privacy_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_scid_privacy(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_scid_privacy()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -1271,6 +1671,12 @@ pub extern "C" fn NodeFeatures_set_scid_privacy_required(this_arg: &mut crate::l
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_scid_privacy_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_scid_privacy(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_scid_privacy()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -1289,6 +1695,12 @@ pub extern "C" fn ChannelTypeFeatures_set_scid_privacy_optional(this_arg: &mut c
 #[no_mangle]
 pub extern "C" fn ChannelTypeFeatures_set_scid_privacy_required(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_scid_privacy_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_clear_scid_privacy(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_scid_privacy()
 }
 
 /// Checks if this feature is supported.
@@ -1335,6 +1747,12 @@ pub extern "C" fn Bolt11InvoiceFeatures_set_payment_metadata_required(this_arg: 
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.set_payment_metadata_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_clear_payment_metadata(this_arg: &mut crate::lightning_types::features::Bolt11InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.clear_payment_metadata()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -1363,11 +1781,17 @@ pub extern "C" fn InitFeatures_set_zero_conf_required(this_arg: &mut crate::ligh
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_zero_conf_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_zero_conf(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.supports_zero_conf()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn InitFeatures_supports_zero_conf(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_zero_conf();
+pub extern "C" fn InitFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_zero_conf();
 	ret
 }
 
@@ -1383,11 +1807,17 @@ pub extern "C" fn NodeFeatures_set_zero_conf_required(this_arg: &mut crate::ligh
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_zero_conf_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_zero_conf(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.supports_zero_conf()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn NodeFeatures_supports_zero_conf(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_zero_conf();
+pub extern "C" fn NodeFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_zero_conf();
 	ret
 }
 
@@ -1403,31 +1833,13 @@ pub extern "C" fn ChannelTypeFeatures_set_zero_conf_required(this_arg: &mut crat
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_zero_conf_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_supports_zero_conf(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.supports_zero_conf()
+}
+
 /// Checks if this feature is supported.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn ChannelTypeFeatures_supports_zero_conf(this_arg: &crate::lightning_types::features::ChannelTypeFeatures) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_zero_conf();
-	ret
-}
-
-/// Checks if this feature is required.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn InitFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_zero_conf();
-	ret
-}
-
-/// Checks if this feature is required.
-#[must_use]
-#[no_mangle]
-pub extern "C" fn NodeFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_zero_conf();
-	ret
-}
-
-/// Checks if this feature is required.
 #[must_use]
 #[no_mangle]
 pub extern "C" fn ChannelTypeFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::ChannelTypeFeatures) -> bool {
@@ -1445,6 +1857,12 @@ pub extern "C" fn NodeFeatures_set_keysend_optional(this_arg: &mut crate::lightn
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_keysend_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_keysend_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_keysend(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_keysend()
 }
 
 /// Checks if this feature is supported.
@@ -1475,6 +1893,12 @@ pub extern "C" fn InitFeatures_set_trampoline_routing_required(this_arg: &mut cr
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_trampoline_routing_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_trampoline_routing(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_trampoline_routing()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -1493,6 +1917,12 @@ pub extern "C" fn NodeFeatures_set_trampoline_routing_optional(this_arg: &mut cr
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_trampoline_routing_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_trampoline_routing_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_trampoline_routing(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_trampoline_routing()
 }
 
 /// Checks if this feature is supported.
@@ -1515,6 +1945,12 @@ pub extern "C" fn Bolt11InvoiceFeatures_set_trampoline_routing_required(this_arg
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.set_trampoline_routing_required()
 }
 
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn Bolt11InvoiceFeatures_clear_trampoline_routing(this_arg: &mut crate::lightning_types::features::Bolt11InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt11InvoiceFeatures)) }.clear_trampoline_routing()
+}
+
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
@@ -1533,6 +1969,12 @@ pub extern "C" fn Bolt12InvoiceFeatures_set_trampoline_routing_optional(this_arg
 #[no_mangle]
 pub extern "C" fn Bolt12InvoiceFeatures_set_trampoline_routing_required(this_arg: &mut crate::lightning_types::features::Bolt12InvoiceFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt12InvoiceFeatures)) }.set_trampoline_routing_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn Bolt12InvoiceFeatures_clear_trampoline_routing(this_arg: &mut crate::lightning_types::features::Bolt12InvoiceFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeBolt12InvoiceFeatures)) }.clear_trampoline_routing()
 }
 
 /// Checks if this feature is supported.
@@ -1577,6 +2019,380 @@ pub extern "C" fn Bolt12InvoiceFeatures_requires_trampoline_routing(this_arg: &c
 
 /// Set this feature as optional.
 #[no_mangle]
+pub extern "C" fn InitFeatures_set_simple_close_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_simple_close_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_simple_close_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_simple_close_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_simple_close(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_simple_close()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_simple_close(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_simple_close();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_simple_close_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_simple_close_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_simple_close_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_simple_close_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_simple_close(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_simple_close()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_simple_close(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_simple_close();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_simple_close(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_simple_close();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_simple_close(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_simple_close();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_splicing_production_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_splicing_production_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_splicing_production_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_splicing_production_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_splicing_production(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_splicing_production()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_splicing_production(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_splicing_production();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_splicing_production_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_splicing_production_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_splicing_production_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_splicing_production_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_splicing_production(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_splicing_production()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_splicing_production(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_splicing_production();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_splicing_production(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_splicing_production();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_splicing_production(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_splicing_production();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_anchor_zero_fee_commitments_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_anchor_zero_fee_commitments_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_anchor_zero_fee_commitments_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_anchor_zero_fee_commitments_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_anchor_zero_fee_commitments(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_anchor_zero_fee_commitments()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_anchor_zero_fee_commitments(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_anchor_zero_fee_commitments();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_anchor_zero_fee_commitments_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_anchor_zero_fee_commitments_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_anchor_zero_fee_commitments_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_anchor_zero_fee_commitments_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_anchor_zero_fee_commitments(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_anchor_zero_fee_commitments()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_anchor_zero_fee_commitments(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_anchor_zero_fee_commitments();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_set_anchor_zero_fee_commitments_optional(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_anchor_zero_fee_commitments_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_set_anchor_zero_fee_commitments_required(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_anchor_zero_fee_commitments_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_clear_anchor_zero_fee_commitments(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_anchor_zero_fee_commitments()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_supports_anchor_zero_fee_commitments(this_arg: &crate::lightning_types::features::ChannelTypeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_anchor_zero_fee_commitments();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_anchor_zero_fee_commitments(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_anchor_zero_fee_commitments();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_anchor_zero_fee_commitments(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_anchor_zero_fee_commitments();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_requires_anchor_zero_fee_commitments(this_arg: &crate::lightning_types::features::ChannelTypeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_anchor_zero_fee_commitments();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_htlc_hold_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_htlc_hold_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_htlc_hold_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_htlc_hold_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_htlc_hold(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_htlc_hold()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_htlc_hold(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_htlc_hold();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_htlc_hold_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_htlc_hold_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_htlc_hold_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_htlc_hold_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_htlc_hold(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_htlc_hold()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_htlc_hold(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_htlc_hold();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_htlc_hold(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_htlc_hold();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_htlc_hold(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_htlc_hold();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_splicing_optional(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_splicing_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn InitFeatures_set_splicing_required(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.set_splicing_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn InitFeatures_clear_splicing(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_splicing()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_supports_splicing(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_splicing();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_splicing_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_splicing_optional()
+}
+
+/// Set this feature as required.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_set_splicing_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_splicing_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_splicing(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_splicing()
+}
+
+/// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_supports_splicing(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_splicing();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_splicing(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_splicing();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_splicing(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_splicing();
+	ret
+}
+
+/// Set this feature as optional.
+#[no_mangle]
 pub extern "C" fn NodeFeatures_set_dns_resolution_optional(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_dns_resolution_optional()
 }
@@ -1585,6 +2401,12 @@ pub extern "C" fn NodeFeatures_set_dns_resolution_optional(this_arg: &mut crate:
 #[no_mangle]
 pub extern "C" fn NodeFeatures_set_dns_resolution_required(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
 	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.set_dns_resolution_required()
+}
+
+/// Unsets this feature.
+#[no_mangle]
+pub extern "C" fn NodeFeatures_clear_dns_resolution(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_dns_resolution()
 }
 
 /// Checks if this feature is supported.
@@ -1604,92 +2426,11 @@ pub extern "C" fn NodeFeatures_requires_dns_resolution(this_arg: &crate::lightni
 }
 
 }
-/// Checks if two InitFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn InitFeatures_eq(a: &InitFeatures, b: &InitFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Checks if two NodeFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn NodeFeatures_eq(a: &NodeFeatures, b: &NodeFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Checks if two ChannelFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn ChannelFeatures_eq(a: &ChannelFeatures, b: &ChannelFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Checks if two Bolt11InvoiceFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn Bolt11InvoiceFeatures_eq(a: &Bolt11InvoiceFeatures, b: &Bolt11InvoiceFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Checks if two OfferFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn OfferFeatures_eq(a: &OfferFeatures, b: &OfferFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Checks if two InvoiceRequestFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn InvoiceRequestFeatures_eq(a: &InvoiceRequestFeatures, b: &InvoiceRequestFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Checks if two Bolt12InvoiceFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn Bolt12InvoiceFeatures_eq(a: &Bolt12InvoiceFeatures, b: &Bolt12InvoiceFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Checks if two BlindedHopFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn BlindedHopFeatures_eq(a: &BlindedHopFeatures, b: &BlindedHopFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
-/// Checks if two ChannelTypeFeaturess contain equal inner contents.
-/// This ignores pointers and is_owned flags and looks at the values in fields.
-/// Two objects with NULL inner values will be considered "equal" here.
-#[no_mangle]
-pub extern "C" fn ChannelTypeFeatures_eq(a: &ChannelTypeFeatures, b: &ChannelTypeFeatures) -> bool {
-	if a.inner == b.inner { return true; }
-	if a.inner.is_null() || b.inner.is_null() { return false; }
-	if a.get_native_ref() == b.get_native_ref() { true } else { false }
-}
 impl Clone for InitFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInitFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1697,18 +2438,18 @@ impl Clone for InitFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn InitFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInitFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInitFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the InitFeatures
 pub extern "C" fn InitFeatures_clone(orig: &InitFeatures) -> InitFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 impl Clone for NodeFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeNodeFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1716,18 +2457,18 @@ impl Clone for NodeFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn NodeFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeNodeFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeNodeFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the NodeFeatures
 pub extern "C" fn NodeFeatures_clone(orig: &NodeFeatures) -> NodeFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 impl Clone for ChannelFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1735,18 +2476,18 @@ impl Clone for ChannelFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelFeatures
 pub extern "C" fn ChannelFeatures_clone(orig: &ChannelFeatures) -> ChannelFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 impl Clone for Bolt11InvoiceFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt11InvoiceFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1754,18 +2495,18 @@ impl Clone for Bolt11InvoiceFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt11InvoiceFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt11InvoiceFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt11InvoiceFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt11InvoiceFeatures
 pub extern "C" fn Bolt11InvoiceFeatures_clone(orig: &Bolt11InvoiceFeatures) -> Bolt11InvoiceFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 impl Clone for OfferFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeOfferFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1773,18 +2514,18 @@ impl Clone for OfferFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn OfferFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeOfferFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeOfferFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the OfferFeatures
 pub extern "C" fn OfferFeatures_clone(orig: &OfferFeatures) -> OfferFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 impl Clone for InvoiceRequestFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInvoiceRequestFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1792,18 +2533,18 @@ impl Clone for InvoiceRequestFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn InvoiceRequestFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInvoiceRequestFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInvoiceRequestFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the InvoiceRequestFeatures
 pub extern "C" fn InvoiceRequestFeatures_clone(orig: &InvoiceRequestFeatures) -> InvoiceRequestFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 impl Clone for Bolt12InvoiceFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt12InvoiceFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1811,18 +2552,18 @@ impl Clone for Bolt12InvoiceFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt12InvoiceFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt12InvoiceFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt12InvoiceFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt12InvoiceFeatures
 pub extern "C" fn Bolt12InvoiceFeatures_clone(orig: &Bolt12InvoiceFeatures) -> Bolt12InvoiceFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 impl Clone for BlindedHopFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBlindedHopFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1830,18 +2571,18 @@ impl Clone for BlindedHopFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn BlindedHopFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBlindedHopFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBlindedHopFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the BlindedHopFeatures
 pub extern "C" fn BlindedHopFeatures_clone(orig: &BlindedHopFeatures) -> BlindedHopFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 impl Clone for ChannelTypeFeatures {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelTypeFeatures>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1849,12 +2590,12 @@ impl Clone for ChannelTypeFeatures {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelTypeFeatures_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelTypeFeatures)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelTypeFeatures) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelTypeFeatures
 pub extern "C" fn ChannelTypeFeatures_clone(orig: &ChannelTypeFeatures) -> ChannelTypeFeatures {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Generates a non-cryptographic 64-bit hash of the InitFeatures.
 #[no_mangle]
@@ -2549,6 +3290,14 @@ pub extern "C" fn ChannelTypeFeatures_only_static_remote_key() -> crate::lightni
 #[no_mangle]
 pub extern "C" fn ChannelTypeFeatures_anchors_zero_htlc_fee_and_dependencies() -> crate::lightning_types::features::ChannelTypeFeatures {
 	let mut ret = lightning_types::features::ChannelTypeFeatures::anchors_zero_htlc_fee_and_dependencies();
+	crate::lightning_types::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Constructs a ChannelTypeFeatures with zero fee commitment anchors support.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_anchors_zero_fee_commitments() -> crate::lightning_types::features::ChannelTypeFeatures {
+	let mut ret = lightning_types::features::ChannelTypeFeatures::anchors_zero_fee_commitments();
 	crate::lightning_types::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
@@ -3630,101 +4379,5 @@ pub extern "C" fn ChannelTypeFeatures_set_optional_custom_bit(this_arg: &mut cra
 	let mut ret = unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.set_optional_custom_bit(bit);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
-}
-
-/// Unsets the `upfront_shutdown_script` feature
-#[must_use]
-#[no_mangle]
-pub extern "C" fn InitFeatures_clear_upfront_shutdown_script(mut this_arg: crate::lightning_types::features::InitFeatures) -> crate::lightning_types::features::InitFeatures {
-	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).clear_upfront_shutdown_script();
-	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-/// Unsets the `upfront_shutdown_script` feature
-#[must_use]
-#[no_mangle]
-pub extern "C" fn NodeFeatures_clear_upfront_shutdown_script(mut this_arg: crate::lightning_types::features::NodeFeatures) -> crate::lightning_types::features::NodeFeatures {
-	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).clear_upfront_shutdown_script();
-	crate::lightning_types::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-/// Unsets the `shutdown_anysegwit` feature
-#[must_use]
-#[no_mangle]
-pub extern "C" fn InitFeatures_clear_shutdown_anysegwit(mut this_arg: crate::lightning_types::features::InitFeatures) -> crate::lightning_types::features::InitFeatures {
-	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).clear_shutdown_anysegwit();
-	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-/// Unsets the `shutdown_anysegwit` feature
-#[must_use]
-#[no_mangle]
-pub extern "C" fn NodeFeatures_clear_shutdown_anysegwit(mut this_arg: crate::lightning_types::features::NodeFeatures) -> crate::lightning_types::features::NodeFeatures {
-	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).clear_shutdown_anysegwit();
-	crate::lightning_types::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-/// Unsets the `wumbo` feature
-#[must_use]
-#[no_mangle]
-pub extern "C" fn InitFeatures_clear_wumbo(mut this_arg: crate::lightning_types::features::InitFeatures) -> crate::lightning_types::features::InitFeatures {
-	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).clear_wumbo();
-	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-/// Unsets the `wumbo` feature
-#[must_use]
-#[no_mangle]
-pub extern "C" fn NodeFeatures_clear_wumbo(mut this_arg: crate::lightning_types::features::NodeFeatures) -> crate::lightning_types::features::NodeFeatures {
-	let mut ret = (*unsafe { Box::from_raw(this_arg.take_inner()) }).clear_wumbo();
-	crate::lightning_types::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-
-/// Unsets the `scid_privacy` feature
-#[no_mangle]
-pub extern "C" fn InitFeatures_clear_scid_privacy(this_arg: &mut crate::lightning_types::features::InitFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_scid_privacy()
-}
-
-/// Unsets the `scid_privacy` feature
-#[no_mangle]
-pub extern "C" fn NodeFeatures_clear_scid_privacy(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_scid_privacy()
-}
-
-/// Unsets the `scid_privacy` feature
-#[no_mangle]
-pub extern "C" fn ChannelTypeFeatures_clear_scid_privacy(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_scid_privacy()
-}
-
-/// Unsets the `anchors_zero_fee_htlc_tx` feature
-#[no_mangle]
-pub extern "C" fn InitFeatures_clear_anchors_zero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::InitFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_anchors_zero_fee_htlc_tx()
-}
-
-/// Unsets the `anchors_zero_fee_htlc_tx` feature
-#[no_mangle]
-pub extern "C" fn NodeFeatures_clear_anchors_zero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_anchors_zero_fee_htlc_tx()
-}
-
-/// Unsets the `anchors_zero_fee_htlc_tx` feature
-#[no_mangle]
-pub extern "C" fn ChannelTypeFeatures_clear_anchors_zero_fee_htlc_tx(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_anchors_zero_fee_htlc_tx()
-}
-
-/// Unsets the `route_blinding` feature
-#[no_mangle]
-pub extern "C" fn InitFeatures_clear_route_blinding(this_arg: &mut crate::lightning_types::features::InitFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_route_blinding()
-}
-
-/// Unsets the `route_blinding` feature
-#[no_mangle]
-pub extern "C" fn NodeFeatures_clear_route_blinding(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_route_blinding()
 }
 

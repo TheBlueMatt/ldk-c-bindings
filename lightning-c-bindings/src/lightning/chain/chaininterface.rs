@@ -34,13 +34,20 @@ pub struct BroadcasterInterface {
 	/// In some cases LDK may attempt to broadcast a transaction which double-spends another
 	/// and this isn't a bug and can be safely ignored.
 	///
-	/// If more than one transaction is given, these transactions should be considered to be a
-	/// package and broadcast together. Some of the transactions may or may not depend on each other,
-	/// be sure to manage both cases correctly.
+	/// If more than one transaction is given, these transactions MUST be a
+	/// single child and its parents and be broadcast together as a package
+	/// (see the [`submitpackage`](https://bitcoincore.org/en/doc/30.0.0/rpc/rawtransactions/submitpackage)
+	/// Bitcoin Core RPC).
+	///
+	/// Implementations MUST NOT assume any topological order on the transactions.
 	///
 	/// Bitcoin transaction packages are defined in BIP 331 and here:
 	/// <https://github.com/bitcoin/bitcoin/blob/master/doc/policy/packages.md>
 	pub broadcast_transactions: extern "C" fn (this_arg: *const c_void, txs: crate::c_types::derived::CVec_TransactionZ),
+	/// Called, if set, after this BroadcasterInterface has been cloned into a duplicate object.
+	/// The new BroadcasterInterface is provided, and should be mutated as needed to perform a
+	/// deep copy of the object pointed to by this_arg or avoid any double-freeing.
+	pub cloned: Option<extern "C" fn (new_BroadcasterInterface: &mut BroadcasterInterface)>,
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
 	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
@@ -52,7 +59,25 @@ pub(crate) fn BroadcasterInterface_clone_fields(orig: &BroadcasterInterface) -> 
 	BroadcasterInterface {
 		this_arg: orig.this_arg,
 		broadcast_transactions: Clone::clone(&orig.broadcast_transactions),
+		cloned: Clone::clone(&orig.cloned),
 		free: Clone::clone(&orig.free),
+	}
+}
+#[no_mangle]
+/// Creates a copy of a BroadcasterInterface
+pub extern "C" fn BroadcasterInterface_clone(orig: &BroadcasterInterface) -> BroadcasterInterface {
+	let mut res = BroadcasterInterface_clone_fields(orig);
+	if let Some(f) = orig.cloned { (f)(&mut res) };
+	res
+}
+impl Clone for BroadcasterInterface {
+	fn clone(&self) -> Self {
+		BroadcasterInterface_clone(self)
+	}
+}
+impl Clone for BroadcasterInterfaceRef {
+	fn clone(&self) -> Self {
+		Self(BroadcasterInterface_clone(&self.0))
 	}
 }
 
@@ -101,11 +126,14 @@ impl Drop for BroadcasterInterface {
 #[must_use]
 #[repr(C)]
 pub enum ConfirmationTarget {
-	/// The most aggressive (i.e. highest) feerate estimate available.
+	/// The most aggressive feerate estimate which we think is reasonable.
 	///
 	/// This is used to sanity-check our counterparty's feerates and should be as conservative as
 	/// possible to ensure that we don't confuse a peer using a very conservative estimator for one
-	/// trying to burn channel balance to dust.
+	/// trying to burn channel balance to dust. To ensure that this is never lower than an honest
+	/// counterparty's feerate estimate you may wish to use a value which is higher than your
+	/// maximum feerate estimate, for example by adding a constant few-hundred or few-thousand
+	/// sats-per-kW.
 	MaximumFeeEstimate,
 	/// We have some funds available on chain which we need to spend prior to some expiry time at
 	/// which point our counterparty may be able to steal them.
@@ -408,7 +436,7 @@ impl Drop for FeeEstimator {
 /// Minimum relay fee as required by bitcoin network mempool policy.
 
 #[no_mangle]
-pub static MIN_RELAY_FEE_SAT_PER_1000_WEIGHT: u64 = lightning::chain::chaininterface::MIN_RELAY_FEE_SAT_PER_1000_WEIGHT;
+pub static INCREMENTAL_RELAY_FEE_SAT_PER_1000_WEIGHT: u64 = lightning::chain::chaininterface::INCREMENTAL_RELAY_FEE_SAT_PER_1000_WEIGHT;
 /// Minimum feerate that takes a sane approach to bitcoind weight-to-vbytes rounding.
 /// See the following Core Lightning commit for an explanation:
 /// <https://github.com/ElementsProject/lightning/commit/2e687b9b352c9092b5e8bd4a688916ac50b44af0>

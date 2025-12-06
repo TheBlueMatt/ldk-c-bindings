@@ -17,10 +17,10 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
-pub mod utxo;
 pub mod gossip;
 pub mod router;
 pub mod scoring;
+pub mod utxo;
 mod log_approx {
 
 use alloc::str::FromStr;

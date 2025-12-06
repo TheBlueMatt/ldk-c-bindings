@@ -346,7 +346,7 @@ impl Clone for UtxoFuture {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeUtxoFuture>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -354,12 +354,12 @@ impl Clone for UtxoFuture {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn UtxoFuture_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeUtxoFuture)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeUtxoFuture) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the UtxoFuture
 pub extern "C" fn UtxoFuture_clone(orig: &UtxoFuture) -> UtxoFuture {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Builds a new future for later resolution.
 #[must_use]

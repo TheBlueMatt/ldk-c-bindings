@@ -223,7 +223,7 @@ impl Record {
 /// The verbosity level of the message.
 #[no_mangle]
 pub extern "C" fn Record_get_level(this_ptr: &Record) -> crate::lightning::util::logger::Level {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().level;
+	let mut inner_val = &mut Record::get_native_mut_ref(this_ptr).level;
 	crate::lightning::util::logger::Level::from_native(inner_val)
 }
 /// The verbosity level of the message.
@@ -240,7 +240,7 @@ pub extern "C" fn Record_set_level(this_ptr: &mut Record, mut val: crate::lightn
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn Record_get_peer_id(this_ptr: &Record) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().peer_id;
+	let mut inner_val = &mut Record::get_native_mut_ref(this_ptr).peer_id;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(inner_val.unwrap())) } };
 	local_inner_val
 }
@@ -262,7 +262,7 @@ pub extern "C" fn Record_set_peer_id(this_ptr: &mut Record, mut val: crate::c_ty
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn Record_get_channel_id(this_ptr: &Record) -> crate::lightning::ln::types::ChannelId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_id;
+	let mut inner_val = &mut Record::get_native_mut_ref(this_ptr).channel_id;
 	let mut local_inner_val = crate::lightning::ln::types::ChannelId { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::types::ChannelId<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -278,7 +278,7 @@ pub extern "C" fn Record_set_channel_id(this_ptr: &mut Record, mut val: crate::l
 /// The message body.
 #[no_mangle]
 pub extern "C" fn Record_get_args(this_ptr: &Record) -> crate::c_types::Str {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().args;
+	let mut inner_val = &mut Record::get_native_mut_ref(this_ptr).args;
 	inner_val.as_str().into()
 }
 /// The message body.
@@ -289,7 +289,7 @@ pub extern "C" fn Record_set_args(this_ptr: &mut Record, mut val: crate::c_types
 /// The module path of the message.
 #[no_mangle]
 pub extern "C" fn Record_get_module_path(this_ptr: &Record) -> crate::c_types::Str {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().module_path;
+	let mut inner_val = &mut Record::get_native_mut_ref(this_ptr).module_path;
 	inner_val.into()
 }
 /// The module path of the message.
@@ -300,7 +300,7 @@ pub extern "C" fn Record_set_module_path(this_ptr: &mut Record, mut val: crate::
 /// The source file containing the message.
 #[no_mangle]
 pub extern "C" fn Record_get_file(this_ptr: &Record) -> crate::c_types::Str {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().file;
+	let mut inner_val = &mut Record::get_native_mut_ref(this_ptr).file;
 	inner_val.into()
 }
 /// The source file containing the message.
@@ -311,7 +311,7 @@ pub extern "C" fn Record_set_file(this_ptr: &mut Record, mut val: crate::c_types
 /// The line containing the message.
 #[no_mangle]
 pub extern "C" fn Record_get_line(this_ptr: &Record) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().line;
+	let mut inner_val = &mut Record::get_native_mut_ref(this_ptr).line;
 	*inner_val
 }
 /// The line containing the message.
@@ -325,7 +325,7 @@ pub extern "C" fn Record_set_line(this_ptr: &mut Record, mut val: u32) {
 /// `None` for logs which are not directly related to a payment.
 #[no_mangle]
 pub extern "C" fn Record_get_payment_hash(this_ptr: &Record) -> crate::c_types::derived::COption_ThirtyTwoBytesZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_hash;
+	let mut inner_val = &mut Record::get_native_mut_ref(this_ptr).payment_hash;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::c_types::ThirtyTwoBytes { data: (*inner_val.as_ref().unwrap()).clone().0 } }) };
 	local_inner_val
 }
@@ -363,7 +363,7 @@ impl Clone for Record {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRecord>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -371,12 +371,12 @@ impl Clone for Record {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Record_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRecord)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRecord) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Record
 pub extern "C" fn Record_clone(orig: &Record) -> Record {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Record object
 pub extern "C" fn Record_debug_str_void(o: *const c_void) -> Str {
@@ -389,6 +389,10 @@ pub struct Logger {
 	pub this_arg: *mut c_void,
 	/// Logs the [`Record`].
 	pub log: extern "C" fn (this_arg: *const c_void, record: crate::lightning::util::logger::Record),
+	/// Called, if set, after this Logger has been cloned into a duplicate object.
+	/// The new Logger is provided, and should be mutated as needed to perform a
+	/// deep copy of the object pointed to by this_arg or avoid any double-freeing.
+	pub cloned: Option<extern "C" fn (new_Logger: &mut Logger)>,
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
 	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
@@ -400,7 +404,25 @@ pub(crate) fn Logger_clone_fields(orig: &Logger) -> Logger {
 	Logger {
 		this_arg: orig.this_arg,
 		log: Clone::clone(&orig.log),
+		cloned: Clone::clone(&orig.cloned),
 		free: Clone::clone(&orig.free),
+	}
+}
+#[no_mangle]
+/// Creates a copy of a Logger
+pub extern "C" fn Logger_clone(orig: &Logger) -> Logger {
+	let mut res = Logger_clone_fields(orig);
+	if let Some(f) = orig.cloned { (f)(&mut res) };
+	res
+}
+impl Clone for Logger {
+	fn clone(&self) -> Self {
+		Logger_clone(self)
+	}
+}
+impl Clone for LoggerRef {
+	fn clone(&self) -> Self {
+		Self(Logger_clone(&self.0))
 	}
 }
 

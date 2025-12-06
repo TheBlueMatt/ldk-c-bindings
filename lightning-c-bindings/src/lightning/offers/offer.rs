@@ -147,7 +147,7 @@ impl OfferId {
 }
 #[no_mangle]
 pub extern "C" fn OfferId_get_a(this_ptr: &OfferId) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut OfferId::get_native_mut_ref(this_ptr).0;
 	inner_val
 }
 #[no_mangle]
@@ -166,7 +166,7 @@ impl Clone for OfferId {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeOfferId>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -174,12 +174,12 @@ impl Clone for OfferId {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn OfferId_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeOfferId)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeOfferId) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the OfferId
 pub extern "C" fn OfferId_clone(orig: &OfferId) -> OfferId {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Checks if two OfferIds contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
@@ -274,7 +274,7 @@ impl Clone for OfferWithExplicitMetadataBuilder {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeOfferWithExplicitMetadataBuilder>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -282,12 +282,12 @@ impl Clone for OfferWithExplicitMetadataBuilder {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn OfferWithExplicitMetadataBuilder_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeOfferWithExplicitMetadataBuilder)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeOfferWithExplicitMetadataBuilder) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the OfferWithExplicitMetadataBuilder
 pub extern "C" fn OfferWithExplicitMetadataBuilder_clone(orig: &OfferWithExplicitMetadataBuilder) -> OfferWithExplicitMetadataBuilder {
-	orig.clone()
+	Clone::clone(orig)
 }
 
 use lightning::offers::offer::OfferWithDerivedMetadataBuilder as nativeOfferWithDerivedMetadataBuilderImport;
@@ -357,7 +357,7 @@ impl Clone for OfferWithDerivedMetadataBuilder {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeOfferWithDerivedMetadataBuilder>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -365,12 +365,12 @@ impl Clone for OfferWithDerivedMetadataBuilder {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn OfferWithDerivedMetadataBuilder_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeOfferWithDerivedMetadataBuilder)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeOfferWithDerivedMetadataBuilder) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the OfferWithDerivedMetadataBuilder
 pub extern "C" fn OfferWithDerivedMetadataBuilder_clone(orig: &OfferWithDerivedMetadataBuilder) -> OfferWithDerivedMetadataBuilder {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Creates a new builder for an offer using the `signing_pubkey` for signing invoices. The
 /// associated secret key must be remembered while the offer is valid.
@@ -597,6 +597,109 @@ pub extern "C" fn OfferWithDerivedMetadataBuilder_build(mut this_arg: crate::lig
 }
 
 
+use lightning::offers::offer::OfferFromHrn as nativeOfferFromHrnImport;
+pub(crate) type nativeOfferFromHrn = nativeOfferFromHrnImport;
+
+/// An [`Offer`] which was fetched from a human readable name, ie through BIP 353.
+#[must_use]
+#[repr(C)]
+pub struct OfferFromHrn {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeOfferFromHrn,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for OfferFromHrn {
+	type Target = nativeOfferFromHrn;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for OfferFromHrn { }
+unsafe impl core::marker::Sync for OfferFromHrn { }
+impl Drop for OfferFromHrn {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeOfferFromHrn>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the OfferFromHrn, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn OfferFromHrn_free(this_obj: OfferFromHrn) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn OfferFromHrn_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeOfferFromHrn) };
+}
+#[allow(unused)]
+impl OfferFromHrn {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeOfferFromHrn {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeOfferFromHrn {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeOfferFromHrn {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// The offer itself.
+///
+/// When you resolve this into an [`InvoiceRequestBuilder`] you *must* call
+/// [`InvoiceRequestBuilder::sourced_from_human_readable_name`].
+///
+/// If you call [`Self::request_invoice`] rather than [`Offer::request_invoice`] this will be
+/// handled for you.
+#[no_mangle]
+pub extern "C" fn OfferFromHrn_get_offer(this_ptr: &OfferFromHrn) -> crate::lightning::offers::offer::Offer {
+	let mut inner_val = &mut OfferFromHrn::get_native_mut_ref(this_ptr).offer;
+	crate::lightning::offers::offer::Offer { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::offers::offer::Offer<>) as *mut _) }, is_owned: false }
+}
+/// The offer itself.
+///
+/// When you resolve this into an [`InvoiceRequestBuilder`] you *must* call
+/// [`InvoiceRequestBuilder::sourced_from_human_readable_name`].
+///
+/// If you call [`Self::request_invoice`] rather than [`Offer::request_invoice`] this will be
+/// handled for you.
+#[no_mangle]
+pub extern "C" fn OfferFromHrn_set_offer(this_ptr: &mut OfferFromHrn, mut val: crate::lightning::offers::offer::Offer) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.offer = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// The human readable name which was resolved to fetch the [`Self::offer`].
+#[no_mangle]
+pub extern "C" fn OfferFromHrn_get_hrn(this_ptr: &OfferFromHrn) -> crate::lightning::onion_message::dns_resolution::HumanReadableName {
+	let mut inner_val = &mut OfferFromHrn::get_native_mut_ref(this_ptr).hrn;
+	crate::lightning::onion_message::dns_resolution::HumanReadableName { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::onion_message::dns_resolution::HumanReadableName<>) as *mut _) }, is_owned: false }
+}
+/// The human readable name which was resolved to fetch the [`Self::offer`].
+#[no_mangle]
+pub extern "C" fn OfferFromHrn_set_hrn(this_ptr: &mut OfferFromHrn, mut val: crate::lightning::onion_message::dns_resolution::HumanReadableName) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.hrn = *unsafe { Box::from_raw(val.take_inner()) };
+}
+/// Constructs a new OfferFromHrn given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn OfferFromHrn_new(mut offer_arg: crate::lightning::offers::offer::Offer, mut hrn_arg: crate::lightning::onion_message::dns_resolution::HumanReadableName) -> OfferFromHrn {
+	OfferFromHrn { inner: ObjOps::heap_alloc(nativeOfferFromHrn {
+		offer: *unsafe { Box::from_raw(offer_arg.take_inner()) },
+		hrn: *unsafe { Box::from_raw(hrn_arg.take_inner()) },
+	}), is_owned: true }
+}
+
 use lightning::offers::offer::Offer as nativeOfferImport;
 pub(crate) type nativeOffer = nativeOfferImport;
 
@@ -672,7 +775,7 @@ impl Clone for Offer {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeOffer>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -680,12 +783,12 @@ impl Clone for Offer {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Offer_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeOffer)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeOffer) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Offer
 pub extern "C" fn Offer_clone(orig: &Offer) -> Offer {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Offer object
 pub extern "C" fn Offer_debug_str_void(o: *const c_void) -> Str {
@@ -876,6 +979,30 @@ pub extern "C" fn Offer_request_invoice(this_arg: &crate::lightning::offers::off
 	local_ret
 }
 
+/// Creates an [`InvoiceRequestBuilder`] for the offer, which
+/// - derives the [`InvoiceRequest::payer_signing_pubkey`] such that a different key can be used
+///   for each request in order to protect the sender's privacy,
+/// - sets [`InvoiceRequest::payer_metadata`] when [`InvoiceRequestBuilder::build_and_sign`] is
+///   called such that it can be used by [`Bolt12Invoice::verify_using_metadata`] to determine
+///   if the invoice was requested using a base [`ExpandedKey`] from which the payer id was
+///   derived, and
+/// - includes the [`PaymentId`] encrypted in [`InvoiceRequest::payer_metadata`] so that it can
+///   be used when sending the payment for the requested invoice.
+///
+/// Errors if the offer contains unknown required features.
+///
+/// [`InvoiceRequest::payer_signing_pubkey`]: crate::offers::invoice_request::InvoiceRequest::payer_signing_pubkey
+/// [`InvoiceRequest::payer_metadata`]: crate::offers::invoice_request::InvoiceRequest::payer_metadata
+/// [`Bolt12Invoice::verify_using_metadata`]: crate::offers::invoice::Bolt12Invoice::verify_using_metadata
+/// [`ExpandedKey`]: crate::ln::inbound_payment::ExpandedKey
+#[must_use]
+#[no_mangle]
+pub extern "C" fn OfferFromHrn_request_invoice(this_arg: &crate::lightning::offers::offer::OfferFromHrn, expanded_key: &crate::lightning::ln::inbound_payment::ExpandedKey, mut nonce: crate::lightning::offers::nonce::Nonce, mut payment_id: crate::c_types::ThirtyTwoBytes) -> crate::c_types::derived::CResult_InvoiceRequestWithDerivedPayerSigningPubkeyBuilderBolt12SemanticErrorZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.request_invoice(expanded_key.get_native_ref(), *unsafe { Box::from_raw(nonce.take_inner()) }, secp256k1::global::SECP256K1, ::lightning::ln::channelmanager::PaymentId(payment_id.data));
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::invoice_request::InvoiceRequestWithDerivedPayerSigningPubkeyBuilder { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::parse::Bolt12SemanticError::native_into(e) }).into() };
+	local_ret
+}
+
 /// Generates a non-cryptographic 64-bit hash of the Offer.
 #[no_mangle]
 pub extern "C" fn Offer_hash(o: &Offer) -> u64 {
@@ -916,8 +1043,8 @@ pub enum Amount {
 	/// An amount of currency specified using ISO 4217.
 	Currency {
 		/// The currency that the amount is denominated in.
-		iso4217_code: crate::c_types::ThreeBytes,
-		/// The amount in the currency unit adjusted by the ISO 4712 exponent (e.g., USD cents).
+		iso4217_code: crate::lightning::offers::offer::CurrencyCode,
+		/// The amount in the currency unit adjusted by the ISO 4217 exponent (e.g., USD cents).
 		amount: u64,
 	},
 }
@@ -938,7 +1065,7 @@ impl Amount {
 				let mut iso4217_code_nonref = Clone::clone(iso4217_code);
 				let mut amount_nonref = Clone::clone(amount);
 				nativeAmount::Currency {
-					iso4217_code: iso4217_code_nonref.data,
+					iso4217_code: *unsafe { Box::from_raw(iso4217_code_nonref.take_inner()) },
 					amount: amount_nonref,
 				}
 			},
@@ -954,7 +1081,7 @@ impl Amount {
 			},
 			Amount::Currency {mut iso4217_code, mut amount, } => {
 				nativeAmount::Currency {
-					iso4217_code: iso4217_code.data,
+					iso4217_code: *unsafe { Box::from_raw(iso4217_code.take_inner()) },
 					amount: amount,
 				}
 			},
@@ -974,7 +1101,7 @@ impl Amount {
 				let mut iso4217_code_nonref = Clone::clone(iso4217_code);
 				let mut amount_nonref = Clone::clone(amount);
 				Amount::Currency {
-					iso4217_code: crate::c_types::ThreeBytes { data: iso4217_code_nonref },
+					iso4217_code: crate::lightning::offers::offer::CurrencyCode { inner: ObjOps::heap_alloc(iso4217_code_nonref), is_owned: true },
 					amount: amount_nonref,
 				}
 			},
@@ -990,7 +1117,7 @@ impl Amount {
 			},
 			nativeAmount::Currency {mut iso4217_code, mut amount, } => {
 				Amount::Currency {
-					iso4217_code: crate::c_types::ThreeBytes { data: iso4217_code },
+					iso4217_code: crate::lightning::offers::offer::CurrencyCode { inner: ObjOps::heap_alloc(iso4217_code), is_owned: true },
 					amount: amount,
 				}
 			},
@@ -1024,7 +1151,7 @@ pub extern "C" fn Amount_bitcoin(amount_msats: u64) -> Amount {
 }
 #[no_mangle]
 /// Utility method to constructs a new Currency-variant Amount
-pub extern "C" fn Amount_currency(iso4217_code: crate::c_types::ThreeBytes, amount: u64) -> Amount {
+pub extern "C" fn Amount_currency(iso4217_code: crate::lightning::offers::offer::CurrencyCode, amount: u64) -> Amount {
 	Amount::Currency {
 		iso4217_code,
 		amount,
@@ -1033,6 +1160,157 @@ pub extern "C" fn Amount_currency(iso4217_code: crate::c_types::ThreeBytes, amou
 /// Get a string which allows debug introspection of a Amount object
 pub extern "C" fn Amount_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::offer::Amount }).into()}
+
+use lightning::offers::offer::CurrencyCode as nativeCurrencyCodeImport;
+pub(crate) type nativeCurrencyCode = nativeCurrencyCodeImport;
+
+/// An ISO 4217 three-letter currency code (e.g., USD).
+///
+/// Currency codes must be exactly 3 ASCII uppercase letters.
+#[must_use]
+#[repr(C)]
+pub struct CurrencyCode {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeCurrencyCode,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for CurrencyCode {
+	type Target = nativeCurrencyCode;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CurrencyCode { }
+unsafe impl core::marker::Sync for CurrencyCode { }
+impl Drop for CurrencyCode {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeCurrencyCode>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the CurrencyCode, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn CurrencyCode_free(this_obj: CurrencyCode) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn CurrencyCode_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeCurrencyCode) };
+}
+#[allow(unused)]
+impl CurrencyCode {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeCurrencyCode {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeCurrencyCode {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeCurrencyCode {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+impl Clone for CurrencyCode {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeCurrencyCode>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn CurrencyCode_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeCurrencyCode) }))) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the CurrencyCode
+pub extern "C" fn CurrencyCode_clone(orig: &CurrencyCode) -> CurrencyCode {
+	Clone::clone(orig)
+}
+/// Get a string which allows debug introspection of a CurrencyCode object
+pub extern "C" fn CurrencyCode_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::offer::CurrencyCode }).into()}
+/// Checks if two CurrencyCodes contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn CurrencyCode_eq(a: &CurrencyCode, b: &CurrencyCode) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+/// Generates a non-cryptographic 64-bit hash of the CurrencyCode.
+#[no_mangle]
+pub extern "C" fn CurrencyCode_hash(o: &CurrencyCode) -> u64 {
+	if o.inner.is_null() { return 0; }
+	// Note that we'd love to use alloc::collections::hash_map::DefaultHasher but it's not in core
+	#[allow(deprecated)]
+	let mut hasher = core::hash::SipHasher::new();
+	core::hash::Hash::hash(o.get_native_ref(), &mut hasher);
+	core::hash::Hasher::finish(&hasher)
+}
+/// Creates a new `CurrencyCode` from a 3-byte array.
+///
+/// Returns an error if the bytes are not valid UTF-8 or not all ASCII uppercase.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn CurrencyCode_new(mut code: crate::c_types::ThreeBytes) -> crate::c_types::derived::CResult_CurrencyCodeCurrencyCodeErrorZ {
+	let mut ret = lightning::offers::offer::CurrencyCode::new(code.data);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::offers::offer::CurrencyCode { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::offers::offer::CurrencyCodeError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
+	local_ret
+}
+
+/// Returns the currency code as a byte array.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn CurrencyCode_as_bytes(this_arg: &crate::lightning::offers::offer::CurrencyCode) -> *const [u8; 3] {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.as_bytes();
+	ret
+}
+
+/// Returns the currency code as a string slice.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn CurrencyCode_as_str(this_arg: &crate::lightning::offers::offer::CurrencyCode) -> crate::c_types::Str {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.as_str();
+	ret.into()
+}
+
+#[no_mangle]
+/// Read a CurrencyCode object from a string
+pub extern "C" fn CurrencyCode_from_str(s: crate::c_types::Str) -> crate::c_types::derived::CResult_CurrencyCodeCurrencyCodeErrorZ {
+	match lightning::offers::offer::CurrencyCode::from_str(s.into_str()) {
+		Ok(r) => {
+			crate::c_types::CResultTempl::ok(
+				crate::lightning::offers::offer::CurrencyCode { inner: ObjOps::heap_alloc(r), is_owned: true }
+			)
+		},
+		Err(e) => {
+			crate::c_types::CResultTempl::err(
+				crate::lightning::offers::offer::CurrencyCodeError { inner: ObjOps::heap_alloc(e), is_owned: true }
+			)
+		},
+	}.into()
+}
+#[no_mangle]
+/// Get the string representation of a CurrencyCode object
+pub extern "C" fn CurrencyCode_to_str(o: &crate::lightning::offers::offer::CurrencyCode) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
 /// Quantity of items supported by an [`Offer`].
 #[derive(Clone)]
 #[must_use]
@@ -1159,5 +1437,111 @@ pub extern "C" fn Offer_from_str(s: crate::c_types::Str) -> crate::c_types::deri
 #[no_mangle]
 /// Get the string representation of a Offer object
 pub extern "C" fn Offer_to_str(o: &crate::lightning::offers::offer::Offer) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
+}
+
+use lightning::offers::offer::CurrencyCodeError as nativeCurrencyCodeErrorImport;
+pub(crate) type nativeCurrencyCodeError = nativeCurrencyCodeErrorImport;
+
+/// An error indicating that a currency code is invalid.
+///
+/// A valid currency code must follow the ISO 4217 standard:
+/// - Exactly 3 characters in length.
+/// - Consist only of uppercase ASCII letters (A–Z).
+#[must_use]
+#[repr(C)]
+pub struct CurrencyCodeError {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeCurrencyCodeError,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for CurrencyCodeError {
+	type Target = nativeCurrencyCodeError;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CurrencyCodeError { }
+unsafe impl core::marker::Sync for CurrencyCodeError { }
+impl Drop for CurrencyCodeError {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeCurrencyCodeError>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the CurrencyCodeError, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn CurrencyCodeError_free(this_obj: CurrencyCodeError) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn CurrencyCodeError_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeCurrencyCodeError) };
+}
+#[allow(unused)]
+impl CurrencyCodeError {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeCurrencyCodeError {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeCurrencyCodeError {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeCurrencyCodeError {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// Constructs a new CurrencyCodeError given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn CurrencyCodeError_new() -> CurrencyCodeError {
+	CurrencyCodeError { inner: ObjOps::heap_alloc(lightning::offers::offer::CurrencyCodeError {}), is_owned: true }
+}
+impl Clone for CurrencyCodeError {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeCurrencyCodeError>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn CurrencyCodeError_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeCurrencyCodeError) }))) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the CurrencyCodeError
+pub extern "C" fn CurrencyCodeError_clone(orig: &CurrencyCodeError) -> CurrencyCodeError {
+	Clone::clone(orig)
+}
+/// Get a string which allows debug introspection of a CurrencyCodeError object
+pub extern "C" fn CurrencyCodeError_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::offer::CurrencyCodeError }).into()}
+/// Checks if two CurrencyCodeErrors contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn CurrencyCodeError_eq(a: &CurrencyCodeError, b: &CurrencyCodeError) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
+#[no_mangle]
+/// Get the string representation of a CurrencyCodeError object
+pub extern "C" fn CurrencyCodeError_to_str(o: &crate::lightning::offers::offer::CurrencyCodeError) -> Str {
 	alloc::format!("{}", o.get_native_ref()).into()
 }

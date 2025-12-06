@@ -83,7 +83,7 @@ impl Clone for ShutdownScript {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeShutdownScript>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -91,12 +91,12 @@ impl Clone for ShutdownScript {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ShutdownScript_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeShutdownScript)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeShutdownScript) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ShutdownScript
 pub extern "C" fn ShutdownScript_clone(orig: &ShutdownScript) -> ShutdownScript {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Checks if two ShutdownScripts contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
@@ -172,7 +172,7 @@ impl InvalidShutdownScript {
 /// [BOLT #2]: https://github.com/lightning/bolts/blob/master/02-peer-protocol.md
 #[no_mangle]
 pub extern "C" fn InvalidShutdownScript_get_script(this_ptr: &InvalidShutdownScript) -> crate::c_types::derived::CVec_u8Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().script;
+	let mut inner_val = &mut InvalidShutdownScript::get_native_mut_ref(this_ptr).script;
 	inner_val.as_bytes().to_vec().into()
 }
 /// The script that did not meet the requirements from [BOLT #2].
@@ -194,7 +194,7 @@ impl Clone for InvalidShutdownScript {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInvalidShutdownScript>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -202,12 +202,12 @@ impl Clone for InvalidShutdownScript {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn InvalidShutdownScript_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInvalidShutdownScript)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInvalidShutdownScript) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the InvalidShutdownScript
 pub extern "C" fn InvalidShutdownScript_clone(orig: &InvalidShutdownScript) -> InvalidShutdownScript {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a InvalidShutdownScript object
 pub extern "C" fn InvalidShutdownScript_debug_str_void(o: *const c_void) -> Str {
@@ -281,7 +281,8 @@ pub extern "C" fn ShutdownScript_as_legacy_pubkey(this_arg: &crate::lightning::l
 
 /// Returns whether the shutdown script is compatible with the features as defined by BOLT #2.
 ///
-/// Specifically, checks for compliance with feature `option_shutdown_anysegwit`.
+/// Specifically, checks for compliance with feature `option_shutdown_anysegwit` and/or
+/// `option_simple_close`.
 #[must_use]
 #[no_mangle]
 pub extern "C" fn ShutdownScript_is_compatible(this_arg: &crate::lightning::ln::script::ShutdownScript, features: &crate::lightning_types::features::InitFeatures) -> bool {

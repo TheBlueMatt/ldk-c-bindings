@@ -86,7 +86,7 @@ impl ChannelId {
 }
 #[no_mangle]
 pub extern "C" fn ChannelId_get_a(this_ptr: &ChannelId) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut ChannelId::get_native_mut_ref(this_ptr).0;
 	inner_val
 }
 #[no_mangle]
@@ -105,7 +105,7 @@ impl Clone for ChannelId {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelId>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -113,12 +113,12 @@ impl Clone for ChannelId {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelId_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelId)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelId) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelId
 pub extern "C" fn ChannelId_clone(orig: &ChannelId) -> ChannelId {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Checks if two ChannelIds contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
@@ -205,6 +205,14 @@ pub extern "C" fn ChannelId_v2_from_revocation_basepoints(ours: &crate::lightnin
 pub extern "C" fn ChannelId_temporary_v2_from_revocation_basepoint(our_revocation_basepoint: &crate::lightning::ln::channel_keys::RevocationBasepoint) -> crate::lightning::ln::types::ChannelId {
 	let mut ret = lightning::ln::types::ChannelId::temporary_v2_from_revocation_basepoint(our_revocation_basepoint.get_native_ref());
 	crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Indicates whether this is a V2 channel ID for the given local and remote revocation basepoints.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelId_is_v2_channel_id(this_arg: &crate::lightning::ln::types::ChannelId, ours: &crate::lightning::ln::channel_keys::RevocationBasepoint, theirs: &crate::lightning::ln::channel_keys::RevocationBasepoint) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.is_v2_channel_id(ours.get_native_ref(), theirs.get_native_ref());
+	ret
 }
 
 #[no_mangle]

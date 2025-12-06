@@ -28,6 +28,14 @@ pub struct OffersMessageHandler {
 	/// Handles the given message by either responding with an [`Bolt12Invoice`], sending a payment,
 	/// or replying with an error.
 	///
+	/// If the provided [`OffersContext`] is `Some`, then the message was sent to a blinded path that we
+	/// created and was authenticated as such by the [`OnionMessenger`]. There is one exception to
+	/// this: [`OffersContext::InvoiceRequest`].
+	///
+	/// In order to support offers created prior to LDK 0.2, [`OffersContext::InvoiceRequest`]s are
+	/// not authenticated by the [`OnionMessenger`]. It is the responsibility of message handling code
+	/// to authenticate the provided [`OffersContext`] in this case.
+	///
 	/// The returned [`OffersMessage`], if any, is enqueued to be sent by [`OnionMessenger`].
 	///
 	/// [`OnionMessenger`]: crate::onion_message::messenger::OnionMessenger
@@ -127,6 +135,9 @@ pub enum OffersMessage {
 	/// [`Refund`]: crate::offers::refund::Refund
 	Invoice(
 		crate::lightning::offers::invoice::Bolt12Invoice),
+	/// A [`StaticInvoice`] sent in response to an [`InvoiceRequest`].
+	StaticInvoice(
+		crate::lightning::offers::static_invoice::StaticInvoice),
 	/// An error from handling an [`OffersMessage`].
 	InvoiceError(
 		crate::lightning::offers::invoice_error::InvoiceError),
@@ -150,6 +161,12 @@ impl OffersMessage {
 					*unsafe { Box::from_raw(a_nonref.take_inner()) },
 				)
 			},
+			OffersMessage::StaticInvoice (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeOffersMessage::StaticInvoice (
+					*unsafe { Box::from_raw(a_nonref.take_inner()) },
+				)
+			},
 			OffersMessage::InvoiceError (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				nativeOffersMessage::InvoiceError (
@@ -168,6 +185,11 @@ impl OffersMessage {
 			},
 			OffersMessage::Invoice (mut a, ) => {
 				nativeOffersMessage::Invoice (
+					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+			OffersMessage::StaticInvoice (mut a, ) => {
+				nativeOffersMessage::StaticInvoice (
 					*unsafe { Box::from_raw(a.take_inner()) },
 				)
 			},
@@ -194,6 +216,12 @@ impl OffersMessage {
 					crate::lightning::offers::invoice::Bolt12Invoice { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
 				)
 			},
+			nativeOffersMessage::StaticInvoice (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				OffersMessage::StaticInvoice (
+					crate::lightning::offers::static_invoice::StaticInvoice { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
+				)
+			},
 			nativeOffersMessage::InvoiceError (ref a, ) => {
 				let mut a_nonref = Clone::clone(a);
 				OffersMessage::InvoiceError (
@@ -213,6 +241,11 @@ impl OffersMessage {
 			nativeOffersMessage::Invoice (mut a, ) => {
 				OffersMessage::Invoice (
 					crate::lightning::offers::invoice::Bolt12Invoice { inner: ObjOps::heap_alloc(a), is_owned: true },
+				)
+			},
+			nativeOffersMessage::StaticInvoice (mut a, ) => {
+				OffersMessage::StaticInvoice (
+					crate::lightning::offers::static_invoice::StaticInvoice { inner: ObjOps::heap_alloc(a), is_owned: true },
 				)
 			},
 			nativeOffersMessage::InvoiceError (mut a, ) => {
@@ -250,6 +283,11 @@ pub extern "C" fn OffersMessage_invoice_request(a: crate::lightning::offers::inv
 /// Utility method to constructs a new Invoice-variant OffersMessage
 pub extern "C" fn OffersMessage_invoice(a: crate::lightning::offers::invoice::Bolt12Invoice) -> OffersMessage {
 	OffersMessage::Invoice(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new StaticInvoice-variant OffersMessage
+pub extern "C" fn OffersMessage_static_invoice(a: crate::lightning::offers::static_invoice::StaticInvoice) -> OffersMessage {
+	OffersMessage::StaticInvoice(a, )
 }
 #[no_mangle]
 /// Utility method to constructs a new InvoiceError-variant OffersMessage
