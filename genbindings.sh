@@ -137,6 +137,7 @@ static inline const char* check_get_ldk_version() {
 	// Version mismatch, we don't know what we're running!
 		return 0;
 	}
+	Str_free(bin_ver);
 	return _LDK_HEADER_VER;
 }
 static inline const char* check_get_ldk_bindings_version() {
@@ -145,6 +146,7 @@ static inline const char* check_get_ldk_bindings_version() {
 	// Version mismatch, we don't know what we're running!
 		return 0;
 	}
+	Str_free(bin_ver);
 	return _LDK_C_BINDINGS_HEADER_VER;
 }
 #endif /* _LDK_HEADER_VER */
