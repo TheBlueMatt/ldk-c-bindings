@@ -16,7 +16,7 @@ crate-type = ["staticlib"
 
 [features]
 no-std = ["lightning/dnssec"]
-std = ["bitcoin/std", "lightning/std", "lightning/dnssec", "lightning-invoice/std", "lightning-background-processor/std", "lightning-rapid-gossip-sync/std", "lightning-liquidity/std"]
+std = ["bitcoin/std", "lightning/std", "lightning/dnssec", "lightning-invoice/std", "lightning-background-processor/std", "lightning-rapid-gossip-sync/std"]
 
 [dependencies]
 bitcoin = { version = "0.32", default-features = false }
@@ -29,7 +29,6 @@ lightning-persister = { git = "https://github.com/lightningdevkit/rust-lightning
 lightning-invoice = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.1-bindings", default-features = false }
 lightning-background-processor = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.1-bindings", default-features = false }
 lightning-rapid-gossip-sync = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.1-bindings", default-features = false }
-lightning-liquidity = { git = "https://github.com/lightningdevkit/rust-lightning", branch = "0.1-bindings", default-features = false }
 
 # Always force panic=abort, further options are set in the genbindings.sh build script
 [profile.dev]
