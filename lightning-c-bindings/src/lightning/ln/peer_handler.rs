@@ -1743,6 +1743,8 @@ pub extern "C" fn PeerManager_read_event(this_arg: &crate::lightning::ln::peer_h
 /// [`send_payment`]: crate::ln::channelmanager::ChannelManager::send_payment
 /// [`ChannelManager::process_pending_htlc_forwards`]: crate::ln::channelmanager::ChannelManager::process_pending_htlc_forwards
 /// [`send_data`]: SocketDescriptor::send_data
+/// [`lightning-net-tokio`]: https://docs.rs/lightning-net-tokio/latest/lightning_net_tokio
+/// [`lightning-background-processor`]: https://docs.rs/lightning-background-processor/latest/lightning_background_processor
 #[no_mangle]
 pub extern "C" fn PeerManager_process_events(this_arg: &crate::lightning::ln::peer_handler::PeerManager) {
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.process_events()
