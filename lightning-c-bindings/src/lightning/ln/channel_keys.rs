@@ -84,7 +84,7 @@ impl DelayedPaymentBasepoint {
 }
 #[no_mangle]
 pub extern "C" fn DelayedPaymentBasepoint_get_a(this_ptr: &DelayedPaymentBasepoint) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut DelayedPaymentBasepoint::get_native_mut_ref(this_ptr).0;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 #[no_mangle]
@@ -112,7 +112,7 @@ impl Clone for DelayedPaymentBasepoint {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeDelayedPaymentBasepoint>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -120,12 +120,12 @@ impl Clone for DelayedPaymentBasepoint {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn DelayedPaymentBasepoint_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeDelayedPaymentBasepoint)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeDelayedPaymentBasepoint) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the DelayedPaymentBasepoint
 pub extern "C" fn DelayedPaymentBasepoint_clone(orig: &DelayedPaymentBasepoint) -> DelayedPaymentBasepoint {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a DelayedPaymentBasepoint object
 pub extern "C" fn DelayedPaymentBasepoint_debug_str_void(o: *const c_void) -> Str {
@@ -156,6 +156,12 @@ pub extern "C" fn DelayedPaymentBasepoint_derive_add_tweak(this_arg: &crate::lig
 	crate::c_types::ThirtyTwoBytes { data: *ret.as_ref() }
 }
 
+#[no_mangle]
+/// Build a DelayedPaymentBasepoint from a PublicKey
+pub extern "C" fn DelayedPaymentBasepoint_from_PublicKey(f: crate::c_types::PublicKey) -> crate::lightning::ln::channel_keys::DelayedPaymentBasepoint {
+	let from_obj = f.into_rust();
+	crate::lightning::ln::channel_keys::DelayedPaymentBasepoint { inner: ObjOps::heap_alloc((lightning::ln::channel_keys::DelayedPaymentBasepoint::from(from_obj))), is_owned: true }
+}
 #[no_mangle]
 /// Serialize the DelayedPaymentBasepoint object into a byte array which can be read by DelayedPaymentBasepoint_read
 pub extern "C" fn DelayedPaymentBasepoint_write(obj: &crate::lightning::ln::channel_keys::DelayedPaymentBasepoint) -> crate::c_types::derived::CVec_u8Z {
@@ -242,7 +248,7 @@ impl DelayedPaymentKey {
 }
 #[no_mangle]
 pub extern "C" fn DelayedPaymentKey_get_a(this_ptr: &DelayedPaymentKey) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut DelayedPaymentKey::get_native_mut_ref(this_ptr).0;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 #[no_mangle]
@@ -270,7 +276,7 @@ impl Clone for DelayedPaymentKey {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeDelayedPaymentKey>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -278,12 +284,12 @@ impl Clone for DelayedPaymentKey {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn DelayedPaymentKey_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeDelayedPaymentKey)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeDelayedPaymentKey) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the DelayedPaymentKey
 pub extern "C" fn DelayedPaymentKey_clone(orig: &DelayedPaymentKey) -> DelayedPaymentKey {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a DelayedPaymentKey object
 pub extern "C" fn DelayedPaymentKey_debug_str_void(o: *const c_void) -> Str {
@@ -394,7 +400,7 @@ impl HtlcBasepoint {
 }
 #[no_mangle]
 pub extern "C" fn HtlcBasepoint_get_a(this_ptr: &HtlcBasepoint) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut HtlcBasepoint::get_native_mut_ref(this_ptr).0;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 #[no_mangle]
@@ -422,7 +428,7 @@ impl Clone for HtlcBasepoint {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeHtlcBasepoint>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -430,12 +436,12 @@ impl Clone for HtlcBasepoint {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn HtlcBasepoint_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeHtlcBasepoint)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeHtlcBasepoint) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the HtlcBasepoint
 pub extern "C" fn HtlcBasepoint_clone(orig: &HtlcBasepoint) -> HtlcBasepoint {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a HtlcBasepoint object
 pub extern "C" fn HtlcBasepoint_debug_str_void(o: *const c_void) -> Str {
@@ -466,6 +472,12 @@ pub extern "C" fn HtlcBasepoint_derive_add_tweak(this_arg: &crate::lightning::ln
 	crate::c_types::ThirtyTwoBytes { data: *ret.as_ref() }
 }
 
+#[no_mangle]
+/// Build a HtlcBasepoint from a PublicKey
+pub extern "C" fn HtlcBasepoint_from_PublicKey(f: crate::c_types::PublicKey) -> crate::lightning::ln::channel_keys::HtlcBasepoint {
+	let from_obj = f.into_rust();
+	crate::lightning::ln::channel_keys::HtlcBasepoint { inner: ObjOps::heap_alloc((lightning::ln::channel_keys::HtlcBasepoint::from(from_obj))), is_owned: true }
+}
 #[no_mangle]
 /// Serialize the HtlcBasepoint object into a byte array which can be read by HtlcBasepoint_read
 pub extern "C" fn HtlcBasepoint_write(obj: &crate::lightning::ln::channel_keys::HtlcBasepoint) -> crate::c_types::derived::CVec_u8Z {
@@ -552,7 +564,7 @@ impl HtlcKey {
 }
 #[no_mangle]
 pub extern "C" fn HtlcKey_get_a(this_ptr: &HtlcKey) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut HtlcKey::get_native_mut_ref(this_ptr).0;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 #[no_mangle]
@@ -580,7 +592,7 @@ impl Clone for HtlcKey {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeHtlcKey>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -588,12 +600,12 @@ impl Clone for HtlcKey {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn HtlcKey_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeHtlcKey)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeHtlcKey) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the HtlcKey
 pub extern "C" fn HtlcKey_clone(orig: &HtlcKey) -> HtlcKey {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a HtlcKey object
 pub extern "C" fn HtlcKey_debug_str_void(o: *const c_void) -> Str {
@@ -710,7 +722,7 @@ impl RevocationBasepoint {
 }
 #[no_mangle]
 pub extern "C" fn RevocationBasepoint_get_a(this_ptr: &RevocationBasepoint) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut RevocationBasepoint::get_native_mut_ref(this_ptr).0;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 #[no_mangle]
@@ -738,7 +750,7 @@ impl Clone for RevocationBasepoint {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRevocationBasepoint>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -746,12 +758,12 @@ impl Clone for RevocationBasepoint {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RevocationBasepoint_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRevocationBasepoint)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRevocationBasepoint) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RevocationBasepoint
 pub extern "C" fn RevocationBasepoint_clone(orig: &RevocationBasepoint) -> RevocationBasepoint {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a RevocationBasepoint object
 pub extern "C" fn RevocationBasepoint_debug_str_void(o: *const c_void) -> Str {
@@ -774,6 +786,12 @@ pub extern "C" fn RevocationBasepoint_to_public_key(this_arg: &crate::lightning:
 	crate::c_types::PublicKey::from_rust(&ret)
 }
 
+#[no_mangle]
+/// Build a RevocationBasepoint from a PublicKey
+pub extern "C" fn RevocationBasepoint_from_PublicKey(f: crate::c_types::PublicKey) -> crate::lightning::ln::channel_keys::RevocationBasepoint {
+	let from_obj = f.into_rust();
+	crate::lightning::ln::channel_keys::RevocationBasepoint { inner: ObjOps::heap_alloc((lightning::ln::channel_keys::RevocationBasepoint::from(from_obj))), is_owned: true }
+}
 #[no_mangle]
 /// Serialize the RevocationBasepoint object into a byte array which can be read by RevocationBasepoint_read
 pub extern "C" fn RevocationBasepoint_write(obj: &crate::lightning::ln::channel_keys::RevocationBasepoint) -> crate::c_types::derived::CVec_u8Z {
@@ -859,7 +877,7 @@ impl RevocationKey {
 }
 #[no_mangle]
 pub extern "C" fn RevocationKey_get_a(this_ptr: &RevocationKey) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut RevocationKey::get_native_mut_ref(this_ptr).0;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 #[no_mangle]
@@ -887,7 +905,7 @@ impl Clone for RevocationKey {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRevocationKey>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -895,12 +913,12 @@ impl Clone for RevocationKey {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RevocationKey_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRevocationKey)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRevocationKey) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RevocationKey
 pub extern "C" fn RevocationKey_clone(orig: &RevocationKey) -> RevocationKey {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a RevocationKey object
 pub extern "C" fn RevocationKey_debug_str_void(o: *const c_void) -> Str {

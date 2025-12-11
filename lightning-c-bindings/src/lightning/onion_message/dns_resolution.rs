@@ -45,7 +45,12 @@ pub struct DNSResolverMessageHandler {
 	pub handle_dnssec_query: extern "C" fn (this_arg: *const c_void, message: crate::lightning::onion_message::dns_resolution::DNSSECQuery, responder: crate::lightning::onion_message::messenger::Responder) -> crate::c_types::derived::COption_C2Tuple_DNSResolverMessageResponseInstructionZZ,
 	/// Handle a [`DNSSECProof`] message (in response to a [`DNSSECQuery`] we presumably sent).
 	///
+	/// The provided [`DNSResolverContext`] was authenticated by the [`OnionMessenger`] as coming from
+	/// a blinded path that we created.
+	///
 	/// With this, we should be able to validate the DNS record we requested.
+	///
+	/// [`OnionMessenger`]: crate::onion_message::messenger::OnionMessenger
 	pub handle_dnssec_proof: extern "C" fn (this_arg: *const c_void, message: crate::lightning::onion_message::dns_resolution::DNSSECProof, context: crate::lightning::blinded_path::message::DNSResolverContext),
 	/// Gets the node feature flags which this handler itself supports. Useful for setting the
 	/// `dns_resolver` flag if this handler supports returning [`DNSSECProof`] messages in response
@@ -331,7 +336,7 @@ impl Clone for DNSSECQuery {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeDNSSECQuery>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -339,12 +344,12 @@ impl Clone for DNSSECQuery {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn DNSSECQuery_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeDNSSECQuery)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeDNSSECQuery) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the DNSSECQuery
 pub extern "C" fn DNSSECQuery_clone(orig: &DNSSECQuery) -> DNSSECQuery {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a DNSSECQuery object
 pub extern "C" fn DNSSECQuery_debug_str_void(o: *const c_void) -> Str {
@@ -435,7 +440,7 @@ impl DNSSECProof {
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn DNSSECProof_get_proof(this_ptr: &DNSSECProof) -> crate::c_types::derived::CVec_u8Z {
-	let mut inner_val = this_ptr.get_native_mut_ref().proof.clone();
+	let mut inner_val = DNSSECProof::get_native_mut_ref(this_ptr).proof.clone();
 	let mut local_inner_val = Vec::new(); for mut item in inner_val.drain(..) { local_inner_val.push( { item }); };
 	local_inner_val.into()
 }
@@ -451,7 +456,7 @@ impl Clone for DNSSECProof {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeDNSSECProof>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -459,12 +464,12 @@ impl Clone for DNSSECProof {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn DNSSECProof_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeDNSSECProof)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeDNSSECProof) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the DNSSECProof
 pub extern "C" fn DNSSECProof_clone(orig: &DNSSECProof) -> DNSSECProof {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a DNSSECProof object
 pub extern "C" fn DNSSECProof_debug_str_void(o: *const c_void) -> Str {
@@ -559,11 +564,14 @@ pub(crate) type nativeHumanReadableName = nativeHumanReadableNameImport;
 
 /// A struct containing the two parts of a BIP 353 Human Readable Name - the user and domain parts.
 ///
-/// The `user` and `domain` parts, together, cannot exceed 232 bytes in length, and both must be
+/// The `user` and `domain` parts, together, cannot exceed 231 bytes in length, and both must be
 /// non-empty.
 ///
-/// To protect against [Homograph Attacks], both parts of a Human Readable Name must be plain
-/// ASCII.
+/// If you intend to handle non-ASCII `user` or `domain` parts, you must handle [Homograph Attacks]
+/// and do punycode en-/de-coding yourself. This struct will always handle only plain ASCII `user`
+/// and `domain` parts.
+///
+/// This struct can also be used for LN-Address recipients.
 ///
 /// [Homograph Attacks]: https://en.wikipedia.org/wiki/IDN_homograph_attack
 #[must_use]
@@ -625,7 +633,7 @@ impl Clone for HumanReadableName {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeHumanReadableName>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -633,12 +641,12 @@ impl Clone for HumanReadableName {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn HumanReadableName_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeHumanReadableName)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeHumanReadableName) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the HumanReadableName
 pub extern "C" fn HumanReadableName_clone(orig: &HumanReadableName) -> HumanReadableName {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a HumanReadableName object
 pub extern "C" fn HumanReadableName_debug_str_void(o: *const c_void) -> Str {
@@ -667,7 +675,7 @@ pub extern "C" fn HumanReadableName_eq(a: &HumanReadableName, b: &HumanReadableN
 #[must_use]
 #[no_mangle]
 pub extern "C" fn HumanReadableName_new(mut user: crate::c_types::Str, mut domain: crate::c_types::Str) -> crate::c_types::derived::CResult_HumanReadableNameNoneZ {
-	let mut ret = lightning::onion_message::dns_resolution::HumanReadableName::new(user.into_string(), domain.into_string());
+	let mut ret = lightning::onion_message::dns_resolution::HumanReadableName::new(user.into_str(), domain.into_str());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::onion_message::dns_resolution::HumanReadableName { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
@@ -715,6 +723,11 @@ pub extern "C" fn HumanReadableName_read(ser: crate::c_types::u8slice) -> crate:
 	let res: Result<lightning::onion_message::dns_resolution::HumanReadableName, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::onion_message::dns_resolution::HumanReadableName { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
+}
+#[no_mangle]
+/// Get the string representation of a HumanReadableName object
+pub extern "C" fn HumanReadableName_to_str(o: &crate::lightning::onion_message::dns_resolution::HumanReadableName) -> Str {
+	alloc::format!("{}", o.get_native_ref()).into()
 }
 
 use lightning::onion_message::dns_resolution::OMNameResolver as nativeOMNameResolverImport;
@@ -791,13 +804,41 @@ pub extern "C" fn OMNameResolver_new(mut latest_block_time: u32, mut latest_bloc
 	crate::lightning::onion_message::dns_resolution::OMNameResolver { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
+/// Builds a new [`OMNameResolver`] which will not validate the time limits on DNSSEC proofs
+/// (for builds without the \"std\" feature and until [`Self::new_best_block`] is called).
+///
+/// If possible, you should prefer [`Self::new`] so that providing stale proofs is not
+/// possible, however in no-std environments where there is some trust in the resolver used and
+/// no time source is available, this may be acceptable.
+///
+/// Note that not calling [`Self::new_best_block`] will result in requests not timing out and
+/// unresolved requests leaking memory. You must instead call
+/// [`Self::expire_pending_resolution`] as unresolved requests expire.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn OMNameResolver_new_without_no_std_expiry_validation() -> crate::lightning::onion_message::dns_resolution::OMNameResolver {
+	let mut ret = lightning::onion_message::dns_resolution::OMNameResolver::new_without_no_std_expiry_validation();
+	crate::lightning::onion_message::dns_resolution::OMNameResolver { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
 /// Informs the [`OMNameResolver`] of the passage of time in the form of a new best Bitcoin
 /// block.
 ///
-/// This will call back to resolve some pending queries which have timed out.
+/// This is used to prune stale requests (by block height) and keep track of the current time
+/// to validate that DNSSEC proofs are current.
 #[no_mangle]
 pub extern "C" fn OMNameResolver_new_best_block(this_arg: &crate::lightning::onion_message::dns_resolution::OMNameResolver, mut height: u32, mut time: u32) {
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.new_best_block(height, time)
+}
+
+/// Removes any pending resolutions for the given `name` and `payment_id`.
+///
+/// Any future calls to [`Self::handle_dnssec_proof_for_offer`] or
+/// [`Self::handle_dnssec_proof_for_uri`] will no longer return a result for the given
+/// resolution.
+#[no_mangle]
+pub extern "C" fn OMNameResolver_expire_pending_resolution(this_arg: &crate::lightning::onion_message::dns_resolution::OMNameResolver, name: &crate::lightning::onion_message::dns_resolution::HumanReadableName, mut payment_id: crate::c_types::ThirtyTwoBytes) {
+	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.expire_pending_resolution(name.get_native_ref(), ::lightning::ln::channelmanager::PaymentId(payment_id.data))
 }
 
 /// Begins the process of resolving a BIP 353 Human Readable Name.

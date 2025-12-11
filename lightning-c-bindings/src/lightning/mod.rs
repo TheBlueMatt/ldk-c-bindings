@@ -37,14 +37,14 @@ use crate::c_types::*;
 use alloc::{vec::Vec, boxed::Box};
 
 pub mod util;
+pub mod blinded_path;
 pub mod chain;
+pub mod events;
 pub mod ln;
 pub mod offers;
+pub mod onion_message;
 pub mod routing;
 pub mod sign;
-pub mod onion_message;
-pub mod blinded_path;
-pub mod events;
 pub mod io;
 mod crypto {
 
@@ -92,18 +92,6 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
-mod real_chachapoly {
-
-use alloc::str::FromStr;
-use alloc::string::String;
-use core::ffi::c_void;
-use core::convert::Infallible;
-use bitcoin::hashes::Hash;
-use crate::c_types::*;
-#[cfg(feature="no-std")]
-use alloc::{vec::Vec, boxed::Box};
-
-}
 }
 mod poly1305 {
 
@@ -116,6 +104,18 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
+mod real_poly1305 {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}
 }
 mod streams {
 

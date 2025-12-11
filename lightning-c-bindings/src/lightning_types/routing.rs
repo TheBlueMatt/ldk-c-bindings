@@ -81,7 +81,7 @@ impl RoutingFees {
 /// Flat routing fee in millisatoshis.
 #[no_mangle]
 pub extern "C" fn RoutingFees_get_base_msat(this_ptr: &RoutingFees) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().base_msat;
+	let mut inner_val = &mut RoutingFees::get_native_mut_ref(this_ptr).base_msat;
 	*inner_val
 }
 /// Flat routing fee in millisatoshis.
@@ -93,7 +93,7 @@ pub extern "C" fn RoutingFees_set_base_msat(this_ptr: &mut RoutingFees, mut val:
 /// In other words, 10000 is 1%.
 #[no_mangle]
 pub extern "C" fn RoutingFees_get_proportional_millionths(this_ptr: &RoutingFees) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().proportional_millionths;
+	let mut inner_val = &mut RoutingFees::get_native_mut_ref(this_ptr).proportional_millionths;
 	*inner_val
 }
 /// Liquidity-based routing fee in millionths of a routed amount.
@@ -124,7 +124,7 @@ impl Clone for RoutingFees {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRoutingFees>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -132,12 +132,12 @@ impl Clone for RoutingFees {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RoutingFees_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRoutingFees)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRoutingFees) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RoutingFees
 pub extern "C" fn RoutingFees_clone(orig: &RoutingFees) -> RoutingFees {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a RoutingFees object
 pub extern "C" fn RoutingFees_debug_str_void(o: *const c_void) -> Str {
@@ -214,7 +214,7 @@ impl RouteHint {
 }
 #[no_mangle]
 pub extern "C" fn RouteHint_get_a(this_ptr: &RouteHint) -> crate::c_types::derived::CVec_RouteHintHopZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut RouteHint::get_native_mut_ref(this_ptr).0;
 	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning_types::routing::RouteHintHop { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const lightning_types::routing::RouteHintHop<>) as *mut _) }, is_owned: false } }); };
 	local_inner_val.into()
 }
@@ -236,7 +236,7 @@ impl Clone for RouteHint {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRouteHint>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -244,12 +244,12 @@ impl Clone for RouteHint {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RouteHint_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRouteHint)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRouteHint) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RouteHint
 pub extern "C" fn RouteHint_clone(orig: &RouteHint) -> RouteHint {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a RouteHint object
 pub extern "C" fn RouteHint_debug_str_void(o: *const c_void) -> Str {
@@ -340,7 +340,7 @@ impl RouteHintHop {
 /// The node_id of the non-target end of the route
 #[no_mangle]
 pub extern "C" fn RouteHintHop_get_src_node_id(this_ptr: &RouteHintHop) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().src_node_id;
+	let mut inner_val = &mut RouteHintHop::get_native_mut_ref(this_ptr).src_node_id;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 /// The node_id of the non-target end of the route
@@ -351,7 +351,7 @@ pub extern "C" fn RouteHintHop_set_src_node_id(this_ptr: &mut RouteHintHop, mut 
 /// The short_channel_id of this channel
 #[no_mangle]
 pub extern "C" fn RouteHintHop_get_short_channel_id(this_ptr: &RouteHintHop) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().short_channel_id;
+	let mut inner_val = &mut RouteHintHop::get_native_mut_ref(this_ptr).short_channel_id;
 	*inner_val
 }
 /// The short_channel_id of this channel
@@ -362,7 +362,7 @@ pub extern "C" fn RouteHintHop_set_short_channel_id(this_ptr: &mut RouteHintHop,
 /// The fees which must be paid to use this channel
 #[no_mangle]
 pub extern "C" fn RouteHintHop_get_fees(this_ptr: &RouteHintHop) -> crate::lightning_types::routing::RoutingFees {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fees;
+	let mut inner_val = &mut RouteHintHop::get_native_mut_ref(this_ptr).fees;
 	crate::lightning_types::routing::RoutingFees { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::routing::RoutingFees<>) as *mut _) }, is_owned: false }
 }
 /// The fees which must be paid to use this channel
@@ -373,7 +373,7 @@ pub extern "C" fn RouteHintHop_set_fees(this_ptr: &mut RouteHintHop, mut val: cr
 /// The difference in CLTV values between this node and the next node.
 #[no_mangle]
 pub extern "C" fn RouteHintHop_get_cltv_expiry_delta(this_ptr: &RouteHintHop) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
+	let mut inner_val = &mut RouteHintHop::get_native_mut_ref(this_ptr).cltv_expiry_delta;
 	*inner_val
 }
 /// The difference in CLTV values between this node and the next node.
@@ -384,7 +384,7 @@ pub extern "C" fn RouteHintHop_set_cltv_expiry_delta(this_ptr: &mut RouteHintHop
 /// The minimum value, in msat, which must be relayed to the next hop.
 #[no_mangle]
 pub extern "C" fn RouteHintHop_get_htlc_minimum_msat(this_ptr: &RouteHintHop) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_minimum_msat;
+	let mut inner_val = &mut RouteHintHop::get_native_mut_ref(this_ptr).htlc_minimum_msat;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -397,7 +397,7 @@ pub extern "C" fn RouteHintHop_set_htlc_minimum_msat(this_ptr: &mut RouteHintHop
 /// The maximum value in msat available for routing with a single HTLC.
 #[no_mangle]
 pub extern "C" fn RouteHintHop_get_htlc_maximum_msat(this_ptr: &RouteHintHop) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_maximum_msat;
+	let mut inner_val = &mut RouteHintHop::get_native_mut_ref(this_ptr).htlc_maximum_msat;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -426,7 +426,7 @@ impl Clone for RouteHintHop {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRouteHintHop>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -434,12 +434,12 @@ impl Clone for RouteHintHop {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RouteHintHop_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRouteHintHop)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRouteHintHop) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RouteHintHop
 pub extern "C" fn RouteHintHop_clone(orig: &RouteHintHop) -> RouteHintHop {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a RouteHintHop object
 pub extern "C" fn RouteHintHop_debug_str_void(o: *const c_void) -> Str {

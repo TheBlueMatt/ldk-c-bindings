@@ -93,7 +93,7 @@ impl Clone for Bolt12ParseError {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt12ParseError>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -101,12 +101,12 @@ impl Clone for Bolt12ParseError {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt12ParseError_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt12ParseError)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt12ParseError) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt12ParseError
 pub extern "C" fn Bolt12ParseError_clone(orig: &Bolt12ParseError) -> Bolt12ParseError {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Bolt12ParseError object
 pub extern "C" fn Bolt12ParseError_debug_str_void(o: *const c_void) -> Str {
@@ -126,6 +126,8 @@ pub enum Bolt12SemanticError {
 	MissingAmount,
 	/// The amount exceeded the total bitcoin supply or didn't match an expected amount.
 	InvalidAmount,
+	/// The currency code did not contain valid ASCII uppercase letters.
+	InvalidCurrencyCode,
 	/// An amount was provided but was not sufficient in value.
 	InsufficientAmount,
 	/// An amount was provided but was not expected.
@@ -194,6 +196,7 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::UnexpectedChain => nativeBolt12SemanticError::UnexpectedChain,
 			Bolt12SemanticError::MissingAmount => nativeBolt12SemanticError::MissingAmount,
 			Bolt12SemanticError::InvalidAmount => nativeBolt12SemanticError::InvalidAmount,
+			Bolt12SemanticError::InvalidCurrencyCode => nativeBolt12SemanticError::InvalidCurrencyCode,
 			Bolt12SemanticError::InsufficientAmount => nativeBolt12SemanticError::InsufficientAmount,
 			Bolt12SemanticError::UnexpectedAmount => nativeBolt12SemanticError::UnexpectedAmount,
 			Bolt12SemanticError::UnsupportedCurrency => nativeBolt12SemanticError::UnsupportedCurrency,
@@ -230,6 +233,7 @@ impl Bolt12SemanticError {
 			Bolt12SemanticError::UnexpectedChain => nativeBolt12SemanticError::UnexpectedChain,
 			Bolt12SemanticError::MissingAmount => nativeBolt12SemanticError::MissingAmount,
 			Bolt12SemanticError::InvalidAmount => nativeBolt12SemanticError::InvalidAmount,
+			Bolt12SemanticError::InvalidCurrencyCode => nativeBolt12SemanticError::InvalidCurrencyCode,
 			Bolt12SemanticError::InsufficientAmount => nativeBolt12SemanticError::InsufficientAmount,
 			Bolt12SemanticError::UnexpectedAmount => nativeBolt12SemanticError::UnexpectedAmount,
 			Bolt12SemanticError::UnsupportedCurrency => nativeBolt12SemanticError::UnsupportedCurrency,
@@ -267,6 +271,7 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::UnexpectedChain => Bolt12SemanticError::UnexpectedChain,
 			nativeBolt12SemanticError::MissingAmount => Bolt12SemanticError::MissingAmount,
 			nativeBolt12SemanticError::InvalidAmount => Bolt12SemanticError::InvalidAmount,
+			nativeBolt12SemanticError::InvalidCurrencyCode => Bolt12SemanticError::InvalidCurrencyCode,
 			nativeBolt12SemanticError::InsufficientAmount => Bolt12SemanticError::InsufficientAmount,
 			nativeBolt12SemanticError::UnexpectedAmount => Bolt12SemanticError::UnexpectedAmount,
 			nativeBolt12SemanticError::UnsupportedCurrency => Bolt12SemanticError::UnsupportedCurrency,
@@ -303,6 +308,7 @@ impl Bolt12SemanticError {
 			nativeBolt12SemanticError::UnexpectedChain => Bolt12SemanticError::UnexpectedChain,
 			nativeBolt12SemanticError::MissingAmount => Bolt12SemanticError::MissingAmount,
 			nativeBolt12SemanticError::InvalidAmount => Bolt12SemanticError::InvalidAmount,
+			nativeBolt12SemanticError::InvalidCurrencyCode => Bolt12SemanticError::InvalidCurrencyCode,
 			nativeBolt12SemanticError::InsufficientAmount => Bolt12SemanticError::InsufficientAmount,
 			nativeBolt12SemanticError::UnexpectedAmount => Bolt12SemanticError::UnexpectedAmount,
 			nativeBolt12SemanticError::UnsupportedCurrency => Bolt12SemanticError::UnsupportedCurrency,
@@ -367,6 +373,10 @@ pub extern "C" fn Bolt12SemanticError_missing_amount() -> Bolt12SemanticError {
 /// Utility method to constructs a new InvalidAmount-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_invalid_amount() -> Bolt12SemanticError {
 	Bolt12SemanticError::InvalidAmount}
+#[no_mangle]
+/// Utility method to constructs a new InvalidCurrencyCode-variant Bolt12SemanticError
+pub extern "C" fn Bolt12SemanticError_invalid_currency_code() -> Bolt12SemanticError {
+	Bolt12SemanticError::InvalidCurrencyCode}
 #[no_mangle]
 /// Utility method to constructs a new InsufficientAmount-variant Bolt12SemanticError
 pub extern "C" fn Bolt12SemanticError_insufficient_amount() -> Bolt12SemanticError {
@@ -474,3 +484,21 @@ pub extern "C" fn Bolt12SemanticError_unexpected_human_readable_name() -> Bolt12
 /// Get a string which allows debug introspection of a Bolt12SemanticError object
 pub extern "C" fn Bolt12SemanticError_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::parse::Bolt12SemanticError }).into()}
+#[no_mangle]
+/// Build a Bolt12ParseError from a DecodeError
+pub extern "C" fn Bolt12ParseError_from_DecodeError(f: crate::lightning::ln::msgs::DecodeError) -> crate::lightning::offers::parse::Bolt12ParseError {
+	let from_obj = f.into_native();
+	crate::lightning::offers::parse::Bolt12ParseError { inner: ObjOps::heap_alloc((lightning::offers::parse::Bolt12ParseError::from(from_obj))), is_owned: true }
+}
+#[no_mangle]
+/// Build a Bolt12ParseError from a Bolt12SemanticError
+pub extern "C" fn Bolt12ParseError_from_Bolt12SemanticError(f: crate::lightning::offers::parse::Bolt12SemanticError) -> crate::lightning::offers::parse::Bolt12ParseError {
+	let from_obj = f.into_native();
+	crate::lightning::offers::parse::Bolt12ParseError { inner: ObjOps::heap_alloc((lightning::offers::parse::Bolt12ParseError::from(from_obj))), is_owned: true }
+}
+#[no_mangle]
+/// Build a Bolt12ParseError from a Secp256k1Error
+pub extern "C" fn Bolt12ParseError_from_Secp256k1Error(f: crate::c_types::Secp256k1Error) -> crate::lightning::offers::parse::Bolt12ParseError {
+	let from_obj = f.into_rust();
+	crate::lightning::offers::parse::Bolt12ParseError { inner: ObjOps::heap_alloc((lightning::offers::parse::Bolt12ParseError::from(from_obj))), is_owned: true }
+}

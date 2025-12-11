@@ -178,11 +178,14 @@ pub extern "C" fn Retry_read(ser: crate::c_types::u8slice) -> crate::c_types::de
 #[must_use]
 #[repr(C)]
 pub enum RetryableSendFailure {
-	/// The provided [`PaymentParameters::expiry_time`] indicated that the payment has expired.
+	/// The provided [`PaymentParameters::expiry_time`] indicated that the payment has expired or
+	/// the BOLT 12 invoice paid to via [`ChannelManager::send_payment_for_bolt12_invoice`] was
+	/// expired.
 	///
 	///Note that this error is *not* caused by [`Retry::Timeout`].
 	///
 	/// [`PaymentParameters::expiry_time`]: crate::routing::router::PaymentParameters::expiry_time
+	/// [`ChannelManager::send_payment_for_bolt12_invoice`]: crate::ln::channelmanager::ChannelManager::send_payment_for_bolt12_invoice
 	PaymentExpired,
 	/// We were unable to find a route to the destination.
 	RouteNotFound,
@@ -282,6 +285,105 @@ pub extern "C" fn RetryableSendFailure_debug_str_void(o: *const c_void) -> Str {
 pub extern "C" fn RetryableSendFailure_eq(a: &RetryableSendFailure, b: &RetryableSendFailure) -> bool {
 	if &a.to_native() == &b.to_native() { true } else { false }
 }
+/// An error when attempting to pay a [`Bolt11Invoice`].
+///
+/// [`Bolt11Invoice`]: lightning_invoice::Bolt11Invoice
+#[derive(Clone)]
+#[must_use]
+#[repr(C)]
+pub enum Bolt11PaymentError {
+	/// Incorrect amount was provided to [`ChannelManager::pay_for_bolt11_invoice`].
+	/// This happens when the user-provided amount is less than an amount specified in the [`Bolt11Invoice`].
+	///
+	/// [`Bolt11Invoice`]: lightning_invoice::Bolt11Invoice
+	/// [`ChannelManager::pay_for_bolt11_invoice`]: crate::ln::channelmanager::ChannelManager::pay_for_bolt11_invoice
+	InvalidAmount,
+	/// The invoice was valid for the corresponding [`PaymentId`], but sending the payment failed.
+	SendingFailed(
+		crate::lightning::ln::outbound_payment::RetryableSendFailure),
+}
+use lightning::ln::outbound_payment::Bolt11PaymentError as Bolt11PaymentErrorImport;
+pub(crate) type nativeBolt11PaymentError = Bolt11PaymentErrorImport;
+
+impl Bolt11PaymentError {
+	#[allow(unused)]
+	pub(crate) fn to_native(&self) -> nativeBolt11PaymentError {
+		match self {
+			Bolt11PaymentError::InvalidAmount => nativeBolt11PaymentError::InvalidAmount,
+			Bolt11PaymentError::SendingFailed (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				nativeBolt11PaymentError::SendingFailed (
+					a_nonref.into_native(),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn into_native(self) -> nativeBolt11PaymentError {
+		match self {
+			Bolt11PaymentError::InvalidAmount => nativeBolt11PaymentError::InvalidAmount,
+			Bolt11PaymentError::SendingFailed (mut a, ) => {
+				nativeBolt11PaymentError::SendingFailed (
+					a.into_native(),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn from_native(native: &Bolt11PaymentErrorImport) -> Self {
+		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeBolt11PaymentError) };
+		match native {
+			nativeBolt11PaymentError::InvalidAmount => Bolt11PaymentError::InvalidAmount,
+			nativeBolt11PaymentError::SendingFailed (ref a, ) => {
+				let mut a_nonref = Clone::clone(a);
+				Bolt11PaymentError::SendingFailed (
+					crate::lightning::ln::outbound_payment::RetryableSendFailure::native_into(a_nonref),
+				)
+			},
+		}
+	}
+	#[allow(unused)]
+	pub(crate) fn native_into(native: nativeBolt11PaymentError) -> Self {
+		match native {
+			nativeBolt11PaymentError::InvalidAmount => Bolt11PaymentError::InvalidAmount,
+			nativeBolt11PaymentError::SendingFailed (mut a, ) => {
+				Bolt11PaymentError::SendingFailed (
+					crate::lightning::ln::outbound_payment::RetryableSendFailure::native_into(a),
+				)
+			},
+		}
+	}
+}
+/// Frees any resources used by the Bolt11PaymentError
+#[no_mangle]
+pub extern "C" fn Bolt11PaymentError_free(this_ptr: Bolt11PaymentError) { }
+/// Creates a copy of the Bolt11PaymentError
+#[no_mangle]
+pub extern "C" fn Bolt11PaymentError_clone(orig: &Bolt11PaymentError) -> Bolt11PaymentError {
+	orig.clone()
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt11PaymentError_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const Bolt11PaymentError)).clone() })) as *mut c_void
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn Bolt11PaymentError_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut Bolt11PaymentError) };
+}
+#[no_mangle]
+/// Utility method to constructs a new InvalidAmount-variant Bolt11PaymentError
+pub extern "C" fn Bolt11PaymentError_invalid_amount() -> Bolt11PaymentError {
+	Bolt11PaymentError::InvalidAmount}
+#[no_mangle]
+/// Utility method to constructs a new SendingFailed-variant Bolt11PaymentError
+pub extern "C" fn Bolt11PaymentError_sending_failed(a: crate::lightning::ln::outbound_payment::RetryableSendFailure) -> Bolt11PaymentError {
+	Bolt11PaymentError::SendingFailed(a, )
+}
+/// Get a string which allows debug introspection of a Bolt11PaymentError object
+pub extern "C" fn Bolt11PaymentError_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::outbound_payment::Bolt11PaymentError }).into()}
 /// An error when attempting to pay a [`Bolt12Invoice`].
 #[derive(Clone)]
 #[must_use]
@@ -296,6 +398,14 @@ pub enum Bolt12PaymentError {
 	/// The invoice was valid for the corresponding [`PaymentId`], but sending the payment failed.
 	SendingFailed(
 		crate::lightning::ln::outbound_payment::RetryableSendFailure),
+	/// Failed to create a blinded path back to ourselves.
+	///
+	/// We attempted to initiate payment to a [`StaticInvoice`] but failed to create a reply path for
+	/// our [`HeldHtlcAvailable`] message.
+	///
+	/// [`StaticInvoice`]: crate::offers::static_invoice::StaticInvoice
+	/// [`HeldHtlcAvailable`]: crate::onion_message::async_payments::HeldHtlcAvailable
+	BlindedPathCreationFailed,
 }
 use lightning::ln::outbound_payment::Bolt12PaymentError as Bolt12PaymentErrorImport;
 pub(crate) type nativeBolt12PaymentError = Bolt12PaymentErrorImport;
@@ -313,6 +423,7 @@ impl Bolt12PaymentError {
 					a_nonref.into_native(),
 				)
 			},
+			Bolt12PaymentError::BlindedPathCreationFailed => nativeBolt12PaymentError::BlindedPathCreationFailed,
 		}
 	}
 	#[allow(unused)]
@@ -326,6 +437,7 @@ impl Bolt12PaymentError {
 					a.into_native(),
 				)
 			},
+			Bolt12PaymentError::BlindedPathCreationFailed => nativeBolt12PaymentError::BlindedPathCreationFailed,
 		}
 	}
 	#[allow(unused)]
@@ -341,6 +453,7 @@ impl Bolt12PaymentError {
 					crate::lightning::ln::outbound_payment::RetryableSendFailure::native_into(a_nonref),
 				)
 			},
+			nativeBolt12PaymentError::BlindedPathCreationFailed => Bolt12PaymentError::BlindedPathCreationFailed,
 		}
 	}
 	#[allow(unused)]
@@ -354,6 +467,7 @@ impl Bolt12PaymentError {
 					crate::lightning::ln::outbound_payment::RetryableSendFailure::native_into(a),
 				)
 			},
+			nativeBolt12PaymentError::BlindedPathCreationFailed => Bolt12PaymentError::BlindedPathCreationFailed,
 		}
 	}
 }
@@ -392,6 +506,10 @@ pub extern "C" fn Bolt12PaymentError_unknown_required_features() -> Bolt12Paymen
 pub extern "C" fn Bolt12PaymentError_sending_failed(a: crate::lightning::ln::outbound_payment::RetryableSendFailure) -> Bolt12PaymentError {
 	Bolt12PaymentError::SendingFailed(a, )
 }
+#[no_mangle]
+/// Utility method to constructs a new BlindedPathCreationFailed-variant Bolt12PaymentError
+pub extern "C" fn Bolt12PaymentError_blinded_path_creation_failed() -> Bolt12PaymentError {
+	Bolt12PaymentError::BlindedPathCreationFailed}
 /// Get a string which allows debug introspection of a Bolt12PaymentError object
 pub extern "C" fn Bolt12PaymentError_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::outbound_payment::Bolt12PaymentError }).into()}
@@ -603,7 +721,7 @@ impl RecipientOnionFields {
 /// recipient will not reject it.
 #[no_mangle]
 pub extern "C" fn RecipientOnionFields_get_payment_secret(this_ptr: &RecipientOnionFields) -> crate::c_types::derived::COption_ThirtyTwoBytesZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_secret;
+	let mut inner_val = &mut RecipientOnionFields::get_native_mut_ref(this_ptr).payment_secret;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_ThirtyTwoBytesZ::None } else { crate::c_types::derived::COption_ThirtyTwoBytesZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::c_types::ThirtyTwoBytes { data: (*inner_val.as_ref().unwrap()).clone().0 } }) };
 	local_inner_val
 }
@@ -639,7 +757,7 @@ pub extern "C" fn RecipientOnionFields_set_payment_secret(this_ptr: &mut Recipie
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn RecipientOnionFields_get_payment_metadata(this_ptr: &RecipientOnionFields) -> crate::c_types::derived::COption_CVec_u8ZZ {
-	let mut inner_val = this_ptr.get_native_mut_ref().payment_metadata.clone();
+	let mut inner_val = RecipientOnionFields::get_native_mut_ref(this_ptr).payment_metadata.clone();
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_CVec_u8ZZ::None } else { crate::c_types::derived::COption_CVec_u8ZZ::Some( { let mut local_inner_val_0 = Vec::new(); for mut item in inner_val.unwrap().drain(..) { local_inner_val_0.push( { item }); }; local_inner_val_0.into() }) };
 	local_inner_val
 }
@@ -664,7 +782,7 @@ impl Clone for RecipientOnionFields {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRecipientOnionFields>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -672,12 +790,12 @@ impl Clone for RecipientOnionFields {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RecipientOnionFields_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRecipientOnionFields)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRecipientOnionFields) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RecipientOnionFields
 pub extern "C" fn RecipientOnionFields_clone(orig: &RecipientOnionFields) -> RecipientOnionFields {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a RecipientOnionFields object
 pub extern "C" fn RecipientOnionFields_debug_str_void(o: *const c_void) -> Str {

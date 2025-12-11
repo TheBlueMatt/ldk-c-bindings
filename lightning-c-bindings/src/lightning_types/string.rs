@@ -79,7 +79,7 @@ impl UntrustedString {
 }
 #[no_mangle]
 pub extern "C" fn UntrustedString_get_a(this_ptr: &UntrustedString) -> crate::c_types::Str {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut UntrustedString::get_native_mut_ref(this_ptr).0;
 	inner_val.as_str().into()
 }
 #[no_mangle]
@@ -98,7 +98,7 @@ impl Clone for UntrustedString {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeUntrustedString>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -106,12 +106,12 @@ impl Clone for UntrustedString {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn UntrustedString_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeUntrustedString)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeUntrustedString) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the UntrustedString
 pub extern "C" fn UntrustedString_clone(orig: &UntrustedString) -> UntrustedString {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a UntrustedString object
 pub extern "C" fn UntrustedString_debug_str_void(o: *const c_void) -> Str {
@@ -203,7 +203,7 @@ impl PrintableString {
 }
 #[no_mangle]
 pub extern "C" fn PrintableString_get_a(this_ptr: &PrintableString) -> crate::c_types::Str {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut PrintableString::get_native_mut_ref(this_ptr).0;
 	inner_val.into()
 }
 #[no_mangle]

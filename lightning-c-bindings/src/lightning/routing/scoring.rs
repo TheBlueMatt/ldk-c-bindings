@@ -940,7 +940,7 @@ impl ChannelUsage {
 /// The amount to send through the channel, denominated in millisatoshis.
 #[no_mangle]
 pub extern "C" fn ChannelUsage_get_amount_msat(this_ptr: &ChannelUsage) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().amount_msat;
+	let mut inner_val = &mut ChannelUsage::get_native_mut_ref(this_ptr).amount_msat;
 	*inner_val
 }
 /// The amount to send through the channel, denominated in millisatoshis.
@@ -952,7 +952,7 @@ pub extern "C" fn ChannelUsage_set_amount_msat(this_ptr: &mut ChannelUsage, mut 
 /// as part of a multi-path payment.
 #[no_mangle]
 pub extern "C" fn ChannelUsage_get_inflight_htlc_msat(this_ptr: &ChannelUsage) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().inflight_htlc_msat;
+	let mut inner_val = &mut ChannelUsage::get_native_mut_ref(this_ptr).inflight_htlc_msat;
 	*inner_val
 }
 /// Total amount, denominated in millisatoshis, already allocated to send through the channel
@@ -964,7 +964,7 @@ pub extern "C" fn ChannelUsage_set_inflight_htlc_msat(this_ptr: &mut ChannelUsag
 /// The effective capacity of the channel.
 #[no_mangle]
 pub extern "C" fn ChannelUsage_get_effective_capacity(this_ptr: &ChannelUsage) -> crate::lightning::routing::gossip::EffectiveCapacity {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().effective_capacity;
+	let mut inner_val = &mut ChannelUsage::get_native_mut_ref(this_ptr).effective_capacity;
 	crate::lightning::routing::gossip::EffectiveCapacity::from_native(inner_val)
 }
 /// The effective capacity of the channel.
@@ -986,7 +986,7 @@ impl Clone for ChannelUsage {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelUsage>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -994,12 +994,12 @@ impl Clone for ChannelUsage {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelUsage_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelUsage)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelUsage) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelUsage
 pub extern "C" fn ChannelUsage_clone(orig: &ChannelUsage) -> ChannelUsage {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ChannelUsage object
 pub extern "C" fn ChannelUsage_debug_str_void(o: *const c_void) -> Str {
@@ -1068,7 +1068,7 @@ impl Clone for FixedPenaltyScorer {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeFixedPenaltyScorer>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1076,12 +1076,12 @@ impl Clone for FixedPenaltyScorer {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn FixedPenaltyScorer_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeFixedPenaltyScorer)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeFixedPenaltyScorer) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the FixedPenaltyScorer
 pub extern "C" fn FixedPenaltyScorer_clone(orig: &FixedPenaltyScorer) -> FixedPenaltyScorer {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Creates a new scorer using `penalty_msat`.
 #[must_use]
@@ -1267,6 +1267,101 @@ impl ProbabilisticScorer {
 	}
 }
 
+use lightning::routing::scoring::ChannelLiquidities as nativeChannelLiquiditiesImport;
+pub(crate) type nativeChannelLiquidities = nativeChannelLiquiditiesImport;
+
+/// Container for live and historical liquidity bounds for each channel.
+#[must_use]
+#[repr(C)]
+pub struct ChannelLiquidities {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeChannelLiquidities,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for ChannelLiquidities {
+	type Target = nativeChannelLiquidities;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for ChannelLiquidities { }
+unsafe impl core::marker::Sync for ChannelLiquidities { }
+impl Drop for ChannelLiquidities {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeChannelLiquidities>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the ChannelLiquidities, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn ChannelLiquidities_free(this_obj: ChannelLiquidities) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn ChannelLiquidities_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeChannelLiquidities) };
+}
+#[allow(unused)]
+impl ChannelLiquidities {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeChannelLiquidities {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeChannelLiquidities {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeChannelLiquidities {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+impl Clone for ChannelLiquidities {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeChannelLiquidities>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn ChannelLiquidities_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelLiquidities) }))) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the ChannelLiquidities
+pub extern "C" fn ChannelLiquidities_clone(orig: &ChannelLiquidities) -> ChannelLiquidities {
+	Clone::clone(orig)
+}
+#[no_mangle]
+/// Read a ChannelLiquidities from a byte array, created by ChannelLiquidities_write
+pub extern "C" fn ChannelLiquidities_read(ser: crate::c_types::u8slice) -> crate::c_types::derived::CResult_ChannelLiquiditiesDecodeErrorZ {
+	let res: Result<lightning::routing::scoring::ChannelLiquidities, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
+	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::scoring::ChannelLiquidities { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
+	local_res
+}
+#[no_mangle]
+/// Serialize the ChannelLiquidities object into a byte array which can be read by ChannelLiquidities_read
+pub extern "C" fn ChannelLiquidities_write(obj: &crate::lightning::routing::scoring::ChannelLiquidities) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn ChannelLiquidities_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::scoring::nativeChannelLiquidities) })
+}
+
 use lightning::routing::scoring::ProbabilisticScoringFeeParameters as nativeProbabilisticScoringFeeParametersImport;
 pub(crate) type nativeProbabilisticScoringFeeParameters = nativeProbabilisticScoringFeeParametersImport;
 
@@ -1343,7 +1438,7 @@ impl ProbabilisticScoringFeeParameters {
 /// [`historical_liquidity_penalty_multiplier_msat`]: Self::historical_liquidity_penalty_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_base_penalty_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().base_penalty_msat;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).base_penalty_msat;
 	*inner_val
 }
 /// A fixed penalty in msats to apply to each channel.
@@ -1380,7 +1475,7 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_base_penalty_msat(this_p
 /// [`historical_liquidity_penalty_amount_multiplier_msat`]: Self::historical_liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_base_penalty_amount_multiplier_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().base_penalty_amount_multiplier_msat;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).base_penalty_amount_multiplier_msat;
 	*inner_val
 }
 /// A multiplier used with the payment amount to calculate a fixed penalty applied to each
@@ -1429,7 +1524,7 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_base_penalty_amount_mult
 /// [`historical_liquidity_penalty_multiplier_msat`]: Self::historical_liquidity_penalty_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_liquidity_penalty_multiplier_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().liquidity_penalty_multiplier_msat;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).liquidity_penalty_multiplier_msat;
 	*inner_val
 }
 /// A multiplier used in conjunction with the negative `log10` of the channel's success
@@ -1483,7 +1578,7 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_liquidity_penalty_multip
 /// [`historical_liquidity_penalty_amount_multiplier_msat`]: Self::historical_liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_liquidity_penalty_amount_multiplier_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().liquidity_penalty_amount_multiplier_msat;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).liquidity_penalty_amount_multiplier_msat;
 	*inner_val
 }
 /// A multiplier used in conjunction with the payment amount and the negative `log10` of the
@@ -1531,7 +1626,7 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_liquidity_penalty_amount
 /// [`liquidity_penalty_multiplier_msat`]: Self::liquidity_penalty_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_historical_liquidity_penalty_multiplier_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().historical_liquidity_penalty_multiplier_msat;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).historical_liquidity_penalty_multiplier_msat;
 	*inner_val
 }
 /// A multiplier used in conjunction with the negative `log10` of the channel's success
@@ -1576,7 +1671,7 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_historical_liquidity_pen
 /// [`liquidity_penalty_amount_multiplier_msat`]: Self::liquidity_penalty_amount_multiplier_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_historical_liquidity_penalty_amount_multiplier_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().historical_liquidity_penalty_amount_multiplier_msat;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).historical_liquidity_penalty_amount_multiplier_msat;
 	*inner_val
 }
 /// A multiplier used in conjunction with the payment amount and the negative `log10` of the
@@ -1613,7 +1708,7 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_historical_liquidity_pen
 /// Default value: 250 msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_anti_probing_penalty_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().anti_probing_penalty_msat;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).anti_probing_penalty_msat;
 	*inner_val
 }
 /// This penalty is applied when `htlc_maximum_msat` is equal to or larger than half of the
@@ -1647,7 +1742,7 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_anti_probing_penalty_msa
 /// [`anti_probing_penalty_msat`]: Self::anti_probing_penalty_msat
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_considered_impossible_penalty_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().considered_impossible_penalty_msat;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).considered_impossible_penalty_msat;
 	*inner_val
 }
 /// This penalty is applied when the total amount flowing over a channel exceeds our current
@@ -1694,7 +1789,7 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_set_considered_impossible_pe
 /// Default value: false
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringFeeParameters_get_linear_success_probability(this_ptr: &ProbabilisticScoringFeeParameters) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().linear_success_probability;
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).linear_success_probability;
 	*inner_val
 }
 /// In order to calculate most of the scores above, we must first convert a lower and upper
@@ -1721,11 +1816,62 @@ pub extern "C" fn ProbabilisticScoringFeeParameters_get_linear_success_probabili
 pub extern "C" fn ProbabilisticScoringFeeParameters_set_linear_success_probability(this_ptr: &mut ProbabilisticScoringFeeParameters, mut val: bool) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.linear_success_probability = val;
 }
+/// In order to ensure we have knowledge for as many paths as possible, when probing it makes
+/// sense to bias away from channels for which we have very recent data.
+///
+/// This value is a penalty that is applied based on the last time that we updated the bounds
+/// on the available liquidity in a channel. The specified value is the maximum penalty that
+/// will be applied.
+///
+/// It obviously does not make sense to assign a non-0 value here unless you are using the
+/// pathfinding result for background probing.
+///
+/// Specifically, the following penalty is applied
+/// `probing_diversity_penalty_msat * max(0, (86400 - current time + last update))^2 / 86400^2` is
+///
+/// As this is a maximum value, when setting this you should consider it in relation to the
+/// other values set to ensure that, at maximum, we strongly avoid paths which we recently
+/// tried (similar to if they have a low success probability). For example, you might set this
+/// to be the sum of [`Self::base_penalty_msat`] and
+/// [`Self::historical_liquidity_penalty_multiplier_msat`] (plus some multiple of their
+/// corresponding `amount_multiplier`s).
+///
+/// Default value: 0
+#[no_mangle]
+pub extern "C" fn ProbabilisticScoringFeeParameters_get_probing_diversity_penalty_msat(this_ptr: &ProbabilisticScoringFeeParameters) -> u64 {
+	let mut inner_val = &mut ProbabilisticScoringFeeParameters::get_native_mut_ref(this_ptr).probing_diversity_penalty_msat;
+	*inner_val
+}
+/// In order to ensure we have knowledge for as many paths as possible, when probing it makes
+/// sense to bias away from channels for which we have very recent data.
+///
+/// This value is a penalty that is applied based on the last time that we updated the bounds
+/// on the available liquidity in a channel. The specified value is the maximum penalty that
+/// will be applied.
+///
+/// It obviously does not make sense to assign a non-0 value here unless you are using the
+/// pathfinding result for background probing.
+///
+/// Specifically, the following penalty is applied
+/// `probing_diversity_penalty_msat * max(0, (86400 - current time + last update))^2 / 86400^2` is
+///
+/// As this is a maximum value, when setting this you should consider it in relation to the
+/// other values set to ensure that, at maximum, we strongly avoid paths which we recently
+/// tried (similar to if they have a low success probability). For example, you might set this
+/// to be the sum of [`Self::base_penalty_msat`] and
+/// [`Self::historical_liquidity_penalty_multiplier_msat`] (plus some multiple of their
+/// corresponding `amount_multiplier`s).
+///
+/// Default value: 0
+#[no_mangle]
+pub extern "C" fn ProbabilisticScoringFeeParameters_set_probing_diversity_penalty_msat(this_ptr: &mut ProbabilisticScoringFeeParameters, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.probing_diversity_penalty_msat = val;
+}
 impl Clone for ProbabilisticScoringFeeParameters {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeProbabilisticScoringFeeParameters>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1733,13 +1879,16 @@ impl Clone for ProbabilisticScoringFeeParameters {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ProbabilisticScoringFeeParameters_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeProbabilisticScoringFeeParameters)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeProbabilisticScoringFeeParameters) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ProbabilisticScoringFeeParameters
 pub extern "C" fn ProbabilisticScoringFeeParameters_clone(orig: &ProbabilisticScoringFeeParameters) -> ProbabilisticScoringFeeParameters {
-	orig.clone()
+	Clone::clone(orig)
 }
+/// Get a string which allows debug introspection of a ProbabilisticScoringFeeParameters object
+pub extern "C" fn ProbabilisticScoringFeeParameters_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters }).into()}
 /// Creates a "default" ProbabilisticScoringFeeParameters. See struct and individual field documentaiton for details on which values are used.
 #[must_use]
 #[no_mangle]
@@ -1862,7 +2011,7 @@ impl ProbabilisticScoringDecayParameters {
 /// [`historical_estimated_channel_liquidity_probabilities`]: ProbabilisticScorer::historical_estimated_channel_liquidity_probabilities
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringDecayParameters_get_historical_no_updates_half_life(this_ptr: &ProbabilisticScoringDecayParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().historical_no_updates_half_life;
+	let mut inner_val = &mut ProbabilisticScoringDecayParameters::get_native_mut_ref(this_ptr).historical_no_updates_half_life;
 	inner_val.as_secs()
 }
 /// If we aren't learning any new datapoints for a channel, the historical liquidity bounds
@@ -1901,7 +2050,7 @@ pub extern "C" fn ProbabilisticScoringDecayParameters_set_historical_no_updates_
 /// liquidity knowledge will never decay except when the bounds cross.
 #[no_mangle]
 pub extern "C" fn ProbabilisticScoringDecayParameters_get_liquidity_offset_half_life(this_ptr: &ProbabilisticScoringDecayParameters) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().liquidity_offset_half_life;
+	let mut inner_val = &mut ProbabilisticScoringDecayParameters::get_native_mut_ref(this_ptr).liquidity_offset_half_life;
 	inner_val.as_secs()
 }
 /// Whenever this amount of time elapses since the last update to a channel's liquidity bounds,
@@ -1940,7 +2089,7 @@ impl Clone for ProbabilisticScoringDecayParameters {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeProbabilisticScoringDecayParameters>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1948,13 +2097,16 @@ impl Clone for ProbabilisticScoringDecayParameters {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ProbabilisticScoringDecayParameters_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeProbabilisticScoringDecayParameters)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeProbabilisticScoringDecayParameters) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ProbabilisticScoringDecayParameters
 pub extern "C" fn ProbabilisticScoringDecayParameters_clone(orig: &ProbabilisticScoringDecayParameters) -> ProbabilisticScoringDecayParameters {
-	orig.clone()
+	Clone::clone(orig)
 }
+/// Get a string which allows debug introspection of a ProbabilisticScoringDecayParameters object
+pub extern "C" fn ProbabilisticScoringDecayParameters_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::routing::scoring::ProbabilisticScoringDecayParameters }).into()}
 /// Creates a "default" ProbabilisticScoringDecayParameters. See struct and individual field documentaiton for details on which values are used.
 #[must_use]
 #[no_mangle]
@@ -2057,6 +2209,20 @@ pub extern "C" fn ProbabilisticScorer_live_estimated_payment_success_probability
 	local_ret
 }
 
+/// Overwrite the scorer state with the given external scores.
+#[no_mangle]
+pub extern "C" fn ProbabilisticScorer_set_scores(this_arg: &mut crate::lightning::routing::scoring::ProbabilisticScorer, mut external_scores: crate::lightning::routing::scoring::ChannelLiquidities) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::routing::scoring::nativeProbabilisticScorer)) }.set_scores(*unsafe { Box::from_raw(external_scores.take_inner()) })
+}
+
+/// Returns the current scores.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ProbabilisticScorer_scores(this_arg: &crate::lightning::routing::scoring::ProbabilisticScorer) -> crate::lightning::routing::scoring::ChannelLiquidities {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.scores();
+	crate::lightning::routing::scoring::ChannelLiquidities { inner: unsafe { ObjOps::nonnull_ptr_to_inner((ret as *const lightning::routing::scoring::ChannelLiquidities<>) as *mut _) }, is_owned: false }
+}
+
 impl From<nativeProbabilisticScorer> for crate::lightning::routing::scoring::ScoreLookUp {
 	fn from(obj: nativeProbabilisticScorer) -> Self {
 		let rust_obj = crate::lightning::routing::scoring::ProbabilisticScorer { inner: ObjOps::heap_alloc(obj), is_owned: true };
@@ -2125,6 +2291,173 @@ extern "C" fn ProbabilisticScorer_ScoreUpdate_time_passed(this_arg: *mut c_void,
 	<nativeProbabilisticScorer as lightning::routing::scoring::ScoreUpdate>::time_passed(unsafe { &mut *(this_arg as *mut nativeProbabilisticScorer) }, core::time::Duration::from_secs(duration_since_epoch))
 }
 
+
+use lightning::routing::scoring::CombinedScorer as nativeCombinedScorerImport;
+pub(crate) type nativeCombinedScorer = nativeCombinedScorerImport<&'static lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>, crate::lightning::util::logger::Logger, >;
+
+/// A probabilistic scorer that combines local and external information to score channels. This scorer is
+/// shadow-tracking local only scores, so that it becomes possible to cleanly merge external scores when they become
+/// available.
+///
+/// This is useful for nodes that have a limited local view of the network and need to augment their view with scores
+/// from an external source to improve payment reliability. The external source may use something like background
+/// probing to gather a more complete view of the network. Merging reduces the likelihood of losing unique local data on
+/// particular channels.
+///
+/// Note that only the locally acquired data is persisted. After a restart, the external scores will be lost and must be
+/// resupplied.
+#[must_use]
+#[repr(C)]
+pub struct CombinedScorer {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeCombinedScorer,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for CombinedScorer {
+	type Target = nativeCombinedScorer;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for CombinedScorer { }
+unsafe impl core::marker::Sync for CombinedScorer { }
+impl Drop for CombinedScorer {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeCombinedScorer>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the CombinedScorer, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn CombinedScorer_free(this_obj: CombinedScorer) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn CombinedScorer_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeCombinedScorer) };
+}
+#[allow(unused)]
+impl CombinedScorer {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeCombinedScorer {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeCombinedScorer {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeCombinedScorer {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// Create a new combined scorer with the given local scorer.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn CombinedScorer_new(mut local_scorer: crate::lightning::routing::scoring::ProbabilisticScorer) -> crate::lightning::routing::scoring::CombinedScorer {
+	let mut ret = lightning::routing::scoring::CombinedScorer::new(*unsafe { Box::from_raw(local_scorer.take_inner()) });
+	crate::lightning::routing::scoring::CombinedScorer { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Merge external channel liquidity information into the scorer.
+#[no_mangle]
+pub extern "C" fn CombinedScorer_merge(this_arg: &mut crate::lightning::routing::scoring::CombinedScorer, mut external_scores: crate::lightning::routing::scoring::ChannelLiquidities, mut duration_since_epoch: u64) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::routing::scoring::nativeCombinedScorer)) }.merge(*unsafe { Box::from_raw(external_scores.take_inner()) }, core::time::Duration::from_secs(duration_since_epoch))
+}
+
+/// Overwrite the scorer state with the given external scores.
+#[no_mangle]
+pub extern "C" fn CombinedScorer_set_scores(this_arg: &mut crate::lightning::routing::scoring::CombinedScorer, mut external_scores: crate::lightning::routing::scoring::ChannelLiquidities) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::routing::scoring::nativeCombinedScorer)) }.set_scores(*unsafe { Box::from_raw(external_scores.take_inner()) })
+}
+
+impl From<nativeCombinedScorer> for crate::lightning::routing::scoring::ScoreLookUp {
+	fn from(obj: nativeCombinedScorer) -> Self {
+		let rust_obj = crate::lightning::routing::scoring::CombinedScorer { inner: ObjOps::heap_alloc(obj), is_owned: true };
+		let mut ret = CombinedScorer_as_ScoreLookUp(&rust_obj);
+		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
+		core::mem::forget(rust_obj);
+		ret.free = Some(CombinedScorer_free_void);
+		ret
+	}
+}
+/// Constructs a new ScoreLookUp which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned ScoreLookUp must be freed before this_arg is
+#[no_mangle]
+pub extern "C" fn CombinedScorer_as_ScoreLookUp(this_arg: &CombinedScorer) -> crate::lightning::routing::scoring::ScoreLookUp {
+	crate::lightning::routing::scoring::ScoreLookUp {
+		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+		free: None,
+		channel_penalty_msat: CombinedScorer_ScoreLookUp_channel_penalty_msat,
+	}
+}
+
+#[must_use]
+extern "C" fn CombinedScorer_ScoreLookUp_channel_penalty_msat(this_arg: *const c_void, candidate: &crate::lightning::routing::router::CandidateRouteHop, mut usage: crate::lightning::routing::scoring::ChannelUsage, score_params: &crate::lightning::routing::scoring::ProbabilisticScoringFeeParameters) -> u64 {
+	let mut ret = <nativeCombinedScorer as lightning::routing::scoring::ScoreLookUp>::channel_penalty_msat(unsafe { &mut *(this_arg as *mut nativeCombinedScorer) }, &candidate.to_native(), *unsafe { Box::from_raw(usage.take_inner()) }, score_params.get_native_ref());
+	ret
+}
+
+impl From<nativeCombinedScorer> for crate::lightning::routing::scoring::ScoreUpdate {
+	fn from(obj: nativeCombinedScorer) -> Self {
+		let rust_obj = crate::lightning::routing::scoring::CombinedScorer { inner: ObjOps::heap_alloc(obj), is_owned: true };
+		let mut ret = CombinedScorer_as_ScoreUpdate(&rust_obj);
+		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
+		core::mem::forget(rust_obj);
+		ret.free = Some(CombinedScorer_free_void);
+		ret
+	}
+}
+/// Constructs a new ScoreUpdate which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned ScoreUpdate must be freed before this_arg is
+#[no_mangle]
+pub extern "C" fn CombinedScorer_as_ScoreUpdate(this_arg: &CombinedScorer) -> crate::lightning::routing::scoring::ScoreUpdate {
+	crate::lightning::routing::scoring::ScoreUpdate {
+		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+		free: None,
+		payment_path_failed: CombinedScorer_ScoreUpdate_payment_path_failed,
+		payment_path_successful: CombinedScorer_ScoreUpdate_payment_path_successful,
+		probe_failed: CombinedScorer_ScoreUpdate_probe_failed,
+		probe_successful: CombinedScorer_ScoreUpdate_probe_successful,
+		time_passed: CombinedScorer_ScoreUpdate_time_passed,
+	}
+}
+
+extern "C" fn CombinedScorer_ScoreUpdate_payment_path_failed(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: u64) {
+	<nativeCombinedScorer as lightning::routing::scoring::ScoreUpdate>::payment_path_failed(unsafe { &mut *(this_arg as *mut nativeCombinedScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
+}
+extern "C" fn CombinedScorer_ScoreUpdate_payment_path_successful(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut duration_since_epoch: u64) {
+	<nativeCombinedScorer as lightning::routing::scoring::ScoreUpdate>::payment_path_successful(unsafe { &mut *(this_arg as *mut nativeCombinedScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
+}
+extern "C" fn CombinedScorer_ScoreUpdate_probe_failed(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut short_channel_id: u64, mut duration_since_epoch: u64) {
+	<nativeCombinedScorer as lightning::routing::scoring::ScoreUpdate>::probe_failed(unsafe { &mut *(this_arg as *mut nativeCombinedScorer) }, path.get_native_ref(), short_channel_id, core::time::Duration::from_secs(duration_since_epoch))
+}
+extern "C" fn CombinedScorer_ScoreUpdate_probe_successful(this_arg: *mut c_void, path: &crate::lightning::routing::router::Path, mut duration_since_epoch: u64) {
+	<nativeCombinedScorer as lightning::routing::scoring::ScoreUpdate>::probe_successful(unsafe { &mut *(this_arg as *mut nativeCombinedScorer) }, path.get_native_ref(), core::time::Duration::from_secs(duration_since_epoch))
+}
+extern "C" fn CombinedScorer_ScoreUpdate_time_passed(this_arg: *mut c_void, mut duration_since_epoch: u64) {
+	<nativeCombinedScorer as lightning::routing::scoring::ScoreUpdate>::time_passed(unsafe { &mut *(this_arg as *mut nativeCombinedScorer) }, core::time::Duration::from_secs(duration_since_epoch))
+}
+
+#[no_mangle]
+/// Serialize the CombinedScorer object into a byte array which can be read by CombinedScorer_read
+pub extern "C" fn CombinedScorer_write(obj: &crate::lightning::routing::scoring::CombinedScorer) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*obj }.get_native_ref())
+}
+#[allow(unused)]
+pub(crate) extern "C" fn CombinedScorer_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
+	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::routing::scoring::nativeCombinedScorer) })
+}
 impl From<nativeProbabilisticScorer> for crate::lightning::routing::scoring::Score {
 	fn from(obj: nativeProbabilisticScorer) -> Self {
 		let rust_obj = crate::lightning::routing::scoring::ProbabilisticScorer { inner: ObjOps::heap_alloc(obj), is_owned: true };

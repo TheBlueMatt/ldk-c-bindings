@@ -21,6 +21,8 @@ use crate::c_types::*;
 use alloc::{vec::Vec, boxed::Box};
 
 pub mod offer;
+pub mod flow;
+pub mod async_receive_offer_cache;
 pub mod invoice;
 pub mod invoice_error;
 pub mod invoice_request;
@@ -28,6 +30,7 @@ pub mod merkle;
 pub mod nonce;
 pub mod parse;
 pub mod refund;
+pub mod static_invoice;
 mod invoice_macros {
 
 use alloc::str::FromStr;

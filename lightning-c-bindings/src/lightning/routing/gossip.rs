@@ -21,7 +21,12 @@ use alloc::{vec::Vec, boxed::Box};
 use lightning::routing::gossip::NodeId as nativeNodeIdImport;
 pub(crate) type nativeNodeId = nativeNodeIdImport;
 
-/// Represents the compressed public key of a node
+/// A compressed pubkey which a node uses to sign announcements and decode HTLCs routed through it.
+///
+/// This type stores a simple byte array which is not checked for validity (i.e. that it describes
+/// a point which lies on the secp256k1 curve), unlike [`PublicKey`], as validity checking would
+/// otherwise represent a large portion of [`NetworkGraph`] deserialization time (and RGS
+/// application).
 #[must_use]
 #[repr(C)]
 pub struct NodeId {
@@ -81,7 +86,7 @@ impl Clone for NodeId {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeNodeId>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -89,12 +94,12 @@ impl Clone for NodeId {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn NodeId_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeNodeId)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeNodeId) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the NodeId
 pub extern "C" fn NodeId_clone(orig: &NodeId) -> NodeId {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Checks if two NodeIds contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
@@ -181,6 +186,12 @@ pub extern "C" fn NodeId_read(ser: crate::c_types::u8slice) -> crate::c_types::d
 	let res: Result<lightning::routing::gossip::NodeId, lightning::ln::msgs::DecodeError> = crate::c_types::deserialize_obj(ser);
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::routing::gossip::NodeId { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
+}
+#[no_mangle]
+/// Build a NodeId from a PublicKey
+pub extern "C" fn NodeId_from_PublicKey(f: crate::c_types::PublicKey) -> crate::lightning::routing::gossip::NodeId {
+	let from_obj = f.into_rust();
+	crate::lightning::routing::gossip::NodeId { inner: ObjOps::heap_alloc((lightning::routing::gossip::NodeId::from(from_obj))), is_owned: true }
 }
 
 use lightning::routing::gossip::NetworkGraph as nativeNetworkGraphImport;
@@ -613,18 +624,19 @@ pub extern "C" fn P2PGossipSync_as_RoutingMessageHandler(this_arg: &P2PGossipSyn
 		handle_channel_update: P2PGossipSync_RoutingMessageHandler_handle_channel_update,
 		get_next_channel_announcement: P2PGossipSync_RoutingMessageHandler_get_next_channel_announcement,
 		get_next_node_announcement: P2PGossipSync_RoutingMessageHandler_get_next_node_announcement,
-		peer_connected: P2PGossipSync_RoutingMessageHandler_peer_connected,
 		handle_reply_channel_range: P2PGossipSync_RoutingMessageHandler_handle_reply_channel_range,
 		handle_reply_short_channel_ids_end: P2PGossipSync_RoutingMessageHandler_handle_reply_short_channel_ids_end,
 		handle_query_channel_range: P2PGossipSync_RoutingMessageHandler_handle_query_channel_range,
 		handle_query_short_channel_ids: P2PGossipSync_RoutingMessageHandler_handle_query_short_channel_ids,
 		processing_queue_high: P2PGossipSync_RoutingMessageHandler_processing_queue_high,
-		provided_node_features: P2PGossipSync_RoutingMessageHandler_provided_node_features,
-		provided_init_features: P2PGossipSync_RoutingMessageHandler_provided_init_features,
-		MessageSendEventsProvider: crate::lightning::events::MessageSendEventsProvider {
+		BaseMessageHandler: crate::lightning::ln::msgs::BaseMessageHandler {
 			this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
 			free: None,
-			get_and_clear_pending_msg_events: P2PGossipSync_MessageSendEventsProvider_get_and_clear_pending_msg_events,
+			get_and_clear_pending_msg_events: P2PGossipSync_BaseMessageHandler_get_and_clear_pending_msg_events,
+			peer_disconnected: P2PGossipSync_BaseMessageHandler_peer_disconnected,
+			provided_node_features: P2PGossipSync_BaseMessageHandler_provided_node_features,
+			provided_init_features: P2PGossipSync_BaseMessageHandler_provided_init_features,
+			peer_connected: P2PGossipSync_BaseMessageHandler_peer_connected,
 		},
 	}
 }
@@ -664,12 +676,6 @@ extern "C" fn P2PGossipSync_RoutingMessageHandler_get_next_node_announcement(thi
 	local_ret
 }
 #[must_use]
-extern "C" fn P2PGossipSync_RoutingMessageHandler_peer_connected(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, init: &crate::lightning::ln::msgs::Init, mut inbound: bool) -> crate::c_types::derived::CResult_NoneNoneZ {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::peer_connected(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust(), init.get_native_ref(), inbound);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
-}
-#[must_use]
 extern "C" fn P2PGossipSync_RoutingMessageHandler_handle_reply_channel_range(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, mut msg: crate::lightning::ln::msgs::ReplyChannelRange) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
 	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::handle_reply_channel_range(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust(), *unsafe { Box::from_raw(msg.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
@@ -698,43 +704,56 @@ extern "C" fn P2PGossipSync_RoutingMessageHandler_processing_queue_high(this_arg
 	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::processing_queue_high(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, );
 	ret
 }
-#[must_use]
-extern "C" fn P2PGossipSync_RoutingMessageHandler_provided_node_features(this_arg: *const c_void) -> crate::lightning_types::features::NodeFeatures {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::provided_node_features(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, );
-	crate::lightning_types::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
-#[must_use]
-extern "C" fn P2PGossipSync_RoutingMessageHandler_provided_init_features(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures {
-	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::RoutingMessageHandler>::provided_init_features(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust());
-	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
-}
 
-impl From<nativeP2PGossipSync> for crate::lightning::events::MessageSendEventsProvider {
+impl From<nativeP2PGossipSync> for crate::lightning::ln::msgs::BaseMessageHandler {
 	fn from(obj: nativeP2PGossipSync) -> Self {
 		let rust_obj = crate::lightning::routing::gossip::P2PGossipSync { inner: ObjOps::heap_alloc(obj), is_owned: true };
-		let mut ret = P2PGossipSync_as_MessageSendEventsProvider(&rust_obj);
+		let mut ret = P2PGossipSync_as_BaseMessageHandler(&rust_obj);
 		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
 		core::mem::forget(rust_obj);
 		ret.free = Some(P2PGossipSync_free_void);
 		ret
 	}
 }
-/// Constructs a new MessageSendEventsProvider which calls the relevant methods on this_arg.
-/// This copies the `inner` pointer in this_arg and thus the returned MessageSendEventsProvider must be freed before this_arg is
+/// Constructs a new BaseMessageHandler which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned BaseMessageHandler must be freed before this_arg is
 #[no_mangle]
-pub extern "C" fn P2PGossipSync_as_MessageSendEventsProvider(this_arg: &P2PGossipSync) -> crate::lightning::events::MessageSendEventsProvider {
-	crate::lightning::events::MessageSendEventsProvider {
+pub extern "C" fn P2PGossipSync_as_BaseMessageHandler(this_arg: &P2PGossipSync) -> crate::lightning::ln::msgs::BaseMessageHandler {
+	crate::lightning::ln::msgs::BaseMessageHandler {
 		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
 		free: None,
-		get_and_clear_pending_msg_events: P2PGossipSync_MessageSendEventsProvider_get_and_clear_pending_msg_events,
+		get_and_clear_pending_msg_events: P2PGossipSync_BaseMessageHandler_get_and_clear_pending_msg_events,
+		peer_disconnected: P2PGossipSync_BaseMessageHandler_peer_disconnected,
+		provided_node_features: P2PGossipSync_BaseMessageHandler_provided_node_features,
+		provided_init_features: P2PGossipSync_BaseMessageHandler_provided_init_features,
+		peer_connected: P2PGossipSync_BaseMessageHandler_peer_connected,
 	}
 }
 
 #[must_use]
-extern "C" fn P2PGossipSync_MessageSendEventsProvider_get_and_clear_pending_msg_events(this_arg: *const c_void) -> crate::c_types::derived::CVec_MessageSendEventZ {
-	let mut ret = <nativeP2PGossipSync as lightning::events::MessageSendEventsProvider>::get_and_clear_pending_msg_events(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, );
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::events::MessageSendEvent::native_into(item) }); };
+extern "C" fn P2PGossipSync_BaseMessageHandler_get_and_clear_pending_msg_events(this_arg: *const c_void) -> crate::c_types::derived::CVec_MessageSendEventZ {
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::BaseMessageHandler>::get_and_clear_pending_msg_events(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, );
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::ln::msgs::MessageSendEvent::native_into(item) }); };
 	local_ret.into()
+}
+extern "C" fn P2PGossipSync_BaseMessageHandler_peer_disconnected(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) {
+	<nativeP2PGossipSync as lightning::ln::msgs::BaseMessageHandler>::peer_disconnected(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust())
+}
+#[must_use]
+extern "C" fn P2PGossipSync_BaseMessageHandler_provided_node_features(this_arg: *const c_void) -> crate::lightning_types::features::NodeFeatures {
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::BaseMessageHandler>::provided_node_features(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, );
+	crate::lightning_types::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+#[must_use]
+extern "C" fn P2PGossipSync_BaseMessageHandler_provided_init_features(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures {
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::BaseMessageHandler>::provided_init_features(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust());
+	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+#[must_use]
+extern "C" fn P2PGossipSync_BaseMessageHandler_peer_connected(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, msg: &crate::lightning::ln::msgs::Init, mut inbound: bool) -> crate::c_types::derived::CResult_NoneNoneZ {
+	let mut ret = <nativeP2PGossipSync as lightning::ln::msgs::BaseMessageHandler>::peer_connected(unsafe { &mut *(this_arg as *mut nativeP2PGossipSync) }, their_node_id.into_rust(), msg.get_native_ref(), inbound);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	local_ret
 }
 
 
@@ -800,7 +819,7 @@ impl ChannelUpdateInfo {
 /// The minimum value, which must be relayed to the next hop via the channel
 #[no_mangle]
 pub extern "C" fn ChannelUpdateInfo_get_htlc_minimum_msat(this_ptr: &ChannelUpdateInfo) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_minimum_msat;
+	let mut inner_val = &mut ChannelUpdateInfo::get_native_mut_ref(this_ptr).htlc_minimum_msat;
 	*inner_val
 }
 /// The minimum value, which must be relayed to the next hop via the channel
@@ -811,7 +830,7 @@ pub extern "C" fn ChannelUpdateInfo_set_htlc_minimum_msat(this_ptr: &mut Channel
 /// The maximum value which may be relayed to the next hop via the channel.
 #[no_mangle]
 pub extern "C" fn ChannelUpdateInfo_get_htlc_maximum_msat(this_ptr: &ChannelUpdateInfo) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_maximum_msat;
+	let mut inner_val = &mut ChannelUpdateInfo::get_native_mut_ref(this_ptr).htlc_maximum_msat;
 	*inner_val
 }
 /// The maximum value which may be relayed to the next hop via the channel.
@@ -822,7 +841,7 @@ pub extern "C" fn ChannelUpdateInfo_set_htlc_maximum_msat(this_ptr: &mut Channel
 /// Fees charged when the channel is used for routing
 #[no_mangle]
 pub extern "C" fn ChannelUpdateInfo_get_fees(this_ptr: &ChannelUpdateInfo) -> crate::lightning_types::routing::RoutingFees {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fees;
+	let mut inner_val = &mut ChannelUpdateInfo::get_native_mut_ref(this_ptr).fees;
 	crate::lightning_types::routing::RoutingFees { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::routing::RoutingFees<>) as *mut _) }, is_owned: false }
 }
 /// Fees charged when the channel is used for routing
@@ -834,7 +853,7 @@ pub extern "C" fn ChannelUpdateInfo_set_fees(this_ptr: &mut ChannelUpdateInfo, m
 /// Value is opaque, as set in the announcement.
 #[no_mangle]
 pub extern "C" fn ChannelUpdateInfo_get_last_update(this_ptr: &ChannelUpdateInfo) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().last_update;
+	let mut inner_val = &mut ChannelUpdateInfo::get_native_mut_ref(this_ptr).last_update;
 	*inner_val
 }
 /// When the last update to the channel direction was issued.
@@ -846,7 +865,7 @@ pub extern "C" fn ChannelUpdateInfo_set_last_update(this_ptr: &mut ChannelUpdate
 /// The difference in CLTV values that you must have when routing through this channel.
 #[no_mangle]
 pub extern "C" fn ChannelUpdateInfo_get_cltv_expiry_delta(this_ptr: &ChannelUpdateInfo) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
+	let mut inner_val = &mut ChannelUpdateInfo::get_native_mut_ref(this_ptr).cltv_expiry_delta;
 	*inner_val
 }
 /// The difference in CLTV values that you must have when routing through this channel.
@@ -857,7 +876,7 @@ pub extern "C" fn ChannelUpdateInfo_set_cltv_expiry_delta(this_ptr: &mut Channel
 /// Whether the channel can be currently used for payments (in this one direction).
 #[no_mangle]
 pub extern "C" fn ChannelUpdateInfo_get_enabled(this_ptr: &ChannelUpdateInfo) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().enabled;
+	let mut inner_val = &mut ChannelUpdateInfo::get_native_mut_ref(this_ptr).enabled;
 	*inner_val
 }
 /// Whether the channel can be currently used for payments (in this one direction).
@@ -873,7 +892,7 @@ pub extern "C" fn ChannelUpdateInfo_set_enabled(this_ptr: &mut ChannelUpdateInfo
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelUpdateInfo_get_last_update_message(this_ptr: &ChannelUpdateInfo) -> crate::lightning::ln::msgs::ChannelUpdate {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().last_update_message;
+	let mut inner_val = &mut ChannelUpdateInfo::get_native_mut_ref(this_ptr).last_update_message;
 	let mut local_inner_val = crate::lightning::ln::msgs::ChannelUpdate { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::msgs::ChannelUpdate<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -909,7 +928,7 @@ impl Clone for ChannelUpdateInfo {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelUpdateInfo>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -917,12 +936,12 @@ impl Clone for ChannelUpdateInfo {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelUpdateInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelUpdateInfo)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelUpdateInfo) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelUpdateInfo
 pub extern "C" fn ChannelUpdateInfo_clone(orig: &ChannelUpdateInfo) -> ChannelUpdateInfo {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ChannelUpdateInfo object
 pub extern "C" fn ChannelUpdateInfo_debug_str_void(o: *const c_void) -> Str {
@@ -1021,7 +1040,7 @@ impl ChannelInfo {
 /// Protocol features of a channel communicated during its announcement
 #[no_mangle]
 pub extern "C" fn ChannelInfo_get_features(this_ptr: &ChannelInfo) -> crate::lightning_types::features::ChannelFeatures {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
+	let mut inner_val = &mut ChannelInfo::get_native_mut_ref(this_ptr).features;
 	crate::lightning_types::features::ChannelFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::ChannelFeatures<>) as *mut _) }, is_owned: false }
 }
 /// Protocol features of a channel communicated during its announcement
@@ -1032,7 +1051,7 @@ pub extern "C" fn ChannelInfo_set_features(this_ptr: &mut ChannelInfo, mut val: 
 /// Source node of the first direction of a channel
 #[no_mangle]
 pub extern "C" fn ChannelInfo_get_node_one(this_ptr: &ChannelInfo) -> crate::lightning::routing::gossip::NodeId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().node_one;
+	let mut inner_val = &mut ChannelInfo::get_native_mut_ref(this_ptr).node_one;
 	crate::lightning::routing::gossip::NodeId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::routing::gossip::NodeId<>) as *mut _) }, is_owned: false }
 }
 /// Source node of the first direction of a channel
@@ -1043,7 +1062,7 @@ pub extern "C" fn ChannelInfo_set_node_one(this_ptr: &mut ChannelInfo, mut val: 
 /// Source node of the second direction of a channel
 #[no_mangle]
 pub extern "C" fn ChannelInfo_get_node_two(this_ptr: &ChannelInfo) -> crate::lightning::routing::gossip::NodeId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().node_two;
+	let mut inner_val = &mut ChannelInfo::get_native_mut_ref(this_ptr).node_two;
 	crate::lightning::routing::gossip::NodeId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::routing::gossip::NodeId<>) as *mut _) }, is_owned: false }
 }
 /// Source node of the second direction of a channel
@@ -1054,7 +1073,7 @@ pub extern "C" fn ChannelInfo_set_node_two(this_ptr: &mut ChannelInfo, mut val: 
 /// The channel capacity as seen on-chain, if chain lookup is available.
 #[no_mangle]
 pub extern "C" fn ChannelInfo_get_capacity_sats(this_ptr: &ChannelInfo) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().capacity_sats;
+	let mut inner_val = &mut ChannelInfo::get_native_mut_ref(this_ptr).capacity_sats;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1069,7 +1088,7 @@ pub extern "C" fn ChannelInfo_set_capacity_sats(this_ptr: &mut ChannelInfo, mut 
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelInfo_get_one_to_two(this_ptr: &ChannelInfo) -> crate::lightning::routing::gossip::ChannelUpdateInfo {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().one_to_two;
+	let mut inner_val = &mut ChannelInfo::get_native_mut_ref(this_ptr).one_to_two;
 	let mut local_inner_val = crate::lightning::routing::gossip::ChannelUpdateInfo { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::routing::gossip::ChannelUpdateInfo<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -1086,7 +1105,7 @@ pub extern "C" fn ChannelInfo_set_one_to_two(this_ptr: &mut ChannelInfo, mut val
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelInfo_get_two_to_one(this_ptr: &ChannelInfo) -> crate::lightning::routing::gossip::ChannelUpdateInfo {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().two_to_one;
+	let mut inner_val = &mut ChannelInfo::get_native_mut_ref(this_ptr).two_to_one;
 	let mut local_inner_val = crate::lightning::routing::gossip::ChannelUpdateInfo { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::routing::gossip::ChannelUpdateInfo<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -1106,7 +1125,7 @@ pub extern "C" fn ChannelInfo_set_two_to_one(this_ptr: &mut ChannelInfo, mut val
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelInfo_get_announcement_message(this_ptr: &ChannelInfo) -> crate::lightning::ln::msgs::ChannelAnnouncement {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().announcement_message;
+	let mut inner_val = &mut ChannelInfo::get_native_mut_ref(this_ptr).announcement_message;
 	let mut local_inner_val = crate::lightning::ln::msgs::ChannelAnnouncement { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::msgs::ChannelAnnouncement<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -1125,7 +1144,7 @@ impl Clone for ChannelInfo {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelInfo>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1133,12 +1152,12 @@ impl Clone for ChannelInfo {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelInfo)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelInfo) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelInfo
 pub extern "C" fn ChannelInfo_clone(orig: &ChannelInfo) -> ChannelInfo {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ChannelInfo object
 pub extern "C" fn ChannelInfo_debug_str_void(o: *const c_void) -> Str {
@@ -1249,7 +1268,7 @@ impl Clone for DirectedChannelInfo {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeDirectedChannelInfo>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1257,12 +1276,12 @@ impl Clone for DirectedChannelInfo {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn DirectedChannelInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeDirectedChannelInfo)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeDirectedChannelInfo) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the DirectedChannelInfo
 pub extern "C" fn DirectedChannelInfo_clone(orig: &DirectedChannelInfo) -> DirectedChannelInfo {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Returns information for the channel.
 #[must_use]
@@ -1624,7 +1643,7 @@ impl NodeAnnouncementDetails {
 /// Protocol features the node announced support for
 #[no_mangle]
 pub extern "C" fn NodeAnnouncementDetails_get_features(this_ptr: &NodeAnnouncementDetails) -> crate::lightning_types::features::NodeFeatures {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
+	let mut inner_val = &mut NodeAnnouncementDetails::get_native_mut_ref(this_ptr).features;
 	crate::lightning_types::features::NodeFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::NodeFeatures<>) as *mut _) }, is_owned: false }
 }
 /// Protocol features the node announced support for
@@ -1636,7 +1655,7 @@ pub extern "C" fn NodeAnnouncementDetails_set_features(this_ptr: &mut NodeAnnoun
 /// Value is opaque, as set in the announcement.
 #[no_mangle]
 pub extern "C" fn NodeAnnouncementDetails_get_last_update(this_ptr: &NodeAnnouncementDetails) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().last_update;
+	let mut inner_val = &mut NodeAnnouncementDetails::get_native_mut_ref(this_ptr).last_update;
 	*inner_val
 }
 /// When the last known update to the node state was issued.
@@ -1648,7 +1667,7 @@ pub extern "C" fn NodeAnnouncementDetails_set_last_update(this_ptr: &mut NodeAnn
 /// Color assigned to the node
 #[no_mangle]
 pub extern "C" fn NodeAnnouncementDetails_get_rgb(this_ptr: &NodeAnnouncementDetails) -> *const [u8; 3] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().rgb;
+	let mut inner_val = &mut NodeAnnouncementDetails::get_native_mut_ref(this_ptr).rgb;
 	inner_val
 }
 /// Color assigned to the node
@@ -1661,7 +1680,7 @@ pub extern "C" fn NodeAnnouncementDetails_set_rgb(this_ptr: &mut NodeAnnouncemen
 /// should not be exposed to the user.
 #[no_mangle]
 pub extern "C" fn NodeAnnouncementDetails_get_alias(this_ptr: &NodeAnnouncementDetails) -> crate::lightning::routing::gossip::NodeAlias {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().alias;
+	let mut inner_val = &mut NodeAnnouncementDetails::get_native_mut_ref(this_ptr).alias;
 	crate::lightning::routing::gossip::NodeAlias { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::routing::gossip::NodeAlias<>) as *mut _) }, is_owned: false }
 }
 /// Moniker assigned to the node.
@@ -1676,7 +1695,7 @@ pub extern "C" fn NodeAnnouncementDetails_set_alias(this_ptr: &mut NodeAnnouncem
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn NodeAnnouncementDetails_get_addresses(this_ptr: &NodeAnnouncementDetails) -> crate::c_types::derived::CVec_SocketAddressZ {
-	let mut inner_val = this_ptr.get_native_mut_ref().addresses.clone();
+	let mut inner_val = NodeAnnouncementDetails::get_native_mut_ref(this_ptr).addresses.clone();
 	let mut local_inner_val = Vec::new(); for mut item in inner_val.drain(..) { local_inner_val.push( { crate::lightning::ln::msgs::SocketAddress::native_into(item) }); };
 	local_inner_val.into()
 }
@@ -1703,7 +1722,7 @@ impl Clone for NodeAnnouncementDetails {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeNodeAnnouncementDetails>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1711,12 +1730,12 @@ impl Clone for NodeAnnouncementDetails {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn NodeAnnouncementDetails_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeNodeAnnouncementDetails)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeNodeAnnouncementDetails) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the NodeAnnouncementDetails
 pub extern "C" fn NodeAnnouncementDetails_clone(orig: &NodeAnnouncementDetails) -> NodeAnnouncementDetails {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a NodeAnnouncementDetails object
 pub extern "C" fn NodeAnnouncementDetails_debug_str_void(o: *const c_void) -> Str {
@@ -1990,7 +2009,7 @@ impl NodeAlias {
 }
 #[no_mangle]
 pub extern "C" fn NodeAlias_get_a(this_ptr: &NodeAlias) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut NodeAlias::get_native_mut_ref(this_ptr).0;
 	inner_val
 }
 #[no_mangle]
@@ -2009,7 +2028,7 @@ impl Clone for NodeAlias {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeNodeAlias>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -2017,12 +2036,12 @@ impl Clone for NodeAlias {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn NodeAlias_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeNodeAlias)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeNodeAlias) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the NodeAlias
 pub extern "C" fn NodeAlias_clone(orig: &NodeAlias) -> NodeAlias {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a NodeAlias object
 pub extern "C" fn NodeAlias_debug_str_void(o: *const c_void) -> Str {
@@ -2132,7 +2151,7 @@ impl NodeInfo {
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn NodeInfo_get_channels(this_ptr: &NodeInfo) -> crate::c_types::derived::CVec_u64Z {
-	let mut inner_val = this_ptr.get_native_mut_ref().channels.clone();
+	let mut inner_val = NodeInfo::get_native_mut_ref(this_ptr).channels.clone();
 	let mut local_inner_val = Vec::new(); for mut item in inner_val.drain(..) { local_inner_val.push( { item }); };
 	local_inner_val.into()
 }
@@ -2149,7 +2168,7 @@ pub extern "C" fn NodeInfo_set_channels(this_ptr: &mut NodeInfo, mut val: crate:
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn NodeInfo_get_announcement_info(this_ptr: &NodeInfo) -> crate::c_types::derived::COption_NodeAnnouncementInfoZ {
-	let mut inner_val = this_ptr.get_native_mut_ref().announcement_info.clone();
+	let mut inner_val = NodeInfo::get_native_mut_ref(this_ptr).announcement_info.clone();
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_NodeAnnouncementInfoZ::None } else { crate::c_types::derived::COption_NodeAnnouncementInfoZ::Some( { crate::lightning::routing::gossip::NodeAnnouncementInfo::native_into(inner_val.unwrap()) }) };
 	local_inner_val
 }
@@ -2165,7 +2184,7 @@ impl Clone for NodeInfo {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeNodeInfo>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -2173,12 +2192,12 @@ impl Clone for NodeInfo {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn NodeInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeNodeInfo)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeNodeInfo) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the NodeInfo
 pub extern "C" fn NodeInfo_clone(orig: &NodeInfo) -> NodeInfo {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a NodeInfo object
 pub extern "C" fn NodeInfo_debug_str_void(o: *const c_void) -> Str {
@@ -2357,8 +2376,9 @@ pub extern "C" fn NetworkGraph_update_channel_from_unsigned_announcement(this_ar
 /// All other parameters as used in [`msgs::UnsignedChannelAnnouncement`] fields.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn NetworkGraph_add_channel_from_partial_announcement(this_arg: &crate::lightning::routing::gossip::NetworkGraph, mut short_channel_id: u64, mut timestamp: u64, mut features: crate::lightning_types::features::ChannelFeatures, mut node_id_1: crate::c_types::PublicKey, mut node_id_2: crate::c_types::PublicKey) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.add_channel_from_partial_announcement(short_channel_id, timestamp, *unsafe { Box::from_raw(features.take_inner()) }, node_id_1.into_rust(), node_id_2.into_rust());
+pub extern "C" fn NetworkGraph_add_channel_from_partial_announcement(this_arg: &crate::lightning::routing::gossip::NetworkGraph, mut short_channel_id: u64, mut capacity_sats: crate::c_types::derived::COption_u64Z, mut timestamp: u64, mut features: crate::lightning_types::features::ChannelFeatures, mut node_id_1: crate::lightning::routing::gossip::NodeId, mut node_id_2: crate::lightning::routing::gossip::NodeId) -> crate::c_types::derived::CResult_NoneLightningErrorZ {
+	let mut local_capacity_sats = if capacity_sats.is_some() { Some( { capacity_sats.take() }) } else { None };
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.add_channel_from_partial_announcement(short_channel_id, local_capacity_sats, timestamp, *unsafe { Box::from_raw(features.take_inner()) }, *unsafe { Box::from_raw(node_id_1.take_inner()) }, *unsafe { Box::from_raw(node_id_2.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::LightningError { inner: ObjOps::heap_alloc(e), is_owned: true } }).into() };
 	local_ret
 }

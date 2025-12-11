@@ -109,7 +109,7 @@ impl ChannelMonitorUpdate {
 /// [`ChannelMonitorUpdateStatus::InProgress`]: super::ChannelMonitorUpdateStatus::InProgress
 #[no_mangle]
 pub extern "C" fn ChannelMonitorUpdate_get_update_id(this_ptr: &ChannelMonitorUpdate) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().update_id;
+	let mut inner_val = &mut ChannelMonitorUpdate::get_native_mut_ref(this_ptr).update_id;
 	*inner_val
 }
 /// The sequence number of this update. Updates *must* be replayed in-order according to this
@@ -137,7 +137,7 @@ pub extern "C" fn ChannelMonitorUpdate_set_update_id(this_ptr: &mut ChannelMonit
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelMonitorUpdate_get_channel_id(this_ptr: &ChannelMonitorUpdate) -> crate::lightning::ln::types::ChannelId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_id;
+	let mut inner_val = &mut ChannelMonitorUpdate::get_native_mut_ref(this_ptr).channel_id;
 	let mut local_inner_val = crate::lightning::ln::types::ChannelId { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::types::ChannelId<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -156,7 +156,7 @@ impl Clone for ChannelMonitorUpdate {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelMonitorUpdate>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -164,12 +164,12 @@ impl Clone for ChannelMonitorUpdate {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelMonitorUpdate_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelMonitorUpdate)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelMonitorUpdate) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelMonitorUpdate
 pub extern "C" fn ChannelMonitorUpdate_clone(orig: &ChannelMonitorUpdate) -> ChannelMonitorUpdate {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ChannelMonitorUpdate object
 pub extern "C" fn ChannelMonitorUpdate_debug_str_void(o: *const c_void) -> Str {
@@ -183,6 +183,16 @@ pub extern "C" fn ChannelMonitorUpdate_eq(a: &ChannelMonitorUpdate, b: &ChannelM
 	if a.inner.is_null() || b.inner.is_null() { return false; }
 	if a.get_native_ref() == b.get_native_ref() { true } else { false }
 }
+/// Returns a `Vec` of new (funding outpoint, funding script) to monitor the chain for as a
+/// result of a renegotiated funding transaction.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelMonitorUpdate_renegotiated_funding_data(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitorUpdate) -> crate::c_types::derived::CVec_C2Tuple_OutPointCVec_u8ZZZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.renegotiated_funding_data();
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1) = item; let mut local_ret_0 = (crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(orig_ret_0_0), is_owned: true }, orig_ret_0_1.to_bytes().into()).into(); local_ret_0 }); };
+	local_ret.into()
+}
+
 #[no_mangle]
 /// Serialize the ChannelMonitorUpdate object into a byte array which can be read by ChannelMonitorUpdate_read
 pub extern "C" fn ChannelMonitorUpdate_write(obj: &crate::lightning::chain::channelmonitor::ChannelMonitorUpdate) -> crate::c_types::derived::CVec_u8Z {
@@ -221,6 +231,9 @@ pub enum MonitorEvent {
 	/// channel.
 	HolderForceClosed(
 		crate::lightning::chain::transaction::OutPoint),
+	/// Indicates that we've detected a commitment transaction (either holder's or counterparty's)
+	/// be included in a block and should consider the channel closed.
+	CommitmentTxConfirmed,
 	/// Indicates a [`ChannelMonitor`] update has completed. See
 	/// [`ChannelMonitorUpdateStatus::InProgress`] for more information on how this is used.
 	///
@@ -267,6 +280,11 @@ impl MonitorEvent {
 					*unsafe { Box::from_raw(a_nonref.take_inner()) },
 				)
 			},
+			MonitorEvent::CommitmentTxConfirmed => {
+				nativeMonitorEvent::CommitmentTxConfirmed (
+					() /*a_nonref*/,
+				)
+			},
 			MonitorEvent::Completed {ref funding_txo, ref channel_id, ref monitor_update_id, } => {
 				let mut funding_txo_nonref = Clone::clone(funding_txo);
 				let mut channel_id_nonref = Clone::clone(channel_id);
@@ -297,6 +315,11 @@ impl MonitorEvent {
 			MonitorEvent::HolderForceClosed (mut a, ) => {
 				nativeMonitorEvent::HolderForceClosed (
 					*unsafe { Box::from_raw(a.take_inner()) },
+				)
+			},
+			MonitorEvent::CommitmentTxConfirmed => {
+				nativeMonitorEvent::CommitmentTxConfirmed (
+					() /*a*/,
 				)
 			},
 			MonitorEvent::Completed {mut funding_txo, mut channel_id, mut monitor_update_id, } => {
@@ -334,6 +357,8 @@ impl MonitorEvent {
 					crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(a_nonref), is_owned: true },
 				)
 			},
+			nativeMonitorEvent::CommitmentTxConfirmed (ref a, ) => {
+				MonitorEvent::CommitmentTxConfirmed			},
 			nativeMonitorEvent::Completed {ref funding_txo, ref channel_id, ref monitor_update_id, } => {
 				let mut funding_txo_nonref = Clone::clone(funding_txo);
 				let mut channel_id_nonref = Clone::clone(channel_id);
@@ -366,6 +391,8 @@ impl MonitorEvent {
 					crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(a), is_owned: true },
 				)
 			},
+			nativeMonitorEvent::CommitmentTxConfirmed (mut a, ) => {
+				MonitorEvent::CommitmentTxConfirmed			},
 			nativeMonitorEvent::Completed {mut funding_txo, mut channel_id, mut monitor_update_id, } => {
 				MonitorEvent::Completed {
 					funding_txo: crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(funding_txo), is_owned: true },
@@ -412,6 +439,11 @@ pub extern "C" fn MonitorEvent_holder_force_closed_with_info(reason: crate::ligh
 /// Utility method to constructs a new HolderForceClosed-variant MonitorEvent
 pub extern "C" fn MonitorEvent_holder_force_closed(a: crate::lightning::chain::transaction::OutPoint) -> MonitorEvent {
 	MonitorEvent::HolderForceClosed(a, )
+}
+#[no_mangle]
+/// Utility method to constructs a new CommitmentTxConfirmed-variant MonitorEvent
+pub extern "C" fn MonitorEvent_commitment_tx_confirmed() -> MonitorEvent {
+	MonitorEvent::CommitmentTxConfirmed
 }
 #[no_mangle]
 /// Utility method to constructs a new Completed-variant MonitorEvent
@@ -510,7 +542,7 @@ impl Clone for HTLCUpdate {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeHTLCUpdate>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -518,12 +550,12 @@ impl Clone for HTLCUpdate {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn HTLCUpdate_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeHTLCUpdate)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeHTLCUpdate) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the HTLCUpdate
 pub extern "C" fn HTLCUpdate_clone(orig: &HTLCUpdate) -> HTLCUpdate {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Checks if two HTLCUpdates contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.
@@ -565,6 +597,25 @@ pub static ANTI_REORG_DELAY: u32 = lightning::chain::channelmonitor::ANTI_REORG_
 
 #[no_mangle]
 pub static ARCHIVAL_DELAY_BLOCKS: u32 = lightning::chain::channelmonitor::ARCHIVAL_DELAY_BLOCKS;
+/// Number of blocks before confirmation at which we fail back an un-relayed HTLC or at which we
+/// refuse to accept a new HTLC.
+///
+/// This is used for a few separate purposes:
+/// 1) if we've received an MPP HTLC to us and it expires within this many blocks and we are
+///    waiting on additional parts (or waiting on the preimage for any HTLC from the user), we will
+///    fail this HTLC,
+/// 2) if we receive an HTLC within this many blocks of its expiry (plus one to avoid a race
+///    condition with the above), we will fail this HTLC without telling the user we received it,
+///
+/// (1) is all about protecting us - we need enough time to update the channel state before we hit
+/// CLTV_CLAIM_BUFFER, at which point we'd go on chain to claim the HTLC with the preimage.
+///
+/// (2) is the same, but with an additional buffer to avoid accepting an HTLC which is immediately
+/// in a race condition between the user connecting a block (which would fail it) and the user
+/// providing us the preimage (which would claim it).
+
+#[no_mangle]
+pub static HTLC_FAIL_BACK_BUFFER: u32 = lightning::chain::channelmonitor::HTLC_FAIL_BACK_BUFFER;
 /// Indicates whether the balance is derived from a cooperative close, a force-close
 /// (for holder or counterparty), or whether it is for an HTLC.
 #[derive(Clone)]
@@ -662,6 +713,144 @@ pub extern "C" fn BalanceSource_debug_str_void(o: *const c_void) -> Str {
 pub extern "C" fn BalanceSource_eq(a: &BalanceSource, b: &BalanceSource) -> bool {
 	if &a.to_native() == &b.to_native() { true } else { false }
 }
+
+use lightning::chain::channelmonitor::HolderCommitmentTransactionBalance as nativeHolderCommitmentTransactionBalanceImport;
+pub(crate) type nativeHolderCommitmentTransactionBalance = nativeHolderCommitmentTransactionBalanceImport;
+
+/// The claimable balance of a holder commitment transaction that has yet to be broadcast.
+#[must_use]
+#[repr(C)]
+pub struct HolderCommitmentTransactionBalance {
+	/// A pointer to the opaque Rust object.
+
+	/// Nearly everywhere, inner must be non-null, however in places where
+	/// the Rust equivalent takes an Option, it may be set to null to indicate None.
+	pub inner: *mut nativeHolderCommitmentTransactionBalance,
+	/// Indicates that this is the only struct which contains the same pointer.
+
+	/// Rust functions which take ownership of an object provided via an argument require
+	/// this to be true and invalidate the object pointed to by inner.
+	pub is_owned: bool,
+}
+
+impl core::ops::Deref for HolderCommitmentTransactionBalance {
+	type Target = nativeHolderCommitmentTransactionBalance;
+	fn deref(&self) -> &Self::Target { unsafe { &*ObjOps::untweak_ptr(self.inner) } }
+}
+unsafe impl core::marker::Send for HolderCommitmentTransactionBalance { }
+unsafe impl core::marker::Sync for HolderCommitmentTransactionBalance { }
+impl Drop for HolderCommitmentTransactionBalance {
+	fn drop(&mut self) {
+		if self.is_owned && !<*mut nativeHolderCommitmentTransactionBalance>::is_null(self.inner) {
+			let _ = unsafe { Box::from_raw(ObjOps::untweak_ptr(self.inner)) };
+		}
+	}
+}
+/// Frees any resources used by the HolderCommitmentTransactionBalance, if is_owned is set and inner is non-NULL.
+#[no_mangle]
+pub extern "C" fn HolderCommitmentTransactionBalance_free(this_obj: HolderCommitmentTransactionBalance) { }
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn HolderCommitmentTransactionBalance_free_void(this_ptr: *mut c_void) {
+	let _ = unsafe { Box::from_raw(this_ptr as *mut nativeHolderCommitmentTransactionBalance) };
+}
+#[allow(unused)]
+impl HolderCommitmentTransactionBalance {
+	pub(crate) fn get_native_ref(&self) -> &'static nativeHolderCommitmentTransactionBalance {
+		unsafe { &*ObjOps::untweak_ptr(self.inner) }
+	}
+	pub(crate) fn get_native_mut_ref(&self) -> &'static mut nativeHolderCommitmentTransactionBalance {
+		unsafe { &mut *ObjOps::untweak_ptr(self.inner) }
+	}
+	/// When moving out of the pointer, we have to ensure we aren't a reference, this makes that easy
+	pub(crate) fn take_inner(mut self) -> *mut nativeHolderCommitmentTransactionBalance {
+		assert!(self.is_owned);
+		let ret = ObjOps::untweak_ptr(self.inner);
+		self.inner = core::ptr::null_mut();
+		ret
+	}
+	pub(crate) fn as_ref_to(&self) -> Self {
+		Self { inner: self.inner, is_owned: false }
+	}
+}
+/// The amount available to claim, in satoshis, excluding the on-chain fees which will be
+/// required to do so.
+#[no_mangle]
+pub extern "C" fn HolderCommitmentTransactionBalance_get_amount_satoshis(this_ptr: &HolderCommitmentTransactionBalance) -> u64 {
+	let mut inner_val = &mut HolderCommitmentTransactionBalance::get_native_mut_ref(this_ptr).amount_satoshis;
+	*inner_val
+}
+/// The amount available to claim, in satoshis, excluding the on-chain fees which will be
+/// required to do so.
+#[no_mangle]
+pub extern "C" fn HolderCommitmentTransactionBalance_set_amount_satoshis(this_ptr: &mut HolderCommitmentTransactionBalance, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.amount_satoshis = val;
+}
+/// The transaction fee we pay for the closing commitment transaction. This amount is not
+/// included in the [`HolderCommitmentTransactionBalance::amount_satoshis`] value.
+/// This amount includes the sum of dust HTLCs on the commitment transaction, any elided anchors,
+/// as well as the sum of msat amounts rounded down from non-dust HTLCs.
+///
+/// Note that if this channel is inbound (and thus our counterparty pays the commitment
+/// transaction fee) this value will be zero. For [`ChannelMonitor`]s created prior to LDK
+/// 0.0.124, the channel is always treated as outbound (and thus this value is never zero).
+#[no_mangle]
+pub extern "C" fn HolderCommitmentTransactionBalance_get_transaction_fee_satoshis(this_ptr: &HolderCommitmentTransactionBalance) -> u64 {
+	let mut inner_val = &mut HolderCommitmentTransactionBalance::get_native_mut_ref(this_ptr).transaction_fee_satoshis;
+	*inner_val
+}
+/// The transaction fee we pay for the closing commitment transaction. This amount is not
+/// included in the [`HolderCommitmentTransactionBalance::amount_satoshis`] value.
+/// This amount includes the sum of dust HTLCs on the commitment transaction, any elided anchors,
+/// as well as the sum of msat amounts rounded down from non-dust HTLCs.
+///
+/// Note that if this channel is inbound (and thus our counterparty pays the commitment
+/// transaction fee) this value will be zero. For [`ChannelMonitor`]s created prior to LDK
+/// 0.0.124, the channel is always treated as outbound (and thus this value is never zero).
+#[no_mangle]
+pub extern "C" fn HolderCommitmentTransactionBalance_set_transaction_fee_satoshis(this_ptr: &mut HolderCommitmentTransactionBalance, mut val: u64) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.transaction_fee_satoshis = val;
+}
+/// Constructs a new HolderCommitmentTransactionBalance given each field
+#[must_use]
+#[no_mangle]
+pub extern "C" fn HolderCommitmentTransactionBalance_new(mut amount_satoshis_arg: u64, mut transaction_fee_satoshis_arg: u64) -> HolderCommitmentTransactionBalance {
+	HolderCommitmentTransactionBalance { inner: ObjOps::heap_alloc(nativeHolderCommitmentTransactionBalance {
+		amount_satoshis: amount_satoshis_arg,
+		transaction_fee_satoshis: transaction_fee_satoshis_arg,
+	}), is_owned: true }
+}
+impl Clone for HolderCommitmentTransactionBalance {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeHolderCommitmentTransactionBalance>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn HolderCommitmentTransactionBalance_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeHolderCommitmentTransactionBalance) }))) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the HolderCommitmentTransactionBalance
+pub extern "C" fn HolderCommitmentTransactionBalance_clone(orig: &HolderCommitmentTransactionBalance) -> HolderCommitmentTransactionBalance {
+	Clone::clone(orig)
+}
+/// Get a string which allows debug introspection of a HolderCommitmentTransactionBalance object
+pub extern "C" fn HolderCommitmentTransactionBalance_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::chain::channelmonitor::HolderCommitmentTransactionBalance }).into()}
+/// Checks if two HolderCommitmentTransactionBalances contain equal inner contents.
+/// This ignores pointers and is_owned flags and looks at the values in fields.
+/// Two objects with NULL inner values will be considered "equal" here.
+#[no_mangle]
+pub extern "C" fn HolderCommitmentTransactionBalance_eq(a: &HolderCommitmentTransactionBalance, b: &HolderCommitmentTransactionBalance) -> bool {
+	if a.inner == b.inner { return true; }
+	if a.inner.is_null() || b.inner.is_null() { return false; }
+	if a.get_native_ref() == b.get_native_ref() { true } else { false }
+}
 /// Details about the balance(s) available for spending once the channel appears on chain.
 ///
 /// See [`ChannelMonitor::get_claimable_balances`] for more details on when these will or will not
@@ -671,19 +860,31 @@ pub extern "C" fn BalanceSource_eq(a: &BalanceSource, b: &BalanceSource) -> bool
 #[repr(C)]
 pub enum Balance {
 	/// The channel is not yet closed (or the commitment or closing transaction has not yet
-	/// appeared in a block). The given balance is claimable (less on-chain fees) if the channel is
-	/// force-closed now.
+	/// appeared in a block).
 	ClaimableOnChannelClose {
-		/// The amount available to claim, in satoshis, excluding the on-chain fees which will be
-		/// required to do so.
-		amount_satoshis: u64,
-		/// The transaction fee we pay for the closing commitment transaction. This amount is not
-		/// included in the [`Balance::ClaimableOnChannelClose::amount_satoshis`] value.
+		/// A list of balance candidates based on the latest set of valid holder commitment
+		/// transactions that can hit the chain. Typically, a channel only has one valid holder
+		/// commitment transaction that spends the current funding output. As soon as a channel is
+		/// spliced, an alternative holder commitment transaction exists spending the new funding
+		/// output. More alternative holder commitment transactions can exist as the splice remains
+		/// pending and RBF attempts are made.
 		///
-		/// Note that if this channel is inbound (and thus our counterparty pays the commitment
-		/// transaction fee) this value will be zero. For [`ChannelMonitor`]s created prior to LDK
-		/// 0.0.124, the channel is always treated as outbound (and thus this value is never zero).
-		transaction_fee_satoshis: u64,
+		/// The candidates are sorted by the order in which the holder commitment transactions were
+		/// negotiated. When only one candidate exists, the channel does not have a splice pending.
+		/// When multiple candidates exist, the last one reflects the balance of the
+		/// latest splice/RBF attempt, while the first reflects the balance prior to the splice
+		/// occurring.
+		///
+		/// Entries remain in this vec until the pending splice has reached [`ANTI_REORG_DELAY`]
+		/// confirmations, at which point any conflicts will be removed. Once a splice confirms
+		/// [`Self::ClaimableOnChannelClose::confirmed_balance_candidate_index`] will point to the
+		/// confirmed entry, even if it has fewer than [`ANTI_REORG_DELAY`] confirmations.
+		balance_candidates: crate::c_types::derived::CVec_HolderCommitmentTransactionBalanceZ,
+		/// The index within [`Balance::ClaimableOnChannelClose::balance_candidates`] for the
+		/// balance according to the current onchain state of the channel. This can be helpful when
+		/// wanting to determine the claimable amount when the holder commitment transaction for the
+		/// current funding transaction is broadcast and/or confirms.
+		confirmed_balance_candidate_index: usize,
 		/// The amount of millisatoshis which has been burned to fees from HTLCs which are outbound
 		/// from us and are related to a payment which was sent by us. This is the sum of the
 		/// millisatoshis part of all HTLCs which are otherwise represented by
@@ -705,7 +906,7 @@ pub enum Balance {
 		/// to us and for which we know the preimage. This is the sum of the millisatoshis part of
 		/// all HTLCs which would be represented by [`Balance::ContentiousClaimable`] on channel
 		/// close, but whose current value is included in
-		/// [`Balance::ClaimableOnChannelClose::amount_satoshis`], as well as any dust HTLCs which
+		/// [`HolderCommitmentTransactionBalance::amount_satoshis`], as well as any dust HTLCs which
 		/// would otherwise be represented the same.
 		///
 		/// This amount (rounded up to a whole satoshi value) will not be included in the counterparty's
@@ -802,16 +1003,17 @@ impl Balance {
 	#[allow(unused)]
 	pub(crate) fn to_native(&self) -> nativeBalance {
 		match self {
-			Balance::ClaimableOnChannelClose {ref amount_satoshis, ref transaction_fee_satoshis, ref outbound_payment_htlc_rounded_msat, ref outbound_forwarded_htlc_rounded_msat, ref inbound_claiming_htlc_rounded_msat, ref inbound_htlc_rounded_msat, } => {
-				let mut amount_satoshis_nonref = Clone::clone(amount_satoshis);
-				let mut transaction_fee_satoshis_nonref = Clone::clone(transaction_fee_satoshis);
+			Balance::ClaimableOnChannelClose {ref balance_candidates, ref confirmed_balance_candidate_index, ref outbound_payment_htlc_rounded_msat, ref outbound_forwarded_htlc_rounded_msat, ref inbound_claiming_htlc_rounded_msat, ref inbound_htlc_rounded_msat, } => {
+				let mut balance_candidates_nonref = Clone::clone(balance_candidates);
+				let mut local_balance_candidates_nonref = Vec::new(); for mut item in balance_candidates_nonref.into_rust().drain(..) { local_balance_candidates_nonref.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
+				let mut confirmed_balance_candidate_index_nonref = Clone::clone(confirmed_balance_candidate_index);
 				let mut outbound_payment_htlc_rounded_msat_nonref = Clone::clone(outbound_payment_htlc_rounded_msat);
 				let mut outbound_forwarded_htlc_rounded_msat_nonref = Clone::clone(outbound_forwarded_htlc_rounded_msat);
 				let mut inbound_claiming_htlc_rounded_msat_nonref = Clone::clone(inbound_claiming_htlc_rounded_msat);
 				let mut inbound_htlc_rounded_msat_nonref = Clone::clone(inbound_htlc_rounded_msat);
 				nativeBalance::ClaimableOnChannelClose {
-					amount_satoshis: amount_satoshis_nonref,
-					transaction_fee_satoshis: transaction_fee_satoshis_nonref,
+					balance_candidates: local_balance_candidates_nonref,
+					confirmed_balance_candidate_index: confirmed_balance_candidate_index_nonref,
 					outbound_payment_htlc_rounded_msat: outbound_payment_htlc_rounded_msat_nonref,
 					outbound_forwarded_htlc_rounded_msat: outbound_forwarded_htlc_rounded_msat_nonref,
 					inbound_claiming_htlc_rounded_msat: inbound_claiming_htlc_rounded_msat_nonref,
@@ -873,10 +1075,11 @@ impl Balance {
 	#[allow(unused)]
 	pub(crate) fn into_native(self) -> nativeBalance {
 		match self {
-			Balance::ClaimableOnChannelClose {mut amount_satoshis, mut transaction_fee_satoshis, mut outbound_payment_htlc_rounded_msat, mut outbound_forwarded_htlc_rounded_msat, mut inbound_claiming_htlc_rounded_msat, mut inbound_htlc_rounded_msat, } => {
+			Balance::ClaimableOnChannelClose {mut balance_candidates, mut confirmed_balance_candidate_index, mut outbound_payment_htlc_rounded_msat, mut outbound_forwarded_htlc_rounded_msat, mut inbound_claiming_htlc_rounded_msat, mut inbound_htlc_rounded_msat, } => {
+				let mut local_balance_candidates = Vec::new(); for mut item in balance_candidates.into_rust().drain(..) { local_balance_candidates.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 				nativeBalance::ClaimableOnChannelClose {
-					amount_satoshis: amount_satoshis,
-					transaction_fee_satoshis: transaction_fee_satoshis,
+					balance_candidates: local_balance_candidates,
+					confirmed_balance_candidate_index: confirmed_balance_candidate_index,
 					outbound_payment_htlc_rounded_msat: outbound_payment_htlc_rounded_msat,
 					outbound_forwarded_htlc_rounded_msat: outbound_forwarded_htlc_rounded_msat,
 					inbound_claiming_htlc_rounded_msat: inbound_claiming_htlc_rounded_msat,
@@ -924,16 +1127,17 @@ impl Balance {
 	pub(crate) fn from_native(native: &BalanceImport) -> Self {
 		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeBalance) };
 		match native {
-			nativeBalance::ClaimableOnChannelClose {ref amount_satoshis, ref transaction_fee_satoshis, ref outbound_payment_htlc_rounded_msat, ref outbound_forwarded_htlc_rounded_msat, ref inbound_claiming_htlc_rounded_msat, ref inbound_htlc_rounded_msat, } => {
-				let mut amount_satoshis_nonref = Clone::clone(amount_satoshis);
-				let mut transaction_fee_satoshis_nonref = Clone::clone(transaction_fee_satoshis);
+			nativeBalance::ClaimableOnChannelClose {ref balance_candidates, ref confirmed_balance_candidate_index, ref outbound_payment_htlc_rounded_msat, ref outbound_forwarded_htlc_rounded_msat, ref inbound_claiming_htlc_rounded_msat, ref inbound_htlc_rounded_msat, } => {
+				let mut balance_candidates_nonref = Clone::clone(balance_candidates);
+				let mut local_balance_candidates_nonref = Vec::new(); for mut item in balance_candidates_nonref.drain(..) { local_balance_candidates_nonref.push( { crate::lightning::chain::channelmonitor::HolderCommitmentTransactionBalance { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
+				let mut confirmed_balance_candidate_index_nonref = Clone::clone(confirmed_balance_candidate_index);
 				let mut outbound_payment_htlc_rounded_msat_nonref = Clone::clone(outbound_payment_htlc_rounded_msat);
 				let mut outbound_forwarded_htlc_rounded_msat_nonref = Clone::clone(outbound_forwarded_htlc_rounded_msat);
 				let mut inbound_claiming_htlc_rounded_msat_nonref = Clone::clone(inbound_claiming_htlc_rounded_msat);
 				let mut inbound_htlc_rounded_msat_nonref = Clone::clone(inbound_htlc_rounded_msat);
 				Balance::ClaimableOnChannelClose {
-					amount_satoshis: amount_satoshis_nonref,
-					transaction_fee_satoshis: transaction_fee_satoshis_nonref,
+					balance_candidates: local_balance_candidates_nonref.into(),
+					confirmed_balance_candidate_index: confirmed_balance_candidate_index_nonref,
 					outbound_payment_htlc_rounded_msat: outbound_payment_htlc_rounded_msat_nonref,
 					outbound_forwarded_htlc_rounded_msat: outbound_forwarded_htlc_rounded_msat_nonref,
 					inbound_claiming_htlc_rounded_msat: inbound_claiming_htlc_rounded_msat_nonref,
@@ -995,10 +1199,11 @@ impl Balance {
 	#[allow(unused)]
 	pub(crate) fn native_into(native: nativeBalance) -> Self {
 		match native {
-			nativeBalance::ClaimableOnChannelClose {mut amount_satoshis, mut transaction_fee_satoshis, mut outbound_payment_htlc_rounded_msat, mut outbound_forwarded_htlc_rounded_msat, mut inbound_claiming_htlc_rounded_msat, mut inbound_htlc_rounded_msat, } => {
+			nativeBalance::ClaimableOnChannelClose {mut balance_candidates, mut confirmed_balance_candidate_index, mut outbound_payment_htlc_rounded_msat, mut outbound_forwarded_htlc_rounded_msat, mut inbound_claiming_htlc_rounded_msat, mut inbound_htlc_rounded_msat, } => {
+				let mut local_balance_candidates = Vec::new(); for mut item in balance_candidates.drain(..) { local_balance_candidates.push( { crate::lightning::chain::channelmonitor::HolderCommitmentTransactionBalance { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 				Balance::ClaimableOnChannelClose {
-					amount_satoshis: amount_satoshis,
-					transaction_fee_satoshis: transaction_fee_satoshis,
+					balance_candidates: local_balance_candidates.into(),
+					confirmed_balance_candidate_index: confirmed_balance_candidate_index,
 					outbound_payment_htlc_rounded_msat: outbound_payment_htlc_rounded_msat,
 					outbound_forwarded_htlc_rounded_msat: outbound_forwarded_htlc_rounded_msat,
 					inbound_claiming_htlc_rounded_msat: inbound_claiming_htlc_rounded_msat,
@@ -1063,10 +1268,10 @@ pub(crate) extern "C" fn Balance_free_void(this_ptr: *mut c_void) {
 }
 #[no_mangle]
 /// Utility method to constructs a new ClaimableOnChannelClose-variant Balance
-pub extern "C" fn Balance_claimable_on_channel_close(amount_satoshis: u64, transaction_fee_satoshis: u64, outbound_payment_htlc_rounded_msat: u64, outbound_forwarded_htlc_rounded_msat: u64, inbound_claiming_htlc_rounded_msat: u64, inbound_htlc_rounded_msat: u64) -> Balance {
+pub extern "C" fn Balance_claimable_on_channel_close(balance_candidates: crate::c_types::derived::CVec_HolderCommitmentTransactionBalanceZ, confirmed_balance_candidate_index: usize, outbound_payment_htlc_rounded_msat: u64, outbound_forwarded_htlc_rounded_msat: u64, inbound_claiming_htlc_rounded_msat: u64, inbound_htlc_rounded_msat: u64) -> Balance {
 	Balance::ClaimableOnChannelClose {
-		amount_satoshis,
-		transaction_fee_satoshis,
+		balance_candidates,
+		confirmed_balance_candidate_index,
 		outbound_payment_htlc_rounded_msat,
 		outbound_forwarded_htlc_rounded_msat,
 		inbound_claiming_htlc_rounded_msat,
@@ -1129,6 +1334,13 @@ pub extern "C" fn Balance_eq(a: &Balance, b: &Balance) -> bool {
 }
 /// The amount claimable, in satoshis.
 ///
+/// When the channel has yet to close, this returns the balance we expect to claim from the
+/// channel. This may change throughout the lifetime of the channel due to payments, but also
+/// due to splicing. If there's a pending splice, this will return the balance we expect to have
+/// assuming the latest negotiated splice confirms. However, if one of the negotiated splice
+/// transactions has already confirmed but is not yet locked, this reports the corresponding
+/// balance for said splice transaction instead.
+///
 /// For outbound payments, this excludes the balance from the possible HTLC timeout.
 ///
 /// For forwarded payments, this includes the balance from the possible HTLC timeout as
@@ -1156,11 +1368,21 @@ pub(crate) type nativeChannelMonitor = nativeChannelMonitorImport<crate::lightni
 /// You MUST ensure that no ChannelMonitors for a given channel anywhere contain out-of-date
 /// information and are actively monitoring the chain.
 ///
-/// Note that the deserializer is only implemented for (BlockHash, ChannelMonitor), which
-/// tells you the last block hash which was block_connect()ed. You MUST rescan any blocks along
-/// the \"reorg path\" (ie disconnecting blocks until you find a common ancestor from both the
-/// returned block hash and the the current chain and then reconnecting blocks to get to the
-/// best chain) upon deserializing the object!
+/// Like the [`ChannelManager`], deserialization is implemented for `(BlockHash, ChannelMonitor)`,
+/// providing you with the last block hash which was connected before shutting down. You must begin
+/// syncing the chain from that point, disconnecting and connecting blocks as required to get to
+/// the best chain on startup. Note that all [`ChannelMonitor`]s passed to a [`ChainMonitor`] must
+/// by synced as of the same block, so syncing must happen prior to [`ChainMonitor`]
+/// initialization.
+///
+/// For those loading potentially-ancient [`ChannelMonitor`]s, deserialization is also implemented
+/// for `Option<(BlockHash, ChannelMonitor)>`. LDK can no longer deserialize a [`ChannelMonitor`]
+/// that was first created in LDK prior to 0.0.110 and last updated prior to LDK 0.0.119. In such
+/// cases, the `Option<(..)>` deserialization option may return `Ok(None)` rather than failing to
+/// deserialize, allowing you to differentiate between the two cases.
+///
+/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
+/// [`ChainMonitor`]: crate::chain::chainmonitor::ChainMonitor
 #[must_use]
 #[repr(C)]
 pub struct ChannelMonitor {
@@ -1220,7 +1442,7 @@ impl Clone for ChannelMonitor {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelMonitor>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1228,12 +1450,12 @@ impl Clone for ChannelMonitor {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelMonitor_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelMonitor)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelMonitor) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelMonitor
 pub extern "C" fn ChannelMonitor_clone(orig: &ChannelMonitor) -> ChannelMonitor {
-	orig.clone()
+	Clone::clone(orig)
 }
 #[no_mangle]
 /// Serialize the ChannelMonitor object into a byte array which can be read by ChannelMonitor_read
@@ -1244,6 +1466,22 @@ pub extern "C" fn ChannelMonitor_write(obj: &crate::lightning::chain::channelmon
 pub(crate) extern "C" fn ChannelMonitor_write_void(obj: *const c_void) -> crate::c_types::derived::CVec_u8Z {
 	crate::c_types::serialize_obj(unsafe { &*(obj as *const crate::lightning::chain::channelmonitor::nativeChannelMonitor) })
 }
+/// Returns a unique id for persisting the [`ChannelMonitor`], which is used as a key in a
+/// key-value store.
+///
+/// Note: Previously, the funding outpoint was used in the [`Persist`] trait. However, since the
+/// outpoint may change during splicing, this method is used to obtain a unique key instead. For
+/// v1 channels, the funding outpoint is still used for backwards compatibility, whereas v2
+/// channels use the channel id since it is fixed.
+///
+/// [`Persist`]: crate::chain::chainmonitor::Persist
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelMonitor_persistence_key(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::util::persist::MonitorName {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.persistence_key();
+	crate::lightning::util::persist::MonitorName::native_into(ret)
+}
+
 /// Updates a ChannelMonitor on the basis of some new information provided by the Channel
 /// itself.
 ///
@@ -1270,10 +1508,17 @@ pub extern "C" fn ChannelMonitor_get_latest_update_id(this_arg: &crate::lightnin
 /// Gets the funding transaction outpoint of the channel this ChannelMonitor is monitoring for.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelMonitor_get_funding_txo(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::c_types::derived::C2Tuple_OutPointCVec_u8ZZ {
+pub extern "C" fn ChannelMonitor_get_funding_txo(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::chain::transaction::OutPoint {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_funding_txo();
-	let (mut orig_ret_0, mut orig_ret_1) = ret; let mut local_ret = (crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(orig_ret_0), is_owned: true }, orig_ret_1.to_bytes().into()).into();
-	local_ret
+	crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Gets the funding script of the channel this ChannelMonitor is monitoring for.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelMonitor_get_funding_script(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::c_types::derived::CVec_u8Z {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_funding_script();
+	ret.to_bytes().into()
 }
 
 /// Gets the channel_id of the channel this ChannelMonitor is monitoring for.
@@ -1282,6 +1527,14 @@ pub extern "C" fn ChannelMonitor_get_funding_txo(this_arg: &crate::lightning::ch
 pub extern "C" fn ChannelMonitor_channel_id(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::ln::types::ChannelId {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.channel_id();
 	crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Gets the channel type of the corresponding channel.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelMonitor_channel_type_features(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning_types::features::ChannelTypeFeatures {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.channel_type_features();
+	crate::lightning_types::features::ChannelTypeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// Gets a list of txids, with their output scripts (in the order they appear in the
@@ -1400,6 +1653,10 @@ pub extern "C" fn ChannelMonitor_counterparty_commitment_txs_from_update(this_ar
 /// to the commitment transaction being revoked, this will return a signed transaction, but
 /// the signature will not be valid.
 ///
+/// Note that due to splicing, this can also return an `Err` when the counterparty commitment
+/// this transaction is attempting to claim is no longer valid because the corresponding funding
+/// transaction was spliced.
+///
 /// [`EcdsaChannelSigner::sign_justice_revoked_output`]: crate::sign::ecdsa::EcdsaChannelSigner::sign_justice_revoked_output
 /// [`Persist`]: crate::chain::chainmonitor::Persist
 #[must_use]
@@ -1411,17 +1668,11 @@ pub extern "C" fn ChannelMonitor_sign_to_local_justice_tx(this_arg: &crate::ligh
 }
 
 /// Gets the `node_id` of the counterparty for this channel.
-///
-/// Will be `None` for channels constructed on LDK versions prior to 0.0.110 and always `Some`
-/// otherwise.
-///
-/// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
 pub extern "C" fn ChannelMonitor_get_counterparty_node_id(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::c_types::PublicKey {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_counterparty_node_id();
-	let mut local_ret = if ret.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(ret.unwrap())) } };
-	local_ret
+	crate::c_types::PublicKey::from_rust(&ret)
 }
 
 /// You may use this to broadcast the latest local commitment transaction, either because
@@ -1433,6 +1684,16 @@ pub extern "C" fn ChannelMonitor_get_counterparty_node_id(this_arg: &crate::ligh
 /// close channel with their commitment transaction after a substantial amount of time. Best
 /// may be to contact the other node operator out-of-band to coordinate other options available
 /// to you.
+///
+/// Note: For channels using manual funding broadcast (see
+/// [`crate::ln::channelmanager::ChannelManager::funding_transaction_generated_manual_broadcast`]),
+/// automatic broadcasts are suppressed until the funding transaction has been observed on-chain.
+/// Calling this method overrides that suppression and queues the latest holder commitment
+/// transaction for broadcast even if the funding has not yet been seen on-chain. This may result
+/// in unconfirmable transactions being broadcast or [`Event::BumpTransaction`] notifications for
+/// transactions that cannot be confirmed until the funding transaction is visible.
+///
+/// [`Event::BumpTransaction`]: crate::events::Event::BumpTransaction
 #[no_mangle]
 pub extern "C" fn ChannelMonitor_broadcast_latest_holder_commitment_txn(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, broadcaster: &crate::lightning::chain::chaininterface::BroadcasterInterface, fee_estimator: &crate::lightning::chain::chaininterface::FeeEstimator, logger: &crate::lightning::util::logger::Logger) {
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.broadcast_latest_holder_commitment_txn(broadcaster, fee_estimator, logger)
@@ -1461,8 +1722,8 @@ pub extern "C" fn ChannelMonitor_block_connected(this_arg: &crate::lightning::ch
 /// Determines if the disconnected block contained any transactions of interest and updates
 /// appropriately.
 #[no_mangle]
-pub extern "C" fn ChannelMonitor_block_disconnected(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, header: *const [u8; 80], mut height: u32, mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut fee_estimator: crate::lightning::chain::chaininterface::FeeEstimator, logger: &crate::lightning::util::logger::Logger) {
-	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.block_disconnected(&::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height, broadcaster, fee_estimator, logger)
+pub extern "C" fn ChannelMonitor_blocks_disconnected(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, mut fork_point: crate::lightning::chain::BestBlock, mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut fee_estimator: crate::lightning::chain::chaininterface::FeeEstimator, logger: &crate::lightning::util::logger::Logger) {
+	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.blocks_disconnected(*unsafe { Box::from_raw(fork_point.take_inner()) }, broadcaster, fee_estimator, logger)
 }
 
 /// Processes transactions confirmed in a block with the given header and height, returning new
@@ -1483,10 +1744,10 @@ pub extern "C" fn ChannelMonitor_transactions_confirmed(this_arg: &crate::lightn
 
 /// Processes a transaction that was reorganized out of the chain.
 ///
-/// Used instead of [`block_disconnected`] by clients that are notified of transactions rather
+/// Used instead of [`blocks_disconnected`] by clients that are notified of transactions rather
 /// than blocks. See [`chain::Confirm`] for calling expectations.
 ///
-/// [`block_disconnected`]: Self::block_disconnected
+/// [`blocks_disconnected`]: Self::blocks_disconnected
 #[no_mangle]
 pub extern "C" fn ChannelMonitor_transaction_unconfirmed(this_arg: &crate::lightning::chain::channelmonitor::ChannelMonitor, txid: *const [u8; 32], mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut fee_estimator: crate::lightning::chain::chaininterface::FeeEstimator, logger: &crate::lightning::util::logger::Logger) {
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.transaction_unconfirmed(&::bitcoin::hash_types::Txid::from_slice(&unsafe { &*txid }[..]).unwrap(), broadcaster, fee_estimator, logger)

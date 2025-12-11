@@ -56,6 +56,14 @@ pub fn single_ident_generic_path_to_ident(p: &syn::Path) -> Option<&syn::Ident> 
 	} else { None }
 }
 
+pub fn path_matches_ignoring_generics(p: &syn::Path, exp: &[&str]) -> bool {
+	if p.segments.len() != exp.len() { return false; }
+	for (seg, e) in p.segments.iter().zip(exp.iter()) {
+		if &format!("{}", seg.ident) != *e { return false; }
+	}
+	true
+}
+
 pub fn path_matches_nongeneric(p: &syn::Path, exp: &[&str]) -> bool {
 	if p.segments.len() != exp.len() { return false; }
 	for (seg, e) in p.segments.iter().zip(exp.iter()) {
@@ -576,6 +584,7 @@ impl<'mod_lifetime, 'crate_lft: 'mod_lifetime> ImportResolver<'mod_lifetime, 'cr
 		Self::insert_primitive(&mut imports, "bool");
 		Self::insert_primitive(&mut imports, "u128");
 		Self::insert_primitive(&mut imports, "i64");
+		Self::insert_primitive(&mut imports, "i32");
 		Self::insert_primitive(&mut imports, "f64");
 		Self::insert_primitive(&mut imports, "u64");
 		Self::insert_primitive(&mut imports, "u32");
@@ -917,6 +926,11 @@ fn initial_clonable_types() -> HashSet<String> {
 	// `write_c_mangled_container_path_intern` (which will add it here too), so we have to manually
 	// add it on startup.
 	res.insert("crate::c_types::derived::CVec_u8Z".to_owned());
+
+	// write_c_type_intern writes the empty string for the empty tuple. In order to ensure
+	// COption_NoneZ is marked clonable, we have to support "cloning" "".
+	res.insert("".to_owned());
+
 	res
 }
 
@@ -1037,6 +1051,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 		match full_path {
 			"bool" => true,
 			"i64" => true,
+			"i32" => true,
 			"f64" => true,
 			"u64" => true,
 			"u32" => true,
@@ -1110,7 +1125,9 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"bitcoin::secp256k1::Scalar" if !is_ref => Some("crate::c_types::BigEndianScalar"),
 			"bitcoin::secp256k1::ecdh::SharedSecret" if !is_ref => Some("crate::c_types::ThirtyTwoBytes"),
 
-			"bitcoin::amount::Amount" => Some("u64"),
+			"bitcoin::Amount"|"bitcoin::amount::Amount" => Some("u64"),
+			"bitcoin::Weight" => Some("u64"),
+			"bitcoin::Sequence" => Some("u32"),
 
 			"bitcoin::script::Script"|"bitcoin::Script" => Some("crate::c_types::u8slice"),
 			"bitcoin::script::ScriptBuf"|"bitcoin::ScriptBuf" => Some("crate::c_types::derived::CVec_u8Z"),
@@ -1160,7 +1177,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some("crate::c_types::ThirtyTwoBytes"),
 
-			"lightning::io::Read" => Some("crate::c_types::u8slice"),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some("crate::c_types::u8slice"),
 
 			_ => None,
 		}
@@ -1230,7 +1247,9 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"bitcoin::secp256k1::Scalar" if !is_ref => Some(""),
 			"bitcoin::secp256k1::ecdh::SharedSecret" if !is_ref => Some("::bitcoin::secp256k1::ecdh::SharedSecret::from_bytes("),
 
-			"bitcoin::amount::Amount" => Some("::bitcoin::amount::Amount::from_sat("),
+			"bitcoin::Amount"|"bitcoin::amount::Amount" => Some("::bitcoin::amount::Amount::from_sat("),
+			"bitcoin::Weight" => Some("::bitcoin::Weight::from_wu("),
+			"bitcoin::Sequence" => Some("::bitcoin::Sequence("),
 
 			"bitcoin::script::Script"|"bitcoin::Script" => Some("::bitcoin::script::Script::from_bytes("),
 			"bitcoin::script::ScriptBuf"|"bitcoin::ScriptBuf" => Some("::bitcoin::script::ScriptBuf::from("),
@@ -1287,7 +1306,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"lightning::chain::ClaimId" if is_ref=> Some("&::lightning::chain::ClaimId( unsafe { *"),
 
 			// List of traits we map (possibly during processing of other files):
-			"lightning::io::Read" => Some("&mut "),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some("&mut "),
 
 			_ => None,
 		}.map(|s| s.to_owned())
@@ -1349,7 +1368,9 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"bitcoin::secp256k1::Scalar" => Some(".into_rust()"),
 			"bitcoin::secp256k1::ecdh::SharedSecret" if !is_ref => Some(".data)"),
 
-			"bitcoin::amount::Amount" => Some(")"),
+			"bitcoin::Amount"|"bitcoin::amount::Amount" => Some(")"),
+			"bitcoin::Weight" => Some(")"),
+			"bitcoin::Sequence" => Some(")"),
 
 			"bitcoin::script::Script"|"bitcoin::Script" => Some(".to_slice())"),
 			"bitcoin::script::ScriptBuf"|"bitcoin::ScriptBuf" => Some(".into_rust())"),
@@ -1399,7 +1420,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 				if is_ref => Some(" })"),
 
 			// List of traits we map (possibly during processing of other files):
-			"lightning::io::Read" => Some(".to_reader()"),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some(".to_slice()"),
 
 			_ => None,
 		}.map(|s| s.to_owned())
@@ -1481,7 +1502,9 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"bitcoin::secp256k1::Scalar" if !is_ref => Some("crate::c_types::BigEndianScalar::from_rust(&"),
 			"bitcoin::secp256k1::ecdh::SharedSecret" if !is_ref => Some("crate::c_types::ThirtyTwoBytes { data: "),
 
-			"bitcoin::amount::Amount" => Some(""),
+			"bitcoin::Amount"|"bitcoin::amount::Amount" => Some(""),
+			"bitcoin::Weight" => Some(""),
+			"bitcoin::Sequence" => Some(""),
 
 			"bitcoin::script::Script"|"bitcoin::Script" => Some("crate::c_types::u8slice::from_slice("),
 			"bitcoin::script::ScriptBuf"|"bitcoin::ScriptBuf" => Some(""),
@@ -1530,7 +1553,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some("crate::c_types::ThirtyTwoBytes { data: "),
 
-			"lightning::io::Read" => Some("crate::c_types::u8slice::from_vec(&crate::c_types::reader_to_vec("),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some("crate::c_types::u8slice::from_vec(&crate::c_types::reader_to_vec("),
 
 			_ => None,
 		}.map(|s| s.to_owned())
@@ -1594,7 +1617,9 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			"bitcoin::secp256k1::Scalar" if !is_ref => Some(")"),
 			"bitcoin::secp256k1::ecdh::SharedSecret" if !is_ref => Some(".secret_bytes() }"),
 
-			"bitcoin::amount::Amount" => Some(".to_sat()"),
+			"bitcoin::Amount"|"bitcoin::amount::Amount" => Some(".to_sat()"),
+			"bitcoin::Weight" => Some(".to_wu()"),
+			"bitcoin::Sequence" => Some(".0"),
 
 			"bitcoin::script::Script"|"bitcoin::Script" => Some(".as_ref())"),
 			"bitcoin::script::ScriptBuf"|"bitcoin::ScriptBuf" if is_ref => Some(".as_bytes().to_vec().into()"),
@@ -1640,7 +1665,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 			|"lightning::sign::KeyMaterial"|"lightning::chain::ClaimId"
 				if !is_ref => Some(".0 }"),
 
-			"lightning::io::Read" => Some("))"),
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => Some("))"),
 
 			_ => None,
 		}.map(|s| s.to_owned())
@@ -1661,7 +1686,7 @@ impl<'a, 'c: 'a> TypeResolver<'a, 'c> {
 	/// TODO: We should never need to use this!
 	fn real_rust_type_mapping<'equiv>(&self, thing: &'equiv str) -> &'equiv str {
 		match thing {
-			"lightning::io::Read" => "crate::c_types::io::Read",
+			"lightning::util::ser::LengthLimitedRead"|"lightning::io::Read" => "crate::c_types::io::Read",
 			_ => thing,
 		}
 	}

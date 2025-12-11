@@ -82,7 +82,7 @@ impl Clone for BlindedMessagePath {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBlindedMessagePath>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -90,12 +90,12 @@ impl Clone for BlindedMessagePath {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn BlindedMessagePath_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBlindedMessagePath)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBlindedMessagePath) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the BlindedMessagePath
 pub extern "C" fn BlindedMessagePath_clone(orig: &BlindedMessagePath) -> BlindedMessagePath {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a BlindedMessagePath object
 pub extern "C" fn BlindedMessagePath_debug_str_void(o: *const c_void) -> Str {
@@ -138,23 +138,30 @@ pub extern "C" fn BlindedMessagePath_read(ser: crate::c_types::u8slice) -> crate
 /// Create a one-hop blinded path for a message.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn BlindedMessagePath_one_hop(mut recipient_node_id: crate::c_types::PublicKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut entropy_source: crate::lightning::sign::EntropySource) -> crate::c_types::derived::CResult_BlindedMessagePathNoneZ {
-	let mut ret = lightning::blinded_path::message::BlindedMessagePath::one_hop(recipient_node_id.into_rust(), context.into_native(), entropy_source, secp256k1::global::SECP256K1);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
+pub extern "C" fn BlindedMessagePath_one_hop(mut recipient_node_id: crate::c_types::PublicKey, mut local_node_receive_key: crate::lightning::sign::ReceiveAuthKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut entropy_source: crate::lightning::sign::EntropySource) -> crate::lightning::blinded_path::message::BlindedMessagePath {
+	let mut ret = lightning::blinded_path::message::BlindedMessagePath::one_hop(recipient_node_id.into_rust(), *unsafe { Box::from_raw(local_node_receive_key.take_inner()) }, context.into_native(), entropy_source, secp256k1::global::SECP256K1);
+	crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
-/// Create a path for an onion message, to be forwarded along `node_pks`. The last node
-/// pubkey in `node_pks` will be the destination node.
-///
-/// Errors if no hops are provided or if `node_pk`(s) are invalid.
+/// Create a path for an onion message, to be forwarded along `node_pks`.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn BlindedMessagePath_new(mut intermediate_nodes: crate::c_types::derived::CVec_MessageForwardNodeZ, mut recipient_node_id: crate::c_types::PublicKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut entropy_source: crate::lightning::sign::EntropySource) -> crate::c_types::derived::CResult_BlindedMessagePathNoneZ {
+pub extern "C" fn BlindedMessagePath_new(mut intermediate_nodes: crate::c_types::derived::CVec_MessageForwardNodeZ, mut recipient_node_id: crate::c_types::PublicKey, mut local_node_receive_key: crate::lightning::sign::ReceiveAuthKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut entropy_source: crate::lightning::sign::EntropySource) -> crate::lightning::blinded_path::message::BlindedMessagePath {
 	let mut local_intermediate_nodes = Vec::new(); for mut item in intermediate_nodes.into_rust().drain(..) { local_intermediate_nodes.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
-	let mut ret = lightning::blinded_path::message::BlindedMessagePath::new(&local_intermediate_nodes[..], recipient_node_id.into_rust(), context.into_native(), entropy_source, secp256k1::global::SECP256K1);
-	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
-	local_ret
+	let mut ret = lightning::blinded_path::message::BlindedMessagePath::new(&local_intermediate_nodes[..], recipient_node_id.into_rust(), *unsafe { Box::from_raw(local_node_receive_key.take_inner()) }, context.into_native(), entropy_source, secp256k1::global::SECP256K1);
+	crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+
+/// Same as [`BlindedMessagePath::new`], but allows specifying a number of dummy hops.
+///
+/// Note:
+/// At most [`MAX_DUMMY_HOPS_COUNT`] dummy hops can be added to the blinded path.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn BlindedMessagePath_new_with_dummy_hops(mut intermediate_nodes: crate::c_types::derived::CVec_MessageForwardNodeZ, mut recipient_node_id: crate::c_types::PublicKey, mut dummy_hop_count: usize, mut local_node_receive_key: crate::lightning::sign::ReceiveAuthKey, mut context: crate::lightning::blinded_path::message::MessageContext, mut entropy_source: crate::lightning::sign::EntropySource) -> crate::lightning::blinded_path::message::BlindedMessagePath {
+	let mut local_intermediate_nodes = Vec::new(); for mut item in intermediate_nodes.into_rust().drain(..) { local_intermediate_nodes.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
+	let mut ret = lightning::blinded_path::message::BlindedMessagePath::new_with_dummy_hops(&local_intermediate_nodes[..], recipient_node_id.into_rust(), dummy_hop_count, *unsafe { Box::from_raw(local_node_receive_key.take_inner()) }, context.into_native(), entropy_source, secp256k1::global::SECP256K1);
+	crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// Attempts to a use a compact representation for the [`IntroductionNode`] by using a directed
@@ -217,6 +224,22 @@ pub extern "C" fn BlindedMessagePath_advance_path_by_one(this_arg: &mut crate::l
 	let mut ret = unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning::blinded_path::message::nativeBlindedMessagePath)) }.advance_path_by_one(node_signer, node_id_lookup, secp256k1::global::SECP256K1);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
+}
+
+/// Creates a new [`BlindedMessagePath`] from its constituent parts.
+///
+/// Useful when you need to reconstruct a blinded path from previously serialized components.
+///
+/// Parameters:
+/// * `introduction_node_id`: The public key of the introduction node in the path
+/// * `blinding_point`: The public key used for blinding the path
+/// * `blinded_hops`: The encrypted routing information for each hop in the path
+#[must_use]
+#[no_mangle]
+pub extern "C" fn BlindedMessagePath_from_blinded_path(mut introduction_node_id: crate::c_types::PublicKey, mut blinding_point: crate::c_types::PublicKey, mut blinded_hops: crate::c_types::derived::CVec_BlindedHopZ) -> crate::lightning::blinded_path::message::BlindedMessagePath {
+	let mut local_blinded_hops = Vec::new(); for mut item in blinded_hops.into_rust().drain(..) { local_blinded_hops.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
+	let mut ret = lightning::blinded_path::message::BlindedMessagePath::from_blinded_path(introduction_node_id.into_rust(), blinding_point.into_rust(), local_blinded_hops);
+	crate::lightning::blinded_path::message::BlindedMessagePath { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
 /// The next hop to forward an onion message along its path.
@@ -354,6 +377,12 @@ use lightning::blinded_path::message::MessageForwardNode as nativeMessageForward
 pub(crate) type nativeMessageForwardNode = nativeMessageForwardNodeImport;
 
 /// An intermediate node, and possibly a short channel id leading to the next node.
+///
+/// Note:
+/// [`MessageForwardNode`] must represent a node that supports [`supports_onion_messages`]
+/// in order to be included in valid blinded paths for onion messaging.
+///
+/// [`supports_onion_messages`]: crate::types::features::Features::supports_onion_messages
 #[must_use]
 #[repr(C)]
 pub struct MessageForwardNode {
@@ -412,7 +441,7 @@ impl MessageForwardNode {
 /// This node's pubkey.
 #[no_mangle]
 pub extern "C" fn MessageForwardNode_get_node_id(this_ptr: &MessageForwardNode) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().node_id;
+	let mut inner_val = &mut MessageForwardNode::get_native_mut_ref(this_ptr).node_id;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 /// This node's pubkey.
@@ -425,7 +454,7 @@ pub extern "C" fn MessageForwardNode_set_node_id(this_ptr: &mut MessageForwardNo
 /// more compact representation.
 #[no_mangle]
 pub extern "C" fn MessageForwardNode_get_short_channel_id(this_ptr: &MessageForwardNode) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().short_channel_id;
+	let mut inner_val = &mut MessageForwardNode::get_native_mut_ref(this_ptr).short_channel_id;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -451,7 +480,7 @@ impl Clone for MessageForwardNode {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeMessageForwardNode>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -459,12 +488,12 @@ impl Clone for MessageForwardNode {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn MessageForwardNode_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeMessageForwardNode)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeMessageForwardNode) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the MessageForwardNode
 pub extern "C" fn MessageForwardNode_clone(orig: &MessageForwardNode) -> MessageForwardNode {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a MessageForwardNode object
 pub extern "C" fn MessageForwardNode_debug_str_void(o: *const c_void) -> Str {
@@ -699,6 +728,41 @@ pub enum OffersContext {
 		/// [`Offer`]: crate::offers::offer::Offer
 		nonce: crate::lightning::offers::nonce::Nonce,
 	},
+	/// Context used by a [`BlindedMessagePath`] within the [`Offer`] of an async recipient.
+	///
+	/// This variant is received by the static invoice server when handling an [`InvoiceRequest`] on
+	/// behalf of said async recipient.
+	///
+	/// [`Offer`]: crate::offers::offer::Offer
+	/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+	StaticInvoiceRequested {
+		/// An identifier for the async recipient for whom we as a static invoice server are serving
+		/// [`StaticInvoice`]s. Used paired with the
+		/// [`OffersContext::StaticInvoiceRequested::invoice_slot`] when looking up a corresponding
+		/// [`StaticInvoice`] to return to the payer if the recipient is offline. This id was previously
+		/// provided via [`AsyncPaymentsContext::ServeStaticInvoice::recipient_id`].
+		///
+		/// Also useful for rate limiting the number of [`InvoiceRequest`]s we will respond to on
+		/// recipient's behalf.
+		///
+		/// [`StaticInvoice`]: crate::offers::static_invoice::StaticInvoice
+		/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+		recipient_id: crate::c_types::derived::CVec_u8Z,
+		/// The slot number for a specific [`StaticInvoice`] that the recipient previously
+		/// requested be served on their behalf. Useful when paired with the
+		/// [`OffersContext::StaticInvoiceRequested::recipient_id`] to pull that specific invoice from
+		/// the database when payers send an [`InvoiceRequest`]. This id was previously
+		/// provided via [`AsyncPaymentsContext::ServeStaticInvoice::invoice_slot`].
+		///
+		/// [`StaticInvoice`]: crate::offers::static_invoice::StaticInvoice
+		/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+		invoice_slot: u16,
+		/// The time as duration since the Unix epoch at which this path expires and messages sent over
+		/// it should be ignored.
+		///
+		/// Useful to timeout async recipients that are no longer supported as clients.
+		path_absolute_expiry: u64,
+	},
 	/// Context used by a [`BlindedMessagePath`] within a [`Refund`] or as a reply path for an
 	/// [`InvoiceRequest`].
 	///
@@ -722,13 +786,6 @@ pub enum OffersContext {
 		/// [`Refund`]: crate::offers::refund::Refund
 		/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
 		nonce: crate::lightning::offers::nonce::Nonce,
-		/// Authentication code for the [`PaymentId`], which should be checked when the context is
-		/// used with an [`InvoiceError`].
-		///
-		/// [`InvoiceError`]: crate::offers::invoice_error::InvoiceError
-		///
-		/// Note that this (or a relevant inner pointer) may be NULL or all-0s to represent None
-		hmac: crate::c_types::ThirtyTwoBytes,
 	},
 	/// Context used by a [`BlindedMessagePath`] as a reply path for a [`Bolt12Invoice`].
 	///
@@ -741,17 +798,6 @@ pub enum OffersContext {
 		///
 		/// [`Bolt12Invoice::payment_hash`]: crate::offers::invoice::Bolt12Invoice::payment_hash
 		payment_hash: crate::c_types::ThirtyTwoBytes,
-		/// A nonce used for authenticating that a received [`InvoiceError`] is for a valid
-		/// sent [`Bolt12Invoice`].
-		///
-		/// [`InvoiceError`]: crate::offers::invoice_error::InvoiceError
-		/// [`Bolt12Invoice`]: crate::offers::invoice::Bolt12Invoice
-		nonce: crate::lightning::offers::nonce::Nonce,
-		/// Authentication code for the [`PaymentHash`], which should be checked when the context is
-		/// used to log the received [`InvoiceError`].
-		///
-		/// [`InvoiceError`]: crate::offers::invoice_error::InvoiceError
-		hmac: crate::c_types::ThirtyTwoBytes,
 	},
 }
 use lightning::blinded_path::message::OffersContext as OffersContextImport;
@@ -767,25 +813,29 @@ impl OffersContext {
 					nonce: *unsafe { Box::from_raw(nonce_nonref.take_inner()) },
 				}
 			},
-			OffersContext::OutboundPayment {ref payment_id, ref nonce, ref hmac, } => {
+			OffersContext::StaticInvoiceRequested {ref recipient_id, ref invoice_slot, ref path_absolute_expiry, } => {
+				let mut recipient_id_nonref = Clone::clone(recipient_id);
+				let mut local_recipient_id_nonref = Vec::new(); for mut item in recipient_id_nonref.into_rust().drain(..) { local_recipient_id_nonref.push( { item }); };
+				let mut invoice_slot_nonref = Clone::clone(invoice_slot);
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				nativeOffersContext::StaticInvoiceRequested {
+					recipient_id: local_recipient_id_nonref,
+					invoice_slot: invoice_slot_nonref,
+					path_absolute_expiry: core::time::Duration::from_secs(path_absolute_expiry_nonref),
+				}
+			},
+			OffersContext::OutboundPayment {ref payment_id, ref nonce, } => {
 				let mut payment_id_nonref = Clone::clone(payment_id);
 				let mut nonce_nonref = Clone::clone(nonce);
-				let mut hmac_nonref = Clone::clone(hmac);
-				let mut local_hmac_nonref = if hmac_nonref.data == [0; 32] { None } else { Some( { hmac_nonref.data }) };
 				nativeOffersContext::OutboundPayment {
 					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id_nonref.data),
 					nonce: *unsafe { Box::from_raw(nonce_nonref.take_inner()) },
-					hmac: local_hmac_nonref,
 				}
 			},
-			OffersContext::InboundPayment {ref payment_hash, ref nonce, ref hmac, } => {
+			OffersContext::InboundPayment {ref payment_hash, } => {
 				let mut payment_hash_nonref = Clone::clone(payment_hash);
-				let mut nonce_nonref = Clone::clone(nonce);
-				let mut hmac_nonref = Clone::clone(hmac);
 				nativeOffersContext::InboundPayment {
 					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash_nonref.data),
-					nonce: *unsafe { Box::from_raw(nonce_nonref.take_inner()) },
-					hmac: hmac_nonref.data,
 				}
 			},
 		}
@@ -798,19 +848,23 @@ impl OffersContext {
 					nonce: *unsafe { Box::from_raw(nonce.take_inner()) },
 				}
 			},
-			OffersContext::OutboundPayment {mut payment_id, mut nonce, mut hmac, } => {
-				let mut local_hmac = if hmac.data == [0; 32] { None } else { Some( { hmac.data }) };
+			OffersContext::StaticInvoiceRequested {mut recipient_id, mut invoice_slot, mut path_absolute_expiry, } => {
+				let mut local_recipient_id = Vec::new(); for mut item in recipient_id.into_rust().drain(..) { local_recipient_id.push( { item }); };
+				nativeOffersContext::StaticInvoiceRequested {
+					recipient_id: local_recipient_id,
+					invoice_slot: invoice_slot,
+					path_absolute_expiry: core::time::Duration::from_secs(path_absolute_expiry),
+				}
+			},
+			OffersContext::OutboundPayment {mut payment_id, mut nonce, } => {
 				nativeOffersContext::OutboundPayment {
 					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id.data),
 					nonce: *unsafe { Box::from_raw(nonce.take_inner()) },
-					hmac: local_hmac,
 				}
 			},
-			OffersContext::InboundPayment {mut payment_hash, mut nonce, mut hmac, } => {
+			OffersContext::InboundPayment {mut payment_hash, } => {
 				nativeOffersContext::InboundPayment {
 					payment_hash: ::lightning::types::payment::PaymentHash(payment_hash.data),
-					nonce: *unsafe { Box::from_raw(nonce.take_inner()) },
-					hmac: hmac.data,
 				}
 			},
 		}
@@ -825,25 +879,29 @@ impl OffersContext {
 					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce_nonref), is_owned: true },
 				}
 			},
-			nativeOffersContext::OutboundPayment {ref payment_id, ref nonce, ref hmac, } => {
+			nativeOffersContext::StaticInvoiceRequested {ref recipient_id, ref invoice_slot, ref path_absolute_expiry, } => {
+				let mut recipient_id_nonref = Clone::clone(recipient_id);
+				let mut local_recipient_id_nonref = Vec::new(); for mut item in recipient_id_nonref.drain(..) { local_recipient_id_nonref.push( { item }); };
+				let mut invoice_slot_nonref = Clone::clone(invoice_slot);
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				OffersContext::StaticInvoiceRequested {
+					recipient_id: local_recipient_id_nonref.into(),
+					invoice_slot: invoice_slot_nonref,
+					path_absolute_expiry: path_absolute_expiry_nonref.as_secs(),
+				}
+			},
+			nativeOffersContext::OutboundPayment {ref payment_id, ref nonce, } => {
 				let mut payment_id_nonref = Clone::clone(payment_id);
 				let mut nonce_nonref = Clone::clone(nonce);
-				let mut hmac_nonref = Clone::clone(hmac);
-				let mut local_hmac_nonref = if hmac_nonref.is_none() { crate::c_types::ThirtyTwoBytes { data: [0; 32] } } else {  { crate::c_types::ThirtyTwoBytes { data: (hmac_nonref.unwrap()) } } };
 				OffersContext::OutboundPayment {
 					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id_nonref.0 },
 					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce_nonref), is_owned: true },
-					hmac: local_hmac_nonref,
 				}
 			},
-			nativeOffersContext::InboundPayment {ref payment_hash, ref nonce, ref hmac, } => {
+			nativeOffersContext::InboundPayment {ref payment_hash, } => {
 				let mut payment_hash_nonref = Clone::clone(payment_hash);
-				let mut nonce_nonref = Clone::clone(nonce);
-				let mut hmac_nonref = Clone::clone(hmac);
 				OffersContext::InboundPayment {
 					payment_hash: crate::c_types::ThirtyTwoBytes { data: payment_hash_nonref.0 },
-					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce_nonref), is_owned: true },
-					hmac: crate::c_types::ThirtyTwoBytes { data: hmac_nonref },
 				}
 			},
 		}
@@ -856,19 +914,23 @@ impl OffersContext {
 					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce), is_owned: true },
 				}
 			},
-			nativeOffersContext::OutboundPayment {mut payment_id, mut nonce, mut hmac, } => {
-				let mut local_hmac = if hmac.is_none() { crate::c_types::ThirtyTwoBytes { data: [0; 32] } } else {  { crate::c_types::ThirtyTwoBytes { data: (hmac.unwrap()) } } };
+			nativeOffersContext::StaticInvoiceRequested {mut recipient_id, mut invoice_slot, mut path_absolute_expiry, } => {
+				let mut local_recipient_id = Vec::new(); for mut item in recipient_id.drain(..) { local_recipient_id.push( { item }); };
+				OffersContext::StaticInvoiceRequested {
+					recipient_id: local_recipient_id.into(),
+					invoice_slot: invoice_slot,
+					path_absolute_expiry: path_absolute_expiry.as_secs(),
+				}
+			},
+			nativeOffersContext::OutboundPayment {mut payment_id, mut nonce, } => {
 				OffersContext::OutboundPayment {
 					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id.0 },
 					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce), is_owned: true },
-					hmac: local_hmac,
 				}
 			},
-			nativeOffersContext::InboundPayment {mut payment_hash, mut nonce, mut hmac, } => {
+			nativeOffersContext::InboundPayment {mut payment_hash, } => {
 				OffersContext::InboundPayment {
 					payment_hash: crate::c_types::ThirtyTwoBytes { data: payment_hash.0 },
-					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce), is_owned: true },
-					hmac: crate::c_types::ThirtyTwoBytes { data: hmac },
 				}
 			},
 		}
@@ -900,21 +962,27 @@ pub extern "C" fn OffersContext_invoice_request(nonce: crate::lightning::offers:
 	}
 }
 #[no_mangle]
+/// Utility method to constructs a new StaticInvoiceRequested-variant OffersContext
+pub extern "C" fn OffersContext_static_invoice_requested(recipient_id: crate::c_types::derived::CVec_u8Z, invoice_slot: u16, path_absolute_expiry: u64) -> OffersContext {
+	OffersContext::StaticInvoiceRequested {
+		recipient_id,
+		invoice_slot,
+		path_absolute_expiry,
+	}
+}
+#[no_mangle]
 /// Utility method to constructs a new OutboundPayment-variant OffersContext
-pub extern "C" fn OffersContext_outbound_payment(payment_id: crate::c_types::ThirtyTwoBytes, nonce: crate::lightning::offers::nonce::Nonce, hmac: crate::c_types::ThirtyTwoBytes) -> OffersContext {
+pub extern "C" fn OffersContext_outbound_payment(payment_id: crate::c_types::ThirtyTwoBytes, nonce: crate::lightning::offers::nonce::Nonce) -> OffersContext {
 	OffersContext::OutboundPayment {
 		payment_id,
 		nonce,
-		hmac,
 	}
 }
 #[no_mangle]
 /// Utility method to constructs a new InboundPayment-variant OffersContext
-pub extern "C" fn OffersContext_inbound_payment(payment_hash: crate::c_types::ThirtyTwoBytes, nonce: crate::lightning::offers::nonce::Nonce, hmac: crate::c_types::ThirtyTwoBytes) -> OffersContext {
+pub extern "C" fn OffersContext_inbound_payment(payment_hash: crate::c_types::ThirtyTwoBytes) -> OffersContext {
 	OffersContext::InboundPayment {
 		payment_hash,
-		nonce,
-		hmac,
 	}
 }
 /// Get a string which allows debug introspection of a OffersContext object
@@ -933,9 +1001,103 @@ pub extern "C" fn OffersContext_eq(a: &OffersContext, b: &OffersContext) -> bool
 #[must_use]
 #[repr(C)]
 pub enum AsyncPaymentsContext {
+	/// Context used by a [`BlindedMessagePath`] provided out-of-band to an async recipient, where the
+	/// context is provided back to the static invoice server in corresponding [`OfferPathsRequest`]s.
+	///
+	/// [`OfferPathsRequest`]: crate::onion_message::async_payments::OfferPathsRequest
+	OfferPathsRequest {
+		/// An identifier for the async recipient that is requesting blinded paths to include in their
+		/// [`Offer::paths`]. This ID will be surfaced when the async recipient eventually sends a
+		/// corresponding [`ServeStaticInvoice`] message, and can be used to rate limit the recipient.
+		///
+		/// [`Offer::paths`]: crate::offers::offer::Offer::paths
+		/// [`ServeStaticInvoice`]: crate::onion_message::async_payments::ServeStaticInvoice
+		recipient_id: crate::c_types::derived::CVec_u8Z,
+		/// An optional field indicating the time as duration since the Unix epoch at which this path
+		/// expires and messages sent over it should be ignored.
+		///
+		/// Useful to timeout async recipients that are no longer supported as clients.
+		path_absolute_expiry: crate::c_types::derived::COption_u64Z,
+	},
+	/// Context used by a reply path to an [`OfferPathsRequest`], provided back to us as an async
+	/// recipient in corresponding [`OfferPaths`] messages from the static invoice server.
+	///
+	/// [`OfferPathsRequest`]: crate::onion_message::async_payments::OfferPathsRequest
+	/// [`OfferPaths`]: crate::onion_message::async_payments::OfferPaths
+	OfferPaths {
+		/// The \"slot\" in the static invoice server's database that the invoice corresponding to these
+		/// offer paths should go into, originally set by us in [`OfferPathsRequest::invoice_slot`]. This
+		/// value allows us as the recipient to replace a specific invoice that is stored by the server,
+		/// which is useful for limiting the number of invoices stored by the server while also keeping
+		/// all the invoices persisted with the server fresh.
+		///
+		/// [`OfferPathsRequest::invoice_slot`]: crate::onion_message::async_payments::OfferPathsRequest::invoice_slot
+		invoice_slot: u16,
+		/// The time as duration since the Unix epoch at which this path expires and messages sent over
+		/// it should be ignored.
+		///
+		/// This avoids the situation where the [`OfferPaths`] message is very delayed and thus
+		/// outdated.
+		///
+		/// [`OfferPaths`]: crate::onion_message::async_payments::OfferPaths
+		path_absolute_expiry: u64,
+	},
+	/// Context used by a reply path to an [`OfferPaths`] message, provided back to us as the static
+	/// invoice server in corresponding [`ServeStaticInvoice`] messages.
+	///
+	/// [`OfferPaths`]: crate::onion_message::async_payments::OfferPaths
+	/// [`ServeStaticInvoice`]: crate::onion_message::async_payments::ServeStaticInvoice
+	ServeStaticInvoice {
+		/// An identifier for the async recipient that is requesting that a [`StaticInvoice`] be served
+		/// on their behalf.
+		///
+		/// Useful when surfaced alongside the below `invoice_slot` when payers send an
+		/// [`InvoiceRequest`], to pull the specific static invoice from the database.
+		///
+		/// Also useful to rate limit the invoices being persisted on behalf of a particular recipient.
+		///
+		/// This id will be provided back to us as the static invoice server via
+		/// [`OffersContext::StaticInvoiceRequested::recipient_id`].
+		///
+		/// [`StaticInvoice`]: crate::offers::static_invoice::StaticInvoice
+		/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+		recipient_id: crate::c_types::derived::CVec_u8Z,
+		/// The slot number for the specific [`StaticInvoice`] that the recipient is requesting be
+		/// served on their behalf. Useful when surfaced alongside the above `recipient_id` when payers
+		/// send an [`InvoiceRequest`], to pull the specific static invoice from the database. This id
+		/// will be provided back to us as the static invoice server via
+		/// [`OffersContext::StaticInvoiceRequested::invoice_slot`].
+		///
+		/// [`StaticInvoice`]: crate::offers::static_invoice::StaticInvoice
+		/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+		invoice_slot: u16,
+		/// The time as duration since the Unix epoch at which this path expires and messages sent over
+		/// it should be ignored.
+		///
+		/// Useful to timeout async recipients that are no longer supported as clients.
+		path_absolute_expiry: u64,
+	},
+	/// Context used by a reply path to a [`ServeStaticInvoice`] message, provided back to us in
+	/// corresponding [`StaticInvoicePersisted`] messages.
+	///
+	/// [`ServeStaticInvoice`]: crate::onion_message::async_payments::ServeStaticInvoice
+	/// [`StaticInvoicePersisted`]: crate::onion_message::async_payments::StaticInvoicePersisted
+	StaticInvoicePersisted {
+		/// The id of the offer in the cache corresponding to the [`StaticInvoice`] that has been
+		/// persisted. This invoice is now ready to be provided by the static invoice server in response
+		/// to [`InvoiceRequest`]s, so the corresponding offer can be marked as ready to receive
+		/// payments.
+		///
+		/// [`StaticInvoice`]: crate::offers::static_invoice::StaticInvoice
+		/// [`InvoiceRequest`]: crate::offers::invoice_request::InvoiceRequest
+		offer_id: crate::lightning::offers::offer::OfferId,
+		/// The time as duration since the Unix epoch at which the invoice corresponding to this path
+		/// was created. Useful to know when an invoice needs replacement.
+		invoice_created_at: u64,
+	},
 	/// Context contained within the reply [`BlindedMessagePath`] we put in outbound
 	/// [`HeldHtlcAvailable`] messages, provided back to us in corresponding [`ReleaseHeldHtlc`]
-	/// messages.
+	/// messages if we are an always-online sender paying an async recipient.
 	///
 	/// [`HeldHtlcAvailable`]: crate::onion_message::async_payments::HeldHtlcAvailable
 	/// [`ReleaseHeldHtlc`]: crate::onion_message::async_payments::ReleaseHeldHtlc
@@ -945,17 +1107,41 @@ pub enum AsyncPaymentsContext {
 		///
 		/// [`Offer`]: crate::offers::offer::Offer
 		payment_id: crate::c_types::ThirtyTwoBytes,
-		/// A nonce used for authenticating that a [`ReleaseHeldHtlc`] message is valid for a preceding
-		/// [`HeldHtlcAvailable`] message.
+	},
+	/// Context contained within the [`BlindedMessagePath`]s we put in static invoices, provided back
+	/// to us in corresponding [`HeldHtlcAvailable`] messages.
+	///
+	/// [`HeldHtlcAvailable`]: crate::onion_message::async_payments::HeldHtlcAvailable
+	InboundPayment {
+		/// The time as duration since the Unix epoch at which this path expires and messages sent over
+		/// it should be ignored. Without this, anyone with the path corresponding to this context is
+		/// able to trivially ask if we're online forever.
+		path_absolute_expiry: u64,
+	},
+	/// Context contained within the reply [`BlindedMessagePath`] put in outbound
+	/// [`HeldHtlcAvailable`] messages, provided back to the async sender's always-online counterparty
+	/// in corresponding [`ReleaseHeldHtlc`] messages.
+	///
+	/// [`HeldHtlcAvailable`]: crate::onion_message::async_payments::HeldHtlcAvailable
+	/// [`ReleaseHeldHtlc`]: crate::onion_message::async_payments::ReleaseHeldHtlc
+	ReleaseHeldHtlc {
+		/// An identifier for the HTLC that should be released by us as the sender's always-online
+		/// channel counterparty to the often-offline recipient.
+		intercept_id: crate::c_types::ThirtyTwoBytes,
+		/// The short channel id alias corresponding to the to-be-released inbound HTLC, to help locate
+		/// the HTLC internally if the [`ReleaseHeldHtlc`] races our node decoding the held HTLC's
+		/// onion.
+		///
+		/// We use the outbound scid alias because it is stable even if the channel splices, unlike
+		/// regular short channel ids.
 		///
 		/// [`ReleaseHeldHtlc`]: crate::onion_message::async_payments::ReleaseHeldHtlc
-		/// [`HeldHtlcAvailable`]: crate::onion_message::async_payments::HeldHtlcAvailable
-		nonce: crate::lightning::offers::nonce::Nonce,
-		/// Authentication code for the [`PaymentId`].
+		prev_outbound_scid_alias: u64,
+		/// The id of the to-be-released HTLC, to help locate the HTLC internally if the
+		/// [`ReleaseHeldHtlc`] races our node decoding the held HTLC's onion.
 		///
-		/// Prevents the recipient from being able to deanonymize us by creating a blinded path to us
-		/// containing the expected [`PaymentId`].
-		hmac: crate::c_types::ThirtyTwoBytes,
+		/// [`ReleaseHeldHtlc`]: crate::onion_message::async_payments::ReleaseHeldHtlc
+		htlc_id: u64,
 	},
 }
 use lightning::blinded_path::message::AsyncPaymentsContext as AsyncPaymentsContextImport;
@@ -965,14 +1151,63 @@ impl AsyncPaymentsContext {
 	#[allow(unused)]
 	pub(crate) fn to_native(&self) -> nativeAsyncPaymentsContext {
 		match self {
-			AsyncPaymentsContext::OutboundPayment {ref payment_id, ref nonce, ref hmac, } => {
+			AsyncPaymentsContext::OfferPathsRequest {ref recipient_id, ref path_absolute_expiry, } => {
+				let mut recipient_id_nonref = Clone::clone(recipient_id);
+				let mut local_recipient_id_nonref = Vec::new(); for mut item in recipient_id_nonref.into_rust().drain(..) { local_recipient_id_nonref.push( { item }); };
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				let mut local_path_absolute_expiry_nonref = { /*path_absolute_expiry_nonref*/ let path_absolute_expiry_nonref_opt = path_absolute_expiry_nonref; if path_absolute_expiry_nonref_opt.is_none() { None } else { Some({ { core::time::Duration::from_secs({ path_absolute_expiry_nonref_opt.take() }) }})} };
+				nativeAsyncPaymentsContext::OfferPathsRequest {
+					recipient_id: local_recipient_id_nonref,
+					path_absolute_expiry: local_path_absolute_expiry_nonref,
+				}
+			},
+			AsyncPaymentsContext::OfferPaths {ref invoice_slot, ref path_absolute_expiry, } => {
+				let mut invoice_slot_nonref = Clone::clone(invoice_slot);
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				nativeAsyncPaymentsContext::OfferPaths {
+					invoice_slot: invoice_slot_nonref,
+					path_absolute_expiry: core::time::Duration::from_secs(path_absolute_expiry_nonref),
+				}
+			},
+			AsyncPaymentsContext::ServeStaticInvoice {ref recipient_id, ref invoice_slot, ref path_absolute_expiry, } => {
+				let mut recipient_id_nonref = Clone::clone(recipient_id);
+				let mut local_recipient_id_nonref = Vec::new(); for mut item in recipient_id_nonref.into_rust().drain(..) { local_recipient_id_nonref.push( { item }); };
+				let mut invoice_slot_nonref = Clone::clone(invoice_slot);
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				nativeAsyncPaymentsContext::ServeStaticInvoice {
+					recipient_id: local_recipient_id_nonref,
+					invoice_slot: invoice_slot_nonref,
+					path_absolute_expiry: core::time::Duration::from_secs(path_absolute_expiry_nonref),
+				}
+			},
+			AsyncPaymentsContext::StaticInvoicePersisted {ref offer_id, ref invoice_created_at, } => {
+				let mut offer_id_nonref = Clone::clone(offer_id);
+				let mut invoice_created_at_nonref = Clone::clone(invoice_created_at);
+				nativeAsyncPaymentsContext::StaticInvoicePersisted {
+					offer_id: *unsafe { Box::from_raw(offer_id_nonref.take_inner()) },
+					invoice_created_at: core::time::Duration::from_secs(invoice_created_at_nonref),
+				}
+			},
+			AsyncPaymentsContext::OutboundPayment {ref payment_id, } => {
 				let mut payment_id_nonref = Clone::clone(payment_id);
-				let mut nonce_nonref = Clone::clone(nonce);
-				let mut hmac_nonref = Clone::clone(hmac);
 				nativeAsyncPaymentsContext::OutboundPayment {
 					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id_nonref.data),
-					nonce: *unsafe { Box::from_raw(nonce_nonref.take_inner()) },
-					hmac: hmac_nonref.data,
+				}
+			},
+			AsyncPaymentsContext::InboundPayment {ref path_absolute_expiry, } => {
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				nativeAsyncPaymentsContext::InboundPayment {
+					path_absolute_expiry: core::time::Duration::from_secs(path_absolute_expiry_nonref),
+				}
+			},
+			AsyncPaymentsContext::ReleaseHeldHtlc {ref intercept_id, ref prev_outbound_scid_alias, ref htlc_id, } => {
+				let mut intercept_id_nonref = Clone::clone(intercept_id);
+				let mut prev_outbound_scid_alias_nonref = Clone::clone(prev_outbound_scid_alias);
+				let mut htlc_id_nonref = Clone::clone(htlc_id);
+				nativeAsyncPaymentsContext::ReleaseHeldHtlc {
+					intercept_id: ::lightning::ln::channelmanager::InterceptId(intercept_id_nonref.data),
+					prev_outbound_scid_alias: prev_outbound_scid_alias_nonref,
+					htlc_id: htlc_id_nonref,
 				}
 			},
 		}
@@ -980,11 +1215,49 @@ impl AsyncPaymentsContext {
 	#[allow(unused)]
 	pub(crate) fn into_native(self) -> nativeAsyncPaymentsContext {
 		match self {
-			AsyncPaymentsContext::OutboundPayment {mut payment_id, mut nonce, mut hmac, } => {
+			AsyncPaymentsContext::OfferPathsRequest {mut recipient_id, mut path_absolute_expiry, } => {
+				let mut local_recipient_id = Vec::new(); for mut item in recipient_id.into_rust().drain(..) { local_recipient_id.push( { item }); };
+				let mut local_path_absolute_expiry = { /*path_absolute_expiry*/ let path_absolute_expiry_opt = path_absolute_expiry; if path_absolute_expiry_opt.is_none() { None } else { Some({ { core::time::Duration::from_secs({ path_absolute_expiry_opt.take() }) }})} };
+				nativeAsyncPaymentsContext::OfferPathsRequest {
+					recipient_id: local_recipient_id,
+					path_absolute_expiry: local_path_absolute_expiry,
+				}
+			},
+			AsyncPaymentsContext::OfferPaths {mut invoice_slot, mut path_absolute_expiry, } => {
+				nativeAsyncPaymentsContext::OfferPaths {
+					invoice_slot: invoice_slot,
+					path_absolute_expiry: core::time::Duration::from_secs(path_absolute_expiry),
+				}
+			},
+			AsyncPaymentsContext::ServeStaticInvoice {mut recipient_id, mut invoice_slot, mut path_absolute_expiry, } => {
+				let mut local_recipient_id = Vec::new(); for mut item in recipient_id.into_rust().drain(..) { local_recipient_id.push( { item }); };
+				nativeAsyncPaymentsContext::ServeStaticInvoice {
+					recipient_id: local_recipient_id,
+					invoice_slot: invoice_slot,
+					path_absolute_expiry: core::time::Duration::from_secs(path_absolute_expiry),
+				}
+			},
+			AsyncPaymentsContext::StaticInvoicePersisted {mut offer_id, mut invoice_created_at, } => {
+				nativeAsyncPaymentsContext::StaticInvoicePersisted {
+					offer_id: *unsafe { Box::from_raw(offer_id.take_inner()) },
+					invoice_created_at: core::time::Duration::from_secs(invoice_created_at),
+				}
+			},
+			AsyncPaymentsContext::OutboundPayment {mut payment_id, } => {
 				nativeAsyncPaymentsContext::OutboundPayment {
 					payment_id: ::lightning::ln::channelmanager::PaymentId(payment_id.data),
-					nonce: *unsafe { Box::from_raw(nonce.take_inner()) },
-					hmac: hmac.data,
+				}
+			},
+			AsyncPaymentsContext::InboundPayment {mut path_absolute_expiry, } => {
+				nativeAsyncPaymentsContext::InboundPayment {
+					path_absolute_expiry: core::time::Duration::from_secs(path_absolute_expiry),
+				}
+			},
+			AsyncPaymentsContext::ReleaseHeldHtlc {mut intercept_id, mut prev_outbound_scid_alias, mut htlc_id, } => {
+				nativeAsyncPaymentsContext::ReleaseHeldHtlc {
+					intercept_id: ::lightning::ln::channelmanager::InterceptId(intercept_id.data),
+					prev_outbound_scid_alias: prev_outbound_scid_alias,
+					htlc_id: htlc_id,
 				}
 			},
 		}
@@ -993,14 +1266,63 @@ impl AsyncPaymentsContext {
 	pub(crate) fn from_native(native: &AsyncPaymentsContextImport) -> Self {
 		let native = unsafe { &*(native as *const _ as *const c_void as *const nativeAsyncPaymentsContext) };
 		match native {
-			nativeAsyncPaymentsContext::OutboundPayment {ref payment_id, ref nonce, ref hmac, } => {
+			nativeAsyncPaymentsContext::OfferPathsRequest {ref recipient_id, ref path_absolute_expiry, } => {
+				let mut recipient_id_nonref = Clone::clone(recipient_id);
+				let mut local_recipient_id_nonref = Vec::new(); for mut item in recipient_id_nonref.drain(..) { local_recipient_id_nonref.push( { item }); };
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				let mut local_path_absolute_expiry_nonref = if path_absolute_expiry_nonref.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { path_absolute_expiry_nonref.unwrap().as_secs() }) };
+				AsyncPaymentsContext::OfferPathsRequest {
+					recipient_id: local_recipient_id_nonref.into(),
+					path_absolute_expiry: local_path_absolute_expiry_nonref,
+				}
+			},
+			nativeAsyncPaymentsContext::OfferPaths {ref invoice_slot, ref path_absolute_expiry, } => {
+				let mut invoice_slot_nonref = Clone::clone(invoice_slot);
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				AsyncPaymentsContext::OfferPaths {
+					invoice_slot: invoice_slot_nonref,
+					path_absolute_expiry: path_absolute_expiry_nonref.as_secs(),
+				}
+			},
+			nativeAsyncPaymentsContext::ServeStaticInvoice {ref recipient_id, ref invoice_slot, ref path_absolute_expiry, } => {
+				let mut recipient_id_nonref = Clone::clone(recipient_id);
+				let mut local_recipient_id_nonref = Vec::new(); for mut item in recipient_id_nonref.drain(..) { local_recipient_id_nonref.push( { item }); };
+				let mut invoice_slot_nonref = Clone::clone(invoice_slot);
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				AsyncPaymentsContext::ServeStaticInvoice {
+					recipient_id: local_recipient_id_nonref.into(),
+					invoice_slot: invoice_slot_nonref,
+					path_absolute_expiry: path_absolute_expiry_nonref.as_secs(),
+				}
+			},
+			nativeAsyncPaymentsContext::StaticInvoicePersisted {ref offer_id, ref invoice_created_at, } => {
+				let mut offer_id_nonref = Clone::clone(offer_id);
+				let mut invoice_created_at_nonref = Clone::clone(invoice_created_at);
+				AsyncPaymentsContext::StaticInvoicePersisted {
+					offer_id: crate::lightning::offers::offer::OfferId { inner: ObjOps::heap_alloc(offer_id_nonref), is_owned: true },
+					invoice_created_at: invoice_created_at_nonref.as_secs(),
+				}
+			},
+			nativeAsyncPaymentsContext::OutboundPayment {ref payment_id, } => {
 				let mut payment_id_nonref = Clone::clone(payment_id);
-				let mut nonce_nonref = Clone::clone(nonce);
-				let mut hmac_nonref = Clone::clone(hmac);
 				AsyncPaymentsContext::OutboundPayment {
 					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id_nonref.0 },
-					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce_nonref), is_owned: true },
-					hmac: crate::c_types::ThirtyTwoBytes { data: hmac_nonref },
+				}
+			},
+			nativeAsyncPaymentsContext::InboundPayment {ref path_absolute_expiry, } => {
+				let mut path_absolute_expiry_nonref = Clone::clone(path_absolute_expiry);
+				AsyncPaymentsContext::InboundPayment {
+					path_absolute_expiry: path_absolute_expiry_nonref.as_secs(),
+				}
+			},
+			nativeAsyncPaymentsContext::ReleaseHeldHtlc {ref intercept_id, ref prev_outbound_scid_alias, ref htlc_id, } => {
+				let mut intercept_id_nonref = Clone::clone(intercept_id);
+				let mut prev_outbound_scid_alias_nonref = Clone::clone(prev_outbound_scid_alias);
+				let mut htlc_id_nonref = Clone::clone(htlc_id);
+				AsyncPaymentsContext::ReleaseHeldHtlc {
+					intercept_id: crate::c_types::ThirtyTwoBytes { data: intercept_id_nonref.0 },
+					prev_outbound_scid_alias: prev_outbound_scid_alias_nonref,
+					htlc_id: htlc_id_nonref,
 				}
 			},
 		}
@@ -1008,11 +1330,49 @@ impl AsyncPaymentsContext {
 	#[allow(unused)]
 	pub(crate) fn native_into(native: nativeAsyncPaymentsContext) -> Self {
 		match native {
-			nativeAsyncPaymentsContext::OutboundPayment {mut payment_id, mut nonce, mut hmac, } => {
+			nativeAsyncPaymentsContext::OfferPathsRequest {mut recipient_id, mut path_absolute_expiry, } => {
+				let mut local_recipient_id = Vec::new(); for mut item in recipient_id.drain(..) { local_recipient_id.push( { item }); };
+				let mut local_path_absolute_expiry = if path_absolute_expiry.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { path_absolute_expiry.unwrap().as_secs() }) };
+				AsyncPaymentsContext::OfferPathsRequest {
+					recipient_id: local_recipient_id.into(),
+					path_absolute_expiry: local_path_absolute_expiry,
+				}
+			},
+			nativeAsyncPaymentsContext::OfferPaths {mut invoice_slot, mut path_absolute_expiry, } => {
+				AsyncPaymentsContext::OfferPaths {
+					invoice_slot: invoice_slot,
+					path_absolute_expiry: path_absolute_expiry.as_secs(),
+				}
+			},
+			nativeAsyncPaymentsContext::ServeStaticInvoice {mut recipient_id, mut invoice_slot, mut path_absolute_expiry, } => {
+				let mut local_recipient_id = Vec::new(); for mut item in recipient_id.drain(..) { local_recipient_id.push( { item }); };
+				AsyncPaymentsContext::ServeStaticInvoice {
+					recipient_id: local_recipient_id.into(),
+					invoice_slot: invoice_slot,
+					path_absolute_expiry: path_absolute_expiry.as_secs(),
+				}
+			},
+			nativeAsyncPaymentsContext::StaticInvoicePersisted {mut offer_id, mut invoice_created_at, } => {
+				AsyncPaymentsContext::StaticInvoicePersisted {
+					offer_id: crate::lightning::offers::offer::OfferId { inner: ObjOps::heap_alloc(offer_id), is_owned: true },
+					invoice_created_at: invoice_created_at.as_secs(),
+				}
+			},
+			nativeAsyncPaymentsContext::OutboundPayment {mut payment_id, } => {
 				AsyncPaymentsContext::OutboundPayment {
 					payment_id: crate::c_types::ThirtyTwoBytes { data: payment_id.0 },
-					nonce: crate::lightning::offers::nonce::Nonce { inner: ObjOps::heap_alloc(nonce), is_owned: true },
-					hmac: crate::c_types::ThirtyTwoBytes { data: hmac },
+				}
+			},
+			nativeAsyncPaymentsContext::InboundPayment {mut path_absolute_expiry, } => {
+				AsyncPaymentsContext::InboundPayment {
+					path_absolute_expiry: path_absolute_expiry.as_secs(),
+				}
+			},
+			nativeAsyncPaymentsContext::ReleaseHeldHtlc {mut intercept_id, mut prev_outbound_scid_alias, mut htlc_id, } => {
+				AsyncPaymentsContext::ReleaseHeldHtlc {
+					intercept_id: crate::c_types::ThirtyTwoBytes { data: intercept_id.0 },
+					prev_outbound_scid_alias: prev_outbound_scid_alias,
+					htlc_id: htlc_id,
 				}
 			},
 		}
@@ -1037,12 +1397,59 @@ pub(crate) extern "C" fn AsyncPaymentsContext_free_void(this_ptr: *mut c_void) {
 	let _ = unsafe { Box::from_raw(this_ptr as *mut AsyncPaymentsContext) };
 }
 #[no_mangle]
+/// Utility method to constructs a new OfferPathsRequest-variant AsyncPaymentsContext
+pub extern "C" fn AsyncPaymentsContext_offer_paths_request(recipient_id: crate::c_types::derived::CVec_u8Z, path_absolute_expiry: crate::c_types::derived::COption_u64Z) -> AsyncPaymentsContext {
+	AsyncPaymentsContext::OfferPathsRequest {
+		recipient_id,
+		path_absolute_expiry,
+	}
+}
+#[no_mangle]
+/// Utility method to constructs a new OfferPaths-variant AsyncPaymentsContext
+pub extern "C" fn AsyncPaymentsContext_offer_paths(invoice_slot: u16, path_absolute_expiry: u64) -> AsyncPaymentsContext {
+	AsyncPaymentsContext::OfferPaths {
+		invoice_slot,
+		path_absolute_expiry,
+	}
+}
+#[no_mangle]
+/// Utility method to constructs a new ServeStaticInvoice-variant AsyncPaymentsContext
+pub extern "C" fn AsyncPaymentsContext_serve_static_invoice(recipient_id: crate::c_types::derived::CVec_u8Z, invoice_slot: u16, path_absolute_expiry: u64) -> AsyncPaymentsContext {
+	AsyncPaymentsContext::ServeStaticInvoice {
+		recipient_id,
+		invoice_slot,
+		path_absolute_expiry,
+	}
+}
+#[no_mangle]
+/// Utility method to constructs a new StaticInvoicePersisted-variant AsyncPaymentsContext
+pub extern "C" fn AsyncPaymentsContext_static_invoice_persisted(offer_id: crate::lightning::offers::offer::OfferId, invoice_created_at: u64) -> AsyncPaymentsContext {
+	AsyncPaymentsContext::StaticInvoicePersisted {
+		offer_id,
+		invoice_created_at,
+	}
+}
+#[no_mangle]
 /// Utility method to constructs a new OutboundPayment-variant AsyncPaymentsContext
-pub extern "C" fn AsyncPaymentsContext_outbound_payment(payment_id: crate::c_types::ThirtyTwoBytes, nonce: crate::lightning::offers::nonce::Nonce, hmac: crate::c_types::ThirtyTwoBytes) -> AsyncPaymentsContext {
+pub extern "C" fn AsyncPaymentsContext_outbound_payment(payment_id: crate::c_types::ThirtyTwoBytes) -> AsyncPaymentsContext {
 	AsyncPaymentsContext::OutboundPayment {
 		payment_id,
-		nonce,
-		hmac,
+	}
+}
+#[no_mangle]
+/// Utility method to constructs a new InboundPayment-variant AsyncPaymentsContext
+pub extern "C" fn AsyncPaymentsContext_inbound_payment(path_absolute_expiry: u64) -> AsyncPaymentsContext {
+	AsyncPaymentsContext::InboundPayment {
+		path_absolute_expiry,
+	}
+}
+#[no_mangle]
+/// Utility method to constructs a new ReleaseHeldHtlc-variant AsyncPaymentsContext
+pub extern "C" fn AsyncPaymentsContext_release_held_htlc(intercept_id: crate::c_types::ThirtyTwoBytes, prev_outbound_scid_alias: u64, htlc_id: u64) -> AsyncPaymentsContext {
+	AsyncPaymentsContext::ReleaseHeldHtlc {
+		intercept_id,
+		prev_outbound_scid_alias,
+		htlc_id,
 	}
 }
 /// Get a string which allows debug introspection of a AsyncPaymentsContext object
@@ -1160,19 +1567,15 @@ impl DNSResolverContext {
 		Self { inner: self.inner, is_owned: false }
 	}
 }
-/// A nonce which uniquely describes a DNS resolution.
-///
-/// When we receive a DNSSEC proof message, we should check that it was sent over the blinded
-/// path we included in the request by comparing a stored nonce with this one.
+/// A nonce which uniquely describes a DNS resolution, useful for looking up metadata about the
+/// request.
 #[no_mangle]
 pub extern "C" fn DNSResolverContext_get_nonce(this_ptr: &DNSResolverContext) -> *const [u8; 16] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().nonce;
+	let mut inner_val = &mut DNSResolverContext::get_native_mut_ref(this_ptr).nonce;
 	inner_val
 }
-/// A nonce which uniquely describes a DNS resolution.
-///
-/// When we receive a DNSSEC proof message, we should check that it was sent over the blinded
-/// path we included in the request by comparing a stored nonce with this one.
+/// A nonce which uniquely describes a DNS resolution, useful for looking up metadata about the
+/// request.
 #[no_mangle]
 pub extern "C" fn DNSResolverContext_set_nonce(this_ptr: &mut DNSResolverContext, mut val: crate::c_types::SixteenBytes) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.nonce = val.data;
@@ -1189,7 +1592,7 @@ impl Clone for DNSResolverContext {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeDNSResolverContext>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1197,12 +1600,12 @@ impl Clone for DNSResolverContext {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn DNSResolverContext_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeDNSResolverContext)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeDNSResolverContext) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the DNSResolverContext
 pub extern "C" fn DNSResolverContext_clone(orig: &DNSResolverContext) -> DNSResolverContext {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a DNSResolverContext object
 pub extern "C" fn DNSResolverContext_debug_str_void(o: *const c_void) -> Str {
@@ -1242,3 +1645,9 @@ pub extern "C" fn DNSResolverContext_read(ser: crate::c_types::u8slice) -> crate
 	let mut local_res = match res { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::blinded_path::message::DNSResolverContext { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::ln::msgs::DecodeError::native_into(e) }).into() };
 	local_res
 }
+/// The maximum number of dummy hops that can be added to a blinded path.
+/// This is to prevent paths from becoming too long and potentially causing
+/// issues with message processing or routing.
+
+#[no_mangle]
+pub static MAX_DUMMY_HOPS_COUNT: usize = lightning::blinded_path::message::MAX_DUMMY_HOPS_COUNT;

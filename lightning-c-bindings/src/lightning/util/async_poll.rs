@@ -6,7 +6,7 @@
 // license as that which applies to the original source files from which this
 // source was automatically generated.
 
-//! Types and primitives that implement the bLIP-51 / LSPS1: Channel Request specification.
+//! Some utilities to make working with the standard library's [`Future`]s easier
 
 use alloc::str::FromStr;
 use alloc::string::String;
@@ -17,6 +17,3 @@ use crate::c_types::*;
 #[cfg(feature="no-std")]
 use alloc::{vec::Vec, boxed::Box};
 
-pub mod client;
-pub mod event;
-pub mod msgs;

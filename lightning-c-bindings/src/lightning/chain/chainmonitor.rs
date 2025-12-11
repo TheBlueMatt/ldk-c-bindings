@@ -92,11 +92,13 @@ pub struct Persist {
 	/// This has no meaning in the LDK, and can be NULL or any other value.
 	pub this_arg: *mut c_void,
 	/// Persist a new channel's data in response to a [`chain::Watch::watch_channel`] call. This is
-	/// called by [`ChannelManager`] for new channels, or may be called directly, e.g. on startup.
+	/// called by [`ChannelManager`] for new channels, or may be called directly, e.g. on startup,
+	/// with the `monitor_name` returned by [`ChannelMonitor::persistence_key`].
 	///
-	/// The data can be stored any way you want, but the identifier provided by LDK is the
-	/// channel's outpoint (and it is up to you to maintain a correct mapping between the outpoint
-	/// and the stored channel data). Note that you **must** persist every new monitor to disk.
+	/// The data can be stored any way you want, so long as `monitor_name` is used to maintain a
+	/// correct mapping with the stored channel data (i.e., calls to `update_persisted_channel` with
+	/// the same `monitor_name` must be applied to or overwrite this data). Note that you **must**
+	/// persist every new monitor to disk.
 	///
 	/// The [`ChannelMonitor::get_latest_update_id`] uniquely links this call to [`ChainMonitor::channel_monitor_updated`].
 	/// For [`Persist::persist_new_channel`], it is only necessary to call [`ChainMonitor::channel_monitor_updated`]
@@ -107,7 +109,7 @@ pub struct Persist {
 	///
 	/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 	/// [`Writeable::write`]: crate::util::ser::Writeable::write
-	pub persist_new_channel: extern "C" fn (this_arg: *const c_void, channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint, monitor: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::chain::ChannelMonitorUpdateStatus,
+	pub persist_new_channel: extern "C" fn (this_arg: *const c_void, monitor_name: crate::lightning::util::persist::MonitorName, monitor: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::chain::ChannelMonitorUpdateStatus,
 	/// Update one channel's data. The provided [`ChannelMonitor`] has already applied the given
 	/// update.
 	///
@@ -147,7 +149,7 @@ pub struct Persist {
 	/// [`Writeable::write`]: crate::util::ser::Writeable::write
 	///
 	/// Note that monitor_update (or a relevant inner pointer) may be NULL or all-0s to represent None
-	pub update_persisted_channel: extern "C" fn (this_arg: *const c_void, channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint, monitor_update: crate::lightning::chain::channelmonitor::ChannelMonitorUpdate, monitor: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::chain::ChannelMonitorUpdateStatus,
+	pub update_persisted_channel: extern "C" fn (this_arg: *const c_void, monitor_name: crate::lightning::util::persist::MonitorName, monitor_update: crate::lightning::chain::channelmonitor::ChannelMonitorUpdate, monitor: &crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::lightning::chain::ChannelMonitorUpdateStatus,
 	/// Prevents the channel monitor from being loaded on startup.
 	///
 	/// Archiving the data in a backup location (rather than deleting it fully) is useful for
@@ -159,7 +161,14 @@ pub struct Persist {
 	/// the archive process. Additionally, because the archive operation could be retried on
 	/// restart, this method must in that case be idempotent, ensuring it can handle scenarios where
 	/// the monitor already exists in the archive.
-	pub archive_persisted_channel: extern "C" fn (this_arg: *const c_void, channel_funding_outpoint: crate::lightning::chain::transaction::OutPoint),
+	pub archive_persisted_channel: extern "C" fn (this_arg: *const c_void, monitor_name: crate::lightning::util::persist::MonitorName),
+	/// Fetches the set of [`ChannelMonitorUpdate`]s, previously persisted with
+	/// [`Self::update_persisted_channel`], which have completed.
+	///
+	/// Returning an update here is equivalent to calling
+	/// [`ChainMonitor::channel_monitor_updated`]. Because of this, this method is defaulted and
+	/// hidden in the docs.
+	pub get_and_clear_completed_updates: extern "C" fn (this_arg: *const c_void) -> crate::c_types::derived::CVec_C2Tuple_ChannelIdu64ZZ,
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
 	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
@@ -173,39 +182,50 @@ pub(crate) fn Persist_clone_fields(orig: &Persist) -> Persist {
 		persist_new_channel: Clone::clone(&orig.persist_new_channel),
 		update_persisted_channel: Clone::clone(&orig.update_persisted_channel),
 		archive_persisted_channel: Clone::clone(&orig.archive_persisted_channel),
+		get_and_clear_completed_updates: Clone::clone(&orig.get_and_clear_completed_updates),
 		free: Clone::clone(&orig.free),
 	}
 }
 
 use lightning::chain::chainmonitor::Persist as rustPersist;
 impl rustPersist<crate::lightning::sign::ecdsa::EcdsaChannelSigner, > for Persist {
-	fn persist_new_channel(&self, mut channel_funding_outpoint: lightning::chain::transaction::OutPoint, mut monitor: &lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> lightning::chain::ChannelMonitorUpdateStatus {
-		let mut ret = (self.persist_new_channel)(self.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(channel_funding_outpoint), is_owned: true }, &crate::lightning::chain::channelmonitor::ChannelMonitor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((monitor as *const lightning::chain::channelmonitor::ChannelMonitor<_, >) as *mut _) }, is_owned: false });
+	fn persist_new_channel(&self, mut monitor_name: lightning::util::persist::MonitorName, mut monitor: &lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> lightning::chain::ChannelMonitorUpdateStatus {
+		let mut ret = (self.persist_new_channel)(self.this_arg, crate::lightning::util::persist::MonitorName::native_into(monitor_name), &crate::lightning::chain::channelmonitor::ChannelMonitor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((monitor as *const lightning::chain::channelmonitor::ChannelMonitor<_, >) as *mut _) }, is_owned: false });
 		ret.into_native()
 	}
-	fn update_persisted_channel(&self, mut channel_funding_outpoint: lightning::chain::transaction::OutPoint, mut monitor_update: Option<&lightning::chain::channelmonitor::ChannelMonitorUpdate>, mut monitor: &lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> lightning::chain::ChannelMonitorUpdateStatus {
+	fn update_persisted_channel(&self, mut monitor_name: lightning::util::persist::MonitorName, mut monitor_update: Option<&lightning::chain::channelmonitor::ChannelMonitorUpdate>, mut monitor: &lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> lightning::chain::ChannelMonitorUpdateStatus {
 		let mut local_monitor_update = crate::lightning::chain::channelmonitor::ChannelMonitorUpdate { inner: unsafe { (if monitor_update.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (monitor_update.unwrap()) }) } as *const lightning::chain::channelmonitor::ChannelMonitorUpdate<>) as *mut _ }, is_owned: false };
-		let mut ret = (self.update_persisted_channel)(self.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(channel_funding_outpoint), is_owned: true }, local_monitor_update, &crate::lightning::chain::channelmonitor::ChannelMonitor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((monitor as *const lightning::chain::channelmonitor::ChannelMonitor<_, >) as *mut _) }, is_owned: false });
+		let mut ret = (self.update_persisted_channel)(self.this_arg, crate::lightning::util::persist::MonitorName::native_into(monitor_name), local_monitor_update, &crate::lightning::chain::channelmonitor::ChannelMonitor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((monitor as *const lightning::chain::channelmonitor::ChannelMonitor<_, >) as *mut _) }, is_owned: false });
 		ret.into_native()
 	}
-	fn archive_persisted_channel(&self, mut channel_funding_outpoint: lightning::chain::transaction::OutPoint) {
-		(self.archive_persisted_channel)(self.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(channel_funding_outpoint), is_owned: true })
+	fn archive_persisted_channel(&self, mut monitor_name: lightning::util::persist::MonitorName) {
+		(self.archive_persisted_channel)(self.this_arg, crate::lightning::util::persist::MonitorName::native_into(monitor_name))
+	}
+	fn get_and_clear_completed_updates(&self) -> Vec<(lightning::ln::types::ChannelId, u64)> {
+		let mut ret = (self.get_and_clear_completed_updates)(self.this_arg);
+		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1) = item.to_rust(); let mut local_ret_0 = (*unsafe { Box::from_raw(orig_ret_0_0.take_inner()) }, orig_ret_0_1); local_ret_0 }); };
+		local_ret
 	}
 }
 
 pub struct PersistRef(Persist);
 impl rustPersist<crate::lightning::sign::ecdsa::EcdsaChannelSigner, > for PersistRef {
-	fn persist_new_channel(&self, mut channel_funding_outpoint: lightning::chain::transaction::OutPoint, mut monitor: &lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> lightning::chain::ChannelMonitorUpdateStatus {
-		let mut ret = (self.0.persist_new_channel)(self.0.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(channel_funding_outpoint), is_owned: true }, &crate::lightning::chain::channelmonitor::ChannelMonitor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((monitor as *const lightning::chain::channelmonitor::ChannelMonitor<_, >) as *mut _) }, is_owned: false });
+	fn persist_new_channel(&self, mut monitor_name: lightning::util::persist::MonitorName, mut monitor: &lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> lightning::chain::ChannelMonitorUpdateStatus {
+		let mut ret = (self.0.persist_new_channel)(self.0.this_arg, crate::lightning::util::persist::MonitorName::native_into(monitor_name), &crate::lightning::chain::channelmonitor::ChannelMonitor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((monitor as *const lightning::chain::channelmonitor::ChannelMonitor<_, >) as *mut _) }, is_owned: false });
 		ret.into_native()
 	}
-	fn update_persisted_channel(&self, mut channel_funding_outpoint: lightning::chain::transaction::OutPoint, mut monitor_update: Option<&lightning::chain::channelmonitor::ChannelMonitorUpdate>, mut monitor: &lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> lightning::chain::ChannelMonitorUpdateStatus {
+	fn update_persisted_channel(&self, mut monitor_name: lightning::util::persist::MonitorName, mut monitor_update: Option<&lightning::chain::channelmonitor::ChannelMonitorUpdate>, mut monitor: &lightning::chain::channelmonitor::ChannelMonitor<crate::lightning::sign::ecdsa::EcdsaChannelSigner>) -> lightning::chain::ChannelMonitorUpdateStatus {
 		let mut local_monitor_update = crate::lightning::chain::channelmonitor::ChannelMonitorUpdate { inner: unsafe { (if monitor_update.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (monitor_update.unwrap()) }) } as *const lightning::chain::channelmonitor::ChannelMonitorUpdate<>) as *mut _ }, is_owned: false };
-		let mut ret = (self.0.update_persisted_channel)(self.0.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(channel_funding_outpoint), is_owned: true }, local_monitor_update, &crate::lightning::chain::channelmonitor::ChannelMonitor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((monitor as *const lightning::chain::channelmonitor::ChannelMonitor<_, >) as *mut _) }, is_owned: false });
+		let mut ret = (self.0.update_persisted_channel)(self.0.this_arg, crate::lightning::util::persist::MonitorName::native_into(monitor_name), local_monitor_update, &crate::lightning::chain::channelmonitor::ChannelMonitor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((monitor as *const lightning::chain::channelmonitor::ChannelMonitor<_, >) as *mut _) }, is_owned: false });
 		ret.into_native()
 	}
-	fn archive_persisted_channel(&self, mut channel_funding_outpoint: lightning::chain::transaction::OutPoint) {
-		(self.0.archive_persisted_channel)(self.0.this_arg, crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(channel_funding_outpoint), is_owned: true })
+	fn archive_persisted_channel(&self, mut monitor_name: lightning::util::persist::MonitorName) {
+		(self.0.archive_persisted_channel)(self.0.this_arg, crate::lightning::util::persist::MonitorName::native_into(monitor_name))
+	}
+	fn get_and_clear_completed_updates(&self) -> Vec<(lightning::ln::types::ChannelId, u64)> {
+		let mut ret = (self.0.get_and_clear_completed_updates)(self.0.this_arg);
+		let mut local_ret = Vec::new(); for mut item in ret.into_rust().drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1) = item.to_rust(); let mut local_ret_0 = (*unsafe { Box::from_raw(orig_ret_0_0.take_inner()) }, orig_ret_0_1); local_ret_0 }); };
+		local_ret
 	}
 }
 
@@ -297,7 +317,7 @@ impl LockedChannelMonitor {
 }
 
 use lightning::chain::chainmonitor::ChainMonitor as nativeChainMonitorImport;
-pub(crate) type nativeChainMonitor = nativeChainMonitorImport<crate::lightning::sign::ecdsa::EcdsaChannelSigner, crate::lightning::chain::Filter, crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::util::logger::Logger, crate::lightning::chain::chainmonitor::Persist, >;
+pub(crate) type nativeChainMonitor = nativeChainMonitorImport<crate::lightning::sign::ecdsa::EcdsaChannelSigner, crate::lightning::chain::Filter, crate::lightning::chain::chaininterface::BroadcasterInterface, crate::lightning::chain::chaininterface::FeeEstimator, crate::lightning::util::logger::Logger, crate::lightning::chain::chainmonitor::Persist, crate::lightning::sign::EntropySource, >;
 
 /// An implementation of [`chain::Watch`] for monitoring channels.
 ///
@@ -377,11 +397,23 @@ impl ChainMonitor {
 /// pre-filter blocks or only fetch blocks matching a compact filter. Otherwise, clients may
 /// always need to fetch full blocks absent another means for determining which blocks contain
 /// transactions relevant to the watched channels.
+///
+/// # Note
+/// `our_peerstorage_encryption_key` must be obtained from [`NodeSigner::get_peer_storage_key`].
+/// This key is used to encrypt peer storage backups.
+///
+/// **Important**: This key should not be set arbitrarily or changed after initialization. The same key
+/// is obtained by the [`ChannelManager`] through [`NodeSigner`] to decrypt peer backups.
+/// Using an inconsistent or incorrect key will result in the inability to decrypt previously encrypted backups.
+///
+/// [`NodeSigner`]: crate::sign::NodeSigner
+/// [`NodeSigner::get_peer_storage_key`]: crate::sign::NodeSigner::get_peer_storage_key
+/// [`ChannelManager`]: crate::ln::channelmanager::ChannelManager
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChainMonitor_new(mut chain_source: crate::c_types::derived::COption_FilterZ, mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut logger: crate::lightning::util::logger::Logger, mut feeest: crate::lightning::chain::chaininterface::FeeEstimator, mut persister: crate::lightning::chain::chainmonitor::Persist) -> crate::lightning::chain::chainmonitor::ChainMonitor {
+pub extern "C" fn ChainMonitor_new(mut chain_source: crate::c_types::derived::COption_FilterZ, mut broadcaster: crate::lightning::chain::chaininterface::BroadcasterInterface, mut logger: crate::lightning::util::logger::Logger, mut feeest: crate::lightning::chain::chaininterface::FeeEstimator, mut persister: crate::lightning::chain::chainmonitor::Persist, mut _entropy_source: crate::lightning::sign::EntropySource, mut _our_peerstorage_encryption_key: crate::lightning::sign::PeerStorageKey) -> crate::lightning::chain::chainmonitor::ChainMonitor {
 	let mut local_chain_source = { /*chain_source*/ let chain_source_opt = chain_source; if chain_source_opt.is_none() { None } else { Some({ { { chain_source_opt.take() } }})} };
-	let mut ret = lightning::chain::chainmonitor::ChainMonitor::new(local_chain_source, broadcaster, logger, feeest, persister);
+	let mut ret = lightning::chain::chainmonitor::ChainMonitor::new(local_chain_source, broadcaster, logger, feeest, persister, _entropy_source, *unsafe { Box::from_raw(_our_peerstorage_encryption_key.take_inner()) });
 	crate::lightning::chain::chainmonitor::ChainMonitor { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
@@ -409,8 +441,8 @@ pub extern "C" fn ChainMonitor_get_claimable_balances(this_arg: &crate::lightnin
 /// indefinitely.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChainMonitor_get_monitor(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor, mut funding_txo: crate::lightning::chain::transaction::OutPoint) -> crate::c_types::derived::CResult_LockedChannelMonitorNoneZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_monitor(*unsafe { Box::from_raw(funding_txo.take_inner()) });
+pub extern "C" fn ChainMonitor_get_monitor(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor, mut channel_id: crate::lightning::ln::types::ChannelId) -> crate::c_types::derived::CResult_LockedChannelMonitorNoneZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_monitor(*unsafe { Box::from_raw(channel_id.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::chain::chainmonitor::LockedChannelMonitor { inner: ObjOps::heap_alloc(o), is_owned: true } }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
@@ -421,21 +453,21 @@ pub extern "C" fn ChainMonitor_get_monitor(this_arg: &crate::lightning::chain::c
 /// monitoring for on-chain state resolutions.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChainMonitor_list_monitors(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor) -> crate::c_types::derived::CVec_C2Tuple_OutPointChannelIdZZ {
+pub extern "C" fn ChainMonitor_list_monitors(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor) -> crate::c_types::derived::CVec_ChannelIdZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.list_monitors();
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1) = item; let mut local_ret_0 = (crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(orig_ret_0_0), is_owned: true }, crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(orig_ret_0_1), is_owned: true }).into(); local_ret_0 }); };
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(item), is_owned: true } }); };
 	local_ret.into()
 }
 
-/// Lists the pending updates for each [`ChannelMonitor`] (by `OutPoint` being monitored).
+/// Lists the pending updates for each [`ChannelMonitor`] (by `ChannelId` being monitored).
 /// Each `Vec<u64>` contains `update_id`s from [`ChannelMonitor::get_latest_update_id`] for updates
 /// that have not yet been fully persisted. Note that if a full monitor is persisted all the pending
 /// monitor updates must be individually marked completed by calling [`ChainMonitor::channel_monitor_updated`].
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChainMonitor_list_pending_monitor_updates(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor) -> crate::c_types::derived::CVec_C2Tuple_OutPointCVec_u64ZZZ {
+pub extern "C" fn ChainMonitor_list_pending_monitor_updates(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor) -> crate::c_types::derived::CVec_C2Tuple_ChannelIdCVec_u64ZZZ {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.list_pending_monitor_updates();
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1) = item; let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.drain(..) { local_orig_ret_0_1.push( { item }); }; let mut local_ret_0 = (crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(orig_ret_0_0), is_owned: true }, local_orig_ret_0_1.into()).into(); local_ret_0 }); };
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1) = item; let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.drain(..) { local_orig_ret_0_1.push( { item }); }; let mut local_ret_0 = (crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(orig_ret_0_0), is_owned: true }, local_orig_ret_0_1.into()).into(); local_ret_0 }); };
 	local_ret.into()
 }
 
@@ -461,8 +493,8 @@ pub extern "C" fn ChainMonitor_list_pending_monitor_updates(this_arg: &crate::li
 /// registered [`ChannelMonitor`]s.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChainMonitor_channel_monitor_updated(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor, mut funding_txo: crate::lightning::chain::transaction::OutPoint, mut completed_update_id: u64) -> crate::c_types::derived::CResult_NoneAPIErrorZ {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.channel_monitor_updated(*unsafe { Box::from_raw(funding_txo.take_inner()) }, completed_update_id);
+pub extern "C" fn ChainMonitor_channel_monitor_updated(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor, mut channel_id: crate::lightning::ln::types::ChannelId, mut completed_update_id: u64) -> crate::c_types::derived::CResult_NoneAPIErrorZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.channel_monitor_updated(*unsafe { Box::from_raw(channel_id.take_inner()) }, completed_update_id);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::lightning::util::errors::APIError::native_into(e) }).into() };
 	local_ret
 }
@@ -499,7 +531,7 @@ pub extern "C" fn ChainMonitor_rebroadcast_pending_claims(this_arg: &crate::ligh
 ///
 /// Note that monitor_opt (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
-pub extern "C" fn ChainMonitor_signer_unblocked(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor, mut monitor_opt: crate::lightning::chain::transaction::OutPoint) {
+pub extern "C" fn ChainMonitor_signer_unblocked(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor, mut monitor_opt: crate::lightning::ln::types::ChannelId) {
 	let mut local_monitor_opt = if monitor_opt.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(monitor_opt.take_inner()) } }) };
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.signer_unblocked(local_monitor_opt)
 }
@@ -517,6 +549,113 @@ pub extern "C" fn ChainMonitor_signer_unblocked(this_arg: &crate::lightning::cha
 pub extern "C" fn ChainMonitor_archive_fully_resolved_channel_monitors(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor) {
 	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.archive_fully_resolved_channel_monitors()
 }
+
+/// Loads a [`ChannelMonitor`] which already exists on disk after startup.
+///
+/// Using this over [`chain::Watch::watch_channel`] avoids re-persisting a [`ChannelMonitor`]
+/// that hasn't changed, slowing down startup.
+///
+/// Note that this method *can* be used if additional blocks were replayed against the
+/// [`ChannelMonitor`] or if a [`ChannelMonitorUpdate`] loaded from disk was replayed such that
+/// it will replayed on startup, and in general can only *not* be used if you directly accessed
+/// the [`ChannelMonitor`] and changed its state in some way that will not be replayed again on
+/// a restart. Such direct access should generally never occur for most LDK-based nodes.
+///
+/// For [`ChannelMonitor`]s which were last serialized by an LDK version prior to 0.1 this will
+/// fall back to calling [`chain::Watch::watch_channel`] and persisting the [`ChannelMonitor`].
+/// See the release notes for LDK 0.1 for more information on this requirement.
+///
+/// [`ChannelMonitor`]s which do not need to be persisted (i.e. were last written by LDK 0.1 or
+/// later) will be loaded without persistence and this method will return
+/// [`ChannelMonitorUpdateStatus::Completed`].
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChainMonitor_load_existing_monitor(this_arg: &crate::lightning::chain::chainmonitor::ChainMonitor, mut channel_id: crate::lightning::ln::types::ChannelId, mut monitor: crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::c_types::derived::CResult_ChannelMonitorUpdateStatusNoneZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.load_existing_monitor(*unsafe { Box::from_raw(channel_id.take_inner()) }, *unsafe { Box::from_raw(monitor.take_inner()) });
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::chain::ChannelMonitorUpdateStatus::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	local_ret
+}
+
+impl From<nativeChainMonitor> for crate::lightning::ln::msgs::BaseMessageHandler {
+	fn from(obj: nativeChainMonitor) -> Self {
+		let rust_obj = crate::lightning::chain::chainmonitor::ChainMonitor { inner: ObjOps::heap_alloc(obj), is_owned: true };
+		let mut ret = ChainMonitor_as_BaseMessageHandler(&rust_obj);
+		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
+		core::mem::forget(rust_obj);
+		ret.free = Some(ChainMonitor_free_void);
+		ret
+	}
+}
+/// Constructs a new BaseMessageHandler which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned BaseMessageHandler must be freed before this_arg is
+#[no_mangle]
+pub extern "C" fn ChainMonitor_as_BaseMessageHandler(this_arg: &ChainMonitor) -> crate::lightning::ln::msgs::BaseMessageHandler {
+	crate::lightning::ln::msgs::BaseMessageHandler {
+		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+		free: None,
+		get_and_clear_pending_msg_events: ChainMonitor_BaseMessageHandler_get_and_clear_pending_msg_events,
+		peer_disconnected: ChainMonitor_BaseMessageHandler_peer_disconnected,
+		provided_node_features: ChainMonitor_BaseMessageHandler_provided_node_features,
+		provided_init_features: ChainMonitor_BaseMessageHandler_provided_init_features,
+		peer_connected: ChainMonitor_BaseMessageHandler_peer_connected,
+	}
+}
+
+#[must_use]
+extern "C" fn ChainMonitor_BaseMessageHandler_get_and_clear_pending_msg_events(this_arg: *const c_void) -> crate::c_types::derived::CVec_MessageSendEventZ {
+	let mut ret = <nativeChainMonitor as lightning::ln::msgs::BaseMessageHandler>::get_and_clear_pending_msg_events(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, );
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { crate::lightning::ln::msgs::MessageSendEvent::native_into(item) }); };
+	local_ret.into()
+}
+extern "C" fn ChainMonitor_BaseMessageHandler_peer_disconnected(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) {
+	<nativeChainMonitor as lightning::ln::msgs::BaseMessageHandler>::peer_disconnected(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, their_node_id.into_rust())
+}
+#[must_use]
+extern "C" fn ChainMonitor_BaseMessageHandler_provided_node_features(this_arg: *const c_void) -> crate::lightning_types::features::NodeFeatures {
+	let mut ret = <nativeChainMonitor as lightning::ln::msgs::BaseMessageHandler>::provided_node_features(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, );
+	crate::lightning_types::features::NodeFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+#[must_use]
+extern "C" fn ChainMonitor_BaseMessageHandler_provided_init_features(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey) -> crate::lightning_types::features::InitFeatures {
+	let mut ret = <nativeChainMonitor as lightning::ln::msgs::BaseMessageHandler>::provided_init_features(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, their_node_id.into_rust());
+	crate::lightning_types::features::InitFeatures { inner: ObjOps::heap_alloc(ret), is_owned: true }
+}
+#[must_use]
+extern "C" fn ChainMonitor_BaseMessageHandler_peer_connected(this_arg: *const c_void, mut their_node_id: crate::c_types::PublicKey, msg: &crate::lightning::ln::msgs::Init, mut inbound: bool) -> crate::c_types::derived::CResult_NoneNoneZ {
+	let mut ret = <nativeChainMonitor as lightning::ln::msgs::BaseMessageHandler>::peer_connected(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, their_node_id.into_rust(), msg.get_native_ref(), inbound);
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
+	local_ret
+}
+
+impl From<nativeChainMonitor> for crate::lightning::ln::msgs::SendOnlyMessageHandler {
+	fn from(obj: nativeChainMonitor) -> Self {
+		let rust_obj = crate::lightning::chain::chainmonitor::ChainMonitor { inner: ObjOps::heap_alloc(obj), is_owned: true };
+		let mut ret = ChainMonitor_as_SendOnlyMessageHandler(&rust_obj);
+		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
+		core::mem::forget(rust_obj);
+		ret.free = Some(ChainMonitor_free_void);
+		ret
+	}
+}
+/// Constructs a new SendOnlyMessageHandler which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned SendOnlyMessageHandler must be freed before this_arg is
+#[no_mangle]
+pub extern "C" fn ChainMonitor_as_SendOnlyMessageHandler(this_arg: &ChainMonitor) -> crate::lightning::ln::msgs::SendOnlyMessageHandler {
+	crate::lightning::ln::msgs::SendOnlyMessageHandler {
+		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+		free: None,
+		BaseMessageHandler: crate::lightning::ln::msgs::BaseMessageHandler {
+			this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
+			free: None,
+			get_and_clear_pending_msg_events: ChainMonitor_BaseMessageHandler_get_and_clear_pending_msg_events,
+			peer_disconnected: ChainMonitor_BaseMessageHandler_peer_disconnected,
+			provided_node_features: ChainMonitor_BaseMessageHandler_provided_node_features,
+			provided_init_features: ChainMonitor_BaseMessageHandler_provided_init_features,
+			peer_connected: ChainMonitor_BaseMessageHandler_peer_connected,
+		},
+	}
+}
+
 
 impl From<nativeChainMonitor> for crate::lightning::chain::Listen {
 	fn from(obj: nativeChainMonitor) -> Self {
@@ -537,7 +676,7 @@ pub extern "C" fn ChainMonitor_as_Listen(this_arg: &ChainMonitor) -> crate::ligh
 		free: None,
 		filtered_block_connected: ChainMonitor_Listen_filtered_block_connected,
 		block_connected: ChainMonitor_Listen_block_connected,
-		block_disconnected: ChainMonitor_Listen_block_disconnected,
+		blocks_disconnected: ChainMonitor_Listen_blocks_disconnected,
 	}
 }
 
@@ -548,8 +687,8 @@ extern "C" fn ChainMonitor_Listen_filtered_block_connected(this_arg: *const c_vo
 extern "C" fn ChainMonitor_Listen_block_connected(this_arg: *const c_void, mut block: crate::c_types::u8slice, mut height: u32) {
 	<nativeChainMonitor as lightning::chain::Listen>::block_connected(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, &::bitcoin::consensus::encode::deserialize(block.to_slice()).unwrap(), height)
 }
-extern "C" fn ChainMonitor_Listen_block_disconnected(this_arg: *const c_void, header: *const [u8; 80], mut height: u32) {
-	<nativeChainMonitor as lightning::chain::Listen>::block_disconnected(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, &::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height)
+extern "C" fn ChainMonitor_Listen_blocks_disconnected(this_arg: *const c_void, mut fork_point_block: crate::lightning::chain::BestBlock) {
+	<nativeChainMonitor as lightning::chain::Listen>::blocks_disconnected(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, *unsafe { Box::from_raw(fork_point_block.take_inner()) })
 }
 
 impl From<nativeChainMonitor> for crate::lightning::chain::Confirm {
@@ -617,20 +756,20 @@ pub extern "C" fn ChainMonitor_as_Watch(this_arg: &ChainMonitor) -> crate::light
 }
 
 #[must_use]
-extern "C" fn ChainMonitor_Watch_watch_channel(this_arg: *const c_void, mut funding_txo: crate::lightning::chain::transaction::OutPoint, mut monitor: crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::c_types::derived::CResult_ChannelMonitorUpdateStatusNoneZ {
-	let mut ret = <nativeChainMonitor as lightning::chain::Watch<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::watch_channel(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, *unsafe { Box::from_raw(funding_txo.take_inner()) }, *unsafe { Box::from_raw(monitor.take_inner()) });
+extern "C" fn ChainMonitor_Watch_watch_channel(this_arg: *const c_void, mut channel_id: crate::lightning::ln::types::ChannelId, mut monitor: crate::lightning::chain::channelmonitor::ChannelMonitor) -> crate::c_types::derived::CResult_ChannelMonitorUpdateStatusNoneZ {
+	let mut ret = <nativeChainMonitor as lightning::chain::Watch<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::watch_channel(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, *unsafe { Box::from_raw(channel_id.take_inner()) }, *unsafe { Box::from_raw(monitor.take_inner()) });
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { crate::lightning::chain::ChannelMonitorUpdateStatus::native_into(o) }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { () /*e*/ }).into() };
 	local_ret
 }
 #[must_use]
-extern "C" fn ChainMonitor_Watch_update_channel(this_arg: *const c_void, mut funding_txo: crate::lightning::chain::transaction::OutPoint, update: &crate::lightning::chain::channelmonitor::ChannelMonitorUpdate) -> crate::lightning::chain::ChannelMonitorUpdateStatus {
-	let mut ret = <nativeChainMonitor as lightning::chain::Watch<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::update_channel(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, *unsafe { Box::from_raw(funding_txo.take_inner()) }, update.get_native_ref());
+extern "C" fn ChainMonitor_Watch_update_channel(this_arg: *const c_void, mut channel_id: crate::lightning::ln::types::ChannelId, update: &crate::lightning::chain::channelmonitor::ChannelMonitorUpdate) -> crate::lightning::chain::ChannelMonitorUpdateStatus {
+	let mut ret = <nativeChainMonitor as lightning::chain::Watch<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::update_channel(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, *unsafe { Box::from_raw(channel_id.take_inner()) }, update.get_native_ref());
 	crate::lightning::chain::ChannelMonitorUpdateStatus::native_into(ret)
 }
 #[must_use]
 extern "C" fn ChainMonitor_Watch_release_pending_monitor_events(this_arg: *const c_void) -> crate::c_types::derived::CVec_C4Tuple_OutPointChannelIdCVec_MonitorEventZPublicKeyZZ {
 	let mut ret = <nativeChainMonitor as lightning::chain::Watch<crate::lightning::sign::ecdsa::EcdsaChannelSigner, >>::release_pending_monitor_events(unsafe { &mut *(this_arg as *mut nativeChainMonitor) }, );
-	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2, mut orig_ret_0_3) = item; let mut local_orig_ret_0_2 = Vec::new(); for mut item in orig_ret_0_2.drain(..) { local_orig_ret_0_2.push( { crate::lightning::chain::channelmonitor::MonitorEvent::native_into(item) }); }; let mut local_orig_ret_0_3 = if orig_ret_0_3.is_none() { crate::c_types::PublicKey::null() } else {  { crate::c_types::PublicKey::from_rust(&(orig_ret_0_3.unwrap())) } }; let mut local_ret_0 = (crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(orig_ret_0_0), is_owned: true }, crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(orig_ret_0_1), is_owned: true }, local_orig_ret_0_2.into(), local_orig_ret_0_3).into(); local_ret_0 }); };
+	let mut local_ret = Vec::new(); for mut item in ret.drain(..) { local_ret.push( { let (mut orig_ret_0_0, mut orig_ret_0_1, mut orig_ret_0_2, mut orig_ret_0_3) = item; let mut local_orig_ret_0_2 = Vec::new(); for mut item in orig_ret_0_2.drain(..) { local_orig_ret_0_2.push( { crate::lightning::chain::channelmonitor::MonitorEvent::native_into(item) }); }; let mut local_ret_0 = (crate::lightning::chain::transaction::OutPoint { inner: ObjOps::heap_alloc(orig_ret_0_0), is_owned: true }, crate::lightning::ln::types::ChannelId { inner: ObjOps::heap_alloc(orig_ret_0_1), is_owned: true }, local_orig_ret_0_2.into(), crate::c_types::PublicKey::from_rust(&orig_ret_0_3)).into(); local_ret_0 }); };
 	local_ret.into()
 }
 

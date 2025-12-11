@@ -108,6 +108,30 @@ pub extern "C" fn Bolt11ParseError_to_str(o: &crate::lightning_invoice::Bolt11Pa
 pub extern "C" fn ParseOrSemanticError_to_str(o: &crate::lightning_invoice::ParseOrSemanticError) -> Str {
 	alloc::format!("{}", &o.to_native()).into()
 }
+#[no_mangle]
+/// Build a Bolt11ParseError from a Secp256k1Error
+pub extern "C" fn Bolt11ParseError_from_Secp256k1Error(f: crate::c_types::Secp256k1Error) -> crate::lightning_invoice::Bolt11ParseError {
+	let from_obj = f.into_rust();
+	crate::lightning_invoice::Bolt11ParseError { inner: ObjOps::heap_alloc((lightning_invoice::Bolt11ParseError::from(from_obj))), is_owned: true }
+}
+#[no_mangle]
+/// Build a Bolt11ParseError from a Error
+pub extern "C" fn Bolt11ParseError_from_Error(f: crate::c_types::Error) -> crate::lightning_invoice::Bolt11ParseError {
+	let from_obj = u8::from_str_radix(" a", 10).unwrap_err() /*f*/;
+	crate::lightning_invoice::Bolt11ParseError { inner: ObjOps::heap_alloc((lightning_invoice::Bolt11ParseError::from(from_obj))), is_owned: true }
+}
+#[no_mangle]
+/// Build a ParseOrSemanticError from a Bolt11ParseError
+pub extern "C" fn ParseOrSemanticError_from_Bolt11ParseError(f: crate::lightning_invoice::Bolt11ParseError) -> crate::lightning_invoice::ParseOrSemanticError {
+	let from_obj = *unsafe { Box::from_raw(f.take_inner()) };
+	crate::lightning_invoice::ParseOrSemanticError::native_into((lightning_invoice::ParseOrSemanticError::from(from_obj)))
+}
+#[no_mangle]
+/// Build a ParseOrSemanticError from a Bolt11SemanticError
+pub extern "C" fn ParseOrSemanticError_from_Bolt11SemanticError(f: crate::lightning_invoice::Bolt11SemanticError) -> crate::lightning_invoice::ParseOrSemanticError {
+	let from_obj = f.into_native();
+	crate::lightning_invoice::ParseOrSemanticError::native_into((lightning_invoice::ParseOrSemanticError::from(from_obj)))
+}
 }
 mod ser {
 
@@ -242,7 +266,7 @@ impl Clone for Bolt11ParseError {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt11ParseError>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -250,12 +274,12 @@ impl Clone for Bolt11ParseError {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt11ParseError_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt11ParseError)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt11ParseError) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt11ParseError
 pub extern "C" fn Bolt11ParseError_clone(orig: &Bolt11ParseError) -> Bolt11ParseError {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Indicates that something went wrong while parsing or validating the invoice. Parsing errors
 /// should be mostly seen as opaque and are only there for debugging reasons. Semantic errors
@@ -493,7 +517,7 @@ impl Clone for Bolt11Invoice {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt11Invoice>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -501,12 +525,12 @@ impl Clone for Bolt11Invoice {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt11Invoice_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt11Invoice)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt11Invoice) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt11Invoice
 pub extern "C" fn Bolt11Invoice_clone(orig: &Bolt11Invoice) -> Bolt11Invoice {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Generates a non-cryptographic 64-bit hash of the Bolt11Invoice.
 #[no_mangle]
@@ -723,7 +747,7 @@ impl Clone for SignedRawBolt11Invoice {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeSignedRawBolt11Invoice>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -731,12 +755,12 @@ impl Clone for SignedRawBolt11Invoice {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn SignedRawBolt11Invoice_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeSignedRawBolt11Invoice)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeSignedRawBolt11Invoice) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the SignedRawBolt11Invoice
 pub extern "C" fn SignedRawBolt11Invoice_clone(orig: &SignedRawBolt11Invoice) -> SignedRawBolt11Invoice {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Generates a non-cryptographic 64-bit hash of the SignedRawBolt11Invoice.
 #[no_mangle]
@@ -815,7 +839,7 @@ impl RawBolt11Invoice {
 /// data part
 #[no_mangle]
 pub extern "C" fn RawBolt11Invoice_get_data(this_ptr: &RawBolt11Invoice) -> crate::lightning_invoice::RawDataPart {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().data;
+	let mut inner_val = &mut RawBolt11Invoice::get_native_mut_ref(this_ptr).data;
 	crate::lightning_invoice::RawDataPart { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_invoice::RawDataPart<>) as *mut _) }, is_owned: false }
 }
 /// data part
@@ -839,7 +863,7 @@ impl Clone for RawBolt11Invoice {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRawBolt11Invoice>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -847,12 +871,12 @@ impl Clone for RawBolt11Invoice {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RawBolt11Invoice_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRawBolt11Invoice)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRawBolt11Invoice) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RawBolt11Invoice
 pub extern "C" fn RawBolt11Invoice_clone(orig: &RawBolt11Invoice) -> RawBolt11Invoice {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Generates a non-cryptographic 64-bit hash of the RawBolt11Invoice.
 #[no_mangle]
@@ -927,7 +951,7 @@ impl RawDataPart {
 /// generation time of the invoice
 #[no_mangle]
 pub extern "C" fn RawDataPart_get_timestamp(this_ptr: &RawDataPart) -> crate::lightning_invoice::PositiveTimestamp {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().timestamp;
+	let mut inner_val = &mut RawDataPart::get_native_mut_ref(this_ptr).timestamp;
 	crate::lightning_invoice::PositiveTimestamp { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_invoice::PositiveTimestamp<>) as *mut _) }, is_owned: false }
 }
 /// generation time of the invoice
@@ -951,7 +975,7 @@ impl Clone for RawDataPart {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeRawDataPart>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -959,12 +983,12 @@ impl Clone for RawDataPart {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn RawDataPart_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeRawDataPart)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeRawDataPart) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the RawDataPart
 pub extern "C" fn RawDataPart_clone(orig: &RawDataPart) -> RawDataPart {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Generates a non-cryptographic 64-bit hash of the RawDataPart.
 #[no_mangle]
@@ -1057,7 +1081,7 @@ impl Clone for PositiveTimestamp {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativePositiveTimestamp>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1065,12 +1089,12 @@ impl Clone for PositiveTimestamp {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn PositiveTimestamp_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativePositiveTimestamp)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativePositiveTimestamp) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the PositiveTimestamp
 pub extern "C" fn PositiveTimestamp_clone(orig: &PositiveTimestamp) -> PositiveTimestamp {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Generates a non-cryptographic 64-bit hash of the PositiveTimestamp.
 #[no_mangle]
@@ -1375,7 +1399,7 @@ impl Clone for Sha256 {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeSha256>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1383,12 +1407,12 @@ impl Clone for Sha256 {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Sha256_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeSha256)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeSha256) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Sha256
 pub extern "C" fn Sha256_clone(orig: &Sha256) -> Sha256 {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Sha256 object
 pub extern "C" fn Sha256_debug_str_void(o: *const c_void) -> Str {
@@ -1488,7 +1512,7 @@ impl Clone for Description {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeDescription>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1496,12 +1520,12 @@ impl Clone for Description {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Description_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeDescription)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeDescription) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Description
 pub extern "C" fn Description_clone(orig: &Description) -> Description {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Description object
 pub extern "C" fn Description_debug_str_void(o: *const c_void) -> Str {
@@ -1587,7 +1611,7 @@ impl PayeePubKey {
 }
 #[no_mangle]
 pub extern "C" fn PayeePubKey_get_a(this_ptr: &PayeePubKey) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut PayeePubKey::get_native_mut_ref(this_ptr).0;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 #[no_mangle]
@@ -1606,7 +1630,7 @@ impl Clone for PayeePubKey {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativePayeePubKey>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1614,12 +1638,12 @@ impl Clone for PayeePubKey {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn PayeePubKey_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativePayeePubKey)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativePayeePubKey) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the PayeePubKey
 pub extern "C" fn PayeePubKey_clone(orig: &PayeePubKey) -> PayeePubKey {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a PayeePubKey object
 pub extern "C" fn PayeePubKey_debug_str_void(o: *const c_void) -> Str {
@@ -1708,7 +1732,7 @@ impl Clone for ExpiryTime {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeExpiryTime>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1716,12 +1740,12 @@ impl Clone for ExpiryTime {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ExpiryTime_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeExpiryTime)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeExpiryTime) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ExpiryTime
 pub extern "C" fn ExpiryTime_clone(orig: &ExpiryTime) -> ExpiryTime {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ExpiryTime object
 pub extern "C" fn ExpiryTime_debug_str_void(o: *const c_void) -> Str {
@@ -1807,7 +1831,7 @@ impl MinFinalCltvExpiryDelta {
 }
 #[no_mangle]
 pub extern "C" fn MinFinalCltvExpiryDelta_get_a(this_ptr: &MinFinalCltvExpiryDelta) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut MinFinalCltvExpiryDelta::get_native_mut_ref(this_ptr).0;
 	*inner_val
 }
 #[no_mangle]
@@ -1826,7 +1850,7 @@ impl Clone for MinFinalCltvExpiryDelta {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeMinFinalCltvExpiryDelta>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1834,12 +1858,12 @@ impl Clone for MinFinalCltvExpiryDelta {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn MinFinalCltvExpiryDelta_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeMinFinalCltvExpiryDelta)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeMinFinalCltvExpiryDelta) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the MinFinalCltvExpiryDelta
 pub extern "C" fn MinFinalCltvExpiryDelta_clone(orig: &MinFinalCltvExpiryDelta) -> MinFinalCltvExpiryDelta {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a MinFinalCltvExpiryDelta object
 pub extern "C" fn MinFinalCltvExpiryDelta_debug_str_void(o: *const c_void) -> Str {
@@ -2095,7 +2119,7 @@ impl Bolt11InvoiceSignature {
 }
 #[no_mangle]
 pub extern "C" fn Bolt11InvoiceSignature_get_a(this_ptr: &Bolt11InvoiceSignature) -> crate::c_types::RecoverableSignature {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().0;
+	let mut inner_val = &mut Bolt11InvoiceSignature::get_native_mut_ref(this_ptr).0;
 	crate::c_types::RecoverableSignature::from_rust(&inner_val)
 }
 #[no_mangle]
@@ -2114,7 +2138,7 @@ impl Clone for Bolt11InvoiceSignature {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeBolt11InvoiceSignature>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -2122,12 +2146,12 @@ impl Clone for Bolt11InvoiceSignature {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn Bolt11InvoiceSignature_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeBolt11InvoiceSignature)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeBolt11InvoiceSignature) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the Bolt11InvoiceSignature
 pub extern "C" fn Bolt11InvoiceSignature_clone(orig: &Bolt11InvoiceSignature) -> Bolt11InvoiceSignature {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a Bolt11InvoiceSignature object
 pub extern "C" fn Bolt11InvoiceSignature_debug_str_void(o: *const c_void) -> Str {
@@ -2219,7 +2243,7 @@ impl Clone for PrivateRoute {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativePrivateRoute>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -2227,12 +2251,12 @@ impl Clone for PrivateRoute {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn PrivateRoute_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativePrivateRoute)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativePrivateRoute) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the PrivateRoute
 pub extern "C" fn PrivateRoute_clone(orig: &PrivateRoute) -> PrivateRoute {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a PrivateRoute object
 pub extern "C" fn PrivateRoute_debug_str_void(o: *const c_void) -> Str {
@@ -2302,7 +2326,7 @@ pub extern "C" fn SignedRawBolt11Invoice_recover_payee_pub_key(this_arg: &crate:
 }
 
 /// Checks if the signature is valid for the included payee public key or if none exists if it's
-/// valid for the recovered signature (which should always be true?).
+/// possible to recover the public key from the signature.
 #[must_use]
 #[no_mangle]
 pub extern "C" fn SignedRawBolt11Invoice_check_signature(this_arg: &crate::lightning_invoice::SignedRawBolt11Invoice) -> bool {
@@ -2507,7 +2531,7 @@ pub extern "C" fn Bolt11Invoice_into_signed_raw(mut this_arg: crate::lightning_i
 	crate::lightning_invoice::SignedRawBolt11Invoice { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
-/// Check that the invoice is signed correctly and that key recovery works
+/// Check that the invoice is signed correctly
 #[must_use]
 #[no_mangle]
 pub extern "C" fn Bolt11Invoice_check_signature(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::c_types::derived::CResult_NoneBolt11SemanticErrorZ {
@@ -2694,6 +2718,17 @@ pub extern "C" fn Bolt11Invoice_fallback_addresses(this_arg: &crate::lightning_i
 	local_ret.into()
 }
 
+/// Returns the first fallback address as an [`Address`].
+///
+/// See [`Self::fallback_addresses`] to fetch all addresses of known type.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn Bolt11Invoice_first_fallback_address(this_arg: &crate::lightning_invoice::Bolt11Invoice) -> crate::c_types::derived::COption_AddressZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.first_fallback_address();
+	let mut local_ret = if ret.is_none() { crate::c_types::derived::COption_AddressZ::None } else { crate::c_types::derived::COption_AddressZ::Some( { crate::c_types::Address::from_rust(&ret.unwrap()) }) };
+	local_ret
+}
+
 /// Returns a list of all routes included in the invoice
 #[must_use]
 #[no_mangle]
@@ -2770,6 +2805,12 @@ pub extern "C" fn Description_as_inner(this_arg: &crate::lightning_invoice::Desc
 pub extern "C" fn Description_to_str(o: &crate::lightning_invoice::Description) -> Str {
 	alloc::format!("{}", o.get_native_ref()).into()
 }
+#[no_mangle]
+/// Build a PayeePubKey from a PublicKey
+pub extern "C" fn PayeePubKey_from_PublicKey(f: crate::c_types::PublicKey) -> crate::lightning_invoice::PayeePubKey {
+	let from_obj = f.into_rust();
+	crate::lightning_invoice::PayeePubKey { inner: ObjOps::heap_alloc((lightning_invoice::PayeePubKey::from(from_obj))), is_owned: true }
+}
 /// Construct an `ExpiryTime` from seconds.
 #[must_use]
 #[no_mangle]
@@ -2819,6 +2860,12 @@ pub extern "C" fn PrivateRoute_into_inner(mut this_arg: crate::lightning_invoice
 	crate::lightning_types::routing::RouteHint { inner: ObjOps::heap_alloc(ret), is_owned: true }
 }
 
+#[no_mangle]
+/// Build a RouteHint from a PrivateRoute
+pub extern "C" fn RouteHint_from_PrivateRoute(f: crate::lightning_invoice::PrivateRoute) -> crate::lightning_types::routing::RouteHint {
+	let from_obj = *unsafe { Box::from_raw(f.take_inner()) };
+	crate::lightning_types::routing::RouteHint { inner: ObjOps::heap_alloc((lightning_types::routing::RouteHint::from(from_obj))), is_owned: true }
+}
 /// Errors that may occur when constructing a new [`RawBolt11Invoice`] or [`Bolt11Invoice`]
 #[derive(Clone)]
 #[must_use]
@@ -2961,8 +3008,6 @@ pub enum Bolt11SemanticError {
 	MultiplePaymentSecrets,
 	/// The invoice's features are invalid
 	InvalidFeatures,
-	/// The recovery id doesn't fit the signature/pub key
-	InvalidRecoveryId,
 	/// The invoice's signature is invalid
 	InvalidSignature,
 	/// The invoice's amount was not a whole number of millisatoshis
@@ -2982,7 +3027,6 @@ impl Bolt11SemanticError {
 			Bolt11SemanticError::NoPaymentSecret => nativeBolt11SemanticError::NoPaymentSecret,
 			Bolt11SemanticError::MultiplePaymentSecrets => nativeBolt11SemanticError::MultiplePaymentSecrets,
 			Bolt11SemanticError::InvalidFeatures => nativeBolt11SemanticError::InvalidFeatures,
-			Bolt11SemanticError::InvalidRecoveryId => nativeBolt11SemanticError::InvalidRecoveryId,
 			Bolt11SemanticError::InvalidSignature => nativeBolt11SemanticError::InvalidSignature,
 			Bolt11SemanticError::ImpreciseAmount => nativeBolt11SemanticError::ImpreciseAmount,
 		}
@@ -2997,7 +3041,6 @@ impl Bolt11SemanticError {
 			Bolt11SemanticError::NoPaymentSecret => nativeBolt11SemanticError::NoPaymentSecret,
 			Bolt11SemanticError::MultiplePaymentSecrets => nativeBolt11SemanticError::MultiplePaymentSecrets,
 			Bolt11SemanticError::InvalidFeatures => nativeBolt11SemanticError::InvalidFeatures,
-			Bolt11SemanticError::InvalidRecoveryId => nativeBolt11SemanticError::InvalidRecoveryId,
 			Bolt11SemanticError::InvalidSignature => nativeBolt11SemanticError::InvalidSignature,
 			Bolt11SemanticError::ImpreciseAmount => nativeBolt11SemanticError::ImpreciseAmount,
 		}
@@ -3013,7 +3056,6 @@ impl Bolt11SemanticError {
 			nativeBolt11SemanticError::NoPaymentSecret => Bolt11SemanticError::NoPaymentSecret,
 			nativeBolt11SemanticError::MultiplePaymentSecrets => Bolt11SemanticError::MultiplePaymentSecrets,
 			nativeBolt11SemanticError::InvalidFeatures => Bolt11SemanticError::InvalidFeatures,
-			nativeBolt11SemanticError::InvalidRecoveryId => Bolt11SemanticError::InvalidRecoveryId,
 			nativeBolt11SemanticError::InvalidSignature => Bolt11SemanticError::InvalidSignature,
 			nativeBolt11SemanticError::ImpreciseAmount => Bolt11SemanticError::ImpreciseAmount,
 		}
@@ -3028,7 +3070,6 @@ impl Bolt11SemanticError {
 			nativeBolt11SemanticError::NoPaymentSecret => Bolt11SemanticError::NoPaymentSecret,
 			nativeBolt11SemanticError::MultiplePaymentSecrets => Bolt11SemanticError::MultiplePaymentSecrets,
 			nativeBolt11SemanticError::InvalidFeatures => Bolt11SemanticError::InvalidFeatures,
-			nativeBolt11SemanticError::InvalidRecoveryId => Bolt11SemanticError::InvalidRecoveryId,
 			nativeBolt11SemanticError::InvalidSignature => Bolt11SemanticError::InvalidSignature,
 			nativeBolt11SemanticError::ImpreciseAmount => Bolt11SemanticError::ImpreciseAmount,
 		}
@@ -3077,10 +3118,6 @@ pub extern "C" fn Bolt11SemanticError_multiple_payment_secrets() -> Bolt11Semant
 /// Utility method to constructs a new InvalidFeatures-variant Bolt11SemanticError
 pub extern "C" fn Bolt11SemanticError_invalid_features() -> Bolt11SemanticError {
 	Bolt11SemanticError::InvalidFeatures}
-#[no_mangle]
-/// Utility method to constructs a new InvalidRecoveryId-variant Bolt11SemanticError
-pub extern "C" fn Bolt11SemanticError_invalid_recovery_id() -> Bolt11SemanticError {
-	Bolt11SemanticError::InvalidRecoveryId}
 #[no_mangle]
 /// Utility method to constructs a new InvalidSignature-variant Bolt11SemanticError
 pub extern "C" fn Bolt11SemanticError_invalid_signature() -> Bolt11SemanticError {

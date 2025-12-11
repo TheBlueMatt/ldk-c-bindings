@@ -83,7 +83,7 @@ impl OutPoint {
 /// The referenced transaction's txid.
 #[no_mangle]
 pub extern "C" fn OutPoint_get_txid(this_ptr: &OutPoint) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().txid;
+	let mut inner_val = &mut OutPoint::get_native_mut_ref(this_ptr).txid;
 	inner_val.as_ref()
 }
 /// The referenced transaction's txid.
@@ -94,7 +94,7 @@ pub extern "C" fn OutPoint_set_txid(this_ptr: &mut OutPoint, mut val: crate::c_t
 /// The index of the referenced output in its transaction's vout.
 #[no_mangle]
 pub extern "C" fn OutPoint_get_index(this_ptr: &OutPoint) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().index;
+	let mut inner_val = &mut OutPoint::get_native_mut_ref(this_ptr).index;
 	*inner_val
 }
 /// The index of the referenced output in its transaction's vout.
@@ -115,7 +115,7 @@ impl Clone for OutPoint {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeOutPoint>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -123,12 +123,12 @@ impl Clone for OutPoint {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn OutPoint_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeOutPoint)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeOutPoint) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the OutPoint
 pub extern "C" fn OutPoint_clone(orig: &OutPoint) -> OutPoint {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Checks if two OutPoints contain equal inner contents.
 /// This ignores pointers and is_owned flags and looks at the values in fields.

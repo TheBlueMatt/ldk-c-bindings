@@ -21,7 +21,9 @@ use alloc::{vec::Vec, boxed::Box};
 use lightning_persister::fs_store::FilesystemStore as nativeFilesystemStoreImport;
 pub(crate) type nativeFilesystemStore = nativeFilesystemStoreImport;
 
-/// A [`KVStore`] implementation that writes to and reads from the file system.
+/// A [`KVStore`] and [`KVStoreSync`] implementation that writes to and reads from the file system.
+///
+/// [`KVStore`]: lightning::util::persist::KVStore
 #[must_use]
 #[repr(C)]
 pub struct FilesystemStore {
@@ -77,6 +79,25 @@ impl FilesystemStore {
 		Self { inner: self.inner, is_owned: false }
 	}
 }
+impl Clone for FilesystemStore {
+	fn clone(&self) -> Self {
+		Self {
+			inner: if <*mut nativeFilesystemStore>::is_null(self.inner) { core::ptr::null_mut() } else {
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
+			is_owned: true,
+		}
+	}
+}
+#[allow(unused)]
+/// Used only if an object of this type is returned as a trait impl by a method
+pub(crate) extern "C" fn FilesystemStore_clone_void(this_ptr: *const c_void) -> *mut c_void {
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeFilesystemStore) }))) as *mut c_void
+}
+#[no_mangle]
+/// Creates a copy of the FilesystemStore
+pub extern "C" fn FilesystemStore_clone(orig: &FilesystemStore) -> FilesystemStore {
+	Clone::clone(orig)
+}
 /// Constructs a new [`FilesystemStore`].
 #[must_use]
 #[no_mangle]
@@ -93,53 +114,59 @@ pub extern "C" fn FilesystemStore_get_data_dir(this_arg: &crate::lightning_persi
 	ret.into()
 }
 
-impl From<nativeFilesystemStore> for crate::lightning::util::persist::KVStore {
+impl From<nativeFilesystemStore> for crate::lightning::util::persist::KVStoreSync {
 	fn from(obj: nativeFilesystemStore) -> Self {
 		let rust_obj = crate::lightning_persister::fs_store::FilesystemStore { inner: ObjOps::heap_alloc(obj), is_owned: true };
-		let mut ret = FilesystemStore_as_KVStore(&rust_obj);
+		let mut ret = FilesystemStore_as_KVStoreSync(&rust_obj);
 		// We want to free rust_obj when ret gets drop()'d, not rust_obj, so forget it and set ret's free() fn
 		core::mem::forget(rust_obj);
 		ret.free = Some(FilesystemStore_free_void);
 		ret
 	}
 }
-/// Constructs a new KVStore which calls the relevant methods on this_arg.
-/// This copies the `inner` pointer in this_arg and thus the returned KVStore must be freed before this_arg is
+/// Constructs a new KVStoreSync which calls the relevant methods on this_arg.
+/// This copies the `inner` pointer in this_arg and thus the returned KVStoreSync must be freed before this_arg is
 #[no_mangle]
-pub extern "C" fn FilesystemStore_as_KVStore(this_arg: &FilesystemStore) -> crate::lightning::util::persist::KVStore {
-	crate::lightning::util::persist::KVStore {
+pub extern "C" fn FilesystemStore_as_KVStoreSync(this_arg: &FilesystemStore) -> crate::lightning::util::persist::KVStoreSync {
+	crate::lightning::util::persist::KVStoreSync {
 		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
 		free: None,
-		read: FilesystemStore_KVStore_read,
-		write: FilesystemStore_KVStore_write,
-		remove: FilesystemStore_KVStore_remove,
-		list: FilesystemStore_KVStore_list,
+		read: FilesystemStore_KVStoreSync_read,
+		write: FilesystemStore_KVStoreSync_write,
+		remove: FilesystemStore_KVStoreSync_remove,
+		list: FilesystemStore_KVStoreSync_list,
+		cloned: Some(KVStoreSync_FilesystemStore_cloned),
 	}
 }
 
 #[must_use]
-extern "C" fn FilesystemStore_KVStore_read(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str) -> crate::c_types::derived::CResult_CVec_u8ZIOErrorZ {
-	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore>::read(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str());
+extern "C" fn FilesystemStore_KVStoreSync_read(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str) -> crate::c_types::derived::CResult_CVec_u8ZIOErrorZ {
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStoreSync>::read(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { item }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
 }
 #[must_use]
-extern "C" fn FilesystemStore_KVStore_write(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str, mut buf: crate::c_types::u8slice) -> crate::c_types::derived::CResult_NoneIOErrorZ {
-	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore>::write(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str(), buf.to_slice());
+extern "C" fn FilesystemStore_KVStoreSync_write(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str, mut buf: crate::c_types::derived::CVec_u8Z) -> crate::c_types::derived::CResult_NoneIOErrorZ {
+	let mut local_buf = Vec::new(); for mut item in buf.into_rust().drain(..) { local_buf.push( { item }); };
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStoreSync>::write(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str(), local_buf);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
 }
 #[must_use]
-extern "C" fn FilesystemStore_KVStore_remove(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str, mut lazy: bool) -> crate::c_types::derived::CResult_NoneIOErrorZ {
-	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore>::remove(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str(), lazy);
+extern "C" fn FilesystemStore_KVStoreSync_remove(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str, mut key: crate::c_types::Str, mut lazy: bool) -> crate::c_types::derived::CResult_NoneIOErrorZ {
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStoreSync>::remove(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str(), key.into_str(), lazy);
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
 }
 #[must_use]
-extern "C" fn FilesystemStore_KVStore_list(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str) -> crate::c_types::derived::CResult_CVec_StrZIOErrorZ {
-	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStore>::list(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str());
+extern "C" fn FilesystemStore_KVStoreSync_list(this_arg: *const c_void, mut primary_namespace: crate::c_types::Str, mut secondary_namespace: crate::c_types::Str) -> crate::c_types::derived::CResult_CVec_StrZIOErrorZ {
+	let mut ret = <nativeFilesystemStore as lightning::util::persist::KVStoreSync>::list(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, primary_namespace.into_str(), secondary_namespace.into_str());
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { item.into() }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
+}
+extern "C" fn KVStoreSync_FilesystemStore_cloned(new_obj: &mut crate::lightning::util::persist::KVStoreSync) {
+	new_obj.this_arg = FilesystemStore_clone_void(new_obj.this_arg);
+	new_obj.free = Some(FilesystemStore_free_void);
 }
 
 impl From<nativeFilesystemStore> for crate::lightning::util::persist::MigratableKVStore {
@@ -160,14 +187,16 @@ pub extern "C" fn FilesystemStore_as_MigratableKVStore(this_arg: &FilesystemStor
 		this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
 		free: None,
 		list_all_keys: FilesystemStore_MigratableKVStore_list_all_keys,
-		KVStore: crate::lightning::util::persist::KVStore {
+		KVStoreSync: crate::lightning::util::persist::KVStoreSync {
 			this_arg: unsafe { ObjOps::untweak_ptr((*this_arg).inner) as *mut c_void },
 			free: None,
-			read: FilesystemStore_KVStore_read,
-			write: FilesystemStore_KVStore_write,
-			remove: FilesystemStore_KVStore_remove,
-			list: FilesystemStore_KVStore_list,
+			read: FilesystemStore_KVStoreSync_read,
+			write: FilesystemStore_KVStoreSync_write,
+			remove: FilesystemStore_KVStoreSync_remove,
+			list: FilesystemStore_KVStoreSync_list,
+		cloned: Some(KVStoreSync_FilesystemStore_cloned),
 		},
+		cloned: Some(MigratableKVStore_FilesystemStore_cloned),
 	}
 }
 
@@ -176,5 +205,11 @@ extern "C" fn FilesystemStore_MigratableKVStore_list_all_keys(this_arg: *const c
 	let mut ret = <nativeFilesystemStore as lightning::util::persist::MigratableKVStore>::list_all_keys(unsafe { &mut *(this_arg as *mut nativeFilesystemStore) }, );
 	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { let mut local_ret_0 = Vec::new(); for mut item in o.drain(..) { local_ret_0.push( { let (mut orig_ret_0_0_0, mut orig_ret_0_0_1, mut orig_ret_0_0_2) = item; let mut local_ret_0_0 = (orig_ret_0_0_0.into(), orig_ret_0_0_1.into(), orig_ret_0_0_2.into()).into(); local_ret_0_0 }); }; local_ret_0.into() }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::IOError::from_bitcoin(e) }).into() };
 	local_ret
+}
+extern "C" fn MigratableKVStore_FilesystemStore_cloned(new_obj: &mut crate::lightning::util::persist::MigratableKVStore) {
+	new_obj.this_arg = FilesystemStore_clone_void(new_obj.this_arg);
+	new_obj.free = Some(FilesystemStore_free_void);
+	new_obj.KVStoreSync.this_arg = new_obj.this_arg;
+	new_obj.KVStoreSync.free = None;
 }
 

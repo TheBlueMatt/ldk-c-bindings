@@ -82,21 +82,21 @@ impl InboundHTLCErr {
 }
 /// BOLT 4 error code.
 #[no_mangle]
-pub extern "C" fn InboundHTLCErr_get_err_code(this_ptr: &InboundHTLCErr) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().err_code;
-	*inner_val
+pub extern "C" fn InboundHTLCErr_get_reason(this_ptr: &InboundHTLCErr) -> crate::lightning::ln::onion_utils::LocalHTLCFailureReason {
+	let mut inner_val = &mut InboundHTLCErr::get_native_mut_ref(this_ptr).reason;
+	crate::lightning::ln::onion_utils::LocalHTLCFailureReason::from_native(inner_val)
 }
 /// BOLT 4 error code.
 #[no_mangle]
-pub extern "C" fn InboundHTLCErr_set_err_code(this_ptr: &mut InboundHTLCErr, mut val: u16) {
-	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.err_code = val;
+pub extern "C" fn InboundHTLCErr_set_reason(this_ptr: &mut InboundHTLCErr, mut val: crate::lightning::ln::onion_utils::LocalHTLCFailureReason) {
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.reason = val.into_native();
 }
 /// Data attached to this error.
 ///
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn InboundHTLCErr_get_err_data(this_ptr: &InboundHTLCErr) -> crate::c_types::derived::CVec_u8Z {
-	let mut inner_val = this_ptr.get_native_mut_ref().err_data.clone();
+	let mut inner_val = InboundHTLCErr::get_native_mut_ref(this_ptr).err_data.clone();
 	let mut local_inner_val = Vec::new(); for mut item in inner_val.drain(..) { local_inner_val.push( { item }); };
 	local_inner_val.into()
 }
@@ -109,7 +109,7 @@ pub extern "C" fn InboundHTLCErr_set_err_data(this_ptr: &mut InboundHTLCErr, mut
 /// Error message text.
 #[no_mangle]
 pub extern "C" fn InboundHTLCErr_get_msg(this_ptr: &InboundHTLCErr) -> crate::c_types::Str {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().msg;
+	let mut inner_val = &mut InboundHTLCErr::get_native_mut_ref(this_ptr).msg;
 	inner_val.into()
 }
 /// Error message text.
@@ -120,10 +120,10 @@ pub extern "C" fn InboundHTLCErr_set_msg(this_ptr: &mut InboundHTLCErr, mut val:
 /// Constructs a new InboundHTLCErr given each field
 #[must_use]
 #[no_mangle]
-pub extern "C" fn InboundHTLCErr_new(mut err_code_arg: u16, mut err_data_arg: crate::c_types::derived::CVec_u8Z, mut msg_arg: crate::c_types::Str) -> InboundHTLCErr {
+pub extern "C" fn InboundHTLCErr_new(mut reason_arg: crate::lightning::ln::onion_utils::LocalHTLCFailureReason, mut err_data_arg: crate::c_types::derived::CVec_u8Z, mut msg_arg: crate::c_types::Str) -> InboundHTLCErr {
 	let mut local_err_data_arg = Vec::new(); for mut item in err_data_arg.into_rust().drain(..) { local_err_data_arg.push( { item }); };
 	InboundHTLCErr { inner: ObjOps::heap_alloc(nativeInboundHTLCErr {
-		err_code: err_code_arg,
+		reason: reason_arg.into_native(),
 		err_data: local_err_data_arg,
 		msg: msg_arg.into_str(),
 	}), is_owned: true }
@@ -132,7 +132,7 @@ impl Clone for InboundHTLCErr {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInboundHTLCErr>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -140,12 +140,12 @@ impl Clone for InboundHTLCErr {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn InboundHTLCErr_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInboundHTLCErr)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInboundHTLCErr) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the InboundHTLCErr
 pub extern "C" fn InboundHTLCErr_clone(orig: &InboundHTLCErr) -> InboundHTLCErr {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a InboundHTLCErr object
 pub extern "C" fn InboundHTLCErr_debug_str_void(o: *const c_void) -> Str {

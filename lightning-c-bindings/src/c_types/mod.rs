@@ -35,6 +35,30 @@ use alloc::{boxed::Box, vec::Vec, string::String};
 
 use core::convert::TryFrom;
 
+/// [`core::slice::from_raw_parts`] requires the pointer to be non-NULL even if the len is 0, which
+/// is annoying, so we wrap it here and fill in garbage in that case.
+pub(crate) unsafe fn from_raw_parts_safer_mut<'a, T>(data: *mut T, len: usize) -> &'a mut [T] {
+	if len == 0 {
+		core::slice::from_raw_parts_mut(core::ptr::NonNull::dangling().as_ptr(), len)
+	} else {
+		assert!(data != core::ptr::null_mut());
+		assert!(data != core::ptr::NonNull::dangling().as_ptr());
+		core::slice::from_raw_parts_mut(data, len)
+	}
+}
+
+/// [`core::slice::from_raw_parts`] requires the pointer to be non-NULL even if the len is 0, which
+/// is annoying, so we wrap it here and fill in garbage in that case.
+pub(crate) unsafe fn from_raw_parts_safer<'a, T>(data: *const T, len: usize) -> &'a [T] {
+	if len == 0 {
+		core::slice::from_raw_parts(core::ptr::NonNull::dangling().as_ptr(), len)
+	} else {
+		assert!(data != core::ptr::null());
+		assert!(data != core::ptr::NonNull::dangling().as_ptr());
+		core::slice::from_raw_parts(data, len)
+	}
+}
+
 #[repr(C)]
 /// A dummy struct of which an instance must never exist.
 /// This corresponds to the Rust type `Infallible`, or, in unstable rust, `!`
@@ -575,7 +599,7 @@ impl Transaction {
 	}
 	pub(crate) fn into_bitcoin(&self) -> BitcoinTransaction {
 		if self.datalen == 0 { panic!("0-length buffer can never represent a valid Transaction"); }
-		::bitcoin::consensus::encode::deserialize(unsafe { core::slice::from_raw_parts(self.data, self.datalen) }).unwrap()
+		::bitcoin::consensus::encode::deserialize(unsafe { from_raw_parts_safer(self.data, self.datalen) }).unwrap()
 	}
 	pub(crate) fn from_bitcoin(btc: &BitcoinTransaction) -> Self {
 		let vec = ::bitcoin::consensus::encode::serialize(btc);
@@ -591,7 +615,7 @@ impl Drop for Transaction {
 }
 impl Clone for Transaction {
 	fn clone(&self) -> Self {
-		let sl = unsafe { core::slice::from_raw_parts(self.data, self.datalen) };
+		let sl = unsafe { from_raw_parts_safer(self.data, self.datalen) };
 		let mut v = Vec::new();
 		v.extend_from_slice(&sl);
 		Self::from_vec(v)
@@ -624,7 +648,7 @@ impl Witness {
 		}
 	}
 	pub(crate) fn into_bitcoin(&self) -> BitcoinWitness {
-		::bitcoin::consensus::encode::deserialize(unsafe { core::slice::from_raw_parts(self.data, self.datalen) }).unwrap()
+		::bitcoin::consensus::encode::deserialize(unsafe { from_raw_parts_safer(self.data, self.datalen) }).unwrap()
 	}
 	pub(crate) fn from_bitcoin(btc: &BitcoinWitness) -> Self {
 		let vec = ::bitcoin::consensus::encode::serialize(btc);
@@ -641,7 +665,7 @@ impl Drop for Witness {
 }
 impl Clone for Witness {
 	fn clone(&self) -> Self {
-		let sl = unsafe { core::slice::from_raw_parts(self.data, self.datalen) };
+		let sl = unsafe { from_raw_parts_safer(self.data, self.datalen) };
 		let mut v = Vec::new();
 		v.extend_from_slice(&sl);
 		Self::from_vec(v)
@@ -797,12 +821,7 @@ impl u8slice {
 		}
 	}
 	pub(crate) fn to_slice(&self) -> &[u8] {
-		if self.datalen == 0 { return &[]; }
-		unsafe { core::slice::from_raw_parts(self.data, self.datalen) }
-	}
-	pub(crate) fn to_reader<'a>(&'a self) -> Cursor<&'a [u8]> {
-		let sl = self.to_slice();
-		Cursor::new(sl)
+		unsafe { from_raw_parts_safer(self.data, self.datalen) }
 	}
 	pub(crate) fn from_vec(v: &derived::CVec_u8Z) -> u8slice {
 		Self::from_slice(v.as_slice())
@@ -861,8 +880,8 @@ pub(crate) fn serialize_obj<I: lightning::util::ser::Writeable>(i: &I) -> derive
 	i.write(&mut out).unwrap();
 	derived::CVec_u8Z::from(out.0)
 }
-pub(crate) fn deserialize_obj<I: lightning::util::ser::Readable>(s: u8slice) -> Result<I, lightning::ln::msgs::DecodeError> {
-	I::read(&mut s.to_slice())
+pub(crate) fn deserialize_obj<I: lightning::util::ser::LengthReadable>(s: u8slice) -> Result<I, lightning::ln::msgs::DecodeError> {
+	I::read_from_fixed_length_buffer(&mut s.to_slice())
 }
 pub(crate) fn maybe_deserialize_obj<I: lightning::util::ser::MaybeReadable>(s: u8slice) -> Result<Option<I>, lightning::ln::msgs::DecodeError> {
 	I::read(&mut s.to_slice())
@@ -897,20 +916,20 @@ impl Into<Str> for &mut &str {
 impl Str {
 	pub(crate) fn into_str(&self) -> &'static str {
 		if self.len == 0 { return ""; }
-		core::str::from_utf8(unsafe { core::slice::from_raw_parts(self.chars, self.len) }).unwrap()
+		core::str::from_utf8(unsafe { from_raw_parts_safer(self.chars, self.len) }).unwrap()
 	}
 	pub(crate) fn into_string(mut self) -> String {
 		let bytes = if self.len == 0 {
 			Vec::new()
 		} else if self.chars_is_owned {
 			let ret = unsafe {
-				Box::from_raw(core::slice::from_raw_parts_mut(unsafe { self.chars as *mut u8 }, self.len))
+				Box::from_raw(from_raw_parts_safer_mut(unsafe { self.chars as *mut u8 }, self.len))
 			}.into();
 			self.chars_is_owned = false;
 			ret
 		} else {
 			let mut ret = Vec::with_capacity(self.len);
-			ret.extend_from_slice(unsafe { core::slice::from_raw_parts(self.chars, self.len) });
+			ret.extend_from_slice(unsafe { from_raw_parts_safer(self.chars, self.len) });
 			ret
 		};
 		String::from_utf8(bytes).unwrap()

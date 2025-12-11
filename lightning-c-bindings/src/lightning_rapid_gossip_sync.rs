@@ -193,6 +193,30 @@ pub extern "C" fn GraphSyncError_lightning_error(a: crate::lightning::ln::msgs::
 /// Get a string which allows debug introspection of a GraphSyncError object
 pub extern "C" fn GraphSyncError_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning_rapid_gossip_sync::GraphSyncError }).into()}
+#[no_mangle]
+/// Build a GraphSyncError from a IOError
+pub extern "C" fn GraphSyncError_from_IOError(f: crate::c_types::IOError) -> crate::lightning_rapid_gossip_sync::GraphSyncError {
+	let from_obj = f.to_rust();
+	crate::lightning_rapid_gossip_sync::GraphSyncError::native_into((lightning_rapid_gossip_sync::GraphSyncError::from(from_obj)))
+}
+#[no_mangle]
+/// Build a GraphSyncError from a Secp256k1Error
+pub extern "C" fn GraphSyncError_from_Secp256k1Error(f: crate::c_types::Secp256k1Error) -> crate::lightning_rapid_gossip_sync::GraphSyncError {
+	let from_obj = f.into_rust();
+	crate::lightning_rapid_gossip_sync::GraphSyncError::native_into((lightning_rapid_gossip_sync::GraphSyncError::from(from_obj)))
+}
+#[no_mangle]
+/// Build a GraphSyncError from a DecodeError
+pub extern "C" fn GraphSyncError_from_DecodeError(f: crate::lightning::ln::msgs::DecodeError) -> crate::lightning_rapid_gossip_sync::GraphSyncError {
+	let from_obj = f.into_native();
+	crate::lightning_rapid_gossip_sync::GraphSyncError::native_into((lightning_rapid_gossip_sync::GraphSyncError::from(from_obj)))
+}
+#[no_mangle]
+/// Build a GraphSyncError from a LightningError
+pub extern "C" fn GraphSyncError_from_LightningError(f: crate::lightning::ln::msgs::LightningError) -> crate::lightning_rapid_gossip_sync::GraphSyncError {
+	let from_obj = *unsafe { Box::from_raw(f.take_inner()) };
+	crate::lightning_rapid_gossip_sync::GraphSyncError::native_into((lightning_rapid_gossip_sync::GraphSyncError::from(from_obj)))
+}
 
 use lightning_rapid_gossip_sync::RapidGossipSync as nativeRapidGossipSyncImport;
 pub(crate) type nativeRapidGossipSync = nativeRapidGossipSyncImport<&'static lightning::routing::gossip::NetworkGraph<crate::lightning::util::logger::Logger>, crate::lightning::util::logger::Logger, >;

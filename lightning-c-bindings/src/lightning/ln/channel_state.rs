@@ -215,7 +215,7 @@ impl InboundHTLCDetails {
 /// and not part of any commitment transaction.
 #[no_mangle]
 pub extern "C" fn InboundHTLCDetails_get_htlc_id(this_ptr: &InboundHTLCDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_id;
+	let mut inner_val = &mut InboundHTLCDetails::get_native_mut_ref(this_ptr).htlc_id;
 	*inner_val
 }
 /// The HTLC ID.
@@ -229,7 +229,7 @@ pub extern "C" fn InboundHTLCDetails_set_htlc_id(this_ptr: &mut InboundHTLCDetai
 /// The amount in msat.
 #[no_mangle]
 pub extern "C" fn InboundHTLCDetails_get_amount_msat(this_ptr: &InboundHTLCDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().amount_msat;
+	let mut inner_val = &mut InboundHTLCDetails::get_native_mut_ref(this_ptr).amount_msat;
 	*inner_val
 }
 /// The amount in msat.
@@ -240,7 +240,7 @@ pub extern "C" fn InboundHTLCDetails_set_amount_msat(this_ptr: &mut InboundHTLCD
 /// The block height at which this HTLC expires.
 #[no_mangle]
 pub extern "C" fn InboundHTLCDetails_get_cltv_expiry(this_ptr: &InboundHTLCDetails) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry;
+	let mut inner_val = &mut InboundHTLCDetails::get_native_mut_ref(this_ptr).cltv_expiry;
 	*inner_val
 }
 /// The block height at which this HTLC expires.
@@ -251,7 +251,7 @@ pub extern "C" fn InboundHTLCDetails_set_cltv_expiry(this_ptr: &mut InboundHTLCD
 /// The payment hash.
 #[no_mangle]
 pub extern "C" fn InboundHTLCDetails_get_payment_hash(this_ptr: &InboundHTLCDetails) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_hash;
+	let mut inner_val = &mut InboundHTLCDetails::get_native_mut_ref(this_ptr).payment_hash;
 	&inner_val.0
 }
 /// The payment hash.
@@ -270,7 +270,7 @@ pub extern "C" fn InboundHTLCDetails_set_payment_hash(this_ptr: &mut InboundHTLC
 /// states may result in `None` here.
 #[no_mangle]
 pub extern "C" fn InboundHTLCDetails_get_state(this_ptr: &InboundHTLCDetails) -> crate::c_types::derived::COption_InboundHTLCStateDetailsZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().state;
+	let mut inner_val = &mut InboundHTLCDetails::get_native_mut_ref(this_ptr).state;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_InboundHTLCStateDetailsZ::None } else { crate::c_types::derived::COption_InboundHTLCStateDetailsZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::lightning::ln::channel_state::InboundHTLCStateDetails::native_into((*inner_val.as_ref().unwrap()).clone()) }) };
 	local_inner_val
 }
@@ -301,7 +301,7 @@ pub extern "C" fn InboundHTLCDetails_set_state(this_ptr: &mut InboundHTLCDetails
 /// commitment transaction but not for the counterparty's commitment transaction and vice versa.
 #[no_mangle]
 pub extern "C" fn InboundHTLCDetails_get_is_dust(this_ptr: &InboundHTLCDetails) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().is_dust;
+	let mut inner_val = &mut InboundHTLCDetails::get_native_mut_ref(this_ptr).is_dust;
 	*inner_val
 }
 /// Whether the HTLC has an output below the local dust limit. If so, the output will be trimmed
@@ -337,7 +337,7 @@ impl Clone for InboundHTLCDetails {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeInboundHTLCDetails>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -345,12 +345,12 @@ impl Clone for InboundHTLCDetails {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn InboundHTLCDetails_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeInboundHTLCDetails)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeInboundHTLCDetails) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the InboundHTLCDetails
 pub extern "C" fn InboundHTLCDetails_clone(orig: &InboundHTLCDetails) -> InboundHTLCDetails {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a InboundHTLCDetails object
 pub extern "C" fn InboundHTLCDetails_debug_str_void(o: *const c_void) -> Str {
@@ -568,7 +568,7 @@ impl OutboundHTLCDetails {
 /// Not present when we are awaiting a remote revocation and the HTLC is not added yet.
 #[no_mangle]
 pub extern "C" fn OutboundHTLCDetails_get_htlc_id(this_ptr: &OutboundHTLCDetails) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().htlc_id;
+	let mut inner_val = &mut OutboundHTLCDetails::get_native_mut_ref(this_ptr).htlc_id;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -586,7 +586,7 @@ pub extern "C" fn OutboundHTLCDetails_set_htlc_id(this_ptr: &mut OutboundHTLCDet
 /// The amount in msat.
 #[no_mangle]
 pub extern "C" fn OutboundHTLCDetails_get_amount_msat(this_ptr: &OutboundHTLCDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().amount_msat;
+	let mut inner_val = &mut OutboundHTLCDetails::get_native_mut_ref(this_ptr).amount_msat;
 	*inner_val
 }
 /// The amount in msat.
@@ -597,7 +597,7 @@ pub extern "C" fn OutboundHTLCDetails_set_amount_msat(this_ptr: &mut OutboundHTL
 /// The block height at which this HTLC expires.
 #[no_mangle]
 pub extern "C" fn OutboundHTLCDetails_get_cltv_expiry(this_ptr: &OutboundHTLCDetails) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry;
+	let mut inner_val = &mut OutboundHTLCDetails::get_native_mut_ref(this_ptr).cltv_expiry;
 	*inner_val
 }
 /// The block height at which this HTLC expires.
@@ -608,7 +608,7 @@ pub extern "C" fn OutboundHTLCDetails_set_cltv_expiry(this_ptr: &mut OutboundHTL
 /// The payment hash.
 #[no_mangle]
 pub extern "C" fn OutboundHTLCDetails_get_payment_hash(this_ptr: &OutboundHTLCDetails) -> *const [u8; 32] {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().payment_hash;
+	let mut inner_val = &mut OutboundHTLCDetails::get_native_mut_ref(this_ptr).payment_hash;
 	&inner_val.0
 }
 /// The payment hash.
@@ -627,7 +627,7 @@ pub extern "C" fn OutboundHTLCDetails_set_payment_hash(this_ptr: &mut OutboundHT
 /// states may result in `None` here.
 #[no_mangle]
 pub extern "C" fn OutboundHTLCDetails_get_state(this_ptr: &OutboundHTLCDetails) -> crate::c_types::derived::COption_OutboundHTLCStateDetailsZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().state;
+	let mut inner_val = &mut OutboundHTLCDetails::get_native_mut_ref(this_ptr).state;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_OutboundHTLCStateDetailsZ::None } else { crate::c_types::derived::COption_OutboundHTLCStateDetailsZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { crate::lightning::ln::channel_state::OutboundHTLCStateDetails::native_into((*inner_val.as_ref().unwrap()).clone()) }) };
 	local_inner_val
 }
@@ -648,7 +648,7 @@ pub extern "C" fn OutboundHTLCDetails_set_state(this_ptr: &mut OutboundHTLCDetai
 /// The extra fee being skimmed off the top of this HTLC.
 #[no_mangle]
 pub extern "C" fn OutboundHTLCDetails_get_skimmed_fee_msat(this_ptr: &OutboundHTLCDetails) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().skimmed_fee_msat;
+	let mut inner_val = &mut OutboundHTLCDetails::get_native_mut_ref(this_ptr).skimmed_fee_msat;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -671,7 +671,7 @@ pub extern "C" fn OutboundHTLCDetails_set_skimmed_fee_msat(this_ptr: &mut Outbou
 /// commitment transaction but not for the counterparty's commitment transaction and vice versa.
 #[no_mangle]
 pub extern "C" fn OutboundHTLCDetails_get_is_dust(this_ptr: &OutboundHTLCDetails) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().is_dust;
+	let mut inner_val = &mut OutboundHTLCDetails::get_native_mut_ref(this_ptr).is_dust;
 	*inner_val
 }
 /// Whether the HTLC has an output below the local dust limit. If so, the output will be trimmed
@@ -710,7 +710,7 @@ impl Clone for OutboundHTLCDetails {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeOutboundHTLCDetails>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -718,12 +718,12 @@ impl Clone for OutboundHTLCDetails {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn OutboundHTLCDetails_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeOutboundHTLCDetails)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeOutboundHTLCDetails) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the OutboundHTLCDetails
 pub extern "C" fn OutboundHTLCDetails_clone(orig: &OutboundHTLCDetails) -> OutboundHTLCDetails {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a OutboundHTLCDetails object
 pub extern "C" fn OutboundHTLCDetails_debug_str_void(o: *const c_void) -> Str {
@@ -807,7 +807,7 @@ impl CounterpartyForwardingInfo {
 /// Base routing fee in millisatoshis.
 #[no_mangle]
 pub extern "C" fn CounterpartyForwardingInfo_get_fee_base_msat(this_ptr: &CounterpartyForwardingInfo) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fee_base_msat;
+	let mut inner_val = &mut CounterpartyForwardingInfo::get_native_mut_ref(this_ptr).fee_base_msat;
 	*inner_val
 }
 /// Base routing fee in millisatoshis.
@@ -818,7 +818,7 @@ pub extern "C" fn CounterpartyForwardingInfo_set_fee_base_msat(this_ptr: &mut Co
 /// Amount in millionths of a satoshi the channel will charge per transferred satoshi.
 #[no_mangle]
 pub extern "C" fn CounterpartyForwardingInfo_get_fee_proportional_millionths(this_ptr: &CounterpartyForwardingInfo) -> u32 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().fee_proportional_millionths;
+	let mut inner_val = &mut CounterpartyForwardingInfo::get_native_mut_ref(this_ptr).fee_proportional_millionths;
 	*inner_val
 }
 /// Amount in millionths of a satoshi the channel will charge per transferred satoshi.
@@ -831,7 +831,7 @@ pub extern "C" fn CounterpartyForwardingInfo_set_fee_proportional_millionths(thi
 /// `cltv_expiry_delta` for more details.
 #[no_mangle]
 pub extern "C" fn CounterpartyForwardingInfo_get_cltv_expiry_delta(this_ptr: &CounterpartyForwardingInfo) -> u16 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().cltv_expiry_delta;
+	let mut inner_val = &mut CounterpartyForwardingInfo::get_native_mut_ref(this_ptr).cltv_expiry_delta;
 	*inner_val
 }
 /// The minimum difference in cltv_expiry between an ingoing HTLC and its outgoing counterpart,
@@ -855,7 +855,7 @@ impl Clone for CounterpartyForwardingInfo {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeCounterpartyForwardingInfo>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -863,12 +863,12 @@ impl Clone for CounterpartyForwardingInfo {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn CounterpartyForwardingInfo_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeCounterpartyForwardingInfo)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeCounterpartyForwardingInfo) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the CounterpartyForwardingInfo
 pub extern "C" fn CounterpartyForwardingInfo_clone(orig: &CounterpartyForwardingInfo) -> CounterpartyForwardingInfo {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a CounterpartyForwardingInfo object
 pub extern "C" fn CounterpartyForwardingInfo_debug_str_void(o: *const c_void) -> Str {
@@ -953,7 +953,7 @@ impl ChannelCounterparty {
 /// The node_id of our counterparty
 #[no_mangle]
 pub extern "C" fn ChannelCounterparty_get_node_id(this_ptr: &ChannelCounterparty) -> crate::c_types::PublicKey {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().node_id;
+	let mut inner_val = &mut ChannelCounterparty::get_native_mut_ref(this_ptr).node_id;
 	crate::c_types::PublicKey::from_rust(&inner_val)
 }
 /// The node_id of our counterparty
@@ -966,7 +966,7 @@ pub extern "C" fn ChannelCounterparty_set_node_id(this_ptr: &mut ChannelCounterp
 /// many routing-relevant features are present in the init context.
 #[no_mangle]
 pub extern "C" fn ChannelCounterparty_get_features(this_ptr: &ChannelCounterparty) -> crate::lightning_types::features::InitFeatures {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().features;
+	let mut inner_val = &mut ChannelCounterparty::get_native_mut_ref(this_ptr).features;
 	crate::lightning_types::features::InitFeatures { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning_types::features::InitFeatures<>) as *mut _) }, is_owned: false }
 }
 /// The Features the channel counterparty provided upon last connection.
@@ -985,7 +985,7 @@ pub extern "C" fn ChannelCounterparty_set_features(this_ptr: &mut ChannelCounter
 /// [`inbound_capacity_msat`]: ChannelDetails::inbound_capacity_msat
 #[no_mangle]
 pub extern "C" fn ChannelCounterparty_get_unspendable_punishment_reserve(this_ptr: &ChannelCounterparty) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().unspendable_punishment_reserve;
+	let mut inner_val = &mut ChannelCounterparty::get_native_mut_ref(this_ptr).unspendable_punishment_reserve;
 	*inner_val
 }
 /// The value, in satoshis, that must always be held in the channel for our counterparty. This
@@ -1005,7 +1005,7 @@ pub extern "C" fn ChannelCounterparty_set_unspendable_punishment_reserve(this_pt
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelCounterparty_get_forwarding_info(this_ptr: &ChannelCounterparty) -> crate::lightning::ln::channel_state::CounterpartyForwardingInfo {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().forwarding_info;
+	let mut inner_val = &mut ChannelCounterparty::get_native_mut_ref(this_ptr).forwarding_info;
 	let mut local_inner_val = crate::lightning::ln::channel_state::CounterpartyForwardingInfo { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::ln::channel_state::CounterpartyForwardingInfo<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -1023,7 +1023,7 @@ pub extern "C" fn ChannelCounterparty_set_forwarding_info(this_ptr: &mut Channel
 /// from the remote peer, or for `ChannelCounterparty` objects serialized prior to LDK 0.0.107.
 #[no_mangle]
 pub extern "C" fn ChannelCounterparty_get_outbound_htlc_minimum_msat(this_ptr: &ChannelCounterparty) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().outbound_htlc_minimum_msat;
+	let mut inner_val = &mut ChannelCounterparty::get_native_mut_ref(this_ptr).outbound_htlc_minimum_msat;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1038,7 +1038,7 @@ pub extern "C" fn ChannelCounterparty_set_outbound_htlc_minimum_msat(this_ptr: &
 /// The largest value HTLC (in msat) the remote peer currently will accept, for this channel.
 #[no_mangle]
 pub extern "C" fn ChannelCounterparty_get_outbound_htlc_maximum_msat(this_ptr: &ChannelCounterparty) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().outbound_htlc_maximum_msat;
+	let mut inner_val = &mut ChannelCounterparty::get_native_mut_ref(this_ptr).outbound_htlc_maximum_msat;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1070,7 +1070,7 @@ impl Clone for ChannelCounterparty {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelCounterparty>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1078,12 +1078,12 @@ impl Clone for ChannelCounterparty {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelCounterparty_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelCounterparty)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelCounterparty) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelCounterparty
 pub extern "C" fn ChannelCounterparty_clone(orig: &ChannelCounterparty) -> ChannelCounterparty {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ChannelCounterparty object
 pub extern "C" fn ChannelCounterparty_debug_str_void(o: *const c_void) -> Str {
@@ -1113,6 +1113,10 @@ pub(crate) type nativeChannelDetails = nativeChannelDetailsImport;
 /// Balances of a channel are available through [`ChainMonitor::get_claimable_balances`] and
 /// [`ChannelMonitor::get_claimable_balances`], calculated with respect to the corresponding on-chain
 /// transactions.
+///
+/// When a channel is spliced, most fields continue to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer). See individual fields for details.
 ///
 /// [`ChannelManager::list_channels`]: crate::ln::channelmanager::ChannelManager::list_channels
 /// [`ChannelManager::list_usable_channels`]: crate::ln::channelmanager::ChannelManager::list_usable_channels
@@ -1173,17 +1177,19 @@ impl ChannelDetails {
 		Self { inner: self.inner, is_owned: false }
 	}
 }
-/// The channel's ID (prior to funding transaction generation, this is a random 32 bytes,
-/// thereafter this is the txid of the funding transaction xor the funding transaction output).
+/// The channel's ID (prior to initial channel setup this is a random 32 bytes, thereafter it is
+/// derived from channel funding or key material).
+///
 /// Note that this means this value is *not* persistent - it can change once during the
 /// lifetime of the channel.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_channel_id(this_ptr: &ChannelDetails) -> crate::lightning::ln::types::ChannelId {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_id;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).channel_id;
 	crate::lightning::ln::types::ChannelId { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::types::ChannelId<>) as *mut _) }, is_owned: false }
 }
-/// The channel's ID (prior to funding transaction generation, this is a random 32 bytes,
-/// thereafter this is the txid of the funding transaction xor the funding transaction output).
+/// The channel's ID (prior to initial channel setup this is a random 32 bytes, thereafter it is
+/// derived from channel funding or key material).
+///
 /// Note that this means this value is *not* persistent - it can change once during the
 /// lifetime of the channel.
 #[no_mangle]
@@ -1193,7 +1199,7 @@ pub extern "C" fn ChannelDetails_set_channel_id(this_ptr: &mut ChannelDetails, m
 /// Parameters which apply to our counterparty. See individual fields for more information.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_counterparty(this_ptr: &ChannelDetails) -> crate::lightning::ln::channel_state::ChannelCounterparty {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().counterparty;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).counterparty;
 	crate::lightning::ln::channel_state::ChannelCounterparty { inner: unsafe { ObjOps::nonnull_ptr_to_inner((inner_val as *const lightning::ln::channel_state::ChannelCounterparty<>) as *mut _) }, is_owned: false }
 }
 /// Parameters which apply to our counterparty. See individual fields for more information.
@@ -1204,15 +1210,23 @@ pub extern "C" fn ChannelDetails_set_counterparty(this_ptr: &mut ChannelDetails,
 /// The Channel's funding transaction output, if we've negotiated the funding transaction with
 /// our counterparty already.
 ///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
+///
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_funding_txo(this_ptr: &ChannelDetails) -> crate::lightning::chain::transaction::OutPoint {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().funding_txo;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).funding_txo;
 	let mut local_inner_val = crate::lightning::chain::transaction::OutPoint { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::chain::transaction::OutPoint<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
 /// The Channel's funding transaction output, if we've negotiated the funding transaction with
 /// our counterparty already.
+///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
 ///
 /// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
@@ -1224,16 +1238,24 @@ pub extern "C" fn ChannelDetails_set_funding_txo(this_ptr: &mut ChannelDetails, 
 ///
 /// `None` until negotiation completes and the channel type is finalized.
 ///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
+///
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_channel_type(this_ptr: &ChannelDetails) -> crate::lightning_types::features::ChannelTypeFeatures {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_type;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).channel_type;
 	let mut local_inner_val = crate::lightning_types::features::ChannelTypeFeatures { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning_types::features::ChannelTypeFeatures<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
 /// The features which this channel operates with. See individual features for more info.
 ///
 /// `None` until negotiation completes and the channel type is finalized.
+///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
 ///
 /// Note that val (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
@@ -1250,6 +1272,10 @@ pub extern "C" fn ChannelDetails_set_channel_type(this_ptr: &mut ChannelDetails,
 /// For channels with [`confirmations_required`] set to `Some(0)`, [`outbound_scid_alias`] may
 /// be used in place of this in outbound routes. See [`get_outbound_payment_scid`].
 ///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
+///
 /// [`inbound_scid_alias`]: Self::inbound_scid_alias
 /// [`outbound_scid_alias`]: Self::outbound_scid_alias
 /// [`get_inbound_payment_scid`]: Self::get_inbound_payment_scid
@@ -1257,7 +1283,7 @@ pub extern "C" fn ChannelDetails_set_channel_type(this_ptr: &mut ChannelDetails,
 /// [`confirmations_required`]: Self::confirmations_required
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_short_channel_id(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().short_channel_id;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).short_channel_id;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1269,6 +1295,10 @@ pub extern "C" fn ChannelDetails_get_short_channel_id(this_ptr: &ChannelDetails)
 ///
 /// For channels with [`confirmations_required`] set to `Some(0)`, [`outbound_scid_alias`] may
 /// be used in place of this in outbound routes. See [`get_outbound_payment_scid`].
+///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
 ///
 /// [`inbound_scid_alias`]: Self::inbound_scid_alias
 /// [`outbound_scid_alias`]: Self::outbound_scid_alias
@@ -1287,11 +1317,15 @@ pub extern "C" fn ChannelDetails_set_short_channel_id(this_ptr: &mut ChannelDeta
 ///
 /// This will be `None` as long as the channel is not available for routing outbound payments.
 ///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
+///
 /// [`short_channel_id`]: Self::short_channel_id
 /// [`confirmations_required`]: Self::confirmations_required
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_outbound_scid_alias(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().outbound_scid_alias;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).outbound_scid_alias;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1301,6 +1335,10 @@ pub extern "C" fn ChannelDetails_get_outbound_scid_alias(this_ptr: &ChannelDetai
 /// `Some(0)`).
 ///
 /// This will be `None` as long as the channel is not available for routing outbound payments.
+///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
 ///
 /// [`short_channel_id`]: Self::short_channel_id
 /// [`confirmations_required`]: Self::confirmations_required
@@ -1320,7 +1358,7 @@ pub extern "C" fn ChannelDetails_set_outbound_scid_alias(this_ptr: &mut ChannelD
 /// [`short_channel_id`]: Self::short_channel_id
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_inbound_scid_alias(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().inbound_scid_alias;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).inbound_scid_alias;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1339,12 +1377,20 @@ pub extern "C" fn ChannelDetails_set_inbound_scid_alias(this_ptr: &mut ChannelDe
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.inbound_scid_alias = local_val;
 }
 /// The value, in satoshis, of this channel as appears in the funding output
+///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_channel_value_satoshis(this_ptr: &ChannelDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().channel_value_satoshis;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).channel_value_satoshis;
 	*inner_val
 }
 /// The value, in satoshis, of this channel as appears in the funding output
+///
+/// When a channel is spliced, this continues to refer to the original pre-splice channel
+/// state until the splice transaction reaches sufficient confirmations to be locked (and we
+/// exchange `splice_locked` messages with our peer).
 #[no_mangle]
 pub extern "C" fn ChannelDetails_set_channel_value_satoshis(this_ptr: &mut ChannelDetails, mut val: u64) {
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.channel_value_satoshis = val;
@@ -1360,7 +1406,7 @@ pub extern "C" fn ChannelDetails_set_channel_value_satoshis(this_ptr: &mut Chann
 /// [`outbound_capacity_msat`]: ChannelDetails::outbound_capacity_msat
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_unspendable_punishment_reserve(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().unspendable_punishment_reserve;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).unspendable_punishment_reserve;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1389,7 +1435,7 @@ pub extern "C" fn ChannelDetails_set_unspendable_punishment_reserve(this_ptr: &m
 /// [`UserConfig::manually_accept_inbound_channels`]: crate::util::config::UserConfig::manually_accept_inbound_channels
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_user_channel_id(this_ptr: &ChannelDetails) -> crate::c_types::U128 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().user_channel_id;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).user_channel_id;
 	inner_val.into()
 }
 /// The `user_channel_id` value passed in to [`ChannelManager::create_channel`] for outbound
@@ -1411,7 +1457,7 @@ pub extern "C" fn ChannelDetails_set_user_channel_id(this_ptr: &mut ChannelDetai
 /// This value will be `None` for objects serialized with LDK versions prior to 0.0.115.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_feerate_sat_per_1000_weight(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u32Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().feerate_sat_per_1000_weight;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).feerate_sat_per_1000_weight;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u32Z::None } else { crate::c_types::derived::COption_u32Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1434,7 +1480,7 @@ pub extern "C" fn ChannelDetails_set_feerate_sat_per_1000_weight(this_ptr: &mut 
 /// should be able to spend nearly this amount.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_outbound_capacity_msat(this_ptr: &ChannelDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().outbound_capacity_msat;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).outbound_capacity_msat;
 	*inner_val
 }
 /// The available outbound capacity for sending HTLCs to the remote peer. This does not include
@@ -1458,7 +1504,7 @@ pub extern "C" fn ChannelDetails_set_outbound_capacity_msat(this_ptr: &mut Chann
 /// [`ChannelDetails::outbound_capacity_msat`].
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_next_outbound_htlc_limit_msat(this_ptr: &ChannelDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().next_outbound_htlc_limit_msat;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).next_outbound_htlc_limit_msat;
 	*inner_val
 }
 /// The available outbound capacity for sending a single HTLC to the remote peer. This is
@@ -1478,7 +1524,7 @@ pub extern "C" fn ChannelDetails_set_next_outbound_htlc_limit_msat(this_ptr: &mu
 /// route which is valid.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_next_outbound_htlc_minimum_msat(this_ptr: &ChannelDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().next_outbound_htlc_minimum_msat;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).next_outbound_htlc_minimum_msat;
 	*inner_val
 }
 /// The minimum value for sending a single HTLC to the remote peer. This is the equivalent of
@@ -1500,7 +1546,7 @@ pub extern "C" fn ChannelDetails_set_next_outbound_htlc_minimum_msat(this_ptr: &
 /// However, our counterparty should be able to spend nearly this amount.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_inbound_capacity_msat(this_ptr: &ChannelDetails) -> u64 {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().inbound_capacity_msat;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).inbound_capacity_msat;
 	*inner_val
 }
 /// The available inbound capacity for the remote peer to send HTLCs to us. This does not
@@ -1529,7 +1575,7 @@ pub extern "C" fn ChannelDetails_set_inbound_capacity_msat(this_ptr: &mut Channe
 /// [`ChannelHandshakeLimits::max_minimum_depth`]: crate::util::config::ChannelHandshakeLimits::max_minimum_depth
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_confirmations_required(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u32Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().confirmations_required;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).confirmations_required;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u32Z::None } else { crate::c_types::derived::COption_u32Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1554,7 +1600,7 @@ pub extern "C" fn ChannelDetails_set_confirmations_required(this_ptr: &mut Chann
 /// This value will be `None` for objects serialized with LDK versions prior to 0.0.113.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_confirmations(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u32Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().confirmations;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).confirmations;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u32Z::None } else { crate::c_types::derived::COption_u32Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1575,7 +1621,7 @@ pub extern "C" fn ChannelDetails_set_confirmations(this_ptr: &mut ChannelDetails
 /// This value will be `None` for outbound channels until the counterparty accepts the channel.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_force_close_spend_delay(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u16Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().force_close_spend_delay;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).force_close_spend_delay;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u16Z::None } else { crate::c_types::derived::COption_u16Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1594,7 +1640,7 @@ pub extern "C" fn ChannelDetails_set_force_close_spend_delay(this_ptr: &mut Chan
 /// True if the channel was initiated (and thus funded) by us.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_is_outbound(this_ptr: &ChannelDetails) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().is_outbound;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).is_outbound;
 	*inner_val
 }
 /// True if the channel was initiated (and thus funded) by us.
@@ -1611,7 +1657,7 @@ pub extern "C" fn ChannelDetails_set_is_outbound(this_ptr: &mut ChannelDetails, 
 /// [`confirmations_required`]: ChannelDetails::confirmations_required
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_is_channel_ready(this_ptr: &ChannelDetails) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().is_channel_ready;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).is_channel_ready;
 	*inner_val
 }
 /// True if the channel is confirmed, channel_ready messages have been exchanged, and the
@@ -1631,7 +1677,7 @@ pub extern "C" fn ChannelDetails_set_is_channel_ready(this_ptr: &mut ChannelDeta
 /// Returns a copy of the field.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_channel_shutdown_state(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_ChannelShutdownStateZ {
-	let mut inner_val = this_ptr.get_native_mut_ref().channel_shutdown_state.clone();
+	let mut inner_val = ChannelDetails::get_native_mut_ref(this_ptr).channel_shutdown_state.clone();
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_ChannelShutdownStateZ::None } else { crate::c_types::derived::COption_ChannelShutdownStateZ::Some( { crate::lightning::ln::channel_state::ChannelShutdownState::native_into(inner_val.unwrap()) }) };
 	local_inner_val
 }
@@ -1648,7 +1694,7 @@ pub extern "C" fn ChannelDetails_set_channel_shutdown_state(this_ptr: &mut Chann
 /// This is a strict superset of `is_channel_ready`.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_is_usable(this_ptr: &ChannelDetails) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().is_usable;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).is_usable;
 	*inner_val
 }
 /// True if the channel is (a) confirmed and channel_ready messages have been exchanged, (b)
@@ -1662,7 +1708,7 @@ pub extern "C" fn ChannelDetails_set_is_usable(this_ptr: &mut ChannelDetails, mu
 /// True if this channel is (or will be) publicly-announced.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_is_announced(this_ptr: &ChannelDetails) -> bool {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().is_announced;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).is_announced;
 	*inner_val
 }
 /// True if this channel is (or will be) publicly-announced.
@@ -1674,7 +1720,7 @@ pub extern "C" fn ChannelDetails_set_is_announced(this_ptr: &mut ChannelDetails,
 /// is only `None` for `ChannelDetails` objects serialized prior to LDK 0.0.107
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_inbound_htlc_minimum_msat(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().inbound_htlc_minimum_msat;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).inbound_htlc_minimum_msat;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1688,7 +1734,7 @@ pub extern "C" fn ChannelDetails_set_inbound_htlc_minimum_msat(this_ptr: &mut Ch
 /// The largest value HTLC (in msat) we currently will accept, for this channel.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_inbound_htlc_maximum_msat(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_u64Z {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().inbound_htlc_maximum_msat;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).inbound_htlc_maximum_msat;
 	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { inner_val.unwrap() }) };
 	local_inner_val
 }
@@ -1705,7 +1751,7 @@ pub extern "C" fn ChannelDetails_set_inbound_htlc_maximum_msat(this_ptr: &mut Ch
 /// Note that the return value (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_config(this_ptr: &ChannelDetails) -> crate::lightning::util::config::ChannelConfig {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().config;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).config;
 	let mut local_inner_val = crate::lightning::util::config::ChannelConfig { inner: unsafe { (if inner_val.is_none() { core::ptr::null() } else { ObjOps::nonnull_ptr_to_inner( { (inner_val.as_ref().unwrap()) }) } as *const lightning::util::config::ChannelConfig<>) as *mut _ }, is_owned: false };
 	local_inner_val
 }
@@ -1724,7 +1770,7 @@ pub extern "C" fn ChannelDetails_set_config(this_ptr: &mut ChannelDetails, mut v
 /// This field is empty for objects serialized with LDK versions prior to 0.0.122.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_pending_inbound_htlcs(this_ptr: &ChannelDetails) -> crate::c_types::derived::CVec_InboundHTLCDetailsZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().pending_inbound_htlcs;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).pending_inbound_htlcs;
 	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::ln::channel_state::InboundHTLCDetails { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const lightning::ln::channel_state::InboundHTLCDetails<>) as *mut _) }, is_owned: false } }); };
 	local_inner_val.into()
 }
@@ -1741,7 +1787,7 @@ pub extern "C" fn ChannelDetails_set_pending_inbound_htlcs(this_ptr: &mut Channe
 /// This field is empty for objects serialized with LDK versions prior to 0.0.122.
 #[no_mangle]
 pub extern "C" fn ChannelDetails_get_pending_outbound_htlcs(this_ptr: &ChannelDetails) -> crate::c_types::derived::CVec_OutboundHTLCDetailsZ {
-	let mut inner_val = &mut this_ptr.get_native_mut_ref().pending_outbound_htlcs;
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).pending_outbound_htlcs;
 	let mut local_inner_val = Vec::new(); for item in inner_val.iter() { local_inner_val.push( { crate::lightning::ln::channel_state::OutboundHTLCDetails { inner: unsafe { ObjOps::nonnull_ptr_to_inner((item as *const lightning::ln::channel_state::OutboundHTLCDetails<>) as *mut _) }, is_owned: false } }); };
 	local_inner_val.into()
 }
@@ -1753,6 +1799,33 @@ pub extern "C" fn ChannelDetails_set_pending_outbound_htlcs(this_ptr: &mut Chann
 	let mut local_val = Vec::new(); for mut item in val.into_rust().drain(..) { local_val.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.pending_outbound_htlcs = local_val;
 }
+/// The witness script that is used to lock the channel's funding output to commitment
+/// transactions.
+///
+/// When a channel is spliced, this continues to refer to the original funding output (which
+/// was spent by the splice transaction) until the splice transaction reached sufficient
+/// confirmations to be locked (and we exchange `splice_locked` messages with our peer).
+///
+/// This field will be `None` for objects serialized with LDK versions prior to 0.2.0.
+#[no_mangle]
+pub extern "C" fn ChannelDetails_get_funding_redeem_script(this_ptr: &ChannelDetails) -> crate::c_types::derived::COption_CVec_u8ZZ {
+	let mut inner_val = &mut ChannelDetails::get_native_mut_ref(this_ptr).funding_redeem_script;
+	let mut local_inner_val = if inner_val.is_none() { crate::c_types::derived::COption_CVec_u8ZZ::None } else { crate::c_types::derived::COption_CVec_u8ZZ::Some(/* WARNING: CLONING CONVERSION HERE! &Option<Enum> is otherwise un-expressable. */ { (*inner_val.as_ref().unwrap()).clone().to_bytes().into() }) };
+	local_inner_val
+}
+/// The witness script that is used to lock the channel's funding output to commitment
+/// transactions.
+///
+/// When a channel is spliced, this continues to refer to the original funding output (which
+/// was spent by the splice transaction) until the splice transaction reached sufficient
+/// confirmations to be locked (and we exchange `splice_locked` messages with our peer).
+///
+/// This field will be `None` for objects serialized with LDK versions prior to 0.2.0.
+#[no_mangle]
+pub extern "C" fn ChannelDetails_set_funding_redeem_script(this_ptr: &mut ChannelDetails, mut val: crate::c_types::derived::COption_CVec_u8ZZ) {
+	let mut local_val = { /*val*/ let val_opt = val; if val_opt.is_none() { None } else { Some({ { ::bitcoin::script::ScriptBuf::from({ val_opt.take() }.into_rust()) }})} };
+	unsafe { &mut *ObjOps::untweak_ptr(this_ptr.inner) }.funding_redeem_script = local_val;
+}
 /// Constructs a new ChannelDetails given each field
 ///
 /// Note that funding_txo_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
@@ -1760,7 +1833,7 @@ pub extern "C" fn ChannelDetails_set_pending_outbound_htlcs(this_ptr: &mut Chann
 /// Note that config_arg (or a relevant inner pointer) may be NULL or all-0s to represent None
 #[must_use]
 #[no_mangle]
-pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut counterparty_arg: crate::lightning::ln::channel_state::ChannelCounterparty, mut funding_txo_arg: crate::lightning::chain::transaction::OutPoint, mut channel_type_arg: crate::lightning_types::features::ChannelTypeFeatures, mut short_channel_id_arg: crate::c_types::derived::COption_u64Z, mut outbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut inbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut channel_value_satoshis_arg: u64, mut unspendable_punishment_reserve_arg: crate::c_types::derived::COption_u64Z, mut user_channel_id_arg: crate::c_types::U128, mut feerate_sat_per_1000_weight_arg: crate::c_types::derived::COption_u32Z, mut outbound_capacity_msat_arg: u64, mut next_outbound_htlc_limit_msat_arg: u64, mut next_outbound_htlc_minimum_msat_arg: u64, mut inbound_capacity_msat_arg: u64, mut confirmations_required_arg: crate::c_types::derived::COption_u32Z, mut confirmations_arg: crate::c_types::derived::COption_u32Z, mut force_close_spend_delay_arg: crate::c_types::derived::COption_u16Z, mut is_outbound_arg: bool, mut is_channel_ready_arg: bool, mut channel_shutdown_state_arg: crate::c_types::derived::COption_ChannelShutdownStateZ, mut is_usable_arg: bool, mut is_announced_arg: bool, mut inbound_htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut inbound_htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z, mut config_arg: crate::lightning::util::config::ChannelConfig, mut pending_inbound_htlcs_arg: crate::c_types::derived::CVec_InboundHTLCDetailsZ, mut pending_outbound_htlcs_arg: crate::c_types::derived::CVec_OutboundHTLCDetailsZ) -> ChannelDetails {
+pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::types::ChannelId, mut counterparty_arg: crate::lightning::ln::channel_state::ChannelCounterparty, mut funding_txo_arg: crate::lightning::chain::transaction::OutPoint, mut channel_type_arg: crate::lightning_types::features::ChannelTypeFeatures, mut short_channel_id_arg: crate::c_types::derived::COption_u64Z, mut outbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut inbound_scid_alias_arg: crate::c_types::derived::COption_u64Z, mut channel_value_satoshis_arg: u64, mut unspendable_punishment_reserve_arg: crate::c_types::derived::COption_u64Z, mut user_channel_id_arg: crate::c_types::U128, mut feerate_sat_per_1000_weight_arg: crate::c_types::derived::COption_u32Z, mut outbound_capacity_msat_arg: u64, mut next_outbound_htlc_limit_msat_arg: u64, mut next_outbound_htlc_minimum_msat_arg: u64, mut inbound_capacity_msat_arg: u64, mut confirmations_required_arg: crate::c_types::derived::COption_u32Z, mut confirmations_arg: crate::c_types::derived::COption_u32Z, mut force_close_spend_delay_arg: crate::c_types::derived::COption_u16Z, mut is_outbound_arg: bool, mut is_channel_ready_arg: bool, mut channel_shutdown_state_arg: crate::c_types::derived::COption_ChannelShutdownStateZ, mut is_usable_arg: bool, mut is_announced_arg: bool, mut inbound_htlc_minimum_msat_arg: crate::c_types::derived::COption_u64Z, mut inbound_htlc_maximum_msat_arg: crate::c_types::derived::COption_u64Z, mut config_arg: crate::lightning::util::config::ChannelConfig, mut pending_inbound_htlcs_arg: crate::c_types::derived::CVec_InboundHTLCDetailsZ, mut pending_outbound_htlcs_arg: crate::c_types::derived::CVec_OutboundHTLCDetailsZ, mut funding_redeem_script_arg: crate::c_types::derived::COption_CVec_u8ZZ) -> ChannelDetails {
 	let mut local_funding_txo_arg = if funding_txo_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(funding_txo_arg.take_inner()) } }) };
 	let mut local_channel_type_arg = if channel_type_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(channel_type_arg.take_inner()) } }) };
 	let mut local_short_channel_id_arg = if short_channel_id_arg.is_some() { Some( { short_channel_id_arg.take() }) } else { None };
@@ -1777,6 +1850,7 @@ pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::t
 	let mut local_config_arg = if config_arg.inner.is_null() { None } else { Some( { *unsafe { Box::from_raw(config_arg.take_inner()) } }) };
 	let mut local_pending_inbound_htlcs_arg = Vec::new(); for mut item in pending_inbound_htlcs_arg.into_rust().drain(..) { local_pending_inbound_htlcs_arg.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
 	let mut local_pending_outbound_htlcs_arg = Vec::new(); for mut item in pending_outbound_htlcs_arg.into_rust().drain(..) { local_pending_outbound_htlcs_arg.push( { *unsafe { Box::from_raw(item.take_inner()) } }); };
+	let mut local_funding_redeem_script_arg = { /*funding_redeem_script_arg*/ let funding_redeem_script_arg_opt = funding_redeem_script_arg; if funding_redeem_script_arg_opt.is_none() { None } else { Some({ { ::bitcoin::script::ScriptBuf::from({ funding_redeem_script_arg_opt.take() }.into_rust()) }})} };
 	ChannelDetails { inner: ObjOps::heap_alloc(nativeChannelDetails {
 		channel_id: *unsafe { Box::from_raw(channel_id_arg.take_inner()) },
 		counterparty: *unsafe { Box::from_raw(counterparty_arg.take_inner()) },
@@ -1806,13 +1880,14 @@ pub extern "C" fn ChannelDetails_new(mut channel_id_arg: crate::lightning::ln::t
 		config: local_config_arg,
 		pending_inbound_htlcs: local_pending_inbound_htlcs_arg,
 		pending_outbound_htlcs: local_pending_outbound_htlcs_arg,
+		funding_redeem_script: local_funding_redeem_script_arg,
 	}), is_owned: true }
 }
 impl Clone for ChannelDetails {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeChannelDetails>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -1820,12 +1895,12 @@ impl Clone for ChannelDetails {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn ChannelDetails_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeChannelDetails)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeChannelDetails) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the ChannelDetails
 pub extern "C" fn ChannelDetails_clone(orig: &ChannelDetails) -> ChannelDetails {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a ChannelDetails object
 pub extern "C" fn ChannelDetails_debug_str_void(o: *const c_void) -> Str {
@@ -1857,6 +1932,19 @@ pub extern "C" fn ChannelDetails_get_inbound_payment_scid(this_arg: &crate::ligh
 pub extern "C" fn ChannelDetails_get_outbound_payment_scid(this_arg: &crate::lightning::ln::channel_state::ChannelDetails) -> crate::c_types::derived::COption_u64Z {
 	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_outbound_payment_scid();
 	let mut local_ret = if ret.is_none() { crate::c_types::derived::COption_u64Z::None } else { crate::c_types::derived::COption_u64Z::Some( { ret.unwrap() }) };
+	local_ret
+}
+
+/// Gets the funding output for this channel, if available.
+///
+/// When a channel is spliced, this continues to refer to the original funding output (which
+/// was spent by the splice transaction) until the splice transaction reaches sufficient
+/// confirmations to be locked (and we exchange `splice_locked` messages with our peer).
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelDetails_get_funding_output(this_arg: &crate::lightning::ln::channel_state::ChannelDetails) -> crate::c_types::derived::COption_TxOutZ {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.get_funding_output();
+	let mut local_ret = if ret.is_none() { crate::c_types::derived::COption_TxOutZ::None } else { crate::c_types::derived::COption_TxOutZ::Some( { crate::c_types::TxOut::from_rust(&ret.unwrap()) }) };
 	local_ret
 }
 

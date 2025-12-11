@@ -29,6 +29,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Pin syn and quote to meet MSRV
+        working-directory: lightning-c-bindings
+        run: |
+          cargo update -p syn --precise "2.0.106" --verbose
+          cargo update -p quote --precise "1.0.41" --verbose
       - name: Sanity test bindings against Cargo.toml RL
         working-directory: lightning-c-bindings
         run: |
@@ -46,7 +51,9 @@ jobs:
         run: |
           git clone https://github.com/rust-bitcoin/rust-lightning
           cd rust-lightning
-          git checkout 0.1-bindings
+          git checkout 0.2-bindings
+          cargo update -p syn --precise "2.0.106" --verbose
+          cargo update -p quote --precise "1.0.41" --verbose
       - name: Fix Github Actions to not be broken
         run: git config --global --add safe.directory /__w/ldk-c-bindings/ldk-c-bindings
       - name: Pin proc-macro and quote to meet MSRV
@@ -89,6 +96,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Pin syn and quote to meet MSRV
+        working-directory: lightning-c-bindings
+        run: |
+          cargo update -p syn --precise "2.0.106" --verbose
+          cargo update -p quote --precise "1.0.41" --verbose
       - name: Sanity test bindings against Cargo.toml RL
         working-directory: lightning-c-bindings
         run: |
@@ -106,9 +118,16 @@ jobs:
         run: |
           git clone https://github.com/rust-bitcoin/rust-lightning
           cd rust-lightning
-          git checkout 0.1-bindings
+          git checkout 0.2-bindings
+          cargo update -p syn --precise "2.0.106" --verbose
+          cargo update -p quote --precise "1.0.41" --verbose
       - name: Fix Github Actions to not be broken
         run: git config --global --add safe.directory /__w/ldk-c-bindings/ldk-c-bindings
+      - name: Pin proc-macro and quote to meet MSRV
+        run: |
+          cd c-bindings-gen
+          cargo update -p quote --precise "1.0.30" --verbose
+          cargo update -p proc-macro2 --precise "1.0.65" --verbose
       - name: Fetch MacOS SDK
         run: |
           wget https://bitcoincore.org/depends-sources/sdks/Xcode-12.2-12B45b-extracted-SDK-with-libcxx-headers.tar.gz
@@ -152,7 +171,7 @@ jobs:
         run: |
           git clone https://github.com/rust-bitcoin/rust-lightning
           cd rust-lightning
-          git checkout 0.1-bindings
+          git checkout 0.2-bindings
       - name: Rebuild bindings using Apple clang, and check the sample app builds + links
         run: ./genbindings.sh ./rust-lightning true
       - name: Rebuild bindings using upstream clang, and check the sample app builds + links

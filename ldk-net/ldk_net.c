@@ -91,10 +91,10 @@ struct Descriptor {
 static uintptr_t sock_send_data(void* desc, struct LDKu8slice data, bool resume_read) {
 	struct Descriptor *descriptor = (struct Descriptor*)desc;
 	ssize_t write_count = send(descriptor->fd, data.data, data.datalen, MSG_NOSIGNAL);
-	bool pause_read = false;
-	if (write_count <= 0) {
+	bool more_to_write = false;
+	if (data.datalen > 0 && write_count <= 0) {
 		if (errno == EAGAIN || errno == EWOULDBLOCK) {
-			pause_read = true;
+			more_to_write = true;
 			write_count = 0;
 		} else {
 			shutdown(descriptor->fd, SHUT_RDWR);
@@ -103,23 +103,30 @@ static uintptr_t sock_send_data(void* desc, struct LDKu8slice data, bool resume_
 			return 0;
 		}
 	} else if (write_count < data.datalen) {
-		pause_read = true;
+		more_to_write = true;
 	}
-	if (pause_read || resume_read) {
-		int lockres = pthread_mutex_lock(&descriptor->handler->sockets_mutex);
-		assert(lockres == 0);
-		for (int i = 0; i < descriptor->handler->sockcount; i++) {
-			if (descriptor->handler->pollfds[i].fd == descriptor->fd) {
-				if (pause_read) {
-					descriptor->handler->pollfds[i].events = POLLOUT;
-				} else {
-					descriptor->handler->pollfds[i].events = POLLIN;
-				}
-				break;
+
+	int lockres = pthread_mutex_lock(&descriptor->handler->sockets_mutex);
+	assert(lockres == 0);
+	bool events_changed = false;
+	for (int i = 0; i < descriptor->handler->sockcount; i++) {
+		if (descriptor->handler->pollfds[i].fd == descriptor->fd) {
+			short events_desired = 0;
+			if (resume_read) {
+				events_desired |= POLLIN;
 			}
+			if (more_to_write) {
+				events_desired |= POLLOUT;
+			}
+			events_changed = descriptor->handler->pollfds[i].events != events_desired;
+			descriptor->handler->pollfds[i].events = events_desired;
+			break;
 		}
-		lockres = pthread_mutex_unlock(&descriptor->handler->sockets_mutex);
-		assert(lockres == 0);
+	}
+	lockres = pthread_mutex_unlock(&descriptor->handler->sockets_mutex);
+	assert(lockres == 0);
+
+	if (events_changed) {
 		uint8_t dummy = 0;
 		write(descriptor->handler->pipefds[1], &dummy, 1);
 	}
@@ -261,20 +268,11 @@ static void *sock_thread_fn(void* arg) {
 								.data = readbuf,
 								.datalen = readlen,
 							};
-							LDKCResult_boolPeerHandleErrorZ res = PeerManager_read_event(&handler->ldk_peer_manager, &descriptor, data);
-							if (res.result_ok) {
-								if (*res.contents.result) {
-									lockres = pthread_mutex_lock(&handler->sockets_mutex);
-									assert(lockres == 0);
-									assert(handler->pollfds[i].fd == pollfds[i].fd); // Only we change fd order!
-									handler->pollfds[i].events = POLLOUT;
-									lockres = pthread_mutex_unlock(&handler->sockets_mutex);
-									assert(lockres == 0);
-								}
-							} else {
+							LDKCResult_NonePeerHandleErrorZ res = PeerManager_read_event(&handler->ldk_peer_manager, &descriptor, data);
+							if (!res.result_ok) {
 								close_socks[close_socks_count++] = i;
 							}
-							CResult_boolPeerHandleErrorZ_free(res);
+							CResult_NonePeerHandleErrorZ_free(res);
 						}
 					}
 					if (pollfds[i].revents & POLLOUT) {

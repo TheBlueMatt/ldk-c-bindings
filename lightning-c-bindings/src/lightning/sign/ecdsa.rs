@@ -38,6 +38,273 @@ pub struct EcdsaChannelSigner {
 	/// An opaque pointer which is passed to your function implementations as an argument.
 	/// This has no meaning in the LDK, and can be NULL or any other value.
 	pub this_arg: *mut c_void,
+	/// Implementation of BaseEcdsaChannelSigner for this object.
+	pub BaseEcdsaChannelSigner: crate::lightning::sign::ecdsa::BaseEcdsaChannelSigner,
+	/// Called, if set, after this EcdsaChannelSigner has been cloned into a duplicate object.
+	/// The new EcdsaChannelSigner is provided, and should be mutated as needed to perform a
+	/// deep copy of the object pointed to by this_arg or avoid any double-freeing.
+	pub cloned: Option<extern "C" fn (new_EcdsaChannelSigner: &mut EcdsaChannelSigner)>,
+	/// Frees any resources associated with this object given its this_arg pointer.
+	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
+	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
+}
+unsafe impl Send for EcdsaChannelSigner {}
+unsafe impl Sync for EcdsaChannelSigner {}
+#[allow(unused)]
+pub(crate) fn EcdsaChannelSigner_clone_fields(orig: &EcdsaChannelSigner) -> EcdsaChannelSigner {
+	EcdsaChannelSigner {
+		this_arg: orig.this_arg,
+		BaseEcdsaChannelSigner: crate::lightning::sign::ecdsa::BaseEcdsaChannelSigner_clone_fields(&orig.BaseEcdsaChannelSigner),
+		cloned: Clone::clone(&orig.cloned),
+		free: Clone::clone(&orig.free),
+	}
+}
+impl lightning::sign::ecdsa::BaseEcdsaChannelSigner for EcdsaChannelSigner {
+	fn sign_counterparty_commitment(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut commitment_tx: &lightning::ln::chan_utils::CommitmentTransaction, mut inbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut outbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<(bitcoin::secp256k1::ecdsa::Signature, Vec<bitcoin::secp256k1::ecdsa::Signature>), ()> {
+		let mut local_inbound_htlc_preimages = Vec::new(); for mut item in inbound_htlc_preimages.drain(..) { local_inbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
+		let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.drain(..) { local_outbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_counterparty_commitment)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::CommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::CommitmentTransaction<>) as *mut _) }, is_owned: false }, local_inbound_htlc_preimages.into(), local_outbound_htlc_preimages.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let (mut orig_ret_0_0, mut orig_ret_0_1) = (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).to_rust(); let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.into_rust().drain(..) { local_orig_ret_0_1.push( { item.into_rust() }); }; let mut local_ret_0 = (orig_ret_0_0.into_rust(), local_orig_ret_0_1); local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_holder_commitment(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut commitment_tx: &lightning::ln::chan_utils::HolderCommitmentTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_holder_commitment)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::HolderCommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::HolderCommitmentTransaction<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_justice_revoked_output(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_justice_revoked_output)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref());
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_justice_revoked_htlc(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_justice_revoked_htlc)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref(), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_holder_htlc_transaction(&self, mut htlc_tx: &bitcoin::transaction::Transaction, mut input: usize, mut htlc_descriptor: &lightning::sign::HTLCDescriptor, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_holder_htlc_transaction)(self.BaseEcdsaChannelSigner.this_arg, crate::c_types::Transaction::from_bitcoin(htlc_tx), input, &crate::lightning::sign::HTLCDescriptor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc_descriptor as *const lightning::sign::HTLCDescriptor<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_counterparty_htlc_transaction(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut htlc_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_point: &bitcoin::secp256k1::PublicKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_counterparty_htlc_transaction)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(htlc_tx), input, amount, crate::c_types::PublicKey::from_rust(&per_commitment_point), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_closing_transaction(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut closing_tx: &lightning::ln::chan_utils::ClosingTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_closing_transaction)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::ClosingTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((closing_tx as *const lightning::ln::chan_utils::ClosingTransaction<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_holder_keyed_anchor_input(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut anchor_tx: &bitcoin::transaction::Transaction, mut input: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_holder_keyed_anchor_input)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(anchor_tx), input);
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_channel_announcement_with_funding_key(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut msg: &lightning::ln::msgs::UnsignedChannelAnnouncement, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_channel_announcement_with_funding_key)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::msgs::UnsignedChannelAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UnsignedChannelAnnouncement<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_splice_shared_input(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut tx: &bitcoin::transaction::Transaction, mut input_index: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> bitcoin::secp256k1::ecdsa::Signature {
+		let mut ret = (self.BaseEcdsaChannelSigner.sign_splice_shared_input)(self.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(tx), input_index);
+		ret.into_rust()
+	}
+}
+impl lightning::sign::ecdsa::BaseEcdsaChannelSigner for EcdsaChannelSignerRef {
+	fn sign_counterparty_commitment(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut commitment_tx: &lightning::ln::chan_utils::CommitmentTransaction, mut inbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut outbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<(bitcoin::secp256k1::ecdsa::Signature, Vec<bitcoin::secp256k1::ecdsa::Signature>), ()> {
+		let mut local_inbound_htlc_preimages = Vec::new(); for mut item in inbound_htlc_preimages.drain(..) { local_inbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
+		let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.drain(..) { local_outbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_counterparty_commitment)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::CommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::CommitmentTransaction<>) as *mut _) }, is_owned: false }, local_inbound_htlc_preimages.into(), local_outbound_htlc_preimages.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { let (mut orig_ret_0_0, mut orig_ret_0_1) = (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).to_rust(); let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.into_rust().drain(..) { local_orig_ret_0_1.push( { item.into_rust() }); }; let mut local_ret_0 = (orig_ret_0_0.into_rust(), local_orig_ret_0_1); local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_holder_commitment(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut commitment_tx: &lightning::ln::chan_utils::HolderCommitmentTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_holder_commitment)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::HolderCommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::HolderCommitmentTransaction<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_justice_revoked_output(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_justice_revoked_output)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref());
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_justice_revoked_htlc(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_justice_revoked_htlc)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref(), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_holder_htlc_transaction(&self, mut htlc_tx: &bitcoin::transaction::Transaction, mut input: usize, mut htlc_descriptor: &lightning::sign::HTLCDescriptor, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_holder_htlc_transaction)(self.0.BaseEcdsaChannelSigner.this_arg, crate::c_types::Transaction::from_bitcoin(htlc_tx), input, &crate::lightning::sign::HTLCDescriptor { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc_descriptor as *const lightning::sign::HTLCDescriptor<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_counterparty_htlc_transaction(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut htlc_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_point: &bitcoin::secp256k1::PublicKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_counterparty_htlc_transaction)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(htlc_tx), input, amount, crate::c_types::PublicKey::from_rust(&per_commitment_point), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_closing_transaction(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut closing_tx: &lightning::ln::chan_utils::ClosingTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_closing_transaction)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::ClosingTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((closing_tx as *const lightning::ln::chan_utils::ClosingTransaction<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_holder_keyed_anchor_input(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut anchor_tx: &bitcoin::transaction::Transaction, mut input: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_holder_keyed_anchor_input)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(anchor_tx), input);
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_channel_announcement_with_funding_key(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut msg: &lightning::ln::msgs::UnsignedChannelAnnouncement, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_channel_announcement_with_funding_key)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::msgs::UnsignedChannelAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UnsignedChannelAnnouncement<>) as *mut _) }, is_owned: false });
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn sign_splice_shared_input(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut tx: &bitcoin::transaction::Transaction, mut input_index: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> bitcoin::secp256k1::ecdsa::Signature {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.sign_splice_shared_input)(self.0.BaseEcdsaChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(tx), input_index);
+		ret.into_rust()
+	}
+}
+impl lightning::sign::ChannelSigner for EcdsaChannelSigner {
+	fn get_per_commitment_point(&self, mut idx: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::PublicKey, ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.ChannelSigner.get_per_commitment_point)(self.BaseEcdsaChannelSigner.ChannelSigner.this_arg, idx);
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn release_commitment_secret(&self, mut idx: u64) -> Result<[u8; 32], ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.ChannelSigner.release_commitment_secret)(self.BaseEcdsaChannelSigner.ChannelSigner.this_arg, idx);
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).data }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn validate_holder_commitment(&self, mut holder_tx: &lightning::ln::chan_utils::HolderCommitmentTransaction, mut outbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>) -> Result<(), ()> {
+		let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.drain(..) { local_outbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
+		let mut ret = (self.BaseEcdsaChannelSigner.ChannelSigner.validate_holder_commitment)(self.BaseEcdsaChannelSigner.ChannelSigner.this_arg, &crate::lightning::ln::chan_utils::HolderCommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((holder_tx as *const lightning::ln::chan_utils::HolderCommitmentTransaction<>) as *mut _) }, is_owned: false }, local_outbound_htlc_preimages.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn validate_counterparty_revocation(&self, mut idx: u64, mut secret: &bitcoin::secp256k1::SecretKey) -> Result<(), ()> {
+		let mut ret = (self.BaseEcdsaChannelSigner.ChannelSigner.validate_counterparty_revocation)(self.BaseEcdsaChannelSigner.ChannelSigner.this_arg, idx, secret.as_ref());
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn pubkeys(&self, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> lightning::ln::chan_utils::ChannelPublicKeys {
+		let mut ret = (self.BaseEcdsaChannelSigner.ChannelSigner.pubkeys)(self.BaseEcdsaChannelSigner.ChannelSigner.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+	fn new_funding_pubkey(&self, mut splice_parent_funding_txid: bitcoin::Txid, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> bitcoin::secp256k1::PublicKey {
+		let mut ret = (self.BaseEcdsaChannelSigner.ChannelSigner.new_funding_pubkey)(self.BaseEcdsaChannelSigner.ChannelSigner.this_arg, crate::c_types::ThirtyTwoBytes { data: *splice_parent_funding_txid.as_ref() });
+		ret.into_rust()
+	}
+	fn channel_keys_id(&self) -> [u8; 32] {
+		let mut ret = (self.BaseEcdsaChannelSigner.ChannelSigner.channel_keys_id)(self.BaseEcdsaChannelSigner.ChannelSigner.this_arg);
+		ret.data
+	}
+}
+impl lightning::sign::ChannelSigner for EcdsaChannelSignerRef {
+	fn get_per_commitment_point(&self, mut idx: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::PublicKey, ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.ChannelSigner.get_per_commitment_point)(self.0.BaseEcdsaChannelSigner.ChannelSigner.this_arg, idx);
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn release_commitment_secret(&self, mut idx: u64) -> Result<[u8; 32], ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.ChannelSigner.release_commitment_secret)(self.0.BaseEcdsaChannelSigner.ChannelSigner.this_arg, idx);
+		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).data }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn validate_holder_commitment(&self, mut holder_tx: &lightning::ln::chan_utils::HolderCommitmentTransaction, mut outbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>) -> Result<(), ()> {
+		let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.drain(..) { local_outbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
+		let mut ret = (self.0.BaseEcdsaChannelSigner.ChannelSigner.validate_holder_commitment)(self.0.BaseEcdsaChannelSigner.ChannelSigner.this_arg, &crate::lightning::ln::chan_utils::HolderCommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((holder_tx as *const lightning::ln::chan_utils::HolderCommitmentTransaction<>) as *mut _) }, is_owned: false }, local_outbound_htlc_preimages.into());
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn validate_counterparty_revocation(&self, mut idx: u64, mut secret: &bitcoin::secp256k1::SecretKey) -> Result<(), ()> {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.ChannelSigner.validate_counterparty_revocation)(self.0.BaseEcdsaChannelSigner.ChannelSigner.this_arg, idx, secret.as_ref());
+		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
+		local_ret
+	}
+	fn pubkeys(&self, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> lightning::ln::chan_utils::ChannelPublicKeys {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.ChannelSigner.pubkeys)(self.0.BaseEcdsaChannelSigner.ChannelSigner.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+	fn new_funding_pubkey(&self, mut splice_parent_funding_txid: bitcoin::Txid, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> bitcoin::secp256k1::PublicKey {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.ChannelSigner.new_funding_pubkey)(self.0.BaseEcdsaChannelSigner.ChannelSigner.this_arg, crate::c_types::ThirtyTwoBytes { data: *splice_parent_funding_txid.as_ref() });
+		ret.into_rust()
+	}
+	fn channel_keys_id(&self) -> [u8; 32] {
+		let mut ret = (self.0.BaseEcdsaChannelSigner.ChannelSigner.channel_keys_id)(self.0.BaseEcdsaChannelSigner.ChannelSigner.this_arg);
+		ret.data
+	}
+}
+#[no_mangle]
+/// Creates a copy of a EcdsaChannelSigner
+pub extern "C" fn EcdsaChannelSigner_clone(orig: &EcdsaChannelSigner) -> EcdsaChannelSigner {
+	let mut res = EcdsaChannelSigner_clone_fields(orig);
+	if let Some(f) = orig.cloned { (f)(&mut res) };
+	res
+}
+impl Clone for EcdsaChannelSigner {
+	fn clone(&self) -> Self {
+		EcdsaChannelSigner_clone(self)
+	}
+}
+impl Clone for EcdsaChannelSignerRef {
+	fn clone(&self) -> Self {
+		Self(EcdsaChannelSigner_clone(&self.0))
+	}
+}
+
+use lightning::sign::ecdsa::EcdsaChannelSigner as rustEcdsaChannelSigner;
+impl rustEcdsaChannelSigner for EcdsaChannelSigner {
+}
+
+pub struct EcdsaChannelSignerRef(EcdsaChannelSigner);
+impl rustEcdsaChannelSigner for EcdsaChannelSignerRef {
+}
+
+// We're essentially a pointer already, or at least a set of pointers, so allow us to be used
+// directly as a Deref trait in higher-level structs:
+impl core::ops::Deref for EcdsaChannelSigner {
+	type Target = EcdsaChannelSignerRef;
+	fn deref(&self) -> &Self::Target {
+		unsafe { &*(self as *const _ as *const EcdsaChannelSignerRef) }
+	}
+}
+impl core::ops::DerefMut for EcdsaChannelSigner {
+	fn deref_mut(&mut self) -> &mut EcdsaChannelSignerRef {
+		unsafe { &mut *(self as *mut _ as *mut EcdsaChannelSignerRef) }
+	}
+}
+/// Calls the free function if one is set
+#[no_mangle]
+pub extern "C" fn EcdsaChannelSigner_free(this_ptr: EcdsaChannelSigner) { }
+impl Drop for EcdsaChannelSigner {
+	fn drop(&mut self) {
+		if let Some(f) = self.free {
+			f(self.this_arg);
+		}
+	}
+}
+/// A trait to sign Lightning channel transactions as described in
+/// [BOLT 3](https://github.com/lightning/bolts/blob/master/03-transactions.md).
+///
+/// Signing services could be implemented on a hardware wallet and should implement signing
+/// policies in order to be secure. Please refer to the [VLS Policy
+/// Controls](https://gitlab.com/lightning-signer/validating-lightning-signer/-/blob/main/docs/policy-controls.md)
+/// for an example of such policies.
+///
+/// Like [`ChannelSigner`], many of the methods allow errors to be returned to support async
+/// signing. In such cases, the signing operation can be replayed by calling
+/// [`ChannelManager::signer_unblocked`] or [`ChainMonitor::signer_unblocked`] (see individual
+/// method documentation for which method should be called) once the result is ready, at which
+/// point the channel operation will resume.
+///
+/// [`ChannelManager::signer_unblocked`]: crate::ln::channelmanager::ChannelManager::signer_unblocked
+/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
+#[repr(C)]
+pub struct BaseEcdsaChannelSigner {
+	/// An opaque pointer which is passed to your function implementations as an argument.
+	/// This has no meaning in the LDK, and can be NULL or any other value.
+	pub this_arg: *mut c_void,
 	/// Create a signature for a counterparty's commitment transaction and associated HTLC transactions.
 	///
 	/// Policy checks should be implemented in this function, including checking the amount
@@ -56,7 +323,7 @@ pub struct EcdsaChannelSigner {
 	/// previously returning an `Err`, [`ChannelManager::signer_unblocked`] must be called.
 	///
 	/// [`ChannelManager::signer_unblocked`]: crate::ln::channelmanager::ChannelManager::signer_unblocked
-	pub sign_counterparty_commitment: extern "C" fn (this_arg: *const c_void, commitment_tx: &crate::lightning::ln::chan_utils::CommitmentTransaction, inbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ, outbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ) -> crate::c_types::derived::CResult_C2Tuple_ECDSASignatureCVec_ECDSASignatureZZNoneZ,
+	pub sign_counterparty_commitment: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, commitment_tx: &crate::lightning::ln::chan_utils::CommitmentTransaction, inbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ, outbound_htlc_preimages: crate::c_types::derived::CVec_ThirtyTwoBytesZ) -> crate::c_types::derived::CResult_C2Tuple_ECDSASignatureCVec_ECDSASignatureZZNoneZ,
 	/// Creates a signature for a holder's commitment transaction.
 	///
 	/// This will be called
@@ -74,7 +341,7 @@ pub struct EcdsaChannelSigner {
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
 	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
-	pub sign_holder_commitment: extern "C" fn (this_arg: *const c_void, commitment_tx: &crate::lightning::ln::chan_utils::HolderCommitmentTransaction) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	pub sign_holder_commitment: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, commitment_tx: &crate::lightning::ln::chan_utils::HolderCommitmentTransaction) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Create a signature for the given input in a transaction spending an HTLC transaction output
 	/// or a commitment transaction `to_local` output when our counterparty broadcasts an old state.
 	///
@@ -97,7 +364,7 @@ pub struct EcdsaChannelSigner {
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
 	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
-	pub sign_justice_revoked_output: extern "C" fn (this_arg: *const c_void, justice_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_key: *const [u8; 32]) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	pub sign_justice_revoked_output: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, justice_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_key: *const [u8; 32]) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Create a signature for the given input in a transaction spending a commitment transaction
 	/// HTLC output when our counterparty broadcasts an old state.
 	///
@@ -124,7 +391,7 @@ pub struct EcdsaChannelSigner {
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
 	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
-	pub sign_justice_revoked_htlc: extern "C" fn (this_arg: *const c_void, justice_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_key: *const [u8; 32], htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	pub sign_justice_revoked_htlc: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, justice_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_key: *const [u8; 32], htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Computes the signature for a commitment transaction's HTLC output used as an input within
 	/// `htlc_tx`, which spends the commitment transaction at index `input`. The signature returned
 	/// must be be computed using [`EcdsaSighashType::All`].
@@ -168,7 +435,7 @@ pub struct EcdsaChannelSigner {
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
 	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
-	pub sign_counterparty_htlc_transaction: extern "C" fn (this_arg: *const c_void, htlc_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_point: crate::c_types::PublicKey, htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	pub sign_counterparty_htlc_transaction: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, htlc_tx: crate::c_types::Transaction, input: usize, amount: u64, per_commitment_point: crate::c_types::PublicKey, htlc: &crate::lightning::ln::chan_utils::HTLCOutputInCommitment) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Create a signature for a (proposed) closing transaction.
 	///
 	/// Note that, due to rounding, there may be one \"missing\" satoshi, and either party may have
@@ -179,8 +446,8 @@ pub struct EcdsaChannelSigner {
 	/// previously returning an `Err`, [`ChannelManager::signer_unblocked`] must be called.
 	///
 	/// [`ChannelManager::signer_unblocked`]: crate::ln::channelmanager::ChannelManager::signer_unblocked
-	pub sign_closing_transaction: extern "C" fn (this_arg: *const c_void, closing_tx: &crate::lightning::ln::chan_utils::ClosingTransaction) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
-	/// Computes the signature for a commitment transaction's anchor output used as an
+	pub sign_closing_transaction: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, closing_tx: &crate::lightning::ln::chan_utils::ClosingTransaction) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	/// Computes the signature for a commitment transaction's keyed anchor output used as an
 	/// input within `anchor_tx`, which spends the commitment transaction, at index `input`.
 	///
 	/// An `Err` can be returned to signal that the signer is unavailable/cannot produce a valid
@@ -190,7 +457,7 @@ pub struct EcdsaChannelSigner {
 	///
 	/// [`ChannelMonitor::signer_unblocked`]: crate::chain::channelmonitor::ChannelMonitor::signer_unblocked
 	/// [`ChainMonitor::signer_unblocked`]: crate::chain::chainmonitor::ChainMonitor::signer_unblocked
-	pub sign_holder_anchor_input: extern "C" fn (this_arg: *const c_void, anchor_tx: crate::c_types::Transaction, input: usize) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	pub sign_holder_keyed_anchor_input: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, anchor_tx: crate::c_types::Transaction, input: usize) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
 	/// Signs a channel announcement message with our funding key proving it comes from one of the
 	/// channel participants.
 	///
@@ -202,35 +469,30 @@ pub struct EcdsaChannelSigner {
 	/// us for violating the protocol.
 	///
 	/// [`NodeSigner::sign_gossip_message`]: crate::sign::NodeSigner::sign_gossip_message
-	pub sign_channel_announcement_with_funding_key: extern "C" fn (this_arg: *const c_void, msg: &crate::lightning::ln::msgs::UnsignedChannelAnnouncement) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
-	/// Signs the input of a splicing funding transaction with our funding key.
+	pub sign_channel_announcement_with_funding_key: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, msg: &crate::lightning::ln::msgs::UnsignedChannelAnnouncement) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	/// Signs the shared input of a splice transaction with our funding key.
 	///
 	/// In splicing, the previous funding transaction output is spent as the input of
 	/// the new funding transaction, and is a 2-of-2 multisig.
 	///
+	/// `channel_parameters`: The [`ChannelTransactionParameters`] for the channel's current funding
+	/// transaction that is being spent in the splice transaction to sign. A new set of
+	/// [`ChannelTransactionParameters`] will become available for the new funding transaction.
+	///
 	/// `input_index`: The index of the input within the new funding transaction `tx`,
 	///    spending the previous funding transaction's output
-	///
-	/// `input_value`: The value of the previous funding transaction output.
-	///
-	/// This method is *not* asynchronous. If an `Err` is returned, the channel will be immediately
-	/// closed.
-	pub sign_splicing_funding_input: extern "C" fn (this_arg: *const c_void, tx: crate::c_types::Transaction, input_index: usize, input_value: u64) -> crate::c_types::derived::CResult_ECDSASignatureNoneZ,
+	pub sign_splice_shared_input: extern "C" fn (this_arg: *const c_void, channel_parameters: &crate::lightning::ln::chan_utils::ChannelTransactionParameters, tx: crate::c_types::Transaction, input_index: usize) -> crate::c_types::ECDSASignature,
 	/// Implementation of ChannelSigner for this object.
 	pub ChannelSigner: crate::lightning::sign::ChannelSigner,
-	/// Called, if set, after this EcdsaChannelSigner has been cloned into a duplicate object.
-	/// The new EcdsaChannelSigner is provided, and should be mutated as needed to perform a
-	/// deep copy of the object pointed to by this_arg or avoid any double-freeing.
-	pub cloned: Option<extern "C" fn (new_EcdsaChannelSigner: &mut EcdsaChannelSigner)>,
 	/// Frees any resources associated with this object given its this_arg pointer.
 	/// Does not need to free the outer struct containing function pointers and may be NULL is no resources need to be freed.
 	pub free: Option<extern "C" fn(this_arg: *mut c_void)>,
 }
-unsafe impl Send for EcdsaChannelSigner {}
-unsafe impl Sync for EcdsaChannelSigner {}
+unsafe impl Send for BaseEcdsaChannelSigner {}
+unsafe impl Sync for BaseEcdsaChannelSigner {}
 #[allow(unused)]
-pub(crate) fn EcdsaChannelSigner_clone_fields(orig: &EcdsaChannelSigner) -> EcdsaChannelSigner {
-	EcdsaChannelSigner {
+pub(crate) fn BaseEcdsaChannelSigner_clone_fields(orig: &BaseEcdsaChannelSigner) -> BaseEcdsaChannelSigner {
+	BaseEcdsaChannelSigner {
 		this_arg: orig.this_arg,
 		sign_counterparty_commitment: Clone::clone(&orig.sign_counterparty_commitment),
 		sign_holder_commitment: Clone::clone(&orig.sign_holder_commitment),
@@ -239,15 +501,14 @@ pub(crate) fn EcdsaChannelSigner_clone_fields(orig: &EcdsaChannelSigner) -> Ecds
 		sign_holder_htlc_transaction: Clone::clone(&orig.sign_holder_htlc_transaction),
 		sign_counterparty_htlc_transaction: Clone::clone(&orig.sign_counterparty_htlc_transaction),
 		sign_closing_transaction: Clone::clone(&orig.sign_closing_transaction),
-		sign_holder_anchor_input: Clone::clone(&orig.sign_holder_anchor_input),
+		sign_holder_keyed_anchor_input: Clone::clone(&orig.sign_holder_keyed_anchor_input),
 		sign_channel_announcement_with_funding_key: Clone::clone(&orig.sign_channel_announcement_with_funding_key),
-		sign_splicing_funding_input: Clone::clone(&orig.sign_splicing_funding_input),
+		sign_splice_shared_input: Clone::clone(&orig.sign_splice_shared_input),
 		ChannelSigner: crate::lightning::sign::ChannelSigner_clone_fields(&orig.ChannelSigner),
-		cloned: Clone::clone(&orig.cloned),
 		free: Clone::clone(&orig.free),
 	}
 }
-impl lightning::sign::ChannelSigner for EcdsaChannelSigner {
+impl lightning::sign::ChannelSigner for BaseEcdsaChannelSigner {
 	fn get_per_commitment_point(&self, mut idx: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::PublicKey, ()> {
 		let mut ret = (self.ChannelSigner.get_per_commitment_point)(self.ChannelSigner.this_arg, idx);
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
@@ -269,21 +530,20 @@ impl lightning::sign::ChannelSigner for EcdsaChannelSigner {
 		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn pubkeys(&self) -> &lightning::ln::chan_utils::ChannelPublicKeys {
-		if let Some(f) = self.ChannelSigner.set_pubkeys {
-			(f)(&self.ChannelSigner);
-		}
-		unsafe { &*self.ChannelSigner.pubkeys.get() }.get_native_ref()
+	fn pubkeys(&self, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> lightning::ln::chan_utils::ChannelPublicKeys {
+		let mut ret = (self.ChannelSigner.pubkeys)(self.ChannelSigner.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+	fn new_funding_pubkey(&self, mut splice_parent_funding_txid: bitcoin::Txid, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> bitcoin::secp256k1::PublicKey {
+		let mut ret = (self.ChannelSigner.new_funding_pubkey)(self.ChannelSigner.this_arg, crate::c_types::ThirtyTwoBytes { data: *splice_parent_funding_txid.as_ref() });
+		ret.into_rust()
 	}
 	fn channel_keys_id(&self) -> [u8; 32] {
 		let mut ret = (self.ChannelSigner.channel_keys_id)(self.ChannelSigner.this_arg);
 		ret.data
 	}
-	fn provide_channel_parameters(&mut self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters) {
-		(self.ChannelSigner.provide_channel_parameters)(self.ChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false })
-	}
 }
-impl lightning::sign::ChannelSigner for EcdsaChannelSignerRef {
+impl lightning::sign::ChannelSigner for BaseEcdsaChannelSignerRef {
 	fn get_per_commitment_point(&self, mut idx: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::PublicKey, ()> {
 		let mut ret = (self.0.ChannelSigner.get_per_commitment_point)(self.0.ChannelSigner.this_arg, idx);
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
@@ -305,59 +565,41 @@ impl lightning::sign::ChannelSigner for EcdsaChannelSignerRef {
 		let mut local_ret = match ret.result_ok { true => Ok( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) })*/ }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn pubkeys(&self) -> &lightning::ln::chan_utils::ChannelPublicKeys {
-		if let Some(f) = self.0.ChannelSigner.set_pubkeys {
-			(f)(&self.0.ChannelSigner);
-		}
-		unsafe { &*self.0.ChannelSigner.pubkeys.get() }.get_native_ref()
+	fn pubkeys(&self, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> lightning::ln::chan_utils::ChannelPublicKeys {
+		let mut ret = (self.0.ChannelSigner.pubkeys)(self.0.ChannelSigner.this_arg);
+		*unsafe { Box::from_raw(ret.take_inner()) }
+	}
+	fn new_funding_pubkey(&self, mut splice_parent_funding_txid: bitcoin::Txid, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> bitcoin::secp256k1::PublicKey {
+		let mut ret = (self.0.ChannelSigner.new_funding_pubkey)(self.0.ChannelSigner.this_arg, crate::c_types::ThirtyTwoBytes { data: *splice_parent_funding_txid.as_ref() });
+		ret.into_rust()
 	}
 	fn channel_keys_id(&self) -> [u8; 32] {
 		let mut ret = (self.0.ChannelSigner.channel_keys_id)(self.0.ChannelSigner.this_arg);
 		ret.data
 	}
-	fn provide_channel_parameters(&mut self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters) {
-		(self.0.ChannelSigner.provide_channel_parameters)(self.0.ChannelSigner.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false })
-	}
-}
-#[no_mangle]
-/// Creates a copy of a EcdsaChannelSigner
-pub extern "C" fn EcdsaChannelSigner_clone(orig: &EcdsaChannelSigner) -> EcdsaChannelSigner {
-	let mut res = EcdsaChannelSigner_clone_fields(orig);
-	if let Some(f) = orig.cloned { (f)(&mut res) };
-	res
-}
-impl Clone for EcdsaChannelSigner {
-	fn clone(&self) -> Self {
-		EcdsaChannelSigner_clone(self)
-	}
-}
-impl Clone for EcdsaChannelSignerRef {
-	fn clone(&self) -> Self {
-		Self(EcdsaChannelSigner_clone(&self.0))
-	}
 }
 
-use lightning::sign::ecdsa::EcdsaChannelSigner as rustEcdsaChannelSigner;
-impl rustEcdsaChannelSigner for EcdsaChannelSigner {
-	fn sign_counterparty_commitment(&self, mut commitment_tx: &lightning::ln::chan_utils::CommitmentTransaction, mut inbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut outbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<(bitcoin::secp256k1::ecdsa::Signature, Vec<bitcoin::secp256k1::ecdsa::Signature>), ()> {
+use lightning::sign::ecdsa::BaseEcdsaChannelSigner as rustBaseEcdsaChannelSigner;
+impl rustBaseEcdsaChannelSigner for BaseEcdsaChannelSigner {
+	fn sign_counterparty_commitment(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut commitment_tx: &lightning::ln::chan_utils::CommitmentTransaction, mut inbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut outbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<(bitcoin::secp256k1::ecdsa::Signature, Vec<bitcoin::secp256k1::ecdsa::Signature>), ()> {
 		let mut local_inbound_htlc_preimages = Vec::new(); for mut item in inbound_htlc_preimages.drain(..) { local_inbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
 		let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.drain(..) { local_outbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
-		let mut ret = (self.sign_counterparty_commitment)(self.this_arg, &crate::lightning::ln::chan_utils::CommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::CommitmentTransaction<>) as *mut _) }, is_owned: false }, local_inbound_htlc_preimages.into(), local_outbound_htlc_preimages.into());
+		let mut ret = (self.sign_counterparty_commitment)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::CommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::CommitmentTransaction<>) as *mut _) }, is_owned: false }, local_inbound_htlc_preimages.into(), local_outbound_htlc_preimages.into());
 		let mut local_ret = match ret.result_ok { true => Ok( { let (mut orig_ret_0_0, mut orig_ret_0_1) = (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).to_rust(); let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.into_rust().drain(..) { local_orig_ret_0_1.push( { item.into_rust() }); }; let mut local_ret_0 = (orig_ret_0_0.into_rust(), local_orig_ret_0_1); local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_holder_commitment(&self, mut commitment_tx: &lightning::ln::chan_utils::HolderCommitmentTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.sign_holder_commitment)(self.this_arg, &crate::lightning::ln::chan_utils::HolderCommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::HolderCommitmentTransaction<>) as *mut _) }, is_owned: false });
+	fn sign_holder_commitment(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut commitment_tx: &lightning::ln::chan_utils::HolderCommitmentTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.sign_holder_commitment)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::HolderCommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::HolderCommitmentTransaction<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_justice_revoked_output(&self, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.sign_justice_revoked_output)(self.this_arg, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref());
+	fn sign_justice_revoked_output(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.sign_justice_revoked_output)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref());
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_justice_revoked_htlc(&self, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.sign_justice_revoked_htlc)(self.this_arg, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref(), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
+	fn sign_justice_revoked_htlc(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.sign_justice_revoked_htlc)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref(), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
@@ -366,54 +608,53 @@ impl rustEcdsaChannelSigner for EcdsaChannelSigner {
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_counterparty_htlc_transaction(&self, mut htlc_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_point: &bitcoin::secp256k1::PublicKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.sign_counterparty_htlc_transaction)(self.this_arg, crate::c_types::Transaction::from_bitcoin(htlc_tx), input, amount, crate::c_types::PublicKey::from_rust(&per_commitment_point), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
+	fn sign_counterparty_htlc_transaction(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut htlc_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_point: &bitcoin::secp256k1::PublicKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.sign_counterparty_htlc_transaction)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(htlc_tx), input, amount, crate::c_types::PublicKey::from_rust(&per_commitment_point), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_closing_transaction(&self, mut closing_tx: &lightning::ln::chan_utils::ClosingTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.sign_closing_transaction)(self.this_arg, &crate::lightning::ln::chan_utils::ClosingTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((closing_tx as *const lightning::ln::chan_utils::ClosingTransaction<>) as *mut _) }, is_owned: false });
+	fn sign_closing_transaction(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut closing_tx: &lightning::ln::chan_utils::ClosingTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.sign_closing_transaction)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::ClosingTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((closing_tx as *const lightning::ln::chan_utils::ClosingTransaction<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_holder_anchor_input(&self, mut anchor_tx: &bitcoin::transaction::Transaction, mut input: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.sign_holder_anchor_input)(self.this_arg, crate::c_types::Transaction::from_bitcoin(anchor_tx), input);
+	fn sign_holder_keyed_anchor_input(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut anchor_tx: &bitcoin::transaction::Transaction, mut input: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.sign_holder_keyed_anchor_input)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(anchor_tx), input);
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_channel_announcement_with_funding_key(&self, mut msg: &lightning::ln::msgs::UnsignedChannelAnnouncement, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.sign_channel_announcement_with_funding_key)(self.this_arg, &crate::lightning::ln::msgs::UnsignedChannelAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UnsignedChannelAnnouncement<>) as *mut _) }, is_owned: false });
+	fn sign_channel_announcement_with_funding_key(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut msg: &lightning::ln::msgs::UnsignedChannelAnnouncement, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.sign_channel_announcement_with_funding_key)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::msgs::UnsignedChannelAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UnsignedChannelAnnouncement<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_splicing_funding_input(&self, mut tx: &bitcoin::transaction::Transaction, mut input_index: usize, mut input_value: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.sign_splicing_funding_input)(self.this_arg, crate::c_types::Transaction::from_bitcoin(tx), input_index, input_value);
-		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
+	fn sign_splice_shared_input(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut tx: &bitcoin::transaction::Transaction, mut input_index: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> bitcoin::secp256k1::ecdsa::Signature {
+		let mut ret = (self.sign_splice_shared_input)(self.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(tx), input_index);
+		ret.into_rust()
 	}
 }
 
-pub struct EcdsaChannelSignerRef(EcdsaChannelSigner);
-impl rustEcdsaChannelSigner for EcdsaChannelSignerRef {
-	fn sign_counterparty_commitment(&self, mut commitment_tx: &lightning::ln::chan_utils::CommitmentTransaction, mut inbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut outbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<(bitcoin::secp256k1::ecdsa::Signature, Vec<bitcoin::secp256k1::ecdsa::Signature>), ()> {
+pub struct BaseEcdsaChannelSignerRef(BaseEcdsaChannelSigner);
+impl rustBaseEcdsaChannelSigner for BaseEcdsaChannelSignerRef {
+	fn sign_counterparty_commitment(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut commitment_tx: &lightning::ln::chan_utils::CommitmentTransaction, mut inbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut outbound_htlc_preimages: Vec<lightning_types::payment::PaymentPreimage>, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<(bitcoin::secp256k1::ecdsa::Signature, Vec<bitcoin::secp256k1::ecdsa::Signature>), ()> {
 		let mut local_inbound_htlc_preimages = Vec::new(); for mut item in inbound_htlc_preimages.drain(..) { local_inbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
 		let mut local_outbound_htlc_preimages = Vec::new(); for mut item in outbound_htlc_preimages.drain(..) { local_outbound_htlc_preimages.push( { crate::c_types::ThirtyTwoBytes { data: item.0 } }); };
-		let mut ret = (self.0.sign_counterparty_commitment)(self.0.this_arg, &crate::lightning::ln::chan_utils::CommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::CommitmentTransaction<>) as *mut _) }, is_owned: false }, local_inbound_htlc_preimages.into(), local_outbound_htlc_preimages.into());
+		let mut ret = (self.0.sign_counterparty_commitment)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::CommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::CommitmentTransaction<>) as *mut _) }, is_owned: false }, local_inbound_htlc_preimages.into(), local_outbound_htlc_preimages.into());
 		let mut local_ret = match ret.result_ok { true => Ok( { let (mut orig_ret_0_0, mut orig_ret_0_1) = (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).to_rust(); let mut local_orig_ret_0_1 = Vec::new(); for mut item in orig_ret_0_1.into_rust().drain(..) { local_orig_ret_0_1.push( { item.into_rust() }); }; let mut local_ret_0 = (orig_ret_0_0.into_rust(), local_orig_ret_0_1); local_ret_0 }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_holder_commitment(&self, mut commitment_tx: &lightning::ln::chan_utils::HolderCommitmentTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.0.sign_holder_commitment)(self.0.this_arg, &crate::lightning::ln::chan_utils::HolderCommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::HolderCommitmentTransaction<>) as *mut _) }, is_owned: false });
+	fn sign_holder_commitment(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut commitment_tx: &lightning::ln::chan_utils::HolderCommitmentTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.sign_holder_commitment)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::HolderCommitmentTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((commitment_tx as *const lightning::ln::chan_utils::HolderCommitmentTransaction<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_justice_revoked_output(&self, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.0.sign_justice_revoked_output)(self.0.this_arg, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref());
+	fn sign_justice_revoked_output(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.sign_justice_revoked_output)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref());
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_justice_revoked_htlc(&self, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.0.sign_justice_revoked_htlc)(self.0.this_arg, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref(), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
+	fn sign_justice_revoked_htlc(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut justice_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_key: &bitcoin::secp256k1::SecretKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.sign_justice_revoked_htlc)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(justice_tx), input, amount, per_commitment_key.as_ref(), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
@@ -422,50 +663,49 @@ impl rustEcdsaChannelSigner for EcdsaChannelSignerRef {
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_counterparty_htlc_transaction(&self, mut htlc_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_point: &bitcoin::secp256k1::PublicKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.0.sign_counterparty_htlc_transaction)(self.0.this_arg, crate::c_types::Transaction::from_bitcoin(htlc_tx), input, amount, crate::c_types::PublicKey::from_rust(&per_commitment_point), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
+	fn sign_counterparty_htlc_transaction(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut htlc_tx: &bitcoin::transaction::Transaction, mut input: usize, mut amount: u64, mut per_commitment_point: &bitcoin::secp256k1::PublicKey, mut htlc: &lightning::ln::chan_utils::HTLCOutputInCommitment, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.sign_counterparty_htlc_transaction)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(htlc_tx), input, amount, crate::c_types::PublicKey::from_rust(&per_commitment_point), &crate::lightning::ln::chan_utils::HTLCOutputInCommitment { inner: unsafe { ObjOps::nonnull_ptr_to_inner((htlc as *const lightning::ln::chan_utils::HTLCOutputInCommitment<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_closing_transaction(&self, mut closing_tx: &lightning::ln::chan_utils::ClosingTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.0.sign_closing_transaction)(self.0.this_arg, &crate::lightning::ln::chan_utils::ClosingTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((closing_tx as *const lightning::ln::chan_utils::ClosingTransaction<>) as *mut _) }, is_owned: false });
+	fn sign_closing_transaction(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut closing_tx: &lightning::ln::chan_utils::ClosingTransaction, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.sign_closing_transaction)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::chan_utils::ClosingTransaction { inner: unsafe { ObjOps::nonnull_ptr_to_inner((closing_tx as *const lightning::ln::chan_utils::ClosingTransaction<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_holder_anchor_input(&self, mut anchor_tx: &bitcoin::transaction::Transaction, mut input: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.0.sign_holder_anchor_input)(self.0.this_arg, crate::c_types::Transaction::from_bitcoin(anchor_tx), input);
+	fn sign_holder_keyed_anchor_input(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut anchor_tx: &bitcoin::transaction::Transaction, mut input: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.sign_holder_keyed_anchor_input)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(anchor_tx), input);
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_channel_announcement_with_funding_key(&self, mut msg: &lightning::ln::msgs::UnsignedChannelAnnouncement, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.0.sign_channel_announcement_with_funding_key)(self.0.this_arg, &crate::lightning::ln::msgs::UnsignedChannelAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UnsignedChannelAnnouncement<>) as *mut _) }, is_owned: false });
+	fn sign_channel_announcement_with_funding_key(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut msg: &lightning::ln::msgs::UnsignedChannelAnnouncement, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
+		let mut ret = (self.0.sign_channel_announcement_with_funding_key)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, &crate::lightning::ln::msgs::UnsignedChannelAnnouncement { inner: unsafe { ObjOps::nonnull_ptr_to_inner((msg as *const lightning::ln::msgs::UnsignedChannelAnnouncement<>) as *mut _) }, is_owned: false });
 		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
 		local_ret
 	}
-	fn sign_splicing_funding_input(&self, mut tx: &bitcoin::transaction::Transaction, mut input_index: usize, mut input_value: u64, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> Result<bitcoin::secp256k1::ecdsa::Signature, ()> {
-		let mut ret = (self.0.sign_splicing_funding_input)(self.0.this_arg, crate::c_types::Transaction::from_bitcoin(tx), input_index, input_value);
-		let mut local_ret = match ret.result_ok { true => Ok( { (*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.result)) }).into_rust() }), false => Err( { () /*(*unsafe { Box::from_raw(<*mut _>::take_ptr(&mut ret.contents.err)) })*/ })};
-		local_ret
+	fn sign_splice_shared_input(&self, mut channel_parameters: &lightning::ln::chan_utils::ChannelTransactionParameters, mut tx: &bitcoin::transaction::Transaction, mut input_index: usize, mut _secp_ctx: &bitcoin::secp256k1::Secp256k1<bitcoin::secp256k1::All>) -> bitcoin::secp256k1::ecdsa::Signature {
+		let mut ret = (self.0.sign_splice_shared_input)(self.0.this_arg, &crate::lightning::ln::chan_utils::ChannelTransactionParameters { inner: unsafe { ObjOps::nonnull_ptr_to_inner((channel_parameters as *const lightning::ln::chan_utils::ChannelTransactionParameters<>) as *mut _) }, is_owned: false }, crate::c_types::Transaction::from_bitcoin(tx), input_index);
+		ret.into_rust()
 	}
 }
 
 // We're essentially a pointer already, or at least a set of pointers, so allow us to be used
 // directly as a Deref trait in higher-level structs:
-impl core::ops::Deref for EcdsaChannelSigner {
-	type Target = EcdsaChannelSignerRef;
+impl core::ops::Deref for BaseEcdsaChannelSigner {
+	type Target = BaseEcdsaChannelSignerRef;
 	fn deref(&self) -> &Self::Target {
-		unsafe { &*(self as *const _ as *const EcdsaChannelSignerRef) }
+		unsafe { &*(self as *const _ as *const BaseEcdsaChannelSignerRef) }
 	}
 }
-impl core::ops::DerefMut for EcdsaChannelSigner {
-	fn deref_mut(&mut self) -> &mut EcdsaChannelSignerRef {
-		unsafe { &mut *(self as *mut _ as *mut EcdsaChannelSignerRef) }
+impl core::ops::DerefMut for BaseEcdsaChannelSigner {
+	fn deref_mut(&mut self) -> &mut BaseEcdsaChannelSignerRef {
+		unsafe { &mut *(self as *mut _ as *mut BaseEcdsaChannelSignerRef) }
 	}
 }
 /// Calls the free function if one is set
 #[no_mangle]
-pub extern "C" fn EcdsaChannelSigner_free(this_ptr: EcdsaChannelSigner) { }
-impl Drop for EcdsaChannelSigner {
+pub extern "C" fn BaseEcdsaChannelSigner_free(this_ptr: BaseEcdsaChannelSigner) { }
+impl Drop for BaseEcdsaChannelSigner {
 	fn drop(&mut self) {
 		if let Some(f) = self.free {
 			f(self.this_arg);

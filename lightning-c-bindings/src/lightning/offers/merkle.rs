@@ -85,7 +85,7 @@ impl Clone for TaggedHash {
 	fn clone(&self) -> Self {
 		Self {
 			inner: if <*mut nativeTaggedHash>::is_null(self.inner) { core::ptr::null_mut() } else {
-				ObjOps::heap_alloc(unsafe { &*ObjOps::untweak_ptr(self.inner) }.clone()) },
+				ObjOps::heap_alloc(Clone::clone(unsafe { &*ObjOps::untweak_ptr(self.inner) })) },
 			is_owned: true,
 		}
 	}
@@ -93,12 +93,12 @@ impl Clone for TaggedHash {
 #[allow(unused)]
 /// Used only if an object of this type is returned as a trait impl by a method
 pub(crate) extern "C" fn TaggedHash_clone_void(this_ptr: *const c_void) -> *mut c_void {
-	Box::into_raw(Box::new(unsafe { (*(this_ptr as *const nativeTaggedHash)).clone() })) as *mut c_void
+	Box::into_raw(Box::new(Clone::clone(unsafe { &*(this_ptr as *const nativeTaggedHash) }))) as *mut c_void
 }
 #[no_mangle]
 /// Creates a copy of the TaggedHash
 pub extern "C" fn TaggedHash_clone(orig: &TaggedHash) -> TaggedHash {
-	orig.clone()
+	Clone::clone(orig)
 }
 /// Get a string which allows debug introspection of a TaggedHash object
 pub extern "C" fn TaggedHash_debug_str_void(o: *const c_void) -> Str {
@@ -220,3 +220,12 @@ pub extern "C" fn SignError_verification(a: crate::c_types::Secp256k1Error) -> S
 /// Get a string which allows debug introspection of a SignError object
 pub extern "C" fn SignError_debug_str_void(o: *const c_void) -> Str {
 	alloc::format!("{:?}", unsafe { o as *const crate::lightning::offers::merkle::SignError }).into()}
+/// Verifies the signature with a pubkey over the given message using a tagged hash as the message
+/// digest.
+#[no_mangle]
+pub extern "C" fn verify_signature(mut signature: crate::c_types::SchnorrSignature, message: &crate::lightning::offers::merkle::TaggedHash, mut pubkey: crate::c_types::PublicKey) -> crate::c_types::derived::CResult_NoneSecp256k1ErrorZ {
+	let mut ret = lightning::offers::merkle::verify_signature(&signature.into_rust(), message.get_native_ref(), pubkey.into_rust());
+	let mut local_ret = match ret { Ok(mut o) => crate::c_types::CResultTempl::ok( { () /*o*/ }).into(), Err(mut e) => crate::c_types::CResultTempl::err( { crate::c_types::Secp256k1Error::from_rust(e) }).into() };
+	local_ret
+}
+
