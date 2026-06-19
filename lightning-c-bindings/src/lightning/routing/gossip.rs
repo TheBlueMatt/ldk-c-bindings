@@ -2243,6 +2243,20 @@ pub extern "C" fn NetworkGraph_read(ser: crate::c_types::u8slice, arg: crate::li
 pub extern "C" fn NetworkGraph_to_str(o: &crate::lightning::routing::gossip::NetworkGraph) -> Str {
 	alloc::format!("{}", o.get_native_ref()).into()
 }
+/// In Jan, 2025 there were about 49K channels.
+///
+/// We over-allocate by a bit because 20% more is better than the double we get if we're slightly
+/// too low.
+
+#[no_mangle]
+pub static CHAN_COUNT_ESTIMATE: usize = lightning::routing::gossip::CHAN_COUNT_ESTIMATE;
+/// In Jan, 2025 there were about 15K nodes
+///
+/// We over-allocate by a bit because 33% more is better than the double we get if we're slightly
+/// too low.
+
+#[no_mangle]
+pub static NODE_COUNT_ESTIMATE: usize = lightning::routing::gossip::NODE_COUNT_ESTIMATE;
 /// Creates a new, empty, network graph.
 #[must_use]
 #[no_mangle]
