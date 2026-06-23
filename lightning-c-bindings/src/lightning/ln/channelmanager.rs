@@ -2936,6 +2936,12 @@ pub extern "C" fn ChannelManager_force_close_all_channels_broadcasting_latest_tx
 /// the channel. This will spend the channel's funding transaction output, effectively replacing
 /// it with a new one.
 ///
+/// # Required Feature Flags
+///
+/// Initiating a splice requires that the channel counterparty supports splicing. Any
+/// channel (no matter the type) can be spliced, as long as the counterparty is currently
+/// connected.
+///
 /// # Arguments
 ///
 /// Provide a `contribution` to determine if value is spliced in or out. The splice initiator is

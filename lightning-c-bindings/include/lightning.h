@@ -23726,7 +23726,8 @@ typedef struct LDKEvent_LDKPaymentSent_Body {
     * If the recipient or an intermediate node misbehaves and gives us free money, this may
     * overstate the amount paid, though this is unlikely.
     *
-    * This is only `None` for payments initiated on LDK versions prior to 0.0.103.
+    * This is only `None` for payments abandoned but ultimately claimed when using LDK versions
+    * prior to 0.3, 0.2.3, or 0.1.10.
     *
     * [`Route::get_total_fees`]: crate::routing::router::Route::get_total_fees
     */
@@ -32150,6 +32151,10 @@ extern const uintptr_t MAX_STATIC_INVOICE_SIZE_BYTES;
 extern const uintptr_t PAYER_NOTE_LIMIT;
 
 extern const uint64_t UNKNOWN_CHANNEL_CAPACITY_MSAT;
+
+extern const uintptr_t CHAN_COUNT_ESTIMATE;
+
+extern const uintptr_t NODE_COUNT_ESTIMATE;
 
 extern const uint32_t DEFAULT_MAX_TOTAL_CLTV_EXPIRY_DELTA;
 
@@ -51967,6 +51972,12 @@ void ChannelManager_force_close_all_channels_broadcasting_latest_txn(const struc
  * the channel. This will spend the channel's funding transaction output, effectively replacing
  * it with a new one.
  *
+ * # Required Feature Flags
+ *
+ * Initiating a splice requires that the channel counterparty supports splicing. Any
+ * channel (no matter the type) can be spliced, as long as the counterparty is currently
+ * connected.
+ *
  * # Arguments
  *
  * Provide a `contribution` to determine if value is spliced in or out. The splice initiator is
@@ -61492,7 +61503,7 @@ MUST_USE_RES struct LDKCResult_NoneNoneZ OffersMessageFlow_set_paths_to_static_i
  * Must be called whenever a new chain tip becomes available. May be skipped
  * for intermediary blocks.
  */
-void OffersMessageFlow_best_block_updated(const struct LDKOffersMessageFlow *NONNULL_PTR this_arg, const uint8_t (*header)[80], uint32_t _height);
+void OffersMessageFlow_best_block_updated(const struct LDKOffersMessageFlow *NONNULL_PTR this_arg, const uint8_t (*header)[80], uint32_t height);
 
 /**
  * [`BlindedMessagePath`]s for an async recipient to communicate with this node and interactively
@@ -71755,12 +71766,12 @@ void InitFeatures_set_zero_conf_required(struct LDKInitFeatures *NONNULL_PTR thi
 /**
  * Unsets this feature.
  */
-void InitFeatures_supports_zero_conf(struct LDKInitFeatures *NONNULL_PTR this_arg);
+void InitFeatures_clear_zero_conf(struct LDKInitFeatures *NONNULL_PTR this_arg);
 
 /**
  * Checks if this feature is supported.
  */
-MUST_USE_RES bool InitFeatures_requires_zero_conf(const struct LDKInitFeatures *NONNULL_PTR this_arg);
+MUST_USE_RES bool InitFeatures_supports_zero_conf(const struct LDKInitFeatures *NONNULL_PTR this_arg);
 
 /**
  * Set this feature as optional.
@@ -71775,12 +71786,12 @@ void NodeFeatures_set_zero_conf_required(struct LDKNodeFeatures *NONNULL_PTR thi
 /**
  * Unsets this feature.
  */
-void NodeFeatures_supports_zero_conf(struct LDKNodeFeatures *NONNULL_PTR this_arg);
+void NodeFeatures_clear_zero_conf(struct LDKNodeFeatures *NONNULL_PTR this_arg);
 
 /**
  * Checks if this feature is supported.
  */
-MUST_USE_RES bool NodeFeatures_requires_zero_conf(const struct LDKNodeFeatures *NONNULL_PTR this_arg);
+MUST_USE_RES bool NodeFeatures_supports_zero_conf(const struct LDKNodeFeatures *NONNULL_PTR this_arg);
 
 /**
  * Set this feature as optional.
@@ -71795,10 +71806,25 @@ void ChannelTypeFeatures_set_zero_conf_required(struct LDKChannelTypeFeatures *N
 /**
  * Unsets this feature.
  */
-void ChannelTypeFeatures_supports_zero_conf(struct LDKChannelTypeFeatures *NONNULL_PTR this_arg);
+void ChannelTypeFeatures_clear_zero_conf(struct LDKChannelTypeFeatures *NONNULL_PTR this_arg);
 
 /**
  * Checks if this feature is supported.
+ */
+MUST_USE_RES bool ChannelTypeFeatures_supports_zero_conf(const struct LDKChannelTypeFeatures *NONNULL_PTR this_arg);
+
+/**
+ * Checks if this feature is required.
+ */
+MUST_USE_RES bool InitFeatures_requires_zero_conf(const struct LDKInitFeatures *NONNULL_PTR this_arg);
+
+/**
+ * Checks if this feature is required.
+ */
+MUST_USE_RES bool NodeFeatures_requires_zero_conf(const struct LDKNodeFeatures *NONNULL_PTR this_arg);
+
+/**
+ * Checks if this feature is required.
  */
 MUST_USE_RES bool ChannelTypeFeatures_requires_zero_conf(const struct LDKChannelTypeFeatures *NONNULL_PTR this_arg);
 
@@ -73305,13 +73331,16 @@ MUST_USE_RES struct LDKCOption_CVec_u8ZZ Bolt11Invoice_payment_metadata(const st
 MUST_USE_RES struct LDKBolt11InvoiceFeatures Bolt11Invoice_features(const struct LDKBolt11Invoice *NONNULL_PTR this_arg);
 
 /**
- * Recover the payee's public key (only to be used if none was included in the invoice)
+ * Get the invoice's payee public key.
+ *
+ * This uses the explicitly included payee public key, if present, otherwise it recovers the
+ * payee public key from the signature. Prefer [`Self::get_payee_pub_key`] for clarity.
  */
 MUST_USE_RES struct LDKPublicKey Bolt11Invoice_recover_payee_pub_key(const struct LDKBolt11Invoice *NONNULL_PTR this_arg);
 
 /**
- * Recover the payee's public key if one was included in the invoice, otherwise return the
- * recovered public key from the signature
+ * Get the invoice's payee public key, preferring an explicitly included payee public key and
+ * falling back to recovering the key from the signature.
  */
 MUST_USE_RES struct LDKPublicKey Bolt11Invoice_get_payee_pub_key(const struct LDKBolt11Invoice *NONNULL_PTR this_arg);
 
@@ -73711,6 +73740,10 @@ MUST_USE_RES struct LDKRapidGossipSync RapidGossipSync_new(const struct LDKNetwo
  * Sync gossip data from a file.
  * Returns the last sync timestamp to be used the next time rapid sync data is queried.
  *
+ * You should consider the gossip data source as semi-trusted. It is generally the case that it
+ * can DoS the client either by omitting data which leads to pathfinding failure or by bloating
+ * the graph such that it leads to eventual OOM on the client.
+ *
  * `network_graph`: The network graph to apply the updates to
  *
  * `sync_path`: Path to the file where the gossip update data is located
@@ -73722,6 +73755,10 @@ MUST_USE_RES struct LDKCResult_u32GraphSyncErrorZ RapidGossipSync_sync_network_g
  * Update network graph from binary data.
  * Returns the last sync timestamp to be used the next time rapid sync data is queried.
  *
+ * You should consider the gossip data source as semi-trusted. It is generally the case that it
+ * can DoS the client either by omitting data which leads to pathfinding failure or by bloating
+ * the graph such that it leads to eventual OOM on the client.
+ *
  * `update_data`: `&[u8]` binary stream that comprises the update data
  */
 MUST_USE_RES struct LDKCResult_u32GraphSyncErrorZ RapidGossipSync_update_network_graph(const struct LDKRapidGossipSync *NONNULL_PTR this_arg, struct LDKu8slice update_data);
@@ -73729,6 +73766,10 @@ MUST_USE_RES struct LDKCResult_u32GraphSyncErrorZ RapidGossipSync_update_network
 /**
  * Update network graph from binary data.
  * Returns the last sync timestamp to be used the next time rapid sync data is queried.
+ *
+ * You should consider the gossip data source as semi-trusted. It is generally the case that it
+ * can DoS the client either by omitting data which leads to pathfinding failure or by bloating
+ * the graph such that it leads to eventual OOM on the client.
  *
  * `update_data`: `&[u8]` binary stream that comprises the update data
  * `current_time_unix`: `Option<u64>` optional current timestamp to verify data age

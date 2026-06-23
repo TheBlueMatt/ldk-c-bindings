@@ -24,3 +24,15 @@ pub mod features;
 pub mod payment;
 pub mod routing;
 pub mod string;
+mod unicode {
+
+use alloc::str::FromStr;
+use alloc::string::String;
+use core::ffi::c_void;
+use core::convert::Infallible;
+use bitcoin::hashes::Hash;
+use crate::c_types::*;
+#[cfg(feature="no-std")]
+use alloc::{vec::Vec, boxed::Box};
+
+}
