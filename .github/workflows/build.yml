@@ -34,6 +34,12 @@ jobs:
         run: |
           cargo update -p syn --precise "2.0.106" --verbose
           cargo update -p quote --precise "1.0.41" --verbose
+          cargo update -p libc --precise 0.2.183 --verbose
+          cargo update -p serde_json --precise "1.0.145" --verbose
+          cargo update -p proc-macro2 --precise "1.0.103" --verbose
+          cargo update -p itoa --precise 1.0.15
+          cargo update -p unicode-ident --precise 1.0.22
+          cargo update -p ryu --precise "1.0.20"
       - name: Sanity test bindings against Cargo.toml RL
         working-directory: lightning-c-bindings
         run: |
@@ -54,6 +60,12 @@ jobs:
           git checkout 0.2-bindings
           cargo update -p syn --precise "2.0.106" --verbose
           cargo update -p quote --precise "1.0.41" --verbose
+          cargo update -p libc --precise 0.2.183 --verbose
+          cargo update -p serde_json --precise "1.0.145" --verbose
+          cargo update -p proc-macro2 --precise "1.0.103" --verbose
+          cargo update -p itoa --precise 1.0.15
+          cargo update -p unicode-ident --precise 1.0.22
+          cargo update -p ryu --precise "1.0.20"
       - name: Fix Github Actions to not be broken
         run: git config --global --add safe.directory /__w/ldk-c-bindings/ldk-c-bindings
       - name: Pin proc-macro and quote to meet MSRV
@@ -61,6 +73,7 @@ jobs:
           cd c-bindings-gen
           cargo update -p quote --precise "1.0.30" --verbose
           cargo update -p proc-macro2 --precise "1.0.65" --verbose
+          cargo update -p unicode-ident --precise 1.0.22
       - name: Rebuild bindings without std, and check the sample app builds + links
         run: ./genbindings.sh ./rust-lightning false
       - name: Rebuild bindings, and check the sample app builds + links
@@ -101,6 +114,12 @@ jobs:
         run: |
           cargo update -p syn --precise "2.0.106" --verbose
           cargo update -p quote --precise "1.0.41" --verbose
+          cargo update -p libc --precise 0.2.183 --verbose
+          cargo update -p serde_json --precise "1.0.145" --verbose
+          cargo update -p proc-macro2 --precise "1.0.103" --verbose
+          cargo update -p itoa --precise 1.0.15
+          cargo update -p unicode-ident --precise 1.0.22
+          cargo update -p ryu --precise "1.0.20"
       - name: Sanity test bindings against Cargo.toml RL
         working-directory: lightning-c-bindings
         run: |
@@ -121,6 +140,12 @@ jobs:
           git checkout 0.2-bindings
           cargo update -p syn --precise "2.0.106" --verbose
           cargo update -p quote --precise "1.0.41" --verbose
+          cargo update -p libc --precise 0.2.183 --verbose
+          cargo update -p serde_json --precise "1.0.145" --verbose
+          cargo update -p proc-macro2 --precise "1.0.103" --verbose
+          cargo update -p itoa --precise 1.0.15
+          cargo update -p unicode-ident --precise 1.0.22
+          cargo update -p ryu --precise "1.0.20"
       - name: Fix Github Actions to not be broken
         run: git config --global --add safe.directory /__w/ldk-c-bindings/ldk-c-bindings
       - name: Pin proc-macro and quote to meet MSRV
@@ -128,6 +153,7 @@ jobs:
           cd c-bindings-gen
           cargo update -p quote --precise "1.0.30" --verbose
           cargo update -p proc-macro2 --precise "1.0.65" --verbose
+          cargo update -p unicode-ident --precise 1.0.22
       - name: Fetch MacOS SDK
         run: |
           wget https://bitcoincore.org/depends-sources/sdks/Xcode-12.2-12B45b-extracted-SDK-with-libcxx-headers.tar.gz

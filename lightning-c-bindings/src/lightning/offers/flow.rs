@@ -129,8 +129,8 @@ pub extern "C" fn OffersMessageFlow_set_paths_to_static_invoice_server(this_arg:
 /// Must be called whenever a new chain tip becomes available. May be skipped
 /// for intermediary blocks.
 #[no_mangle]
-pub extern "C" fn OffersMessageFlow_best_block_updated(this_arg: &crate::lightning::offers::flow::OffersMessageFlow, header: *const [u8; 80], mut _height: u32) {
-	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.best_block_updated(&::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), _height)
+pub extern "C" fn OffersMessageFlow_best_block_updated(this_arg: &crate::lightning::offers::flow::OffersMessageFlow, header: *const [u8; 80], mut height: u32) {
+	unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.best_block_updated(&::bitcoin::consensus::encode::deserialize(unsafe { &*header }).unwrap(), height)
 }
 
 /// The maximum size of a received [`StaticInvoice`] before we'll fail verification in

@@ -1783,15 +1783,15 @@ pub extern "C" fn InitFeatures_set_zero_conf_required(this_arg: &mut crate::ligh
 
 /// Unsets this feature.
 #[no_mangle]
-pub extern "C" fn InitFeatures_supports_zero_conf(this_arg: &mut crate::lightning_types::features::InitFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.supports_zero_conf()
+pub extern "C" fn InitFeatures_clear_zero_conf(this_arg: &mut crate::lightning_types::features::InitFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeInitFeatures)) }.clear_zero_conf()
 }
 
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn InitFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_zero_conf();
+pub extern "C" fn InitFeatures_supports_zero_conf(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_zero_conf();
 	ret
 }
 
@@ -1809,15 +1809,15 @@ pub extern "C" fn NodeFeatures_set_zero_conf_required(this_arg: &mut crate::ligh
 
 /// Unsets this feature.
 #[no_mangle]
-pub extern "C" fn NodeFeatures_supports_zero_conf(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.supports_zero_conf()
+pub extern "C" fn NodeFeatures_clear_zero_conf(this_arg: &mut crate::lightning_types::features::NodeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeNodeFeatures)) }.clear_zero_conf()
 }
 
 /// Checks if this feature is supported.
 #[must_use]
 #[no_mangle]
-pub extern "C" fn NodeFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
-	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_zero_conf();
+pub extern "C" fn NodeFeatures_supports_zero_conf(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_zero_conf();
 	ret
 }
 
@@ -1835,11 +1835,35 @@ pub extern "C" fn ChannelTypeFeatures_set_zero_conf_required(this_arg: &mut crat
 
 /// Unsets this feature.
 #[no_mangle]
-pub extern "C" fn ChannelTypeFeatures_supports_zero_conf(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
-	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.supports_zero_conf()
+pub extern "C" fn ChannelTypeFeatures_clear_zero_conf(this_arg: &mut crate::lightning_types::features::ChannelTypeFeatures) {
+	unsafe { &mut (*ObjOps::untweak_ptr(this_arg.inner as *mut crate::lightning_types::features::nativeChannelTypeFeatures)) }.clear_zero_conf()
 }
 
 /// Checks if this feature is supported.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn ChannelTypeFeatures_supports_zero_conf(this_arg: &crate::lightning_types::features::ChannelTypeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.supports_zero_conf();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn InitFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::InitFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_zero_conf();
+	ret
+}
+
+/// Checks if this feature is required.
+#[must_use]
+#[no_mangle]
+pub extern "C" fn NodeFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::NodeFeatures) -> bool {
+	let mut ret = unsafe { &*ObjOps::untweak_ptr(this_arg.inner) }.requires_zero_conf();
+	ret
+}
+
+/// Checks if this feature is required.
 #[must_use]
 #[no_mangle]
 pub extern "C" fn ChannelTypeFeatures_requires_zero_conf(this_arg: &crate::lightning_types::features::ChannelTypeFeatures) -> bool {
