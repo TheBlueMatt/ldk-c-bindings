@@ -399,13 +399,18 @@ function REALLY_PIN_CC {
 		if [ -f "$CARGO_REGISTRY_CACHE/compiler_builtins-0.1.109.crate" ]; then
 			mv "$CARGO_REGISTRY_CACHE/compiler_builtins-0.1.109.crate" ./
 		fi
+		rm -f "$CARGO_REGISTRY_CACHE/"compiler_builtins-*.crate
+		[ -f ./compiler_builtins-0.1.109.crate ] && mv ./compiler_builtins-0.1.109.crate "$CARGO_REGISTRY_CACHE/"
 		if [ -f "$CARGO_REGISTRY_CACHE/cc-1.0.79.crate" ]; then
 			mv "$CARGO_REGISTRY_CACHE/cc-1.0.79.crate" ./
 		fi
 		rm -f "$CARGO_REGISTRY_CACHE/"cc-*.crate
 		[ -f ./cc-1.0.79.crate ] && mv ./cc-1.0.79.crate "$CARGO_REGISTRY_CACHE/"
-		rm -f "$CARGO_REGISTRY_CACHE/"compiler_builtins-*.crate
-		[ -f ./compiler_builtins-0.1.109.crate ] && mv ./compiler_builtins-0.1.109.crate "$CARGO_REGISTRY_CACHE/"
+		if [ -f "$CARGO_REGISTRY_CACHE/libc-0.2.183.crate" ]; then
+			mv "$CARGO_REGISTRY_CACHE/libc-0.2.183.crate" ./
+		fi
+		rm -f "$CARGO_REGISTRY_CACHE/"libc-*.crate
+		[ -f ./libc-0.2.183.crate ] && mv ./libc-0.2.183.crate "$CARGO_REGISTRY_CACHE/"
 	else
 		echo "Couldn't find cargo cache, build-std builds are likely to fail!"
 	fi
