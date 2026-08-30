@@ -167,6 +167,9 @@ pub extern "C" fn HTLCClaim_revocation() -> HTLCClaim {
 pub extern "C" fn HTLCClaim_eq(a: &HTLCClaim, b: &HTLCClaim) -> bool {
 	if &a.to_native() == &b.to_native() { true } else { false }
 }
+/// Get a string which allows debug introspection of a HTLCClaim object
+pub extern "C" fn HTLCClaim_debug_str_void(o: *const c_void) -> Str {
+	alloc::format!("{:?}", unsafe { o as *const crate::lightning::ln::chan_utils::HTLCClaim }).into()}
 /// Check if a given input witness attempts to claim a HTLC.
 #[must_use]
 #[no_mangle]
